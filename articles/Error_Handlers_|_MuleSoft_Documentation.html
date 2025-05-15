@@ -1,0 +1,1041 @@
+<article class="doc">
+ <h1 class="page">
+  Error Handlers
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Errors that occur in Mule belong to one of two major categories:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a href="#system_errors">
+        System Errors
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#messaging_errors">
+        Messaging Errors
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="system_errors">
+   <a class="anchor" href="#system_errors">
+   </a>
+   System Errors
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Mule throws a system error when an exception occurs at the system level and
+no Mule event is involved. A system error handler manages exceptions that occur:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       During application startup.
+      </p>
+     </li>
+     <li>
+      <p>
+       When a connection to an external system fails.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     When a system error occurs, Mule sends an error notification to registered
+listeners, logs the error, and if the error is caused by a connection failure,
+executes a reconnection strategy.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     System error handlers are not configurable in Mule.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="messaging_errors">
+   <a class="anchor" href="#messaging_errors">
+   </a>
+   Messaging Errors
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Mule throws a messaging error (a
+     <a class="xref page" href="mule-error-concept">
+      Mule error
+     </a>
+     )
+whenever a problem occurs within a flow of a Mule app, where Mule events
+and the messages they contain are processed.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     You can handle Mule messaging errors in more than one way:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       You can rely on the
+       <a href="#default_error_handling">
+        default error handling
+       </a>
+       mechanism.
+      </p>
+     </li>
+     <li>
+      <p>
+       Within a flow, you can set up
+       <a class="xref page" href="on-error-scope-concept">
+        On-Error
+components
+       </a>
+       (On Error Continue and On Error Propagate) inside the flow’s
+built-in Error Handler component. These components can contain any number of
+components to process the error.
+      </p>
+      <div class="paragraph">
+       <p>
+        The following figure shows what happens when an event processor, such as an
+HTTP request or database operation, throws an error:
+       </p>
+      </div>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="A flow showing multiple event processors and an Error Handling component" src="_images/error-handling-39be7.png"/>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Outside a flow, you can set up an
+       <a href="#global_error_handler">
+        Error Handler
+       </a>
+       component and reference it from other Error Handler configurations. The global
+Error Handler can also contain On-Error components and their contents.
+      </p>
+     </li>
+     <li>
+      <p>
+       It is also possible to set up error handling from within a
+       <a class="xref page" href="try-scope-concept">
+        Try scope
+       </a>
+       that resides in a flow. The scope contains
+a built-in Error Handler in which you can configure On-Error components and
+their contents.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="sect2">
+    <h3 id="default_error_handling">
+     <a class="anchor" href="#default_error_handling">
+     </a>
+     Using Default Error Handling for Messages
+    </h3>
+    <div class="paragraph">
+     <p>
+      By default, unhandled messaging errors are logged and propagated. When a flow is
+processing a Mule message that raises an error, the normal execution of the flow
+stops, and the process transfers to the flow’s default error handler, which
+propagates the error.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      The following example shows a simple Mule app configuration that relies on
+default error handling instead of using explicitly configured error handling
+components to manage the error.
+     </p>
+    </div>
+    <div class="imageblock">
+     <div class="content">
+      <img alt="An error message display from an HTTP request failure in a Mule application" src="_images/mruntime-error-handling-default.png"/>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      The XML for the default error handling example looks like this:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" &gt;
+  &lt;http:listener-connection host="0.0.0.0" port="8081" /&gt;
+&lt;/http:listener-config&gt;
+&lt;http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" &gt;
+  &lt;http:request-connection host="jsonplaceholder.typicode.com" port="80" /&gt;
+&lt;/http:request-config&gt;
+&lt;flow name="error-handlers-example" &gt;
+  &lt;http:listener doc:name="Listener" config-ref="HTTP_Listener_config" path="/users"/&gt;
+  &lt;http:request method="GET" doc:name="Request" config-ref="HTTP_Request_configuration" path="/somebadrequest"/&gt;
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      After you start a Mule app with this configuration and trigger the HTTP listener
+by loading
+      <code>
+       <a class="bare" href="http://0.0.0.0:8081/users">
+        http://0.0.0.0:8081/users
+       </a>
+      </code>
+      (for example, into a browser), the flow makes
+an HTTP request (
+      <code>
+       http://jsonplaceholder.typicode.com:80/somebadrequest
+      </code>
+      ) for
+a file that does not exist. As a result, the Anypoint Studio console logs and propagates
+the error to the web browser.
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        Anypoint Studio Console Log
+       </p>
+       <div class="paragraph">
+        <p>
+         The Studio console prints an error message. The message indicates that
+the default handler,
+         <code>
+          OnErrorPropagateHandler
+         </code>
+         , propagates a 404 error returned
+from the HTTP GET request. Mule identifies this error as HTTP:NOT_FOUND.
+        </p>
+       </div>
+       <div class="listingblock">
+        <div class="content">
+         <pre class="highlightjs highlight"><code class="language-txt hljs" data-lang="txt">ERROR 2021-01-19 18:48:50,392
+  [[error-handlers-example].http.requester.HTTP_Request_configuration.11 SelectorRunner]
+  [processor: error-handlers-example/processors/0; event: 1d3baf11-5aa0-11eb-b96f-a483e7abe2b5] org.mule.runtime.core.internal.exception.OnErrorPropagateHandler:
+********************************************************************************
+Message               : HTTP GET on resource 'http://jsonplaceholder.typicode.com:80/somebadrequest' failed: not found (404).
+Element               : error-handlers-example/processors/0 @ error-handlers-example:error-handlers-example.xml:15 (Request)
+Element DSL           : &lt;http:request method="GET" doc:name="Request" config-ref="HTTP_Request_configuration" path="/somebadrequest"&gt;&lt;/http:request&gt;
+Error type            : HTTP:NOT_FOUND
+FlowStack             : at error-handlers-example(error-handlers-example/processors/0 @ error-handlers-example:error-handlers-example.xml:15 (Request))
+
+  (set debug level logging or '-Dmule.verbose.exceptions=true' for everything)
+********************************************************************************</code></pre>
+        </div>
+       </div>
+       <div class="paragraph">
+        <p>
+         The error logs in the Studio console present the following information:
+        </p>
+       </div>
+       <div class="ulist">
+        <ul>
+         <li>
+          <p>
+           <strong>
+            Message
+           </strong>
+           : Description of the error
+          </p>
+         </li>
+         <li>
+          <p>
+           <strong>
+            Element
+           </strong>
+           : XML element that failed execution and caused the error
+          </p>
+         </li>
+         <li>
+          <p>
+           <strong>
+            Element DSL
+           </strong>
+           : XML element that failed execution and caused the error, expressed in DSL
+          </p>
+         </li>
+         <li>
+          <p>
+           <strong>
+            Error type
+           </strong>
+           : Type of Mule error raised by the Mule app
+          </p>
+         </li>
+         <li>
+          <p>
+           <strong>
+            Flowstack
+           </strong>
+           : Flowstack trace error log
+          </p>
+          <div class="paragraph">
+           <p>
+            This field lists an entry for each flow that processed the Mule event and the processor that sent the event to the next flow. The last entry shows the flow and the processor that failed during the processing of the event.
+           </p>
+          </div>
+          <div class="paragraph">
+           <p>
+            Starting with Mule 4.3.0, the Flowstack entry is enabled by default. You can disable Flowstack logging by setting the
+            <code>
+             mule.flowTrace
+            </code>
+            configuration property to
+            <code>
+             false
+            </code>
+            .
+           </p>
+          </div>
+         </li>
+        </ul>
+       </div>
+      </li>
+      <li>
+       <p>
+        Error Propagation to the Web Browser
+       </p>
+       <div class="paragraph">
+        <p>
+         A description of the HTTP:NOT_FOUND error appears in the browser tab you
+use to trigger the listener:
+        </p>
+       </div>
+       <div class="listingblock">
+        <div class="content">
+         <pre class="highlightjs highlight"><code class="language-txt hljs" data-lang="txt">HTTP GET on resource 'http://jsonplaceholder.typicode.com:80/somebadrequest'
+failed: not found (404).</code></pre>
+        </div>
+       </div>
+       <div class="paragraph">
+        <p>
+         This Mule error description appears in the browser for two reasons:
+        </p>
+       </div>
+       <div class="ulist">
+        <ul>
+         <li>
+          <p>
+           The default error handler uses an On Error Propagate process (
+           <code>
+            OnErrorPropagateHandler
+           </code>
+           ).
+          </p>
+          <div class="paragraph">
+           <p>
+            The On Error Propagate component causes the flow to fail and the HTTP listener to prepare an error response
+for the
+            <code>
+             404
+            </code>
+            error associated with the file not found.
+           </p>
+          </div>
+         </li>
+         <li>
+          <p>
+           The HTTP listener is using default error (
+           <code>
+            error.description
+           </code>
+           ) and success (
+           <code>
+            payload
+           </code>
+           ) responses to
+return the message body.
+          </p>
+          <div class="paragraph">
+           <p>
+            Because no custom responses are configured, the browser shows the description of the error.
+           </p>
+          </div>
+         </li>
+        </ul>
+       </div>
+      </li>
+     </ul>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="on_error_continue">
+     <a class="anchor" href="#on_error_continue">
+     </a>
+     Using On-Error Components to Handle Messaging Errors
+    </h3>
+    <div class="paragraph">
+     <p>
+      Instead of relying on the default error-handling mechanism, you can use
+      <a class="xref page" href="on-error-scope-concept">
+       On-Error components
+      </a>
+      (On Error Continue and
+On Error Propagate) inside a built-in or external Error Handler component.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      The following example shows a simple flow that is configured in Studio to return
+the results of an HTTP request when the HTTP listener is triggered. Unlike the
+      <a href="#default_error_handling">
+       default error-handling example
+      </a>
+      , this example
+configures On Error Continue (
+      <code>
+       on-error-continue
+      </code>
+      ) inside the flow’s built-in
+Error Handler (
+      <code>
+       error-handler
+      </code>
+      ) component, and On Error Continue contains a
+Logger that writes a description of the error.
+     </p>
+    </div>
+    <div class="imageblock">
+     <div class="content">
+      <img alt="A flow showing error handling configurations with components like Listener, Request, and Logger" src="_images/mruntime-on-error-continue.png"/>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      The XML for the example looks like this:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" &gt;
+  &lt;http:listener-connection host="0.0.0.0" port="8081" /&gt;
+&lt;/http:listener-config&gt;
+&lt;http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" &gt;
+  &lt;http:request-connection host="jsonplaceholder.typicode.com" port="80" /&gt;
+&lt;/http:request-config&gt;
+&lt;flow name="error-handlers-normalFlow" &gt;
+  &lt;http:listener doc:name="Listener" config-ref="HTTP_Listener_config" path="/users"/&gt;
+  &lt;http:request method="GET" config-ref="HTTP_Request_configuration" path="/somebadrequest"/&gt;
+  &lt;logger level="INFO" doc:name="Logger" /&gt;
+  &lt;error-handler&gt;
+    &lt;on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" &gt;
+      &lt;logger level="ERROR" doc:name="Logger" message="#[error.description]"/&gt;
+    &lt;/on-error-continue&gt;
+  &lt;/error-handler&gt;
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      As in the default error-handling example, the requested page is not found, so
+the flow returns a 404 error that Mule identifies as an HTTP:NOT_FOUND error.
+However, in this case, the tab of the browser used to trigger the HTTP
+listener is blank because the error is not propagated. With On Error Continue,
+the flow in the example is treated as though it ends successfully with a 200 for
+the GET request, even though the page is not found. The HTTP listener executes
+the behavior for the default success response (returning
+      <code>
+       payload
+      </code>
+      content
+as the message body). Because the page was not found, there is no content to
+display in the browser, so the browser tab is blank.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      The Studio console also prints an error message (the first ERROR message below)
+indicating that
+      <code>
+       OnErrorContinueHandler
+      </code>
+      is handling the error, and it prints an
+ERROR message from the logger (the second ERROR below) that describes the Mule
+error (an
+      <code>
+       error.description
+      </code>
+      , see
+      <a class="xref page" href="mule-error-concept#selector_expressions">
+       Selector Expressions for Mule Errors
+      </a>
+      ).
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-txt hljs" data-lang="txt">ERROR 2021-01-19 18:42:04,583
+  [[error-handlers-example].http.requester.HTTP_Request_configuration.11 SelectorRunner]
+  [processor: error-handlers-normalFlow/processors/0; event: 2a95eaa1-5a9f-11eb-b96f-a483e7abe2b5] org.mule.runtime.core.internal.exception.OnErrorContinueHandler:
+********************************************************************************
+Message               : HTTP GET on resource 'http://jsonplaceholder.typicode.com:80/somebadrequest' failed: not found (404).
+Element               : error-handlers-normalFlow/processors/0 @ error-handlers-example:error-handlers-example.xml:15
+Element DSL           : &lt;http:request method="GET" config-ref="HTTP_Request_configuration" path="/somebadrequest"&gt;&lt;/http:request&gt;
+Error type            : HTTP:NOT_FOUND
+FlowStack             : at error-handlers-normalFlow(error-handlers-normalFlow/processors/0 @ error-handlers-example:error-handlers-example.xml:15)
+
+  (set debug level logging or '-Dmule.verbose.exceptions=true' for everything)
+********************************************************************************
+
+ERROR 2021-01-19 18:42:04,586
+  [[error-handlers-example].http.requester.HTTP_Request_configuration.11 SelectorRunner]
+  [processor: error-handlers-normalFlow/errorHandler/0/processors/0; event: 2a95eaa1-5a9f-11eb-b96f-a483e7abe2b5] org.mule.runtime.core.internal.processor.LoggerMessageProcessor:
+  HTTP GET on resource 'http://jsonplaceholder.typicode.com:80/somebadrequest' failed: not found (404).</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      If you instead create the same Mule app using On Error Propagate
+(
+      <code>
+       on-error-propagate
+      </code>
+      ) instead of On Error Continue (
+      <code>
+       on-error-continue
+      </code>
+      ), you
+receive the same error messages in the Studio console, but you also see the
+logged error message in your browser. This behavior is identical to the
+default error handling behavior because both use On Error Propagate.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      Note that within each On-Error component, the error path you define can
+incorporate any number of event processors to handle specific error types as
+precisely as you want. You can select specific Mule errors for the On-Error
+component to handle. The Error Handler component routes an error to the
+first On-Error component that matches the error.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      For more complex error handling configurations at the flow level, see
+      <a class="xref page" href="intro-error-handlers">
+       Introduction to Mule 4: Error Handlers
+      </a>
+      .
+For more information about On Error Continue and On Error Propagate, see
+      <a class="xref page" href="on-error-scope-concept">
+       On-Error components
+      </a>
+      .
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="global_error_handler">
+     <a class="anchor" href="#global_error_handler">
+     </a>
+     Referencing a Global Error Handler
+    </h3>
+    <div class="paragraph">
+     <p>
+      A global error handler can be useful if you want more than one flow or Try scope
+to handle errors in the same way. You can create reuse configurations by
+providing a reference to an error handler:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        <a href="#global_error_config_set">
+         Setting a Global Error-Handling Configuration
+        </a>
+       </p>
+      </li>
+      <li>
+       <p>
+        <a href="#global_error_config_ref">
+         Referencing an Error-Handling Configuration from a Flow
+        </a>
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="sect3">
+     <h4 id="global_error_config_set">
+      <a class="anchor" href="#global_error_config_set">
+      </a>
+      Setting a Global Error-Handling Configuration
+     </h4>
+     <div class="paragraph">
+      <p>
+       The following XML configuration defines a default error-handling configuration
+that uses
+       <code>
+        &lt;configuration doc:name="Configuration" defaultErrorHandler-ref="allErrorHandler" /&gt;
+       </code>
+       to reference the
+       <code>
+        &lt;error-handler name="allErrorHandler"/&gt;
+       </code>
+       configuration.
+      </p>
+     </div>
+     <div class="listingblock">
+      <div class="content">
+       <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" &gt;
+  &lt;http:listener-connection host="0.0.0.0" port="8081" /&gt;
+&lt;/http:listener-config&gt;
+&lt;http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" &gt;
+  &lt;http:request-connection host="json.typicode.com/" port="80" /&gt;
+&lt;/http:request-config&gt;
+&lt;configuration doc:name="Configuration" defaultErrorHandler-ref="allErrorHandler" /&gt;
+&lt;flow name="someFlow" &gt;
+  &lt;http:listener doc:name="Listener" config-ref="HTTP_Listener_config" path="/users"/&gt;
+  &lt;http:request method="GET" doc:name="Request" config-ref="HTTP_Request_configuration" path="/somebadrequest"/&gt;
+&lt;/flow&gt;
+&lt;error-handler name="allErrorHandler" &gt;
+  &lt;on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" &gt;
+    &lt;set-payload value="#[error.description]" doc:name="Set Payload" /&gt;
+  &lt;/on-error-continue&gt;
+&lt;/error-handler&gt;</code></pre>
+      </div>
+     </div>
+     <div class="paragraph">
+      <p>
+       In the Studio UI, the global error-handling example looks like this:
+      </p>
+     </div>
+     <div class="imageblock">
+      <div class="content">
+       <img alt="A global error-handler configuration" src="_images/error-handlers-global.png"/>
+      </div>
+     </div>
+     <div class="paragraph">
+      <p>
+       The example includes two main components for handling errors, an Error Handler
+(
+       <code>
+        error-handler
+       </code>
+       ) with embedded components that are visible in the Studio canvas
+and a global error-handling configuration, which is not visible in the canvas.
+The flow (
+       <strong>
+        someFlow
+       </strong>
+       ) in the UI example illustrates that the Error Handler
+component lies outside any flow in the Mule app.
+      </p>
+     </div>
+     <div class="paragraph">
+      <p>
+       Because the request produces an HTTP:NOT_FOUND error, the Studio console prints
+an error message indicating that
+       <code>
+        OnErrorContinueHandler
+       </code>
+       is handling the error.
+On Error Continue configurations do not propagate the errors they handle
+(see
+       <a href="#on_error_continue">
+        Using On-Error Components to Handle Messaging Errors
+       </a>
+       ).
+      </p>
+     </div>
+     <div class="paragraph">
+      <p>
+       To set up the global error-handling example through the Studio UI instead
+of writing the configuration in XML markup:
+      </p>
+     </div>
+     <div class="olist arabic">
+      <ol class="arabic">
+       <li>
+        <p>
+         Drag the Error Handler component from the
+         <strong>
+          Mule Palette
+         </strong>
+         to the Studio canvas,
+and name it
+         <strong>
+          allErrorHandler
+         </strong>
+         .
+        </p>
+        <div class="paragraph">
+         <p>
+          Notice that the component is not part of any flow.
+         </p>
+        </div>
+       </li>
+       <li>
+        <p>
+         Drag the On Error Continue component into the Error Handler component.
+        </p>
+       </li>
+       <li>
+        <p>
+         Drag a Set Payload component into the On Error Continue component.
+        </p>
+        <div class="paragraph">
+         <p>
+          Note that the Set Payload component is an example. You can use other components,
+such as a Logger, and you can write your own error message inside that
+component. The Set Payload example uses a Mule variable for the error
+description (see the
+          <code>
+           error
+          </code>
+          variable in
+          <a class="xref page" href="../../dataweave/latest/dataweave-variables-context">
+           Predefined Variables
+          </a>
+          for details).
+         </p>
+        </div>
+       </li>
+       <li>
+        <p>
+         Create a global error-handling reference in Studio:
+        </p>
+        <div class="olist loweralpha">
+         <ol class="loweralpha" type="a">
+          <li>
+           <p>
+            Click
+            <strong>
+             Global Elements
+            </strong>
+            to open
+            <strong>
+             Global Configuration Elements
+            </strong>
+            .
+           </p>
+           <div class="paragraph">
+            <p>
+             <strong>
+              Global Elements
+             </strong>
+             is located below the Studio canvas.
+            </p>
+           </div>
+          </li>
+          <li>
+           <p>
+            In
+            <strong>
+             Global Configuration Elements
+            </strong>
+            , click
+            <strong>
+             Create
+            </strong>
+            to open the
+            <strong>
+             Choose Global Type
+            </strong>
+            dialog.
+           </p>
+           <div class="imageblock">
+            <div class="content">
+             <img alt="A configuration panel for choosing a global element type including configuration" src="_images/error-handling-global-type.png"/>
+            </div>
+           </div>
+          </li>
+          <li>
+           <p>
+            From the dialog, select
+            <strong>
+             Global Configuration
+            </strong>
+            -→
+            <strong>
+             Configuration
+            </strong>
+            , and then
+click
+            <strong>
+             OK
+            </strong>
+            to open the
+            <strong>
+             Configuration
+            </strong>
+            dialog.
+           </p>
+           <div class="imageblock">
+            <div class="content">
+             <img alt="A configuration dialog general fields including settings" src="_images/error-handling-global-config.png"/>
+            </div>
+           </div>
+          </li>
+          <li>
+           <p>
+            From the select
+            <strong>
+             Configuration
+            </strong>
+            dialog, select
+            <strong>
+             allErrorHandler
+            </strong>
+            for the
+            <strong>
+             Default Error Handler
+            </strong>
+            field, and click
+            <strong>
+             OK
+            </strong>
+            .
+           </p>
+          </li>
+         </ol>
+        </div>
+       </li>
+       <li>
+        <p>
+         Set up the HTTP listener and HTTP request components using the values
+described in the XML.
+        </p>
+       </li>
+       <li>
+        <p>
+         Check that the XML configuration looks correct by clicking
+         <strong>
+          Configuration XML
+         </strong>
+         (located below the Studio canvas).
+        </p>
+       </li>
+      </ol>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="global_error_config_ref">
+     <a class="anchor" href="#global_error_config_ref">
+     </a>
+     Referencing an Error-Handling Configuration from a Flow
+    </h3>
+    <div class="admonitionblock note">
+     <table>
+      <tr>
+       <td class="icon">
+        <i class="fa icon-note" title="Note">
+        </i>
+       </td>
+       <td class="content">
+        The configuration of some elements in these examples is XML-only.
+       </td>
+      </tr>
+     </table>
+    </div>
+    <div class="paragraph">
+     <p>
+      A flow can reference a global error handler that resides outside the flow. The
+flow logs all its errors through a reference.
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Example: XML Configuration for the App
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;error-handler name="loggingErrorHandler"&gt;
+    &lt;on-error-continue&gt;
+        &lt;logger message="#['Error: ' ++ error.description]"/&gt;
+    &lt;/on-error-continue&gt;
+&lt;/error-handler&gt;
+
+&lt;flow name="withSharedHandler"&gt;
+    &lt;http:request url="http://example.com"/&gt;
+    &lt;error-handler ref="loggingErrorHandler"/&gt;
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      In this XML example, the global error handler is configured through an
+      <code>
+       &lt;error-handler/&gt;
+      </code>
+      element named
+      <code>
+       loggingErrorHandler
+      </code>
+      . The flow references
+the error handler with
+      <code>
+       &lt;error-handler ref="loggingErrorHandler"/&gt;
+      </code>
+      .
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      To reference a global error handler configuration from a flow in Studio:
+     </p>
+    </div>
+    <div class="olist arabic">
+     <ol class="arabic">
+      <li>
+       <p>
+        From Studio, drag an
+        <strong>
+         Error Handler
+        </strong>
+        component from the
+        <strong>
+         Mule Palette
+        </strong>
+        to the canvas, and configure it components through the UI.
+       </p>
+      </li>
+      <li>
+       <p>
+        In the Mule app, click
+        <strong>
+         Configuration XML
+        </strong>
+        (located below the Studio canvas).
+       </p>
+      </li>
+      <li>
+       <p>
+        (XML-only configuration) Within your
+        <code>
+         &lt;flow/&gt;
+        </code>
+        element, type the XML for the
+reference, for example,
+        <code>
+         &lt;error-handler ref="loggingErrorHandler"/&gt;
+        </code>
+        .
+       </p>
+      </li>
+     </ol>
+    </div>
+    <div class="paragraph">
+     <p>
+      The following example references a global On Error Continue element
+(
+      <code>
+       &lt;on-error-continue/&gt;
+      </code>
+      ) using
+      <code>
+       &lt;on-error ref="loggingErrorHandler"/&gt;
+      </code>
+      within an
+      <code>
+       &lt;error-handler/&gt;
+      </code>
+      element. Both require manual configuration
+through the
+      <strong>
+       Configuration XML
+      </strong>
+      , rather than the UI.
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" &gt;
+	&lt;http:listener-connection host="0.0.0.0" port="8081" /&gt;
+&lt;/http:listener-config&gt;
+&lt;on-error-continue name="loggingErrorHandler"&gt;
+    &lt;logger message="#['Error: ' ++ error.description]" level="INFO"/&gt;
+&lt;/on-error-continue&gt;
+
+&lt;flow name="withSharedHandler"&gt;
+  &lt;http:listener doc:name="Listener" config-ref="HTTP_Listener_config" path="/"/&gt;
+  &lt;http:request url="http://jsonplaceholder.typicode.com/badrequestbad" method="GET"/&gt;
+  &lt;error-handler &gt;
+    &lt;on-error ref="loggingErrorHandler"/&gt;
+  &lt;/error-handler&gt;
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="mule-error-concept">
+        Mule Errors
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="on-error-scope-concept">
+        On-Error Components
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="try-scope-concept">
+        Try Scope
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="raise-error-component-reference">
+        Raise Error Component
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="intro-error-handlers">
+        Introduction to Mule 4: Error Handlers
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="migration-core-exception-strategies">
+        Migrating Exception Strategies to Mule Error Handlers
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

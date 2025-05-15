@@ -1,0 +1,238 @@
+<article class="doc">
+ <h1 class="page">
+  Flows and Subflows
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Mule apps process messages and other parts of Mule events through Mule
+components, connectors, and modules that are set up within the scope of
+Flow and Subflow components within an app.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     An app can consist of a single flow, or it can break up processing into
+discrete flows and subflows that you add to the app and connect together. Mule
+apps in production environments typically use multiple flows and subflows
+to divide the app into functional modules or for
+     <a href="#error_handling">
+      error handling
+     </a>
+     purposes. For example, one flow might
+receive a record and transform data into a given format that another
+flow processes in some special way.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     You can connect and trigger their execution with
+     <a class="xref page" href="flowref-about">
+      Flow Reference
+     </a>
+     components or by using the DataWeave
+     <code>
+      lookup
+     </code>
+     function within expressions and
+transformations. The function passes the current event to another flow for
+further event processing. You can think of a Flow Reference as a function call that accepts an event as input and then returns the modified event.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="using-flows">
+   <a class="anchor" href="#using-flows">
+   </a>
+   Using Flows
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Flows can have Mule Sources (such as an HTTP listener receiving a request)
+that trigger the execution of a flow. For cases where you do not want
+a source to start a flow right away, you can configure your flow as
+initially stopped and start it later through
+     <a class="xref page" href="../../runtime-manager/flow-management">
+      Runtime Manager
+     </a>
+     .
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Like functions or methods in other programming languages, it is a best practice
+to focus your flows on specific (perhaps reusable) activities, such as receiving
+an API request from a web client, processing the event, then returning an
+appropriate response. If the event processing gets complicated, or must call
+out to other services, you might factor out that behavior into other flows.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="using-subflows">
+   <a class="anchor" href="#using-subflows">
+   </a>
+   Using Subflows
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     A
+     <em>
+      subflow
+     </em>
+     is a scope that enables you to group event processors in a manner similar to that of a flow, but with certain differences and limitations:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Subflows do not have Mule event sources.
+      </p>
+     </li>
+     <li>
+      <p>
+       Subflows do not have an error handling scope.
+      </p>
+     </li>
+     <li>
+      <p>
+       During design, subflows work as macros that replace the Flow Reference components that call them.
+       <br/>
+       When you build the application, all Flow Reference components that call a subflow are replaced by the contents of the referenced subflow.
+      </p>
+     </li>
+     <li>
+      <p>
+       Referencing subflows results in better performance than referencing a flow.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="sect2">
+    <h3 id="limitations">
+     <a class="anchor" href="#limitations">
+     </a>
+     Limitations
+    </h3>
+    <div class="paragraph">
+     <p>
+      Because the contents of a subflow replace each Flow Reference component that references that subflow, several instances of the event processors inside that subflow exist in the application at runtime. This behavior can cause issues with event processors that depend on unique IDs or instances to execute, such as batch processors.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      For example, configuring a batch job inside a subflow causes the application to fail during deployment if the subflow is referenced from more than one Flow Reference component. The application fails to deploy because multiple instances of a batch job with the same job instance ID exist, which is not allowed.
+     </p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="error_handling">
+   <a class="anchor" href="#error_handling">
+   </a>
+   Error Handling
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Each flow (but not subflow) can have its own error handling. One reason for
+calling a flow through a Flow Reference component is to isolate the error
+handling to different contexts. For example, a parent flow that receives web
+client requests might define HTTP-related error handling. If the parent flow
+then calls a JMS queue for further processing, you can put the JMS event
+processors in a separate child flow and call that flow with a Flow Reference
+component. This child flow can then define its own JMS-related error handling.
+This practice is similar to the way you handle or propagate errors in other
+programming languages, like Java.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Like a flow or subflow, a
+     <a class="xref page" href="try-scope-concept">
+      Try scope
+     </a>
+     also groups
+together a sequence of event processors with its own error handling. You can
+place a Try scope inside a flow or subflow to isolate error handling inside a
+flow without the need to create a separate flow or subflow. The trade-off
+is that error handling through a Try scope occurs inline inside the flow,
+which makes it harder to reuse between other flows or subflows.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     In both cases, calling a flow or including a Try scope isolates the error
+handling, similar to the use of Try-Catch blocks inside Java code. For
+example, placing JMS queue event processing (described above) in its own
+flow or within a Try scope results in exactly the same error handling
+behavior, but the event processors in a Try scope cannot be called from
+another flow.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="branching-event-processing">
+   <a class="anchor" href="#branching-event-processing">
+   </a>
+   Branching Event Processing
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Some scopes are available for a flow to branch event processing into separate
+threads and to allow asynchronous processing of the event at a specific point
+in the flow, for example, the
+     <a class="xref page" href="scatter-gather-concept">
+      Scatter-Gather
+     </a>
+     and
+     <a class="xref page" href="async-scope-reference">
+      Async
+     </a>
+     scopes. A
+     <a class="xref page" href="choice-router-concept">
+      Choice
+     </a>
+     router enables you to change the downstream sequence of event processors based
+on some condition.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="flow-component">
+        Flow and Subflow Scopes
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="..">
+        Mule Runtime
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

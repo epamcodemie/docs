@@ -1,0 +1,312 @@
+<article class="doc">
+ <h1 class="page">
+  Streaming Strategy Reference
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You can use the default streaming strategy settings or configure them for your
+needs. See
+     <a class="xref page" href="streaming-about">
+      Streaming in Mule Apps
+     </a>
+     for more details
+on these strategies.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="repeatable-in-memory-stream-reference">
+   <a class="anchor" href="#repeatable-in-memory-stream-reference">
+   </a>
+   Repeatable In-Memory Stream Reference
+  </h2>
+  <div class="sectionbody">
+   <table class="tableblock frame-all grid-all stretch">
+    <colgroup>
+     <col style="width: 22.2222%;"/>
+     <col style="width: 11.1111%;"/>
+     <col style="width: 11.1111%;"/>
+     <col style="width: 11.1111%;"/>
+     <col style="width: 44.4445%;"/>
+    </colgroup>
+    <thead>
+     <tr>
+      <th class="tableblock halign-left valign-top">
+       Parameter Name
+      </th>
+      <th class="tableblock halign-left valign-top">
+       Is required?
+      </th>
+      <th class="tableblock halign-left valign-top">
+       Expressions
+      </th>
+      <th class="tableblock halign-left valign-top">
+       Default Value
+      </th>
+      <th class="tableblock halign-left valign-top">
+       Description
+      </th>
+     </tr>
+    </thead>
+    <tbody>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        <code>
+         initialBufferSize
+        </code>
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        No
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        No
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        512
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Amount of memory allocated to consume the stream and provide random
+access to it. If the stream contains more data than fits into this buffer,
+the memory expands according to the
+        <code>
+         bufferSizeIncrement
+        </code>
+        attribute, with an
+upper limit of
+        <code>
+         maxInMemorySize
+        </code>
+        .
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        <code>
+         bufferSizeIncrement
+        </code>
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        No
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        No
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        512
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Amount to expand the buffer size if the size of the stream exceeds the initial
+buffer size. Setting a value of zero or lower indicates that the buffer does
+not expand and that a STREAM_MAXIMUM_SIZE_EXCEEDED error is raised when the
+buffer is full.
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        <code>
+         maxInMemorySize
+        </code>
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        No
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        No
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        1024
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Maximum amount of memory to use. If the size of the stream exceeds the maximum,
+a STREAM_MAXIMUM_SIZE_EXCEEDED error is raised. A value lower or equal to zero means no limit. Defaults to 1024
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        <code>
+         bufferUnit
+        </code>
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        No
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        No
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        KB
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        The unit in which all these attributes are expressed. Possible values: BYTE, KB, MB, GB.
+       </p>
+      </td>
+     </tr>
+    </tbody>
+   </table>
+   <div class="sect2">
+    <h3 id="file-stored-input-stream">
+     <a class="anchor" href="#file-stored-input-stream">
+     </a>
+     File-Stored Input Stream
+    </h3>
+    <div class="paragraph">
+     <p>
+      File storage is only available in Mule Enterprise Edition (Mule EE).
+     </p>
+    </div>
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col style="width: 22.2222%;"/>
+      <col style="width: 11.1111%;"/>
+      <col style="width: 11.1111%;"/>
+      <col style="width: 11.1111%;"/>
+      <col style="width: 44.4445%;"/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-top">
+        Parameter Name
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Is required?
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Expressions
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Default Value
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Description
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          inMemorySize
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         No
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         No
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         512
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Defines the maximum memory size for the stream to keep data in memory.
+If more than the configured amount is consumed, the strategy starts to
+buffer the content on disk.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          bufferUnit
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         No
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         No
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         KB
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         The unit in which all these attributes are expressed. Possible values: BYTE, KB, MB, GB.
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="streaming-about">
+        Streaming in Mule Apps
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

@@ -1,0 +1,453 @@
+<article class="doc">
+ <h1 class="page">
+  Best Practices to Build Mule Applications
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     As you build your applications, consider the following best practices for creating a clean, organized, and sustainable project. These practices include guidelines on using Anypoint Studio, avoiding certain app-building issues, and specific settings for using Mule runtime engine (Mule) components and connectors.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="anypoint-studio-best-practices">
+   <a class="anchor" href="#anypoint-studio-best-practices">
+   </a>
+   Anypoint Studio Best Practices
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     If you use Anypoint Studio to build Mule apps, consider the following practices:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Update to the latest version of Anypoint Studio.
+      </p>
+     </li>
+     <li>
+      <p>
+       Use the recommended Java version (OpenJDK) for the specific Studio version.
+      </p>
+     </li>
+     <li>
+      <p>
+       Include the Mule Maven plugin for automated deployment (executed by CI/CD processes).
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="sect2">
+    <h3 id="define-a-project-structure">
+     <a class="anchor" href="#define-a-project-structure">
+     </a>
+     Define a Project Structure
+    </h3>
+    <div class="paragraph">
+     <p>
+      To help maintain a clean, structured, and readable project in Anypoint Studio, consider the following recommendations:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        Create a separate XML file for global elements, for example, configuration elements.
+       </p>
+      </li>
+      <li>
+       <p>
+        Create a separate XML file for each use case or resource implementation.
+       </p>
+      </li>
+      <li>
+       <p>
+        Create separate XML files for common structures or logic.
+       </p>
+      </li>
+      <li>
+       <p>
+        Create different packages for resources such as DataWeave, WSDLs, examples, and so on.
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="sect3">
+     <h4 id="add-indentation-and-formatting">
+      <a class="anchor" href="#add-indentation-and-formatting">
+      </a>
+      Add Indentation and Formatting
+     </h4>
+     <div class="paragraph">
+      <p>
+       As you build your app project in Anypoint Studio, consider the following points:
+      </p>
+     </div>
+     <div class="ulist">
+      <ul>
+       <li>
+        <p>
+         Add indentation and format to all your XML files (Mule XMLs,
+         <code>
+          pom.xml
+         </code>
+         ,
+         <code>
+          log4j2.xml
+         </code>
+         , and so on) before committing to the source code repository.
+        </p>
+       </li>
+       <li>
+        <p>
+         Define a line width in your Anypoint Studio XML editor preferences, for example
+         <code>
+          140.d
+         </code>
+         .
+        </p>
+       </li>
+       <li>
+        <p>
+         Define a naming convention.
+        </p>
+       </li>
+      </ul>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="manage-properties-per-environment">
+      <a class="anchor" href="#manage-properties-per-environment">
+      </a>
+      Manage Properties per Environment
+     </h4>
+     <div class="paragraph">
+      <p>
+       To avoid creating a separate set of variables for each environment, Mule 4 contains a built-in mechanism that enables you to set default values, which you manage by using Anypoint Runtime Manager. For details, see
+       <a class="xref page" href="intro-configuration">
+        Introduction to Mule 4: Configuring Mule Apps
+       </a>
+       and
+       <a class="xref page" href="configuring-properties">
+        Configuring Properties
+       </a>
+       .
+      </p>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="app-building-best-practice">
+   <a class="anchor" href="#app-building-best-practice">
+   </a>
+   App-Building Best Practice
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     As you build your Mule app, avoid packaging the configuration files for all the environments inside the application. Instead, use a
+     <code>
+      .yaml
+     </code>
+     file to provide default properties, and use Anypoint Runtime Manager to override each of these properties at deployment time.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="components-and-connectors-best-practices">
+   <a class="anchor" href="#components-and-connectors-best-practices">
+   </a>
+   Components and Connectors Best Practices
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     When building your apps using Mule components and connectors, consider the following recommendations.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="apikit">
+     <a class="anchor" href="#apikit">
+     </a>
+     APIkit
+    </h3>
+    <div class="paragraph">
+     <p>
+      When using APIkit, consider these practices:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        Use APIkit features to generate flows automatically using your API specification.
+       </p>
+      </li>
+      <li>
+       <p>
+        Use APIkit Exception Strategy to catch connector-related exceptions.
+       </p>
+      </li>
+     </ul>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="dataweave">
+     <a class="anchor" href="#dataweave">
+     </a>
+     DataWeave
+    </h3>
+    <div class="paragraph">
+     <p>
+      When using DataWeave for building your app, consider these recommendations:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        Use inline scripts during the development phase.
+       </p>
+      </li>
+      <li>
+       <p>
+        To have a clean XML and reusable scripts, pass the inline scripts to an external file.
+       </p>
+      </li>
+     </ul>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="flows">
+     <a class="anchor" href="#flows">
+     </a>
+     Flows
+    </h3>
+    <div class="paragraph">
+     <p>
+      When creating flows for your app, consider the following practices:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        Have a clear flow diagram showing the steps of the use case.
+       </p>
+      </li>
+      <li>
+       <p>
+        Use a Flow Reference to separate and reuse common logic.
+       </p>
+      </li>
+     </ul>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="file-connector">
+     <a class="anchor" href="#file-connector">
+     </a>
+     File Connector
+    </h3>
+    <div class="paragraph">
+     <p>
+      If you use Anypoint Connector for File (File Connector) and share part of the path on numerous reads or any other file operations, extract the base path into a file configuration to reuse it:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;file:config name="File_Config" &gt;
+   &lt;file:connection workingDir="/Example/path" /&gt;
+&lt;/file:config&gt;
+
+&lt;flow&gt;
+   &lt;file:read config-ref="File_Config" path="manual.txt" /&gt;
+   &lt;file:read config-ref="File_Config" path="readme.txt" /&gt;
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="http-and-https">
+     <a class="anchor" href="#http-and-https">
+     </a>
+     HTTP and HTTPS
+    </h3>
+    <div class="paragraph">
+     <p>
+      For HTTP and HTTPS ports in on-premises deployments, MuleSoft recommends using the names for property placeholders that are reserved for CloudHub deployments.
+The shared load balancer in CloudHub uses the defaults for these properties.
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        In CloudHub,
+        <code>
+         ${http.port}
+        </code>
+        maps to the setting
+        <code>
+         port=8081
+        </code>
+        , and
+        <code>
+         ${https.port}
+        </code>
+        maps to
+        <code>
+         port=8082
+        </code>
+        .
+       </p>
+      </li>
+      <li>
+       <p>
+        For internal ports to HTTP services in CloudHub deployments,
+        <code>
+         ${http.private.port}
+        </code>
+        maps to the setting
+        <code>
+         port=8091
+        </code>
+        , and
+        <code>
+         ${https.private.port}
+        </code>
+        maps to
+        <code>
+         port=8092
+        </code>
+        .
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="paragraph">
+     <p>
+      For details about these settings in CloudHub, see
+      <a class="xref page" href="../../cloudhub/cloudhub-manage-props#cloudhub-reserved-properties">
+       CloudHub Reserved Properties
+      </a>
+      and
+      <a class="xref page" href="../../cloudhub/cloudhub-networking-guide">
+       CloudHub Networking Guide
+      </a>
+      .
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="apache-kafka-connector">
+     <a class="anchor" href="#apache-kafka-connector">
+     </a>
+     Apache Kafka Connector
+    </h3>
+    <div class="paragraph">
+     <p>
+      If you use Anypoint Connector for Apache Kafka (Apache Kafka Connector) perform the following actions:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        Use the
+        <code>
+         .properties
+        </code>
+        file to add bootstrap server configuration.
+       </p>
+      </li>
+      <li>
+       <p>
+        Add property placeholders, either in a
+        <code>
+         .yaml
+        </code>
+        or a
+        <code>
+         .properties
+        </code>
+        file, and use the file in the configuration:
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">config.bootstrapServers={your Kafka Server address}
+config.consumerPropertiesFile=consumer.properties
+config.producerPropertiesFile=producer.properties
+# Consumer specific information
+consumer.topic=one-replica
+consumer.topic.partitions=1</code></pre>
+     </div>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        Apache Kafka Connector provides various settings for producer and consumer properties, add your own settings in
+        <code>
+         consumer.properties
+        </code>
+        and
+        <code>
+         producer.properties
+        </code>
+        under
+        <code>
+         src/main/resource
+        </code>
+        :
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;configuration-properties file="mule-app.properties"/&gt;</code></pre>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../kafka-connector/latest/">
+        Apache Kafka Connector
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../http-connector/latest/">
+        HTTP Connector
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

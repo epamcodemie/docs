@@ -1,0 +1,811 @@
+<article class="doc">
+ <h1 class="page">
+  Tutorial: Create a "Hello World" Mule app
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To demonstrate how a Mule application interacts with a user in a simple HTTP
+request-response flow, this example responds with the message "Hello Mule" to
+requests submitted from a web browser.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Note that this is a very simple example. In a more
+complex application, you can connect to external servers (such as SAP,
+Salesforce, a database, or an FTP server), import and implement API
+specifications directly within a Mule project, set up security, and process and
+transform the data in programmatic ways. It is beyond the scope of this
+example to explore such tasks.
+    </p>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="Development environment showing a Mule application named 'Hello Mule' with components like Listener, Set Payload, and Logger" src="_images/mruntime-hellomule.png"/>
+    </div>
+    <div class="title">
+     Figure 1. hellomule in Anypoint Studio
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     You set up and run this application as a project in Anypoint Studio.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="prerequisites">
+   <a class="anchor" href="#prerequisites">
+   </a>
+   Prerequisites
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../studio/latest/to-download-and-install-studio">
+        Anypoint Studio 7
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       Familiarity with the Anypoint Studio UI (palette, canvas, flow), as documented
+in
+       <a class="xref page" href="../../studio/latest/">
+        Anypoint Studio
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     After Anypoint Studio is installed, you can set up and run the example.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="how-the-example-works">
+   <a class="anchor" href="#how-the-example-works">
+   </a>
+   How the Example Works
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The Hello Mule example consists of one simple Mule flow. This flow accepts an
+HTTP request, sets a static payload on the message, and then returns a response
+to you.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The inbound HTTP endpoint receives requests that are submitted to the web service.
+The HTTP endpoint is responsible for receiving and returning messages because
+the message-exchange pattern is request-response.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     As its name suggests, the Set Payload component sets a value in the message
+payload. In this example, the value uses a DataWeave expression to set a static
+string on the payload.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="set-up-the-example">
+   <a class="anchor" href="#set-up-the-example">
+   </a>
+   Set Up the Example
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Follow these steps to create the example in your own instance of Anypoint Studio. Note that
+you can create template applications in Anypoint Studio and tweak the configurations
+of the use case-based templates to create your own customized applications in
+Mule.
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Create a project in Anypoint Studio named
+       <code>
+        hellomule
+       </code>
+       :
+      </p>
+      <div class="olist loweralpha">
+       <ol class="loweralpha" type="a">
+        <li>
+         <p>
+          Select
+          <strong>
+           File
+          </strong>
+          &gt;
+          <strong>
+           New
+          </strong>
+          &gt;
+          <strong>
+           Mule Project
+          </strong>
+          , and provide the
+          <strong>
+           Project Name
+          </strong>
+          "hellomule" in the dialog that opens:
+         </p>
+         <div class="imageblock">
+          <div class="content">
+           <img alt="Dialog box for creating a new Mule project named 'Hello Mule' with options for selecting runtime versions" src="_images/mruntime-hellomule-create-project.png"/>
+          </div>
+         </div>
+         <div class="paragraph">
+          <p>
+           Notice that the project name does not contain any blank spaces.
+          </p>
+         </div>
+        </li>
+        <li>
+         <p>
+          Click
+          <strong>
+           Finish
+          </strong>
+          .
+         </p>
+        </li>
+       </ol>
+      </div>
+     </li>
+     <li>
+      <p>
+       Drag the HTTP Listener component to the
+       <strong>
+        hellomule
+       </strong>
+       canvas:
+      </p>
+      <div class="olist loweralpha">
+       <ol class="loweralpha" type="a">
+        <li>
+         <p>
+          In the project’s
+          <strong>
+           Mule Palette
+          </strong>
+          tab, click
+          <strong>
+           HTTP
+          </strong>
+          :
+         </p>
+         <div class="imageblock">
+          <div class="content">
+           <img alt="HTTP Connector in the Mule Palette" src="_images/mruntime-hellomule-empty-canvas.png"/>
+          </div>
+         </div>
+        </li>
+        <li>
+         <p>
+          Drag the
+          <strong>
+           Listener
+          </strong>
+          component into the
+          <strong>
+           hellomuleFlow
+          </strong>
+          canvas:
+         </p>
+         <div class="imageblock">
+          <div class="content">
+           <img alt="HTTP Listener configuration in a Mule application" src="_images/mruntime-hellomule-listener-config.png"/>
+          </div>
+         </div>
+         <div class="paragraph">
+          <p>
+           If the configuration UI in the
+           <strong>
+            Listener
+           </strong>
+           tab is not open, click the
+           <strong>
+            Listener
+           </strong>
+           component in the canvas to open it.
+          </p>
+         </div>
+         <div class="paragraph">
+          <p>
+           Note that the red boxes in the tab are present because the
+           <strong>
+            Connector configuration
+           </strong>
+           and
+           <strong>
+            Path
+           </strong>
+           fields require values.
+          </p>
+         </div>
+        </li>
+       </ol>
+      </div>
+     </li>
+     <li>
+      <p>
+       Configure the
+       <strong>
+        Listener
+       </strong>
+       component from the
+       <strong>
+        Listener
+       </strong>
+       tab:
+      </p>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="Configuration settings for an HTTP Listener in a Mule application" src="_images/mruntime-hellomule-listener-path.png"/>
+       </div>
+      </div>
+      <div class="olist loweralpha">
+       <ol class="loweralpha" type="a">
+        <li>
+         <p>
+          In the listener’s
+          <strong>
+           Path
+          </strong>
+          field, type the path
+          <code>
+           /hellomule
+          </code>
+          .
+         </p>
+        </li>
+        <li>
+         <p>
+          Find and click the green plus icon (
+          <strong>
+           +
+          </strong>
+          ) beside the listener’s
+          <strong>
+           Connector configuration
+          </strong>
+          field to open the
+          <strong>
+           HTTP Listener config
+          </strong>
+          dialog.
+         </p>
+        </li>
+        <li>
+         <p>
+          In the dialog, check the default listener configuration by clicking
+          <strong>
+           Test Connection
+          </strong>
+          :
+         </p>
+         <div class="imageblock">
+          <div class="content">
+           <img alt="Panel showing successful HTTP Listener connection test in Mule" src="_images/mruntime-hellomule-test-connection.png" width="90%"/>
+          </div>
+         </div>
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             If the connection is successful, you see the message "Test connection successful!"
+in a
+             <strong>
+              Test connection
+             </strong>
+             dialog that pops up.
+            </p>
+           </li>
+           <li>
+            <p>
+             If the connection fails, try using a port number that is not in use, such as
+             <code>
+              8082
+             </code>
+             or
+             <code>
+              8083
+             </code>
+             , retest the connection, and then add the configuration.
+            </p>
+           </li>
+          </ul>
+         </div>
+        </li>
+        <li>
+         <p>
+          Click
+          <strong>
+           OK
+          </strong>
+          to add a working configuration to the project.
+         </p>
+        </li>
+       </ol>
+      </div>
+     </li>
+     <li>
+      <p>
+       From the
+       <strong>
+        Mule Palette
+       </strong>
+       tab, click
+       <strong>
+        Core
+       </strong>
+       , and then find and drag a
+       <strong>
+        Set Payload
+       </strong>
+       component to the
+       <strong>
+        Process
+       </strong>
+       area of the canvas:
+      </p>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="Configuration panel for setting the payload in a Mule flow" src="_images/mruntime-hellomule-payload-config.png"/>
+       </div>
+      </div>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          If you do not find the
+          <strong>
+           Set Payload
+          </strong>
+          component, try the search field at the top of the
+          <strong>
+           Mule Palette
+          </strong>
+          tab.
+         </p>
+        </li>
+        <li>
+         <p>
+          If the configuration UI in the
+          <strong>
+           Set Payload
+          </strong>
+          tab is not open, click the
+          <strong>
+           Set Payload
+          </strong>
+          component to open its configuration UI.
+         </p>
+        </li>
+       </ul>
+      </div>
+     </li>
+     <li>
+      <p>
+       In the
+       <strong>
+        Set Payload
+       </strong>
+       component’s
+       <strong>
+        Value
+       </strong>
+       field,
+       <em>
+        deselect
+       </em>
+       the
+       <strong>
+        fx
+       </strong>
+       field, and
+type the string
+       <code>
+        "Hello Mule!"
+       </code>
+       .
+      </p>
+      <div class="paragraph">
+       <p>
+        When you deselect
+        <strong>
+         fx
+        </strong>
+        , the field contains only the string
+        <code>
+         "Hello Mule"
+        </code>
+        <em>
+         and does not contain
+        </em>
+        a hash (
+        <code>
+         #
+        </code>
+        ) or square brackets (
+        <code>
+         []
+        </code>
+        ).
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       From the
+       <strong>
+        Mule Palette
+       </strong>
+       tab, click
+       <strong>
+        Core
+       </strong>
+       , and then find and drag a
+       <strong>
+        Logger
+       </strong>
+       component to the right of the Transform Message component.
+      </p>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="Logger component configuration in Hello Mule" src="_images/mruntime-hellomule-logger.png"/>
+       </div>
+      </div>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          If you do not find the
+          <strong>
+           Logger
+          </strong>
+          component, try the search field at the top of the
+          <strong>
+           Mule Palette
+          </strong>
+          tab.
+         </p>
+        </li>
+        <li>
+         <p>
+          If the configuration UI in the
+          <strong>
+           Listener
+          </strong>
+          tab is not open, click the
+          <strong>
+           Logger
+          </strong>
+          component in the canvas to open it.
+         </p>
+        </li>
+       </ul>
+      </div>
+     </li>
+     <li>
+      <p>
+       In the logger’s
+       <strong>
+        Message
+       </strong>
+       field, click the
+       <strong>
+        fx
+       </strong>
+       button, and add the following
+DataWeave expression for printing the request path to the Anypoint Studio console:
+      </p>
+      <div class="paragraph">
+       <p>
+        <code>
+         attributes.requestPath
+        </code>
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       Save the project by selecting
+       <strong>
+        File
+       </strong>
+       &gt;
+       <strong>
+        Save
+       </strong>
+       from Anypoint Studio.
+      </p>
+     </li>
+     <li>
+      <p>
+       Proceed to
+       <a href="#run_example">
+        Run and Execute the Hello Mule Example
+       </a>
+       .
+      </p>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="run_example">
+   <a class="anchor" href="#run_example">
+   </a>
+   Run and Execute the Hello Mule Example
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     After setting up Hello Mule in Anypoint Studio, you can run and test it.
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Run your
+       <strong>
+        hellomule
+       </strong>
+       application by right-clicking within the Anypoint Studio canvas and
+selecting
+       <strong>
+        Run project hellomule
+       </strong>
+       .
+      </p>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="Run Hello Mule" src="_images/mruntime-hellomule-run.png"/>
+       </div>
+      </div>
+      <div class="paragraph">
+       <p>
+        Alternatively, you can click the Run button (
+        <span class="image">
+         <img alt="Run icon" height="5%" src="_images/mruntime-run-button.png" width="5%"/>
+        </span>
+        )
+located at the top of Anypoint Studio, and select
+        <strong>
+         hellomule
+        </strong>
+        from the drop-down menu that
+opens.
+       </p>
+      </div>
+      <div class="paragraph">
+       <p>
+        Either action initiates the build process and opens the Anypoint Studio console, where the
+logs print important information about the two-stage build and deployment process.
+       </p>
+      </div>
+      <div class="paragraph">
+       <p>
+        You know the project is running if you see a message that ends something like this in the
+Anypoint Studio console:
+       </p>
+      </div>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-txt hljs" data-lang="txt">**********************************************************
+*          - - + DOMAIN + - -   * - - + STATUS + - - *
+**********************************************************
+* default                       * DEPLOYED           *
+**********************************************************
+
+*******************************************************************************
+*    - - + APPLICATION + - -    *  - - + DOMAIN + - -    * - - + STATUS + - - *
+*******************************************************************************
+* hellomule                     * default                * DEPLOYED           *
+*******************************************************************************</code></pre>
+       </div>
+      </div>
+      <div class="paragraph">
+       <p>
+        If you receive a failure notification (
+        <code>
+         FAILED
+        </code>
+        ) in the console instead of
+the
+        <code>
+         DEPLOYED
+        </code>
+        notification, check the error message. If you see a message
+like the following one, try setting a new HTTP port in your HTTP listener
+configuration:
+       </p>
+      </div>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-txt hljs" data-lang="txt">Could not create server: A server in port(8081) already exists
+for host(0.0.0.0) or one overlapping it (0.0.0.0).`</code></pre>
+       </div>
+      </div>
+      <div class="paragraph">
+       <p>
+        Then save and rerun your project. Note that you can also try changing the host
+to
+        <code>
+         localhost
+        </code>
+        if the failure persists.
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       After your application is running, open a browser window, and enter
+the URL to the listener to trigger the application:
+      </p>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="Web browser displaying the response 'Hello Mule!' from a local server" src="_images/mruntime-hellomule-browser-response.png"/>
+       </div>
+      </div>
+      <div class="paragraph">
+       <p>
+        You must use the same host and port as configured in the HTTP listener,
+for example,
+        <code>
+         http://0.0.0.0:8081/hellomule
+        </code>
+        .
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       Check for the message
+       <code>
+        Hello Mule!
+       </code>
+       in the browser.
+      </p>
+     </li>
+     <li>
+      <p>
+       In Anypoint Studio, notice that the message in the
+       <strong>
+        Console
+       </strong>
+       tab includes the
+request path (
+       <code>
+        /hellomule
+       </code>
+       ) at the
+       <em>
+        end
+       </em>
+       of the first
+       <code>
+        INFO
+       </code>
+       line
+(
+       <code>
+        org.mule.runtime.core.internal.processor.LoggerMessageProcessor: /hellomule
+       </code>
+       ).
+      </p>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="Console output showing logs from a Mule application named 'Hello Mule'" src="_images/mruntime-hellomule-console.png"/>
+       </div>
+      </div>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="configuration-xml-for-the-hello-mule-example">
+   <a class="anchor" href="#configuration-xml-for-the-hello-mule-example">
+   </a>
+   Configuration XML for the Hello Mule Example
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The following XML provides the flow and HTTP listener configuration for the
+example. To reserve space, the example omits the
+     <code>
+      doc:id
+     </code>
+     attributes, which
+are not required.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Configuration XML from Anypoint Studio:
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-XML hljs" data-lang="XML">&lt;http:listener-config name="HTTP_Listener_config"
+                      doc:name="HTTP Listener config" &gt;
+  &lt;http:listener-connection host="0.0.0.0" port="8081" /&gt;
+&lt;/http:listener-config&gt;
+&lt;flow name="hello-muleFlow" &gt;
+  &lt;http:listener doc:name="Listener"
+                 config-ref="HTTP_Listener_config"
+                 path="/hellomule"/&gt;
+  &lt;set-payload value="Hello Mule!"
+               doc:name="Set Payload"
+               mimeType="text/plain"/&gt;
+  &lt;logger level="INFO"
+          doc:name="Logger"
+          message="#[attributes.requestPath]"/&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The
+     <strong>
+      XML Configuration
+     </strong>
+     tab below the canvas provides an edit page for the XML:
+    </p>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="Hello Mule XML Configuration" src="_images/mruntime-hellomule-xml.png"/>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="mule-app-tutorial">
+        Tutorial: Create a Mule app that uses the Database Connector and DataWeave
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../dataweave/latest/dataweave-quickstart">
+        DataWeave Quickstart
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

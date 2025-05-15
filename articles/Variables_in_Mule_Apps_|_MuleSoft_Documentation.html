@@ -1,0 +1,154 @@
+<article class="doc">
+ <h1 class="page">
+  Variables in Mule Apps
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Variables are used to store per-event values for use within a flow of a Mule app. The stored data can be any supported data type, such as an object, number, or string. It is also possible to store the current message (using the
+     <code>
+      message
+     </code>
+     keyword), the current message payload (using the
+     <code>
+      payload
+     </code>
+     keyword) or just the current message attributes (using the
+     <code>
+      attributes
+     </code>
+     keyword). You can even use a DataWeave expression as the value. However, the keyword
+     <code>
+      vars
+     </code>
+     (for example,
+     <code>
+      vars.someOtherVar
+     </code>
+     ) is not allowed.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     You can create, or update, variables in these ways:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Using the Set Variable component.
+      </p>
+     </li>
+     <li>
+      <p>
+       Using a Target Variable from within an operation, such as the Read operation to the File connector or the Store operation to the Database connector.
+      </p>
+     </li>
+     <li>
+      <p>
+       Using the DataWeave Transform Component (EE-Only)
+      </p>
+     </li>
+     <li>
+      <p>
+       Using Scripting Component (in scripting module)
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     You can also delete/remove:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Using the Remove Variable component.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     After creating a variable, you can access and use it within the scope of a Mule flow where you created it, which includes any flows that are joined with it through a Flow Ref component.
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <code>
+        vars
+       </code>
+       : Keyword for accessing a variable, for example, through a DataWeave expression in a Mule component, such as the Logger, or from an Input or Output parameter of an operation. If the name of your variable is
+       <code>
+        myVar
+       </code>
+       , you can access it like this:
+       <code>
+        vars.myVar
+       </code>
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     Note that a variable in the Mule event is different from variables defined in a DataWeave script, which are local to the script and not accessible outside of it.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="about-mule-event">
+        Mule Events
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="variable-transformer-reference">
+        Set Variable Transformer
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="flowref-about">
+        Flow Reference Component
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="target-variables">
+        Enrich Data with Target Variables
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="dataweave">
+        DataWeave Language
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

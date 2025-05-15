@@ -1,0 +1,463 @@
+<article class="doc">
+ <h1 class="page">
+  Global Configurations
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Global configurations for a mule application such as the default transaction timeout or
+default error handler can be configured in the
+     <code>
+      &lt;configuration&gt;
+     </code>
+     element of the
+root level of the
+     <a class="xref page" href="about-mule-configuration">
+      Mule Configuration File
+     </a>
+     .
+     <br/>
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="create-a-global-configuration-from-studio">
+   <a class="anchor" href="#create-a-global-configuration-from-studio">
+   </a>
+   Create a Global Configuration from Studio
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To create a global configuration:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       In Studio, select the
+       <strong>
+        Global Elements
+       </strong>
+       tab and click
+       <strong>
+        Create
+       </strong>
+       :
+      </p>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="A configuration panel for creating global settings with fields for HTTP listener configuration" src="_images/mruntime-global-settings-create.png"/>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Select
+       <strong>
+        Global Configurations
+       </strong>
+       &gt;
+       <strong>
+        Configuration
+       </strong>
+       :
+      </p>
+      <div class="paragraph">
+       <p>
+        <span class="image">
+         <img alt="A menu for choosing types of global configurations including caching and scheduler settings" src="_images/mruntime-global-configurations.png"/>
+        </span>
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       Configure the
+       <strong>
+        Default Error Handler
+       </strong>
+       and the
+       <strong>
+        HA Profile
+       </strong>
+       values.
+      </p>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="create-a-global-configuration-by-editing-the-xml">
+   <a class="anchor" href="#create-a-global-configuration-by-editing-the-xml">
+   </a>
+   Create a Global Configuration by Editing the XML
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The following example defines a global error handler, and then a global configuration that specifies a default transaction timeout and references the global error handler as the default:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;mule&gt;
+  ...
+  &lt;!-- Error handler --&gt;
+  &lt;error-handler name="GlobalErrorHandler"/&gt;
+  &lt;!-- Global Settings --&gt;
+  &lt;configuration doc:name="GlobalSettings" defaultTransactionTimeout="31337" defaultErrorHandler-ref="GlobalErrorHandler" /&gt;
+  ...
+  &lt;/configuration&gt;
+  ...
+&lt;/mule&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="global-configurations-reference">
+   <a class="anchor" href="#global-configurations-reference">
+   </a>
+   Global Configurations Reference
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The following table shows all attributes of the
+     <code>
+      &lt;configuration&gt;
+     </code>
+     element:
+    </p>
+   </div>
+   <table class="tableblock frame-all grid-all fit-content spread">
+    <colgroup>
+     <col/>
+     <col/>
+     <col/>
+     <col/>
+     <col/>
+    </colgroup>
+    <thead>
+     <tr>
+      <th class="tableblock halign-left valign-top">
+       Name
+      </th>
+      <th class="tableblock halign-left valign-top">
+       Type
+      </th>
+      <th class="tableblock halign-left valign-top">
+       Required
+      </th>
+      <th class="tableblock halign-left valign-top">
+       Default
+      </th>
+      <th class="tableblock halign-left valign-top">
+       Description
+      </th>
+     </tr>
+    </thead>
+    <tbody>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        <code>
+         defaultResponseTimeout
+        </code>
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        <code>
+         string
+        </code>
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        no
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        <code>
+         10000
+        </code>
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        The default period (ms) to wait for a synchronous response.
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        <code>
+         defaultTransactionTimeout
+        </code>
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        <code>
+         string
+        </code>
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        no
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        <code>
+         30000
+        </code>
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        The default timeout (ms) for transactions. This can also be configured on transactions, in which case the transaction configuration is used instead of this default.
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        <code>
+         defaultErrorHandler-ref
+        </code>
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        <code>
+         string
+        </code>
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        no
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        none
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        The default error handler for every flow. This must be a reference to a global error handler.
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        <code>
+         shutdownTimeout
+        </code>
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        <code>
+         integer
+        </code>
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        no
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        <code>
+         5000
+        </code>
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        (As of Mule 2.2.2) The time in milliseconds to wait for any in-progress messages to finish processing before Mule shuts down. After this threshold has been reached, Mule starts interrupting threads, and messages can be lost. If you have a very large number of services in the same Mule instance, if you have components that take more than a couple seconds to process, or if you are using large payloads and/or slower transports, you should increase this value to allow more time for graceful shutdown. The value you specify is applied to services and separately to dispatchers, so the default value of 5000 milliseconds specifies that Mule has five seconds to process and dispatch messages gracefully after shutdown is initiated.
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        <code>
+         maxQueueTransactionFilesSize
+        </code>
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        <code>
+         integer
+        </code>
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        no
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        <code>
+         500
+        </code>
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        The approximated maximum space in megabytes used by the transaction log files for transactional persistent queues. Take into account that this number applies both to the set of transaction log files for XA and for local transactions. If both type of transactions are used then the approximated maximum space used will be twice the configured value.
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        <code>
+         defaultObjectSerializer-ref
+        </code>
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        <code>
+         string
+        </code>
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        no
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        none
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        An optional reference to an ObjectSerializer to be used as the application’s default.
+       </p>
+      </td>
+     </tr>
+    </tbody>
+   </table>
+   <div class="sect2">
+    <h3 id="child-elements-of-configuration">
+     <a class="anchor" href="#child-elements-of-configuration">
+     </a>
+     Child Elements of &lt;configuration&gt;
+    </h3>
+    <table class="tableblock frame-all grid-all fit-content spread">
+     <colgroup>
+      <col/>
+      <col/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-top">
+        Name
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Description
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          dynamic-config-expiration
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Optional. The default expiration settings for dynamic configurations, used by connectors. This can also be configured on connectors, in which case the connector configuration is used instead of this default.
+         <br/>
+         For configuration details, see:
+         <a class="xref page" href="../../mule-sdk/latest/static-dynamic-configs#dynamic-config-expiration">
+          Dynamic Configuration Expiration
+         </a>
+         .
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          cluster-config
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Optional. Mule application cluster configuration.
+         <br/>
+         For configuration details, see:
+         <a class="xref page" href="mule-high-availability-ha-clusters#cluster-high-performance">
+          Clustering for High Performance
+         </a>
+         .
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="error-handling">
+        Error Handling
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../mule-sdk/latest/static-dynamic-configs">
+        Dynamic Configurations
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="mule-high-availability-ha-clusters">
+        Mule High Availability Cluster
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

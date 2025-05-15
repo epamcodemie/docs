@@ -1,0 +1,125 @@
+<article class="doc">
+ <h1 class="page">
+  Single Resource Transactions
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Single Resource Transactions (also known as a simple transaction or local transaction) only use a single resource to send or receive messages: JMS broker, VM queues, or JDBC connections.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The example below illustrates a flow which includes a single resource transaction performed using the source and publish operations of the JMS connector.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="asdFlow" doc:id="2a67b1ee-0394-44a8-b6d9-9ce4f94f1ae2" &gt;
+	&lt;jms:listener config-ref="JMS_Config" destination="test.in" transactionalAction="ALWAYS_BEGIN"/&gt;
+	&lt;!-- Other operations --&gt;
+	&lt;jms:publish config-ref="JMS_Config" destination="test.out" transactionalAction="ALWAYS_JOIN"/&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="admonitionblock note">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-note" title="Note">
+       </i>
+      </td>
+      <td class="content">
+       Both the
+       <code>
+        jms:listener
+       </code>
+       source and the
+       <code>
+        jms:publish
+       </code>
+       operation must use the same connection configuration since this mechanism is intended to manage one resource.
+      </td>
+     </tr>
+    </table>
+   </div>
+   <div class="paragraph">
+    <p>
+     The example shown above defines a JMS event source that receives messages from a
+     <code>
+      test.in
+     </code>
+     queue and another JMS operation that sends messages to a
+     <code>
+      test.out
+     </code>
+     queue. The
+     <code>
+      transactionalAction
+     </code>
+     attribute dictates how Mule initiates a transaction. Within this flow, Mule starts a new transaction for every message it receives (
+     <code>
+      jms:listener
+     </code>
+     source), and always joins the transaction in progress for every message it sends (
+     <code>
+      jms:publish
+     </code>
+     operation).
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Mule only commits messages that successfully pass through the complete flow. If at any point in the flow a message throws an error which is propagated (i.e. it is not handled by an
+     <code>
+      on-error-continue
+     </code>
+     ), Mule rolls back the transaction. Refer to
+     <a class="xref page" href="on-error-scope-concept">
+      On Error Scope
+     </a>
+     for details on how to handle errors.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="nested-transactions">
+   <a class="anchor" href="#nested-transactions">
+   </a>
+   Nested Transactions
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Nested transactions are not available for Single Resource transactions. Refer to
+     <a class="xref page" href="xa-transactions#nested-transactions">
+      XA Transactions
+     </a>
+     for more details.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="transaction-management">
+        Transaction Management
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

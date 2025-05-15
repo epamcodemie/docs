@@ -1,0 +1,531 @@
+<article class="doc">
+ <h1 class="page">
+  Reliability Patterns
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     A reliability pattern is a design that results in reliable messaging for an application, even if the application receives messages from a nontransactional connector. A reliability pattern couples a reliable acquisition flow with an application logic flow, as shown in the following diagram:
+    </p>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="A flow showing a reliable message handling process using VM" src="_images/reliability-pattern.png"/>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The reliable acquisition flow (the left side of the diagram) delivers a message reliably from a Mule event source that does not implement transactions to an outbound operation of a connector that implements transactions. The operation can be of any type of the transactional endpoints, such as VM or JMS. If the reliable acquisition flow cannot deliver the message, it ensures that the message isn’t lost.
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       For socket-based connections like HTTP, this means returning an "unsuccessful request" response to the client so that the client can retry the request.
+      </p>
+     </li>
+     <li>
+      <p>
+       For resource-based connections like File or FTP, it means not deleting the file, so that it can be reprocessed.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     The application logic flow (the right side of the diagram) delivers the message from the event source that uses a transactional connector to the business logic for the application.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="reliable-messaging">
+   <a class="anchor" href="#reliable-messaging">
+   </a>
+   Reliable Messaging
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     High-reliability applications must have zero tolerance for message loss. This means that both the underlying Mule and its individual connections need to be reliable.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     If your application uses a transactional connection such as JMS, VM, or DB, reliable messaging is ensured by the built-in support for transactions in the connector. This means, for example, that you can configure a transaction on a JMS listener that makes sure messages are removed only from the JMS server when the transaction is committed. Doing this ensures that if an error occurs while processing the message, it is still available for reprocessing. In other words, the transactional support in these connectors ensures that messages are delivered reliably from a source to an operation, or between processors within a flow.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     If you want to move messages between different connectors that support transactions, use XA transactions to ensure that both connectors' transactions are committed as one atomic unit.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     See
+     <a class="xref page" href="transaction-management">
+      Transaction Management
+     </a>
+     for more information about XA and other types of transactions.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     If you have a web application that uses a nontransactional connector, such as HTTP, follow a reliability pattern to ensure reliable messaging for your application.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="comparing-endpoints-in-reliability-patterns">
+   <a class="anchor" href="#comparing-endpoints-in-reliability-patterns">
+   </a>
+   Comparing Endpoints in Reliability Patterns
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You can couple the reliable acquisition flow with any type of transactional endpoint. You don’t have to use a VM endpoint in a reliability pattern. The following diagram illustrates a reliability pattern where the reliable acquisition flow delivers a message to a JMS endpoint:
+    </p>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="A flow showing a reliable message acquisition and response process using JMS" src="_images/reliabilitypatternwithjms.png"/>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The following table lists the advantages and disadvantages of using VM, JMS, and JDBC endpoints in a reliable acquisition flow.
+    </p>
+   </div>
+   <table class="tableblock frame-all grid-all stretch">
+    <colgroup>
+     <col style="width: 10%;"/>
+     <col style="width: 60%;"/>
+     <col style="width: 30%;"/>
+    </colgroup>
+    <thead>
+     <tr>
+      <th class="tableblock halign-left valign-top">
+       Endpoint
+      </th>
+      <th class="tableblock halign-left valign-top">
+       Advantage
+      </th>
+      <th class="tableblock halign-left valign-top">
+       Disadvantage
+      </th>
+     </tr>
+    </thead>
+    <tbody>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          File-based VM (standalone Mule)
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="ulist">
+         <ul>
+          <li>
+           <p>
+            Provided ready to use with Mule. There is no need for additional software.
+           </p>
+          </li>
+         </ul>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="ulist">
+         <ul>
+          <li>
+           <p>
+            Applies only to non-clustered environments.
+           </p>
+          </li>
+         </ul>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          JDBC
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="ulist">
+         <ul>
+          <li>
+           <p>
+            Depending on resources available, JDBC can hold a large amount of information.
+           </p>
+          </li>
+         </ul>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="ulist">
+         <ul>
+          <li>
+           <p>
+            Requires additional software (database server).
+           </p>
+          </li>
+          <li>
+           <p>
+            Can be complex to use since proper DBMS schemas are required.
+           </p>
+          </li>
+         </ul>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          JMS (enabled for persistence)
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="ulist">
+         <ul>
+          <li>
+           <p>
+            Applies to both clustered and non-clustered environments.
+           </p>
+          </li>
+         </ul>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="ulist">
+         <ul>
+          <li>
+           <p>
+            Requires additional software (message queue server).
+           </p>
+          </li>
+         </ul>
+        </div>
+       </div>
+      </td>
+     </tr>
+    </tbody>
+   </table>
+   <div class="admonitionblock note">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-note" title="Note">
+       </i>
+      </td>
+      <td class="content">
+       The comparison doesn’t include in-memory persistence setups for VM and JMS because they can lose messages and are not considered reliable.
+      </td>
+     </tr>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="implementing-a-reliability-pattern">
+   <a class="anchor" href="#implementing-a-reliability-pattern">
+   </a>
+   Implementing a Reliability Pattern
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Below is a code example that shows what a complete reliability pattern would look like, including the reliable acquisition flow and the application logic flow. In this example, the reliable acquisition flow part of the reliability pattern is HTTP-to-VM.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="example-http-to-vm">
+     <a class="anchor" href="#example-http-to-vm">
+     </a>
+     Example: HTTP to VM
+    </h3>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" &gt;
+	&lt;http:listener-connection host="0.0.0.0" port="8081" /&gt;
+&lt;/http:listener-config&gt;
+&lt;vm:config name="VM_Config" doc:name="VM Config" &gt;
+	&lt;vm:queues &gt;
+		&lt;vm:queue queueName="toTransactionalVM" queueType="PERSISTENT"/&gt;
+	&lt;/vm:queues&gt;
+&lt;/vm:config&gt;
+&lt;flow name="reliable-data-acquisition"&gt;
+&lt;http:listener config-ref="HTTP_Listener_config" path="transactionalEndpoint"/&gt;
+&lt;vm:publish config-ref="VM_Config" queueName="toTransactionalVM" sendCorrelationId="ALWAYS"/&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+&lt;/flow&gt;
+
+&lt;!-- This is the application logic flow in the reliability pattern.
+	It is a wrapper around the sub-flow "business-logic-processing". --&gt;
+&lt;flow name="main-flow"&gt;
+	&lt;vm:listener doc:name="Listener" config-ref="VM_Config" queueName="toTransactionalVM"
+		transactionalAction="ALWAYS_BEGIN"/&gt; <i class="conum" data-value="2"></i><b>(2)</b>
+	&lt;flow-ref name="business-logic-processing"/&gt;
+&lt;/flow&gt;
+
+&lt;!-- In this sub-flow, the application starts processing the message. --&gt;
+&lt;sub-flow name="business-logic-processing"&gt;
+	&lt;logger level="INFO" doc:name="Logger" /&gt;
+	&lt;!--
+		This is where the actual business-logic is performed.
+	--&gt;
+&lt;/sub-flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="colist calloutlist">
+     <table>
+      <tr>
+       <td>
+        <i class="conum" data-value="1">
+        </i>
+        <b>
+         1
+        </b>
+       </td>
+       <td>
+        The message is written to the VM queue. It is now available for processing by the main flow.
+       </td>
+      </tr>
+      <tr>
+       <td>
+        <i class="conum" data-value="2">
+        </i>
+        <b>
+         2
+        </b>
+       </td>
+       <td>
+        The message is read from the VM queue transactionally. This ensures that if an error occurs, the reading is rolled back and the message is reprocessed.
+       </td>
+      </tr>
+     </table>
+    </div>
+    <div class="paragraph">
+     <p>
+      To test this XML example in Studio, add the VM connector dependency to your project’s
+      <code>
+       pom.xml
+      </code>
+      file.
+     </p>
+    </div>
+    <div class="admonitionblock note">
+     <table>
+      <tr>
+       <td class="icon">
+        <i class="fa icon-note" title="Note">
+        </i>
+       </td>
+       <td class="content">
+        This example shows VM file persistency, which does not work on clusters.
+       </td>
+      </tr>
+     </table>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="implementing-a-reliable-acquisition-flow">
+   <a class="anchor" href="#implementing-a-reliable-acquisition-flow">
+   </a>
+   Implementing a Reliable Acquisition Flow
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The example provided in
+     <a href="#implementing-a-reliability-pattern">
+      Implementing a Reliability Pattern
+     </a>
+     showed a reliable acquisition flow for an HTTP listener to a VM publish operation. This scenario focuses on a reliable acquisition flow that has a nontransactional event source: FTP-to-VM (Or SFTP, FTPS).
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     In this case, a resource-based connection is used. When using resource-based connections, ensure to read the resource only once. This is done by setting
+     <code>
+      watermarkEnabled
+     </code>
+     to
+     <code>
+      true
+     </code>
+     .
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Do not set the
+     <code>
+      auto-delete
+     </code>
+     parameter to
+     <code>
+      true
+     </code>
+     because doing so deletes the file as soon as the flow finishes, even if the processing is done by another flow. The same applies to
+     <code>
+      moveToDirectory
+     </code>
+     .
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="example-ftp-to-vm">
+     <a class="anchor" href="#example-ftp-to-vm">
+     </a>
+     Example: FTP to VM
+    </h3>
+    <div class="paragraph">
+     <p>
+      The following code implements a reliable acquisition flow from an FTP listener (On New or Updated File) to a VM queue by a publish operation:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;ftp:config name="FTP_Config"&gt;
+	&lt;ftp:connection host="localhost" username="max" password="mulesoft"/&gt;
+&lt;/ftp:config&gt;
+
+&lt;flow name="reliable-data-acquisition"&gt;
+	&lt;ftp:listener config-ref="FTP_Config" watermarkEnabled="true" directory="someDirectory/in"&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+		&lt;scheduling-strategy &gt;
+			&lt;fixed-frequency /&gt;
+		&lt;/scheduling-strategy&gt;
+	&lt;/ftp:listener&gt;
+	&lt;vm:publish config-ref="VM_Config" queueName="toTransactionalVM"/&gt;
+&lt;/flow&gt;
+
+&lt;flow name="doc-examplesFlow"&gt;
+	&lt;vm:listener queueName="toTransactionalVM" config-ref="VM_Config" transactionalAction="ALWAYS_BEGIN"/&gt;
+	&lt;set-variable value="#[attributes.filename]" variableName="filepath"/&gt;
+	&lt;!-- File content is already present in payload --&gt;
+	&lt;flow-ref name="business-logic-processing"/&gt;
+	&lt;ftp:delete path="#[vars.filepath]"/&gt; <i class="conum" data-value="2"></i><b>(2)</b>
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="colist arabic">
+     <table>
+      <tr>
+       <td>
+        <i class="conum" data-value="1">
+        </i>
+        <b>
+         1
+        </b>
+       </td>
+       <td>
+        To perform a transformation before publishing to VM, add a max redelivery count.
+       </td>
+      </tr>
+      <tr>
+       <td>
+        <i class="conum" data-value="2">
+        </i>
+        <b>
+         2
+        </b>
+       </td>
+       <td>
+        If the file is not intended to be deleted, do not use the
+        <code>
+         ftp:delete
+        </code>
+        operation. The same applies if the intended operation is
+        <code>
+         ftp:move
+        </code>
+        .
+       </td>
+      </tr>
+     </table>
+    </div>
+    <div class="paragraph">
+     <p>
+      A similar implementation is done for any other of the resourced-based connectors.
+     </p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="general-considerations">
+   <a class="anchor" href="#general-considerations">
+   </a>
+   General Considerations
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     When you implement a reliability pattern, consider the following points:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       When the connector (event source) allows it, always use a transaction.
+      </p>
+     </li>
+     <li>
+      <p>
+       When you want to enlist multiple managed resources within the same transaction, use an XA transaction to bridge event sources.
+      </p>
+     </li>
+     <li>
+      <p>
+       The reliability of JMS is tied to the MQ implementation and how it is configured. Most MQ implementations allow you to configure whether messages are stored only in memory, or persisted. You can achieve reliability only if you configure the MQ server to persistently store messages before sending them forward. Otherwise, you risk losing messages in case of an MQ server crash.
+      </p>
+     </li>
+     <li>
+      <p>
+       Reliability has performance implications.
+      </p>
+     </li>
+     <li>
+      <p>
+       If the outbound operation in the reliable acquisition flow is not transactional (for example, a flow from file-to-FTP), perform that operation inside a
+       <a class="xref page" href="try-scope-concept">
+        Try Scope
+       </a>
+       . With this practice, you can confirm if the operation completes successfully or, in case it fails, log the error message.
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

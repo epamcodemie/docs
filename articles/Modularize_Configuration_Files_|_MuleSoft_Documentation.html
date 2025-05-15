@@ -1,0 +1,186 @@
+<article class="doc">
+ <h1 class="page">
+  Modularize Configuration Files
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Though it might seem convenient to keep your Mule configurations in one file,
+a very large XML file quickly becomes unmanageable. This is why
+ MuleSoft recommends that you split monolithic configurations into several files, and leverage Mule’s capacity to load multiple configuration files at application start-up time.
+ Splitting configurations into multiple files encourages reuse across teams.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Mule offers two options for loading multiple configuration files:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Side-by-side: Provide a list of independent configuration files to load.
+      </p>
+     </li>
+     <li>
+      <p>
+       Imported: Have one configuration file import several others, which in turn, can
+import other files.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     In practice, it’s common to use both approaches simultaneously.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Because configuration files are loaded in the same context,
+you must use unique names for the configuration elements. Mule will not load an application if its configuration files have name conflicts.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Here are some suggested ways to determine where to split configuration elements into separate files and which elements to keep together:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Business domains usually form a natural border that you can use to separate
+configuration elements.
+      </p>
+     </li>
+     <li>
+      <p>
+       Keep together elements that have been changed for similar reasons. This reduces the risk of impacting unrelated aspects of your application.
+      </p>
+     </li>
+     <li>
+      <p>
+       Technical elements, such as administrative components, security, and external system configurations determine good separation lines.
+      </p>
+     </li>
+     <li>
+      <p>
+       Separate a side-by-side connector configuration to facilitate functional testing.
+(This suggestion does not apply to environment-specific connector configurations, which use properties files.)
+      </p>
+     </li>
+     <li>
+      <p>
+       Consider reuse across teams and projects when you separate configuration elements.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="admonitionblock note">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-note" title="Note">
+       </i>
+      </td>
+      <td class="content">
+       By default, Mule treats all XML configuration files as configurations
+when an application is packaged and loaded in the side-by-side fashion.
+      </td>
+     </tr>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="imported-configuration-files">
+   <a class="anchor" href="#imported-configuration-files">
+   </a>
+   Imported configuration files
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Mule has a special
+     <code>
+      import
+     </code>
+     configuration component for importing configuration files into
+each other. This component takes a
+     <code>
+      file
+     </code>
+     parameter, which contains
+the reference to the desired configuration file.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The following example shows a main configuration file that imports three other
+configuration elements:
+     <code>
+      global-configurations.xml
+     </code>
+     ,
+     <code>
+      admin-config.xml
+     </code>
+     , and
+     <code>
+      audit-flows.xml
+     </code>
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd"&gt;
+
+    &lt;import file="global-configurations.xml"/&gt;
+    &lt;import file="admin-config.xml"/&gt;
+    &lt;import file="audit-flows.xml"/&gt;
+
+&lt;/mule&gt;</code></pre>
+    </div>
+   </div>
+   <div class="admonitionblock note">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-note" title="Note">
+       </i>
+      </td>
+      <td class="content">
+       The import mechanism requires that the XML files are in the classpath.
+      </td>
+     </tr>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="intro-packaging">
+        Introduction to Mule 4: Packaging Applications
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

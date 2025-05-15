@@ -1,0 +1,175 @@
+<article class="doc">
+ <h1 class="page">
+  Mule Data Types
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Mule runtime engine uses a typed data structure called
+     <code>
+      TypedValue
+     </code>
+     that centralizes data access across different components. This data structure provides access to both the actual data and its data type. The data type consists of two values, the MIME type and the encoding of the data.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="input-data">
+   <a class="anchor" href="#input-data">
+   </a>
+   Input Data
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Mule stores all variables and the payload using the
+     <code>
+      TypedValue
+     </code>
+     data structure. Also, operations like
+     <code>
+      List
+     </code>
+     from the Anypoint Platform File Connector return their results as
+     <code>
+      TypedValue
+     </code>
+     instances, enabling DataWeave to list different types of files (JSON, XML, CSV, and so on) to read.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="output-data">
+   <a class="anchor" href="#output-data">
+   </a>
+   Output Data
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     DataWeave always outputs a
+     <code>
+      TypedValue
+     </code>
+     instance. DataWeave decides what writer to use based on the data type of the
+     <code>
+      TypedValue
+     </code>
+     instance. However, you can manually specify the data type in a DataWeave script by using the
+     <code>
+      output
+     </code>
+     directive.
+If the script that Mule is executing is assigned to a message processing field, Mule informs DataWeave which type of data to expect type based on the metadata of that field. For example, if the data type is a Plain Old Java Object (Pojo), then DataWeave knows not only which class to instantiate but also that it must use the Java writer to generate the output.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="how-dataweave-uses-mule-data-types">
+   <a class="anchor" href="#how-dataweave-uses-mule-data-types">
+   </a>
+   How DataWeave Uses Mule Data Types
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     DataWeave uses the data type contained in the
+     <code>
+      TypedValue
+     </code>
+     instance to determine which reader to use, based on the MIME type, and how to configure that reader (encoding, reader properties), based on the MIME type properties.
+When DataWeave cannot determine the data type, it follows this procedure:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Verifies which input types the script is using.
+      </p>
+      <div class="paragraph">
+       <p>
+        If all inputs are compatible or of the same data type, DataWeave uses that data type. For example, if the script contains
+        <code>
+         &lt;set-payload value="#[payload.someValue]/&gt;
+        </code>
+        DataWeave examines the data type of the payload and, if the payload is JSON, DataWeave uses the JSON writer. If there is more than one input in the script and they are from different data types, DataWeave throws an error.
+       </p>
+      </div>
+      <div class="paragraph">
+       <p>
+        For example, if the script contains
+        <code>
+         &lt;set-payload value="#[payload.someValue ++ vars.myVar]/&gt;
+        </code>
+        , in which
+        <code>
+         vars.myBar
+        </code>
+        is of type XML and
+        <code>
+         payload
+        </code>
+        is of type JSON, DataWeave throws an error. In some cases, specifically when working with XML, an expression in a Set payload operation fails because it generates an invalid XML structure.
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       If no input is used, DataWeave uses the Java writer.
+      </p>
+      <div class="paragraph">
+       <p>
+        For example, when DataWeave reads the script
+        <code>
+         &lt;set-payload value="#[\{a: true}]/&gt;
+        </code>
+        , it uses the Java writer to output a
+        <code>
+         java.util.Map
+        </code>
+        object with an entry containing ("a", true).
+       </p>
+      </div>
+      <div class="paragraph">
+       <p>
+        For the Logger message processor, DataWeave has a special feature to avoid errors when creating the output. First, DataWeave tries to determine which input types the script is using, and then it uses the corresponding writer to generate the output. If DataWeave fails because the writer cannot create that data structure, then DataWeave uses the DataWeave writer, which can output any possible data structure.
+       </p>
+      </div>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../dataweave/latest/">
+        DataWeave Language
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../dataweave/latest/dataweave-formats#setting-mime-types">
+        Setting MIME Types in DataWeave
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

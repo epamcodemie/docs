@@ -1,0 +1,332 @@
+<article class="doc">
+ <h1 class="page">
+  Mule Runtime Engine Overview
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Mule runtime engine (Mule) is a lightweight integration engine that runs Mule
+applications and supports domains and policies. Mule applications, domains,
+and policies share an XML DSL (domain-specific language).
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="mule-applications">
+   <a class="anchor" href="#mule-applications">
+   </a>
+   Mule Applications
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Mule applications connect systems, services, APIs, and devices using API-led
+connectivity instead of point-to-point integrations. Mule applications provide
+functionality for message routing, data mapping, orchestration, reliability,
+security, and scalability.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Anypoint Studio supports Mule application development.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="mule-domains">
+   <a class="anchor" href="#mule-domains">
+   </a>
+   Mule Domains
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Domains enable you to share global configurations that Mule applications need to
+reuse, such as default error handlers, shared properties, scheduler pools, and
+component configurations. You can only deploy domains when running Mule runtime engine on premises.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     See
+     <a class="xref page" href="shared-resources">
+      Shared Resources
+     </a>
+     for information about developing and configuring Mule domains by using Anypoint Studio.
+     <br/>
+     See
+     <a class="xref page" href="deploy-on-premises#deploy-a-domain">
+      Deploy a Domain
+     </a>
+     for domain deployment instructions.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="policies">
+   <a class="anchor" href="#policies">
+   </a>
+   Policies
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Policies on HTTP-based APIs can enforce security, regulate traffic through
+Mule applications, and adapt APIs to your business needs.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Mule includes an embedded API Gateway, which enables you to apply
+security policies to an API, enrich incoming or outgoing messages, and add
+capabilities to an API without having to write any code.
+     <br/>
+     See
+     <a class="xref page" href="../../mule-gateway/mule-gateway-capabilities-mule4">
+      API Gateway Capabilities
+     </a>
+     for additional information.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     API Manager supports the configuration of automated policies. Custom policy
+development and configuration are also supported.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="Maven">
+   <a class="anchor" href="#Maven">
+   </a>
+   Maven Support
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Maven is a project management utility that Mule implements to enhance project
+development. Mule provides built-in Maven functionality. For the Mule runtime engine,
+you can integrate the packaging, testing, and deployment of your Mule applications,
+domains, and custom policies with your Maven lifecycle using the Mule Maven plugin.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     For details, see
+     <a class="xref page" href="using-maven-with-mule">
+      Maven Support in Mule
+     </a>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="install_deploy_manage">
+   <a class="anchor" href="#install_deploy_manage">
+   </a>
+   Mule Installation, Deployment, and Management
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     For a Mule app to run, it must be deployed to an environment where the Mule
+runtime engine is installed.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Mule is packaged within the
+     <a class="xref page" href="../../studio/latest/">
+      Studio
+     </a>
+     IDE and with
+     <a class="xref page" href="../../design-center/">
+      Design Center
+     </a>
+     on Anypoint Platform so
+that you can run a Mule app as you design it.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     MuleSoft provides different options for hosting the Anypoint Platform runtime plane:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       CloudHub 2.0
+      </p>
+      <div class="paragraph">
+       <p>
+        CloudHub 2.0 is a fully managed, containerized integration platform as a service (iPaaS) where you can deploy APIs and integrations as lightweight containers in the cloud.
+       </p>
+      </div>
+      <div class="paragraph">
+       <p>
+        CloudHub 2.0 provides for deployments across 12 regions globally, either single or shared tenancy, and dynamically scales infrastructure and built-in services up or down to support elastic transaction volumes.
+See
+        <a class="xref page" href="../../cloudhub-2/">
+         CloudHub 2.0
+        </a>
+        for more information.
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       CloudHub 1.0
+      </p>
+      <div class="paragraph">
+       <p>
+        CloudHub is MuleSoft’s cloud-based environment for hosting the Mule runtime server and related services. CloudHub enables you to deploy an API or a Mule application on a platform that’s managed by MuleSoft.
+       </p>
+      </div>
+      <div class="paragraph">
+       <p>
+        CloudHub also provides high availability, clustering and failover of your APIs and Mule applications and performs load balancing for them. See
+        <a class="xref page" href="../../cloudhub/">
+         CloudHub
+        </a>
+        for more information.
+       </p>
+      </div>
+      <div class="paragraph">
+       <p>
+        CloudHub can be managed only by version of the cloud control plane that exists in the same environment (US cloud, EU cloud, or MuleSoft Government Cloud).
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       Runtime Fabric
+      </p>
+      <div class="paragraph">
+       <p>
+        Runtime Fabric is a container service that enables you to run Mule applications and API gateways within a data center or third-party cloud environment that you control and manage. You can install Runtime Fabric on a set of physical servers, virtual machines, or within Amazon Web Services and Microsoft Azure.
+       </p>
+      </div>
+      <div class="paragraph">
+       <p>
+        Runtime Fabric comes bundled with technology such as Docker and Kubernetes, which offer benefits such as high availability, failover, clustering, and load balancing. See
+        <a class="xref page" href="../../runtime-fabric/latest/">
+         Anypoint Runtime Fabric Overview
+        </a>
+        for more information.
+       </p>
+      </div>
+      <div class="paragraph">
+       <p>
+        Runtime Fabric can be managed only by Cloud control planes (US cloud, EU cloud). MuleSoft Government Cloud and Anypoint Platform PCE do not support Runtime Fabric.
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       Hybrid Standalone Runtimes
+      </p>
+      <div class="paragraph">
+       <p>
+        Hybrid standalone runtimes enable you to host the Mule runtime engine in an environment you control. This model provides the control and security of deployments within customer trust boundary combined with the flexibility, scalability, and centralized management of cloud-based services.
+       </p>
+      </div>
+      <div class="paragraph">
+       <p>
+        With hybrid standalone runtimes, the Mule runtime engine can run on a physical server, a virtual machine, or within a third-party cloud service like Amazon Web Services (AWS) or Microsoft Azure.
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       Standalone Runtimes
+      </p>
+      <div class="paragraph">
+       <p>
+        Standalone runtimes are useful for isolated environments where connecting to the internet or Anypoint Control Plane isn’t feasible. These environments enable you to host Mule runtime engine on a single instance, such as a physical server, virtual machine, or within a third-party cloud service like AWS or Azure. This setup offers simplicity and control, but it requires that you manually manage infrastructure tasks like high availability, failover, clustering, and load balancing. No connection to Anypoint Control Plane is required, and you manage these Mule instances entirely within your own environment.
+       </p>
+      </div>
+      <div class="paragraph">
+       <p>
+        You can manage standalone runtimes by using cloud control planes (US Cloud, EU Cloud, MuleSoft Government Cloud) or a customer-hosted control plane (Anypoint Platform PCE).
+       </p>
+      </div>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     In addition to using Runtime Manager, you can perform deployments and manage
+Mule apps with
+     <a class="xref page" href="../../anypoint-cli/latest/anypoint-platform-cli-commands">
+      Anypoint CLI 3.x
+     </a>
+     ,
+which includes commands for deployments and a number of Anypoint Platform use
+cases.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="mule-app-dev">
+        Mule Application Development
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../studio/latest/domain-support-concept">
+        Domains
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../gateway/latest/flex-gateway-secure-apis">
+        Policies
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="about-mule-configuration">
+        Mule Configuration XML
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../runtime-manager/deployment-strategies">
+        Deployment Strategies
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="runtime-installation-task">
+        Download, Install, Upgrade Mule
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

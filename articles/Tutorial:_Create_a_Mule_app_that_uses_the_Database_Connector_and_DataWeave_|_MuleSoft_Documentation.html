@@ -1,0 +1,958 @@
+<article class="doc">
+ <h1 class="page">
+  Tutorial: Create a Mule app that uses the Database Connector and DataWeave
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Most integrations require a change to the structure of data as it moves from source to destination. Within a Mule app, you can use the drag-n-drop interface of the Transform Message component to map data from one field or format to another, or you can write mappings by hand within DataWeave scripts. You typically build Mule apps in Studio, but you can even write Mule app configurations by hand in XML. This tutorial uses Studio.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Using a small data set and a training API available on Exchange, you’ll create a project and define the transformation mapping from the API into a different structure and protocol. You’ll use the drag-n-drop and also see the
+     <a class="xref page" href="dataweave">
+      DataWeave
+     </a>
+     code that defines the transformation. After completing this tutorial, you’ll be ready to create your own data mappings.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="prerequisites">
+   <a class="anchor" href="#prerequisites">
+   </a>
+   Prerequisites
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To enable you to focus on a data mapping workflow, MuleSoft recommends completing a few setup tasks.
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Navigate to
+       <a href="https://anypoint.mulesoft.com/exchange/68ef9520-24e9-4cf2-b2f5-620025690913/training-american-flights-api/">
+        Training: American Flights API
+       </a>
+       in Exchange, and click the GET button to see a sample response in JSON:
+      </p>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="A JSON response example in a test environment showing data" src="_images/mruntime-quickstart-json.png"/>
+       </div>
+      </div>
+      <div class="paragraph">
+       <p>
+        This is the structure we’ll transform.
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       Download and install
+       <a class="xref page" href="../../studio/latest/to-download-and-install-studio">
+        Anypoint Studio
+       </a>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       Create
+       <a href="https://anypoint.mulesoft.com/login/#/signin?apintent=exchange">
+        an Anypoint Platform trial account
+       </a>
+       if you don’t have one.
+      </p>
+     </li>
+     <li>
+      <p>
+       Choose a REST API client such as Postman or the Advanced REST client. This tutorial uses the Advanced REST client.
+      </p>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="step-one-create-a-mule-4-project">
+   <a class="anchor" href="#step-one-create-a-mule-4-project">
+   </a>
+   Step One: Create a Mule 4 Project
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Create the project that will contain your Mule app.
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Open Anypoint Studio, and select
+       <strong>
+        File &gt; New &gt; Mule Project
+       </strong>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       Set the
+       <strong>
+        Project Name
+       </strong>
+       to
+       <code>
+        dw-tutorial4-flights-ws
+       </code>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       Leave all other defaults, and select
+       <strong>
+        Finish
+       </strong>
+       to create the project.
+      </p>
+     </li>
+    </ol>
+   </div>
+   <div class="paragraph">
+    <p>
+     When you’re done, look in the
+     <strong>
+      Package Explorer
+     </strong>
+     window to see the contents of your new project.
+    </p>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="A Mule project with directories for main, test, and resources" src="_images/mruntime-quickstart-package-explorer.png"/>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="step-two-create-and-configure-a-mule-4-app">
+   <a class="anchor" href="#step-two-create-and-configure-a-mule-4-app">
+   </a>
+   Step Two: Create and Configure a Mule 4 App
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Now we’ll add the elements required to fetch data from an API and transform it into a different structure using DataWeave.
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Add an HTTP Listener operation to listen to the American Flights API. In the Mule Palette, select HTTP to display the HTTP operations, and drag the Listener operation onto the canvas.
+      </p>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="A palette menu showing components including Listener and Transform Message" src="_images/mruntime-quickstart-listener.png"/>
+       </div>
+      </div>
+      <div class="paragraph">
+       <p>
+        If you can’t see anything in the Mule Palette, open the project file
+        <code>
+         dw-tutorial4-flights-ws.xml
+        </code>
+        in the
+        <code>
+         src/main/mule
+        </code>
+        folder in Package Explorer.
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       Double-click the Listener operation to display its properties tab, and click the green plus sign to add a new configuration.
+      </p>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="A Listener configuration panel in Mule showing required settings for connector configuration" src="_images/mruntime-quickstart-listener-properties.png"/>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       In the HTTP Listener config dialog, add these values:
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          <strong>
+           Host
+          </strong>
+          :
+          <code>
+           0.0.0.0
+          </code>
+         </p>
+        </li>
+        <li>
+         <p>
+          <strong>
+           Port
+          </strong>
+          :
+          <code>
+           8081
+          </code>
+         </p>
+        </li>
+       </ul>
+      </div>
+     </li>
+     <li>
+      <p>
+       Click
+       <strong>
+        OK
+       </strong>
+       to save these changes and close the dialog.
+      </p>
+     </li>
+     <li>
+      <p>
+       In the General tab for the Listener, change the
+       <strong>
+        Path:
+       </strong>
+       field to
+       <code>
+        /flights
+       </code>
+       . Your change is automatically saved.
+      </p>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="A configuration panel for a Listener component showing settings for path and connector configuration" src="_images/mruntime-quickstart-path.png"/>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       In the Mule Palette, select
+       <strong>
+        Add Modules
+       </strong>
+       to display a list of modules and connectors, and drag the Database connector into the left side of the Mule Palette. You may be asked to select a version. Select the latest version.
+      </p>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="A palette menu in Mule interface showing available modules like Database, HTTP, and APIKit for SOAP" src="_images/mruntime-quickstart-add-db1.png"/>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Now that the Database connector is in the Mule Palette, you can see its operations. Drag the Select operation into the flow.
+      </p>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="A Mule flow configuration interface showing elements like Listener and Error handling" src="_images/mruntime-quickstart-add-db2.png"/>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Let’s configure the Database operation to listen for responses from the MuleSoft sample MySQL database. Click the Select operator to display its properties tab, and click the add button (green cross) to open the Database Config dialog.
+      </p>
+     </li>
+     <li>
+      <p>
+       Select or type Mule’s sample database values in the dialog:
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          Connection:
+          <code>
+           MySQL Connection
+          </code>
+         </p>
+        </li>
+        <li>
+         <p>
+          <strong>
+           Host
+          </strong>
+          :
+          <code>
+           mudb.learn.mulesoft.com
+          </code>
+         </p>
+        </li>
+        <li>
+         <p>
+          <strong>
+           Port
+          </strong>
+          :
+          <code>
+           3306
+          </code>
+         </p>
+        </li>
+        <li>
+         <p>
+          <strong>
+           User
+          </strong>
+          :
+          <code>
+           mule
+          </code>
+         </p>
+        </li>
+        <li>
+         <p>
+          <strong>
+           Password
+          </strong>
+          :
+          <code>
+           mule
+          </code>
+         </p>
+        </li>
+        <li>
+         <p>
+          <strong>
+           Database
+          </strong>
+          :
+          <code>
+           training
+          </code>
+         </p>
+         <div class="imageblock">
+          <div class="content">
+           <img alt="A database configuration panel for MySQL connection with fields for host, port, user, and database" src="_images/mruntime-quickstart-db-values.png"/>
+          </div>
+         </div>
+        </li>
+       </ul>
+      </div>
+     </li>
+     <li>
+      <p>
+       While still in the Database Config dialog, select
+       <strong>
+        Configure &gt; Add Maven dependency
+       </strong>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       In the
+       <strong>
+        Pick a Maven dependency
+       </strong>
+       dialog, enter
+       <code>
+        mysql-
+       </code>
+       in the
+       <strong>
+        Search Maven Central
+       </strong>
+       search field.
+      </p>
+     </li>
+     <li>
+      <p>
+       Select
+       <code>
+        mysql:mysql-connector-java
+       </code>
+       from the displayed items.
+      </p>
+     </li>
+     <li>
+      <p>
+       Select
+       <strong>
+        Finish
+       </strong>
+       to return to the Database Config dialog.
+      </p>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="A database configuration panel showing MySQL connection settings and required JDBC driver information" src="_images/mruntime-quickstart-db-driver.png"/>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Select
+       <strong>
+        Test Connection
+       </strong>
+       . You should receive a
+       <code>
+        Test connection successful
+       </code>
+       message. If you don’t, go back through the steps and look for errors.
+      </p>
+     </li>
+     <li>
+      <p>
+       Select
+       <strong>
+        OK
+       </strong>
+       to return to the Database Config dialog.
+      </p>
+     </li>
+     <li>
+      <p>
+       Create a query that returns all flights from the Training: American Flights API.
+      </p>
+      <div class="olist loweralpha">
+       <ol class="loweralpha" type="a">
+        <li>
+         <p>
+          If it’s not already open, click the Select operation to display its property tab.
+         </p>
+        </li>
+        <li>
+         <p>
+          Add a select statement in the query field:
+          <code>
+           SELECT * FROM american
+          </code>
+          . Your changes are automatically saved.
+         </p>
+         <div class="imageblock">
+          <div class="content">
+           <img alt="A database query setup with SQL text" src="_images/mruntime-quickstart-select-query.png"/>
+          </div>
+         </div>
+        </li>
+       </ol>
+      </div>
+     </li>
+     <li>
+      <p>
+       To test your configuration so far, run the project. You can right-click in the canvas where the flow is defined, and select
+       <strong>
+        Run Project dw-tutorial4-flights-ws
+       </strong>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       Watch the Console tab and when the app is running, open your REST API client.
+      </p>
+     </li>
+     <li>
+      <p>
+       In the client, send a request to
+       <code>
+        http://localhost:8081/flights/
+       </code>
+       . At this point, the application returns a
+       <code>
+        500 Server Error
+       </code>
+       message because it cannot process the data received from the query to the American Flights API. This error is addressed when you add a Transform component to the flow during the next section of the training.
+      </p>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="An error message indicating a server error due to unsupported source type in a transformation process" src="_images/mruntime-quickstart-object.png"/>
+       </div>
+      </div>
+     </li>
+    </ol>
+   </div>
+   <div class="paragraph">
+    <p>
+     Now that the app is set up, it’s time to transform some data into JSON so it can be consumed by a service that requires JSON.
+    </p>
+   </div>
+   <div class="admonitionblock important">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-important" title="Important">
+       </i>
+      </td>
+      <td class="content">
+       Leave the Mule app running to avoid accidentally creating an orphan process that might clog the port specified in your app.
+      </td>
+     </tr>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="step-three-create-and-test-a-dataweave-data-transformation">
+   <a class="anchor" href="#step-three-create-and-test-a-dataweave-data-transformation">
+   </a>
+   Step Three: Create and Test a DataWeave Data Transformation
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Now that we have a Mule app that works and is listening to the Training: American Flights API, we’ll add a Transform Message component and use the DataWeave drag-n-drop interface to define a transformation from Mule object into JSON.
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       In the Mule Palette, select Core and find the Transform Message component.
+      </p>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="A palette menu showing components like Database, HTTP, and Batch" src="_images/mruntime-quickstart-add-transform.png"/>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Drag and drop the Transform Message to the right of the Select operation in the canvas.
+      </p>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="A visual editor in Mule showing components of a flight service workflow including Listener and Transform Message" src="_images/mruntime-quickstart-canvas.png"/>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Click the Transform Message component to display the graphical view and source code view.
+      </p>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="An empty data transformation interface with options to define input and output metadata" src="_images/mruntime-quickstart-dw-blank-palette.png"/>
+       </div>
+      </div>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          The left side is a graphical view of the input and output metadata structures. The mapping between them is represented by lines and node points in the center.
+         </p>
+        </li>
+        <li>
+         <p>
+          The right side is a code view of the same structures and mapping. The code view and graphical views remain synced.
+         </p>
+        </li>
+       </ul>
+      </div>
+     </li>
+     <li>
+      <p>
+       In the code view, change the output type in line 2 from
+       <code>
+        application/java
+       </code>
+       to
+       <code>
+        application/json
+       </code>
+       , and replace the brackets on lines 4 and 5 with
+       <code>
+        payload
+       </code>
+       .
+      </p>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="A DataWeave transformation interface with fields for defining JSON output structure" src="_images/mruntime-quickstart-dw-palette.png"/>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Save the change to redeploy the project.
+      </p>
+     </li>
+     <li>
+      <p>
+       Test this change by sending a GET request in your REST client:
+       <code>
+        GET http://localhost:8081/flights
+       </code>
+       .
+      </p>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="An HTTP request setup showing method, URL, and headers" src="_images/mruntime-quickstart-json1.png"/>
+       </div>
+      </div>
+      <div class="paragraph">
+       <p>
+        With just two words in a DataWeave script, you’ve transformed a Mule object into JSON. Now we’ll map the existing data from the API to a data structure based on an example we provide. This example represents how a second service needs to consume the data from Training: American Flights API.
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       In the Transform Message’s Output panel, select
+       <strong>
+        Define metadata
+       </strong>
+       to open the
+       <strong>
+        Select metadata type
+       </strong>
+       dialog.
+      </p>
+     </li>
+     <li>
+      <p>
+       Select
+       <strong>
+        Add
+       </strong>
+       to open the
+       <strong>
+        Create new type
+       </strong>
+       dialog.
+      </p>
+     </li>
+     <li>
+      <p>
+       Enter
+       <code>
+        american_flights_json
+       </code>
+       and select
+       <strong>
+        Create type
+       </strong>
+       .
+      </p>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="An interface for selecting metadata type with options for simple and user-defined types" src="_images/mruntime-quickstart-empty-type.png"/>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       In the
+       <strong>
+        Select metadata type
+       </strong>
+       dialog, set the type to
+       <strong>
+        JSON
+       </strong>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       In the drop-down below Type, change
+       <strong>
+        Schema
+       </strong>
+       to
+       <strong>
+        Example
+       </strong>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       Copy and paste the following into a file and save it on your local machine or environment. Name the file
+       <code>
+        american-flights-example.json
+       </code>
+       .
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">[{
+	"ID": 1,
+	"code": "ER38sd",
+	"price": 400.00,
+	"departureDate": "2016/03/20",
+	"origin": "MUA",
+	"destination": "SFO",
+	"emptySeats": 0,
+	"plane": {
+		"type": "Boeing 737",
+		"totalSeats": 150
+	}
+}, {
+	"ID": 2,
+	"code": "ER45if",
+	"price": 345.99,
+	"departureDate": "2016/02/11",
+	"origin": "MUA",
+	"destination": "LAX",
+	"emptySeats": 52,
+	"plane": {
+		"type": "Boeing 777",
+		"totalSeats": 300
+	}
+}]</code></pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       In the
+       <strong>
+        Select metadata type
+       </strong>
+       dialog, click the button with three dots to navigate to the file you just created and select it.
+      </p>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="Dialog box for selecting a metadata type with options for JSON and user-defined types" src="_images/mruntime-quickstart-json-example2.png"/>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Choose
+       <strong>
+        Select
+       </strong>
+       to save your change. Now you see the input and output data structures in the DataWeave interface.
+      </p>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="A DataWeave editor showing transformation setup with input and output structures" src="_images/mruntime-quickstart-input-output.png"/>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Let’s start mapping fields to create the transformation.
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          Map fields with the same name by dragging them from the input section to the output section:
+         </p>
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             <code>
+              ID
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              price
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              totalSeats
+             </code>
+            </p>
+            <div class="paragraph">
+             <p>
+              Notice the DataWeave code being written in the right-most pane as you drag and drop.
+             </p>
+            </div>
+            <div class="imageblock">
+             <div class="content">
+              <img alt="A DataWeave editor showing transformation data into JSON format with fields including ID and code" src="_images/mruntime-quickstart-same-name.png"/>
+             </div>
+            </div>
+           </li>
+          </ul>
+         </div>
+        </li>
+        <li>
+         <p>
+          Map the rest of the data:
+         </p>
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             <code>
+              toAirport
+             </code>
+             to
+             <code>
+              destination
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              takeOffDate
+             </code>
+             to
+             <code>
+              departureDate
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              fromAirport
+             </code>
+             to
+             <code>
+              origin
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              seatsAvailable
+             </code>
+             to
+             <code>
+              emptySeats
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              planeType
+             </code>
+             to
+             <code>
+              type
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             Drag both
+             <code>
+              code1
+             </code>
+             and
+             <code>
+              code2
+             </code>
+             to
+             <code>
+              code
+             </code>
+            </p>
+            <div class="paragraph">
+             <p>
+              Notice the DataWeave code generated as you drag and drop fields to create the transformation. If you make a mistake such as dropping an input field onto the wrong output field, the code view marks the errors. Simply right-click on the output field and choose
+              <strong>
+               Remove field mapping
+              </strong>
+              to remove the error.
+             </p>
+            </div>
+           </li>
+          </ul>
+         </div>
+        </li>
+       </ul>
+      </div>
+     </li>
+     <li>
+      <p>
+       Let’s add some sample data, which helps us preview the mapping results. (You can skip this step if you wish). Select
+       <strong>
+        Preview
+       </strong>
+       over the code view, then click the link
+       <strong>
+        Create required sample data to execute preview
+       </strong>
+       .
+      </p>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="A DataWeave script showing mappings for fields including ID and code" src="_images/mruntime-quickstart-sample-data1.png"/>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       In the Input panel
+       <strong>
+        payload
+       </strong>
+       tab, replace all the question marks with data. Those values should also show up in the Output panel. Choose
+       <strong>
+        File &gt; Save All
+       </strong>
+       from the Studio main menu.
+      </p>
+     </li>
+     <li>
+      <p>
+       We’ve finished defining the transformation, now let’s test it. Assuming that you’ve left the Mule app running as suggested earlier, open your REST client and send another request to the API:
+       <code>
+        GET http://localhost:8081/flights
+       </code>
+      </p>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="A successful GET request with response details" src="_images/mruntime-quickstart-transformed.png"/>
+       </div>
+      </div>
+      <div class="paragraph">
+       <p>
+        Notice that the data is structured as described in the Output panel, instead of following the Input pane structure as we saw in an earlier query.
+       </p>
+      </div>
+     </li>
+    </ol>
+   </div>
+   <div class="paragraph">
+    <p>
+     Now that you’ve succeeded in transforming data from Mule object to JSON, and from one data structure to another, you’re ready to get started with scripting in the DataWeave language (see
+     <a class="xref page" href="../../dataweave/latest/dataweave-quickstart">
+      DataWeave Language Quickstart
+     </a>
+     ) and to explore more
+     <a class="xref page" href="about-components">
+      Core components
+     </a>
+     and more
+     <a class="xref page" href="../../connectors/">
+      connectors and modules
+     </a>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+</article>

@@ -1,0 +1,182 @@
+<article class="doc">
+ <h1 class="page">
+  Export Resources
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Mule Applications, Mule Domains and Mule Policies contain a set of resources which may be properties files, DataWeave transformation files, Java classes, etc. By default, all of these files are internal to the artifact in which they are defined, and as a result, they are inaccessible from other artifacts. For instance, if a resource defined at the domain level is not explicitly exported, then it cannot be accessed from within any of the applications that belong to that shared domain. Another example is classes from an application that are meant to be used by the Java module. If those classes are not exported, then the Java module will not be able to access them.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="how-to-export-java-classes">
+   <a class="anchor" href="#how-to-export-java-classes">
+   </a>
+   How to Export Java Classes
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To export Java classes, you have to export the complete package that contains them by using the
+     <code>
+      exportedPackages
+     </code>
+     field of the
+     <code>
+      mule-artifact.json
+     </code>
+     file of your artifact. Individual classes cannot be exported.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Use
+     <code>
+      .api.
+     </code>
+     when naming public packages and
+     <code>
+      .internal.
+     </code>
+     when naming your non-public packages to make them easier to identify.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">{
+    "name": "MyApp",
+    "minMuleVersion": "4.0.0",
+    "classLoaderModelLoaderDescriptor": {
+        "id": "mule",
+        "attributes": {
+            "exportedPackages": [
+                "org.mule.myapp.api.customer",
+                "org.mule.myapp.api.account"
+            ]
+        }
+    }
+}</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Any internal dependencies in your Java classes are automatically exported with this configuration.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="considerations">
+     <a class="anchor" href="#considerations">
+     </a>
+     Considerations
+    </h3>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        Export the minimum number of packages required for your application to work
+       </p>
+       <div class="paragraph">
+        <p>
+         This reduces the likelihood of conflicts with other artifacts, such as modules or connectors, that you might be using within your application.
+        </p>
+       </div>
+      </li>
+      <li>
+       <p>
+        Configure shared libraries if any component in your Mule app needs to access the exported packages
+       </p>
+       <div class="paragraph">
+        <p>
+         Due to the classloading isolation mechanism implemented in Mule, connectors and modules cannot access application dependencies unless these dependencies are configured as shared libraries.
+        </p>
+       </div>
+      </li>
+     </ul>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="how-to-export-resource-files">
+   <a class="anchor" href="#how-to-export-resource-files">
+   </a>
+   How to Export Resource Files
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To export resources, use the
+     <code>
+      exportedResources
+     </code>
+     field of the
+     <code>
+      mule-artifact.json
+     </code>
+     file for your artifact.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">{
+    "name": "MyApp",
+    "minMuleVersion": "4.0.0",
+    "classLoaderModelLoaderDescriptor": {
+        "id": "mule",
+        "attributes": {
+            "exportedResources": [
+                "/org/mule/myapp/customer-to-user.dwl",
+                "/org/mule/myapp/beans.xml"
+            ]
+        }
+    }
+  }
+}</code></pre>
+    </div>
+   </div>
+   <div class="admonitionblock important">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-important" title="Important">
+       </i>
+      </td>
+      <td class="content">
+       This same mechanism applies to every artifact, including custom extensions developed with the Mule SDK.
+      </td>
+     </tr>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="about-classloading-isolation#shared-libraries">
+        Shared Libraries
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="mmp-concept#configure-shared-libraries">
+        Configure Shared Libraries
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

@@ -1,0 +1,552 @@
+<article class="doc">
+ <h1 class="page">
+  Enrich Data with Target Variables
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     When creating a flow in a Mule app, you might need to store data in a variable so that any component in the flow can use it. Non-void operations (such as the Read operation to the File connector) can store the message data that they return in a variable. Once defined, variables created with the Target (
+     <code>
+      target
+     </code>
+     ) parameter are available for use within the flow, and you can access them like you access any other variable.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     You often define variables through these parameters:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Target (
+       <code>
+        target
+       </code>
+       ): Name of the variable in which you want to store message data. Names can only include numbers, characters, and underscores. For example, hyphens are not allowed in the name.
+      </p>
+     </li>
+     <li>
+      <p>
+       Target Value (
+       <code>
+        targetValue
+       </code>
+       ): Value of the data to store in the target variable. By default, the value is the message payload (
+       <code>
+        payload
+       </code>
+       ). The field accepts any value that a variable accepts: any supported data type, DataWeave expressions, the keywords
+       <code>
+        payload
+       </code>
+       ,
+       <code>
+        attributes
+       </code>
+       , and
+       <code>
+        message
+       </code>
+       , but
+       <em>
+        not
+       </em>
+       the keyword
+       <code>
+        vars
+       </code>
+       .
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="considerations">
+   <a class="anchor" href="#considerations">
+   </a>
+   Considerations
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Setting a target variable changes the typical course of the message through the flow.
+      </p>
+      <div class="paragraph">
+       <p>
+        Normally, an operation outputs a different message than it receives as input:
+       </p>
+      </div>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="A message flow standard behavior" src="_images/mruntime-payload-flow.png"/>
+       </div>
+      </div>
+      <div class="paragraph">
+       <p>
+        However, when you set a variable from an operation, the operation outputs to the
+        <em>
+         next
+        </em>
+        component in the flow the same message that it received as input. For example, assume you have a flow consisting of component A, followed by component B with a target value of
+        <code>
+         myMessage
+        </code>
+        , and then component C. In this case, component C receives the same message that B received from A:
+       </p>
+      </div>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="A message flow with target variable" src="_images/mruntime-payload-flow-target-variable.png"/>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Configuring target variables affects the behavior of existing variables.
+      </p>
+      <div class="paragraph">
+       <p>
+        Existing variables retain their original values after an operation with a target variable finishes processing. For example, consider a flow where you set variables 1 and 2, and then an operation modifies variables 1 and 2 and also outputs a target variable A. In this case, after the execution of the operation, variables 1 and 2 return to their previous values:
+       </p>
+      </div>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="A message flow with target variable and additional variables" src="_images/mruntime-payload-flow-target-variable-2.png"/>
+       </div>
+      </div>
+      <div class="colist calloutlist">
+       <table>
+        <tr>
+         <td>
+          <i class="conum" data-value="1">
+          </i>
+          <b>
+           1
+          </b>
+         </td>
+         <td>
+          Because the component sets a target variable, variable 1 and 2 revert to their previous values after the execution of the component.
+         </td>
+        </tr>
+       </table>
+      </div>
+     </li>
+     <li>
+      <p>
+       Target variables are not set when an error occurs.
+      </p>
+      <div class="paragraph">
+       <p>
+        Because the execution of the flow stops and does not end successfully when an error occurs, target variables are not set in this scenario.
+       </p>
+      </div>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="target-variable-configuration-examples">
+   <a class="anchor" href="#target-variable-configuration-examples">
+   </a>
+   Target Variable Configuration Examples
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The following example configures a Read operation that stores the payload of
+     <code>
+      readme.txt
+     </code>
+     in
+     <code>
+      myVar
+     </code>
+     :
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;file:read path="readme.txt" target="myVar" /&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Note that the target variable
+     <code>
+      myVar
+     </code>
+     stores the complete payload by default. You only need to specify a Target Value (
+     <code>
+      targetValue
+     </code>
+     ) if you want to store a value different than the payload.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     In this example, the entire message is stored in
+     <code>
+      myVar
+     </code>
+     :
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;file:read path="readme.txt" target="myVar" targetValue="#[message]" /&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     In this case, the variable
+     <code>
+      myVar
+     </code>
+     contains the content of the file and also all the metadata related.
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Expression to access the file content:
+       <code>
+        #[myVar.payload]
+       </code>
+      </p>
+     </li>
+     <li>
+      <p>
+       Expression to access the file metadata:
+       <code>
+        #[myVar.attributes]
+       </code>
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     In this example, only the file size is stored in
+     <code>
+      myVar
+     </code>
+     :
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;file:read path="readme.txt" target="size" targetValue="#[attributes.size]" /&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The following scenarios describe some cases where you might use target variables.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="scenario-setting-a-target-variable-from-within-an-operation">
+   <a class="anchor" href="#scenario-setting-a-target-variable-from-within-an-operation">
+   </a>
+   Scenario: Setting a Target Variable from within an Operation
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Assume that you want to log the entire message (payload and attributes) returned by a Database connector operation, such as Insert. Instead of using a Set Variable component after the operation, you can instead capture the message data by adding a target variable directly to the operation:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;db:insert config-ref="dbConfig" target="result" targetValue="#[message]"&gt;
+    &lt;db:sql&gt;INSERT INTO PLANET(POSITION, NAME, DESCRIPTION) VALUES (777, 'Pluto', :description)&lt;/db:sql&gt;
+    &lt;db:parameter-types&gt;
+        &lt;db:parameter-type key="description" type="CLOB"/&gt;
+    &lt;/db:parameter-types&gt;
+    &lt;db:input-parameters&gt;
+        #[{'description' : payload}]
+    &lt;/db:input-parameters&gt;
+&lt;/db:insert&gt;</code></pre>
+    </div>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Target Variable for the Insert operation:
+       <code>
+        result
+       </code>
+      </p>
+     </li>
+     <li>
+      <p>
+       Target Value:
+       <code>
+        message
+       </code>
+       in Design Center,
+       <code>
+        #[message]
+       </code>
+       in Anypoint Studio.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     Then you might retrieve the result from the Logger like this:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;logger level="INFO" doc:name="Logger" doc:id="8dca355c-a85c-44db-8c53-5b9c188a2431" message="Payload is: #[vars.result.payload] and attributes are: #[vars.result.attributes]"/&gt;</code></pre>
+    </div>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Message:
+       <code>
+        Payload is: #[vars.result.payload] and attributes are: #[vars.result.attributes]
+       </code>
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     Assume that you want to log the name of the first entry in a planet database. You can define a target variable like this one through the Select operation of the Database connector:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;db:select config-ref="dbConfig" target="planetName" targetValue="#[payload[0].name]"&gt;
+    &lt;db:parameterized-query&gt;select * from PLANET order by ID&lt;/db:parameterized-query&gt;
+&lt;/db:select&gt;</code></pre>
+    </div>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Target Variable for the Select operation:
+       <code>
+        planetName
+       </code>
+      </p>
+     </li>
+     <li>
+      <p>
+       Target Value:
+       <code>
+        payload[0].name
+       </code>
+       in Design Center,
+       <code>
+        #[payload[0].name]
+       </code>
+       in Anypoint Studio.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     Then you might retrieve the result from the Logger like this:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;logger level="INFO" doc:name="Logger" doc:id="8dca355c-a85c-44db-8c53-5b9c188a2431" message="#['Planet name is: ' ++ vars.planetName]"/&gt;</code></pre>
+    </div>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Message:
+       <code>
+        'Planet name is: ' ++ vars.planetName
+       </code>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="scenario-using-the-stored-value-as-input-to-an-operation">
+   <a class="anchor" href="#scenario-using-the-stored-value-as-input-to-an-operation">
+   </a>
+   Scenario: Using the Stored Value as Input to an Operation
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Assume that you want to access all planets discovered after a given planet was discovered. You might create a target variable called
+     <code>
+      discoveryDate
+     </code>
+     within a select operation to capture the a planet’s discovery date.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;db:select config-ref="dbConfig" target="discoveryDate" targetValue="#[payload[0].discoveryDate]"&gt;
+    &lt;db:sql&gt;select discoveryDate from PLANET where name = :name&lt;/db:sql&gt;
+    &lt;db:input-parameters&gt;
+        #[{'name' : 'pluto'}]
+    &lt;/db:input-parameters&gt;
+&lt;/db:select&gt;</code></pre>
+    </div>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Target Variable for the Retrieve operation:
+       <code>
+        discoveryDate
+       </code>
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     Then you can use the Input parameter of another operation in your flow (such as the Select operation to the Database connector) to make the variable available for use in your query, for example:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;db:select config-ref="dbConfig" target="discoveryDate" targetValue="#[payload[0].discoveryDate]"&gt;
+    &lt;db:sql&gt;select * from PLANET where discoveryDate &gt; :discoveryDate&lt;/db:sql&gt;
+    &lt;db:input-parameters&gt;
+        #[{'discoveryDate' : vars.discoveryDate}]
+    &lt;/db:input-parameters&gt;
+&lt;/db:select&gt;</code></pre>
+    </div>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Input Parameter definition for the Select operation:
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          Key:
+          <code>
+           discoveryDate
+          </code>
+         </p>
+        </li>
+        <li>
+         <p>
+          Value:
+          <code>
+           vars.discoveryDate
+          </code>
+          in Design Center,
+          <code>
+           #[vars.discoveryDate]
+          </code>
+          in Anypoint Studio.
+         </p>
+        </li>
+       </ul>
+      </div>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="scenario-bypassing-the-normal-message-flow">
+   <a class="anchor" href="#scenario-bypassing-the-normal-message-flow">
+   </a>
+   Scenario: Bypassing the Normal Message Flow
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Assume that you want to insert a number of records into a database that are located in the messages’s payload, then pass those same records on for further processing by the next component in your flow. Though you want to use the Bulk Insert operation to the Database connector to insert the records, the operation returns a success message that replaces the current payload, which makes the records inaccessible. So, to pass on the records to the next component instead of replacing the payload with the Bulk Insert result, you can store the success message in a target variable, for example:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Target Variable:
+       <code>
+        bulkInsertResult
+       </code>
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     Then the next operation in your flow can process the records located in the payload.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../munit/latest/test-processor-that-uses-target-variable">
+        Testing a Processor That Stores Data in a Target Variable
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="intro-programming-model">
+        Mule 4 Programming Model
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="about-mule-event">
+        Mule Events
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="about-mule-variables">
+        Variables in Mule Events
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

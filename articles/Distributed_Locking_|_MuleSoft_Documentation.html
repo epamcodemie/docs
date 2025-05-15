@@ -1,0 +1,290 @@
+<article class="doc">
+ <h1 class="page">
+  Distributed Locking
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Mule runtime engine provides the ability to create locks for synchronizing access to resources within Mule components. To manage concurrent access to resources, Mule provides a lock factory that you can access programmatically by scripts or in custom extensions built with the
+     <a class="xref page" href="../../mule-sdk/latest/getting-started">
+      Java SDK
+     </a>
+     .
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Any locks you create with the Mule lock factory work seamlessly on deployment models that use either a single server or a cluster of servers. This means that if you have a server running the same flow in multiple threads, or a cluster environment running the same app, you can guarantee resource synchronization with Mule locks. Additionally, the Mule locking system offers a simple API to access shared locks.
+    </p>
+   </div>
+   <div class="admonitionblock warning">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-warning" title="Warning">
+       </i>
+      </td>
+      <td class="content">
+       <div class="paragraph">
+        <p>
+         <code>
+          LockFactory
+         </code>
+         creates a
+         <code>
+          Lock
+         </code>
+         that implements
+         <code>
+          java.util.concurrent.Lock
+         </code>
+         but does not support the method
+         <code>
+          newCondition()
+         </code>
+         . Using
+         <code>
+          newCondition()
+         </code>
+         causes Mule to throw an
+         <code>
+          UnsupportedOperationException
+         </code>
+         . Mule does support other methods of interfacing with a lock, such as
+         <code>
+          lockInterruptibly()
+         </code>
+         and
+         <code>
+          tryLock()
+         </code>
+         .
+        </p>
+       </div>
+      </td>
+     </tr>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="create-a-lock">
+   <a class="anchor" href="#create-a-lock">
+   </a>
+   Create a Lock
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To create a lock, perform these steps:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Gain access to a
+       <code>
+        LockFactory
+       </code>
+       through injection.
+       <br/>
+       If you are building an extension with the Java SDK and need locking for one of your  operations, you inject
+       <code>
+        LockFactory
+       </code>
+       into your class.
+       <br/>
+      </p>
+     </li>
+     <li>
+      <p>
+       Use
+       <code>
+        LockFactory
+       </code>
+       to start creating locks.
+       <br/>
+       See the following sample code that declares an extension operation that manages code access through Mule locks and thus prevents synchronization issues when the operation is executing in parallel (like in a scatter gather scope or in different cluster nodes).
+       <br/>
+      </p>
+     </li>
+     <li>
+      <p>
+       Use an identifier for the lock you create.
+       <br/>
+       An identifier allows you to access one lock from different threads without having to explicitly share the same lock instance between them.
+       <br/>
+      </p>
+     </li>
+    </ol>
+   </div>
+   <div class="paragraph">
+    <p>
+     This lock implements the
+     <code>
+      java.util.concurrent.Lock
+     </code>
+     interface, so calling the method
+     <code>
+      lock()
+     </code>
+     makes the thread wait until it acquires the lock.
+     <br/>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     After you create the lock, the critical code section can be executed and you must also create a lock release mechanism to prevent deadlocks on other threads waiting for this lock. You accomplish this by enclosing the
+     <code>
+      lock.unlock
+     </code>
+     call in a
+     <code>
+      finally
+     </code>
+     block:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class ClusterOperations {
+
+  @Inject
+  private LockFactory lockFactory;
+
+  public void sharedResourceOperation() {
+      Lock lock = lockFactory.createLock("sharedResourceId");
+      lock.lock();
+      try {
+          // Lock acquired, execute critical code.
+      } finally {
+          lock.unlock();
+      }
+  }
+}</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="create-a-lock-using-scripting">
+   <a class="anchor" href="#create-a-lock-using-scripting">
+   </a>
+   Create a Lock Using Scripting
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     If you are using the scripting extension, you must first access the registry to obtain the
+     <code>
+      LockFactory
+     </code>
+     and then create locks through scripting code. The following example uses Groovy to achieve the same result as the previous example: obtain the
+     <code>
+      LockFactory
+     </code>
+     (this time through the
+     <code>
+      Registry
+     </code>
+     ), create a new
+     <code>
+      Lock
+     </code>
+     for the given ID, wait until obtaining the lock to execute critical code and after that release the lock.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-groovy hljs" data-lang="groovy">lockFactory = registry.lookupByName("_muleLockFactory").get()
+lock = lockFactory.createLock("sharedResourceId")
+lock.lock()
+try {
+	// Lock acquired, execute critical code.
+} finally {
+	lock.unlock()
+}</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="share-a-lock-between-operations">
+   <a class="anchor" href="#share-a-lock-between-operations">
+   </a>
+   Share a Lock Between Operations
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Locking is useful not only to create locks for many threads running the same operation, but also can be used for different operations that may be running in parallel. Using the same lock ID to create a lock in different operations allows those operations to obtain access to the same lock. The following code sample illustrates two custom operations that create locks using the same lock ID:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class ClusterOperations {
+
+  @Inject
+  private LockFactory lockFactory;
+
+  public void sharedResourceOperationA() {
+      Lock lock = lockFactory.createLock("sharedResourceId");
+      lock.lock();
+      try {
+          // Lock acquired, execute critical code.
+      } finally {
+          lock.unlock();
+      }
+  }
+
+  public void sharedResourceOperationB() {
+      Lock lock = lockFactory.createLock("sharedResourceId");
+      lock.lock();
+      try {
+          // Lock acquired, execute critical code.
+      } finally {
+          lock.unlock();
+      }
+  }
+}</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="mule-high-availability-ha-clusters">
+        Mule High Availability (HA) Clustering
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="creating-and-managing-a-cluster-manually">
+        Creating and Managing a Cluster Manually
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="distributed-file-polling">
+        Distributed File Polling
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

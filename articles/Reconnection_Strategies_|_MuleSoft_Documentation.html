@@ -1,0 +1,556 @@
+<article class="doc">
+ <h1 class="page">
+  Reconnection Strategies
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     When an operation in a Mule application fails to connect to an external server, the default behavior is for the operation to fail immediately and return a connectivity error.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     For example, if an operation in Anypoint Connector for FTP (FTP Connector) fails to connect to an FTP server, the operation throws an
+     <code>
+      FTP:CONNECTIVITY
+     </code>
+     error. The error name reflects the namespace that is specific to the connector, such as
+     <code>
+      FTP:CONNECTIVITY
+     </code>
+     , or
+     <code>
+      DB:CONNECTIVITY
+     </code>
+     (for Anypoint Connector for Database (Database Connector).
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     You can modify this default behavior by configuring a reconnection strategy for the operation.
+    </p>
+   </div>
+   <div class="admonitionblock note">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-note" title="Note">
+       </i>
+      </td>
+      <td class="content">
+       Operation executions don’t trigger the reconnection strategy configured at the FTP Connector when failing with connectivity errors. In this example, the reconnection strategy applies only to the connection that
+       <code>
+        ftp:listener
+       </code>
+       needs to establish with the FTP server to query for new or updated files.
+      </td>
+     </tr>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="configure-an-operation-reconnection-strategy">
+   <a class="anchor" href="#configure-an-operation-reconnection-strategy">
+   </a>
+   Configure an Operation Reconnection Strategy
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You can configure a reconnection strategy for an operation either by modifying the operation properties or by modifying the configuration of the global element for the operation. For example, you can configure a reconnection strategy in an FTP Connector configuration:
+    </p>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="An FTP configuration with reconnection strategy" src="_images/mruntime-reconnection-strategy-ftp.png"/>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The following are the available reconnection strategies and their behaviors:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <strong>
+        None
+       </strong>
+      </p>
+      <div class="paragraph">
+       <p>
+        Is the default behavior, which immediately returns a connectivity error if the attempt to connect is unsuccessful
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       <strong>
+        Standard
+       </strong>
+       (
+       <code>
+        reconnect
+       </code>
+       )
+      </p>
+      <div class="paragraph">
+       <p>
+        Sets the number of reconnection attempts and the interval at which to execute them before returning a connectivity error
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       <strong>
+        Forever
+       </strong>
+       (
+       <code>
+        reconnect-forever
+       </code>
+       )
+      </p>
+      <div class="paragraph">
+       <p>
+        Attempts to reconnect continually at a given interval
+       </p>
+      </div>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="example-xml-reconnection-strategy-configurations">
+   <a class="anchor" href="#example-xml-reconnection-strategy-configurations">
+   </a>
+   Example XML Reconnection Strategy Configurations
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The following examples show different types of reconnection strategies and their configurations:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Standard reconnection strategy example
+      </p>
+      <div class="paragraph">
+       <p>
+        The following example illustrates a Standard reconnection strategy in an FTP connector configuration, setting the count of reconnection attempts before failing to
+        <code>
+         5
+        </code>
+        and setting
+        <code>
+         failsDeployment
+        </code>
+        to
+        <code>
+         true
+        </code>
+        , which causes the application deployment to fail if the connection test fails. Because a frequency is not specified, the retry interval is the default of every 2000 ms:
+       </p>
+      </div>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;ftp:config name="FTP_Config" doc:name="FTP Config" &gt;
+  &lt;ftp:connection host="ftp.someftphost.com" port="21" username="myusername" password="mypassword" &gt;
+    &lt;reconnection failsDeployment="true" &gt;
+      &lt;reconnect count="5"/&gt;
+    &lt;/reconnection&gt;
+  &lt;/ftp:connection&gt;
+&lt;/ftp:config&gt;
+&lt;flow name="reconnectionsFlow" &gt;
+  &lt;ftp:listener doc:name="On New or Updated File" config-ref="FTP_Config"&gt;
+    &lt;scheduling-strategy &gt;
+      &lt;fixed-frequency /&gt;
+    &lt;/scheduling-strategy&gt;
+  &lt;/ftp:listener&gt;
+&lt;/flow&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Forever reconnection strategy example
+      </p>
+      <div class="paragraph">
+       <p>
+        The following example sets a Forever reconnection strategy in an FTP connector configuration by which the connector attempts to reconnect every 4000 ms for as long as the application runs:
+       </p>
+      </div>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;ftp:connection host="ftp.someftphost.com" port="21" username="myusername" password="mypassword" &gt;
+  &lt;reconnection&gt;
+    &lt;reconnect-forever frequency="4000"/&gt;
+  &lt;/reconnection&gt;
+&lt;/ftp:connection&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="reconnection-strategy-reference">
+   <a class="anchor" href="#reconnection-strategy-reference">
+   </a>
+   Reconnection Strategy Reference
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Following are the different configuration attributes for each reconnection strategy you can configure by editing your Mule application’s XML configuration file:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Attributes of
+       <code>
+        &lt;reconnection&gt;
+       </code>
+      </p>
+      <table class="tableblock frame-all grid-all fit-content spread">
+       <colgroup>
+        <col/>
+        <col/>
+        <col/>
+        <col/>
+        <col/>
+       </colgroup>
+       <thead>
+        <tr>
+         <th class="tableblock halign-left valign-top">
+          Name
+         </th>
+         <th class="tableblock halign-left valign-top">
+          Type
+         </th>
+         <th class="tableblock halign-left valign-top">
+          Required
+         </th>
+         <th class="tableblock halign-left valign-top">
+          Default
+         </th>
+         <th class="tableblock halign-left valign-top">
+          Description
+         </th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td class="tableblock halign-left valign-top">
+          <p class="tableblock">
+           <code>
+            failsDeployment
+           </code>
+          </p>
+         </td>
+         <td class="tableblock halign-left valign-top">
+          <p class="tableblock">
+           boolean
+          </p>
+         </td>
+         <td class="tableblock halign-left valign-top">
+          <p class="tableblock">
+           no
+          </p>
+         </td>
+         <td class="tableblock halign-left valign-top">
+          <p class="tableblock">
+           false
+          </p>
+         </td>
+         <td class="tableblock halign-left valign-top">
+          <p class="tableblock">
+           If
+           <code>
+            true
+           </code>
+           , causes the deployment to fail when the test connection fails
+          </p>
+         </td>
+        </tr>
+       </tbody>
+      </table>
+     </li>
+     <li>
+      <p>
+       Attributes of
+       <code>
+        &lt;reconnect&gt;
+       </code>
+      </p>
+      <table class="tableblock frame-all grid-all fit-content spread">
+       <colgroup>
+        <col/>
+        <col/>
+        <col/>
+        <col/>
+        <col/>
+       </colgroup>
+       <thead>
+        <tr>
+         <th class="tableblock halign-left valign-top">
+          Name
+         </th>
+         <th class="tableblock halign-left valign-top">
+          Type
+         </th>
+         <th class="tableblock halign-left valign-top">
+          Required
+         </th>
+         <th class="tableblock halign-left valign-top">
+          Default
+         </th>
+         <th class="tableblock halign-left valign-top">
+          Description
+         </th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td class="tableblock halign-left valign-top">
+          <p class="tableblock">
+           <code>
+            blocking
+           </code>
+          </p>
+         </td>
+         <td class="tableblock halign-left valign-top">
+          <p class="tableblock">
+           boolean
+          </p>
+         </td>
+         <td class="tableblock halign-left valign-top">
+          <p class="tableblock">
+           no
+          </p>
+         </td>
+         <td class="tableblock halign-left valign-top">
+          <p class="tableblock">
+           true
+          </p>
+         </td>
+         <td class="tableblock halign-left valign-top">
+          <p class="tableblock">
+           If
+           <code>
+            false
+           </code>
+           , the reconnection strategy runs in a separate, nonblocking thread
+          </p>
+         </td>
+        </tr>
+        <tr>
+         <td class="tableblock halign-left valign-top">
+          <p class="tableblock">
+           <code>
+            frequency
+           </code>
+          </p>
+         </td>
+         <td class="tableblock halign-left valign-top">
+          <p class="tableblock">
+           long
+          </p>
+         </td>
+         <td class="tableblock halign-left valign-top">
+          <p class="tableblock">
+           no
+          </p>
+         </td>
+         <td class="tableblock halign-left valign-top">
+          <p class="tableblock">
+           2000
+          </p>
+         </td>
+         <td class="tableblock halign-left valign-top">
+          <p class="tableblock">
+           How often (in ms) to reconnect
+          </p>
+         </td>
+        </tr>
+        <tr>
+         <td class="tableblock halign-left valign-top">
+          <p class="tableblock">
+           <code>
+            count
+           </code>
+          </p>
+         </td>
+         <td class="tableblock halign-left valign-top">
+          <p class="tableblock">
+           integer
+          </p>
+         </td>
+         <td class="tableblock halign-left valign-top">
+          <p class="tableblock">
+           no
+          </p>
+         </td>
+         <td class="tableblock halign-left valign-top">
+          <p class="tableblock">
+           2
+          </p>
+         </td>
+         <td class="tableblock halign-left valign-top">
+          <p class="tableblock">
+           How many reconnection attempts to make
+          </p>
+         </td>
+        </tr>
+       </tbody>
+      </table>
+     </li>
+     <li>
+      <p>
+       Attributes of
+       <code>
+        &lt;reconnect-forever&gt;
+       </code>
+      </p>
+      <table class="tableblock frame-all grid-all fit-content spread">
+       <colgroup>
+        <col/>
+        <col/>
+        <col/>
+        <col/>
+        <col/>
+       </colgroup>
+       <thead>
+        <tr>
+         <th class="tableblock halign-left valign-top">
+          Name
+         </th>
+         <th class="tableblock halign-left valign-top">
+          Type
+         </th>
+         <th class="tableblock halign-left valign-top">
+          Required
+         </th>
+         <th class="tableblock halign-left valign-top">
+          Default
+         </th>
+         <th class="tableblock halign-left valign-top">
+          Description
+         </th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td class="tableblock halign-left valign-top">
+          <p class="tableblock">
+           <code>
+            blocking
+           </code>
+          </p>
+         </td>
+         <td class="tableblock halign-left valign-top">
+          <p class="tableblock">
+           boolean
+          </p>
+         </td>
+         <td class="tableblock halign-left valign-top">
+          <p class="tableblock">
+           no
+          </p>
+         </td>
+         <td class="tableblock halign-left valign-top">
+          <p class="tableblock">
+           true
+          </p>
+         </td>
+         <td class="tableblock halign-left valign-top">
+          <p class="tableblock">
+           If
+           <code>
+            false
+           </code>
+           , the reconnection strategy runs in a separate, nonblocking thread.
+          </p>
+         </td>
+        </tr>
+        <tr>
+         <td class="tableblock halign-left valign-top">
+          <p class="tableblock">
+           <code>
+            frequency
+           </code>
+          </p>
+         </td>
+         <td class="tableblock halign-left valign-top">
+          <p class="tableblock">
+           long
+          </p>
+         </td>
+         <td class="tableblock halign-left valign-top">
+          <p class="tableblock">
+           no
+          </p>
+         </td>
+         <td class="tableblock halign-left valign-top">
+          <p class="tableblock">
+           2000
+          </p>
+         </td>
+         <td class="tableblock halign-left valign-top">
+          <p class="tableblock">
+           Specifies how often (in ms) to reconnect.
+          </p>
+         </td>
+        </tr>
+       </tbody>
+      </table>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="about-components">
+        Core Components
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../connectors/">
+        Connectors and Modules
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="global-elements">
+        Configure Global Elements
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

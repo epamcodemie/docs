@@ -1,0 +1,483 @@
+<article class="doc">
+ <h1 class="page">
+  Mule Application Development
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You create Mule applications to perform system integrations. Typically, the
+application reads data from internal and external sources, processes and
+transforms data to the required formats or structures, and writes that
+output to the systems and servers where you store or use the transformed data.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Mule applications are configured to run in Mule runtime engine (Mule). A request
+to a Mule application triggers Mule to encode the request and data in a Mule
+event and to pass it to either single or multiple threads.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="getting-started-with-mule-application-development">
+   <a class="anchor" href="#getting-started-with-mule-application-development">
+   </a>
+   Getting Started with Mule Application Development
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To get started with Mule application development, you can follow the steps
+in these tutorials:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="mule-app-dev-hellomule">
+        Create a "Hello World" Mule app
+       </a>
+      </p>
+      <div class="paragraph">
+       <p>
+        Build a Mule application that interacts with a user in a simple HTTP
+request-response flow.
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="mule-app-tutorial">
+        Create a Mule app that uses the Database Connector and DataWeave
+       </a>
+      </p>
+      <div class="paragraph">
+       <p>
+        Build a Mule application that retrieves data from a database and transforms it
+to a new structure.
+       </p>
+      </div>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="building-blocks-of-a-mule-application">
+   <a class="anchor" href="#building-blocks-of-a-mule-application">
+   </a>
+   Building Blocks of a Mule Application
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Mule applications use connectors, modules, and components to read, write,
+and process data.
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../connectors/">
+        Connectors and Modules
+       </a>
+      </p>
+      <div class="paragraph">
+       <p>
+        Anypoint connectors
+provide components, such as listeners, that interact with external API
+endpoints and act on data in the Mule application. Modules, such as
+the Validation, Java, Spring, and OAuth, provide modules that act on
+data in a Mule application without providing a direct connection to an endpoint.
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="about-components">
+        Core Components
+       </a>
+      </p>
+      <div class="paragraph">
+       <p>
+        Core components support
+flow control, error handling, logging, batch, and other programmatic
+operations on data that flows through your application.
+       </p>
+      </div>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="dataweave-language">
+   <a class="anchor" href="#dataweave-language">
+   </a>
+   DataWeave Language
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     DataWeave is the primary language used for formulating expressions in Mule.
+Connectors, modules, and components support the use of DataWeave to access,
+manipulate, and transform data structures and output formats, and to extract data
+that is processed within the Mule application.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     At runtime, Mule evaluates DataWeave expressions while executing a flow to:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Extract data needed to process the current message
+      </p>
+     </li>
+     <li>
+      <p>
+       Set or manipulate a value in the message
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="flows">
+   <a class="anchor" href="#flows">
+   </a>
+   Mule Flows
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Understanding basic flow architecture is key to understanding a Mule application.
+Essentially, every Mule flow contains a series of Mule components that receive or
+process messages:
+    </p>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="A flow including an HTTP Listener, data transformation, database connection, and logging process" src="_images/flow-example.png"/>
+    </div>
+    <div class="title">
+     Figure 1. Simple Flow in Design Center
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     At the simplest level, flows are sequences of processors. A message
+that enters a flow can pass through a variety of processors. In a typical
+flow, a Mule application receives a message through a source (such as an
+HTTP Listener component), transforms that message into a new format, and processes
+any business logic before writing the processed message to an external
+system in a format that the system can read.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     To separate processing into more manageable units, Mule applications often contain
+multiple, interrelated flows instead of just a single flow. One flow can call
+another flow as a direct reference.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     For more information about this topic, see
+     <a class="xref page" href="about-flows">
+      Flows and Subflows
+     </a>
+     and
+     <a class="xref page" href="mule-components">
+      Mule Components
+     </a>
+     .
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="sources">
+     <a class="anchor" href="#sources">
+     </a>
+     Sources
+    </h3>
+    <div class="paragraph">
+     <p>
+      A source component (or trigger) is the first component in a flow. It
+receives a triggering event, creates a corresponding Mule event,
+and forwards that event for processing by the next component in the flow.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      External clients can trigger processing in a Mule flow through several
+communication protocols and methods, such as JMS, HTTP, FTP, JDBC, or File.
+Mule translates these communication protocols and methods into a standard
+message format, which passes through the flow’s processors.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      Sources in Mule can connect to specific external sources, either through
+a standard protocol or a third-party API. It is also possible to set a Scheduler
+component. Some schedulers can poll for specific changes to external resources,
+such as new files or table rows in an external resource. Examples of listeners
+and connector operations that can trigger a flow include:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        HTTP, JMS, and VM listeners in their associated connectors
+       </p>
+      </li>
+      <li>
+       <p>
+        On Table Row operation in the Database connector
+       </p>
+      </li>
+      <li>
+       <p>
+        On New or Updated File operation in the File and FTP connectors
+       </p>
+      </li>
+      <li>
+       <p>
+        Scheduler
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="paragraph">
+     <p>
+      Note that you can also create your own source using the
+      <a class="xref page" href="../../mule-sdk/latest/">
+       Mule SDK
+      </a>
+      .
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="processors">
+     <a class="anchor" href="#processors">
+     </a>
+     Processors
+    </h3>
+    <div class="paragraph">
+     <p>
+      After a flow is triggered through the source component, subsequent components process
+the data as it travels through the flow. By default, each processor
+that receives a Mule event returns a new Mule message, typically with a set
+of attributes and the message payload that the processor returns. The processor
+forwards the new message as output to the next processor in the flow.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      Processors available to Mule applications include:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        Components from modules and connectors
+       </p>
+       <div class="paragraph">
+        <p>
+         Examples include operations that read
+from and write to an external resource and that validate data in the Mule application.
+Some operations can make client requests to external resources and services
+(including external databases and systems, such as Salesforce, Workday,
+ServiceNow, and many others) and to other Mule applications. Others can run your
+custom code, support OAuth configurations, and manage communication through
+asynchronous queues, for example. Many other operations are
+available.
+        </p>
+       </div>
+      </li>
+      <li>
+       <p>
+        Core components
+       </p>
+       <div class="paragraph">
+        <p>
+         Core components can route data, perform data transformations, handle errors
+that might occur when processing the event, and perform other tasks in a
+Mule application.
+        </p>
+       </div>
+       <div class="paragraph">
+        <p>
+         Transformers (such as the Transform Message, Set Variable, and others) are
+key to exchanging data between nodes. Transformers enable Mule to convert
+message data in the Mule event to a format that another application or service can
+read.
+        </p>
+       </div>
+       <div class="paragraph">
+        <p>
+         Mule also enables content enrichment of messages (through
+         <a class="xref page" href="target-variables">
+          Target Variables
+         </a>
+         ) so that you can retrieve
+additional data and attach it to the message.
+        </p>
+       </div>
+      </li>
+     </ul>
+    </div>
+    <div class="paragraph">
+     <p>
+      Note that you can also create your own event processors using the
+      <a class="xref page" href="../../mule-sdk/latest/">
+       Mule SDK
+      </a>
+      .
+     </p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="security">
+   <a class="anchor" href="#security">
+   </a>
+   Security
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You can provide security to your Mule applications by encrypting properties, configuring
+secure communications over TLS, setting up authentication over OAuth 2.0, and
+providing cryptographic and other capabilities, such as FIPS compliance.
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="securing">
+        Security
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="development-environments">
+   <a class="anchor" href="#development-environments">
+   </a>
+   Development Environments
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You can develop a Mule application using
+     <a class="xref page" href="../../studio/latest/">
+      Anypoint Studio
+     </a>
+     (an Eclipse-based IDE), or, if you are an advanced developer, in your own IDE.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     For example, in Studio, you build and design a Mule application in a project
+that contains one or more XML-based files. A Mule project supports all the
+dependencies required for development. The
+     <a class="xref page" href="../../studio/latest/#package-explorer">
+      Package Explorer
+     </a>
+     view in Studio
+provides access to the project folders and files that make up a Mule project.
+Studio provides a design-time environment in which you can also build, run, and test
+your Mule application.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="version">
+   <a class="anchor" href="#version">
+   </a>
+   Mule Versioning
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The Mule version you use determines what your Mule application, domain, or policy can
+do and what features and products are compatible with Mule.  For example,
+     <a class="xref page" href="about-components">
+      Core components
+     </a>
+     , which process the Mule event
+as it travels through flows in a Mule application, are part of a Core module that is
+bundled with and shares the same version as Mule.
+     <a class="xref page" href="../../connectors/">
+      Modules, connectors
+     </a>
+     , the DataWeave language, and
+several MuleSoft products have their own versioning system but are
+compatible with specific versions of Mule. For example, DataWeave 2.0 and
+Studio 7.x are compatible Mule 4.x runtime engines, while DataWeave 1.0 and
+Studio 6.x are compatible with Mule 3.x runtime engines. You need to make sure the
+connector or module you use in a Mule application is compatible with your Mule version.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="about-mule-message">
+        Mule Message
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="about-mule-variables">
+        Variables in Mule Applications
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="about-mule-configuration">
+        Mule Configuration
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../apikit/latest/">
+        APIKit
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

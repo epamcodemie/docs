@@ -1,0 +1,142 @@
+<article class="doc">
+ <h1 class="page">
+  Share Applications
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     When working on a team, a Mule runtime engine project increases in size, increases in its number of developers who need to collaborate, and the need to run the project in both test and production environments. However, you can offset this project growth by sharing applications.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Sharing applications is an opportunity for splitting work across teams, whether these teams work on the same overarching project or on different projects that they intent for reuse.
+Because applications are stored in self-contained archives, they can be shared via a simple file or web server.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     To share applications, follow these steps:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Document the name and content of the properties file that each application is expecting to use.
+       <br/>
+       The administrators who deploy and run the Mule application can encrypt the properties file as detailed in
+       <a class="xref page" href="secure-configuration-properties">
+        Secure Configuration Properties
+       </a>
+       . Administrators must keep the decryption key of the properties file secure.
+      </p>
+     </li>
+    </ol>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic" start="2">
+     <li>
+      <p>
+       Generate the file used to share the application in one of the following two ways:
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          Export the application from Anypoint Studio and generate a deployable archive
+          <code>
+           .jar
+          </code>
+          file.
+         </p>
+        </li>
+        <li>
+         <p>
+          Package your application into one of the following three types of
+          <code>
+           .jar
+          </code>
+          files using the Mule Maven Plugin:
+         </p>
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             Deployable archive
+             <code>
+              .jar
+             </code>
+             file to deploy into a running Mule runtime engine.
+            </p>
+           </li>
+           <li>
+            <p>
+             Mule app package
+             <code>
+              .jar
+             </code>
+             file to import into Studio.
+            </p>
+           </li>
+           <li>
+            <p>
+             Mule app lightweight package
+             <code>
+              .jar
+             </code>
+             file to then import it into Studio.
+            </p>
+           </li>
+          </ul>
+         </div>
+        </li>
+       </ul>
+      </div>
+     </li>
+    </ol>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic" start="3">
+     <li>
+      <p>
+       Share the
+       <code>
+        .jar
+       </code>
+       file with other developers, as appropriate.
+      </p>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../studio/latest/import-export-packages#export-project-studio">
+        Exporting Projects from Studio
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="package-a-mule-application">
+        Mule Application Packaging
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

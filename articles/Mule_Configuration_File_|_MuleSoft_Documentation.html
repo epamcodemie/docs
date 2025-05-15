@@ -1,0 +1,603 @@
+<article class="doc">
+ <h1 class="page">
+  Mule Configuration File
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     All Mule applications, domains, and policies are configured through an XML domain-specific language (DSL).
+This XML file specifies the resources that compose the artifact, including
+dependencies needed to run the Mule application.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Although you can write the XML file manually, it is more common to
+use the graphical user interfaces in Anypoint Design Center or Anypoint Studio to structure and define the behavior of your Mule app. While you use either of these GUIs, the underlying XML is provided for you.
+In Studio, the XML is also available for viewing and editing.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="overview">
+   <a class="anchor" href="#overview">
+   </a>
+   Overview
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     A Mule configuration file is a tree.
+     <br/>
+     Each of the elements sets up a configuration object within Mule, for example:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="global-settings-configuration">
+        Mule Global Configuration
+       </a>
+       <br/>
+       Global settings, such as the default transaction time-out, that apply to the entire Mule configuration.
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="configuring-properties">
+        Properties
+       </a>
+       <br/>
+       Configuration Properties, message properties, and system properties.
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="about-flows">
+        Flows
+       </a>
+       <br/>
+       Combine components to define a message flow.
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="about-components#_endpoints">
+        Sources (Endpoints)
+       </a>
+       <br/>
+       Trigger a flow. Sources are sometimes called Endpoints in Studio.
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../connectors/">
+        Connectors and Modules Configurations
+       </a>
+       <br/>
+       Declare configurations for any connectors and modules components used.
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="about-components#_flow_control_routers">
+        Routers
+       </a>
+       <br/>
+       Control the flow execution.
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../mule-sdk/latest/operations">
+        Operations
+       </a>
+       <br/>
+       Apply specific actions within a flow.
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="xml-schema">
+   <a class="anchor" href="#xml-schema">
+   </a>
+   XML Schema
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     <a href="https://www.w3.org/TR/xmlschema-1/#xsi_schemaLocation">
+      Schemas
+     </a>
+     define the configurable attributes of these resources that are referenced in the XML Configuration file. This is how a Mule artifact both validate and define its functional components and their configuration.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     XML schemas are used to validate functional components in a Mule artifact. They are specified in the header.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi=http://www.w3.org/2001/XMLSchema-instance
+        xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
+        xmlns:file="http://www.mulesoft.org/schema/mule/file"
+        xsi:schemaLocation="
+        http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+        http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd"&gt;</code></pre>
+    </div>
+   </div>
+   <div class="admonitionblock note">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-note" title="Note">
+       </i>
+      </td>
+      <td class="content">
+       Mule domains feature the
+       <code>
+        mule-domain
+       </code>
+       tag instead of
+       <code>
+        mule
+       </code>
+       .
+      </td>
+     </tr>
+    </table>
+   </div>
+   <div class="paragraph">
+    <p>
+     Be sure to specify all the necessary schema files. This can be time-consuming when setting up the configuration file by hand, but importing schema files provides the following time-saving benefits:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Auto-completion and context-specific help in Anypoint Studio
+      </p>
+     </li>
+     <li>
+      <p>
+       Design-time configuration validation
+      </p>
+     </li>
+     <li>
+      <p>
+       Typed properties
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     Schemas in Mule 4 are autogenerated dynamically according to the artifact dependencies. The HTTP schema, for example, will only be available if the HTTP connector is part of the artifacts dependencies. Therefore, to specify the schemas you will also need to have the correct dependencies declared. In the example above which requires the JMS and File schemas
+you would need the following dependencies in the artifact’s
+     <code>
+      pom.xml
+     </code>
+     file, for example:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;dependencies&gt;
+  ...
+  &lt;dependency&gt;
+      &lt;groupId&gt;org.mule.connectors&lt;/groupId&gt;
+      &lt;artifactId&gt;mule-jms-connector&lt;/artifactId&gt;
+      &lt;version&gt;1.3.2&lt;/version&gt;
+      &lt;classifier&gt;mule-plugin&lt;/classifier&gt;
+  &lt;/dependency&gt;
+  &lt;dependency&gt;
+      &lt;groupId&gt;org.mule.connectors&lt;/groupId&gt;
+      &lt;artifactId&gt;mule-file-connector&lt;/artifactId&gt;
+      &lt;version&gt;1.2.1&lt;/version&gt;
+      &lt;classifier&gt;mule-plugin&lt;/classifier&gt;
+  &lt;/dependency&gt;
+  ...
+&lt;/dependencies&gt;</code></pre>
+    </div>
+   </div>
+   <div class="admonitionblock note">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-note" title="Note">
+       </i>
+      </td>
+      <td class="content">
+       Anypoint Studio will add the required schemas and dependencies as components are introduced.
+      </td>
+     </tr>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="namespaces">
+   <a class="anchor" href="#namespaces">
+   </a>
+   Namespaces
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Each Mule module or connector has its XML schema, including Mule core for its community and enterprise versions. When you import a schema, it has its namespace.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     To use the standard Mule elements, import the Mule Kernel (CE) and Mule runtime engine (EE) namespaces:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <code>
+        http://www.mulesoft.org/schema/mule/core
+       </code>
+       <code>
+        http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+       </code>
+      </p>
+     </li>
+     <li>
+      <p>
+       <code>
+        http://www.mulesoft.org/schema/mule/ee/core
+       </code>
+       <code>
+        http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+       </code>
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="sect2">
+    <h3 id="default-namespace">
+     <a class="anchor" href="#default-namespace">
+     </a>
+     Default Namespace
+    </h3>
+    <div class="paragraph">
+     <p>
+      Typically, you set the Mule core schema as the default namespace for your configuration file. This means that any XML element without a prefix will come from the Mule core schema. To set the default namespace schema, specify
+      <code>
+       xmlns
+      </code>
+      immediately followed by the URL of the Mule schema, without the colon or namespace prefix you set in the previous example (e.g.,
+      <code>
+       xmlns
+      </code>
+      instead of
+      <code>
+       xmlns:jms
+      </code>
+      ):
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;mule xmlns="http://www.mulesoft.org/schema/mule/core"
+    xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd"&gt;
+   ...config...
+&lt;/mule&gt;</code></pre>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="merging-configuration-files">
+   <a class="anchor" href="#merging-configuration-files">
+   </a>
+   Merging Configuration Files
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     If you have multiple configuration files, you can import them into one configuration file so that you only have to specify one configuration.
+This is useful to extract connector configurations or other global elements. For example:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;mule xmlns=http://www.mulesoft.org/schema/mule/core ....&gt;
+
+    &lt;import file="global-prod-configurations.xml" /&gt;
+    &lt;import file="global-error-handler.xml" /&gt;
+...</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     These imports can also be dynamic when combined with properties:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;mule xmlns=http://www.mulesoft.org/schema/mule/core ....&gt;
+
+    &lt;import file="global-${env}-configurations.xml" /&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+...</code></pre>
+    </div>
+   </div>
+   <div class="colist arabic">
+    <table>
+     <tr>
+      <td>
+       <i class="conum" data-value="1">
+       </i>
+       <b>
+        1
+       </b>
+      </td>
+      <td>
+       The
+       <code>
+        env
+       </code>
+       property in the example cannot be set by a global property. To define the
+       <code>
+        env
+       </code>
+       value, you can configure either a system property or an environment property.
+      </td>
+     </tr>
+    </table>
+   </div>
+   <div class="paragraph">
+    <p>
+     Because of the hierarchy in which Mule runtime engine loads the properties, you cannot make imports depend on an application or a global configuration property. See the
+     <a class="xref page" href="configuring-properties#properties-hierarchy">
+      properties hierarchy
+     </a>
+     page for more information.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="declaring-multiple-configurations">
+   <a class="anchor" href="#declaring-multiple-configurations">
+   </a>
+   Declaring Multiple Configurations
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You can also keep your files separate as long as you declare them as part of your application
+configurations. This is useful when each configuration file is relatively unrelated to the others. Configurations are
+declared on the application descriptor file,
+     <code>
+      mule-artifact.json
+     </code>
+     , within the
+     <code>
+      configs
+     </code>
+     section. For example, four configuration files are declared here:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">{
+  "configs": [
+    "http-api.xml", "jms-messaging-api.xml", "monitoring-tools.xml", "core-functionality.xml"
+  ],
+  "redeploymentEnabled": true,
+  "name": "retail-api",
+  "minMuleVersion": "4.1.1",
+  "requiredProduct": "MULE_EE",
+  "classLoaderModelLoaderDescriptor": {
+    "id": "mule",
+    "attributes": {
+      "exportedResources": []
+    }
+  },
+  "bundleDescriptorLoader": {
+    "id": "mule",
+    "attributes": {}
+  }
+}</code></pre>
+    </div>
+   </div>
+   <div class="admonitionblock note">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-note" title="Note">
+       </i>
+      </td>
+      <td class="content">
+       Anypoint Studio will handle the application descriptor automatically.
+      </td>
+     </tr>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="full-application-example">
+   <a class="anchor" href="#full-application-example">
+   </a>
+   Full Application Example
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Following is an example of a simple Mule configuration file for an application:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:db="http://www.mulesoft.org/schema/mule/db"
+      xmlns:email="http://www.mulesoft.org/schema/mule/email"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xsi:schemaLocation="
+        http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+          http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+        http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
+        http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+        http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd"&gt;
+
+    &lt;http:listener-config name="http.listener.config" basePath="mule"&gt;
+        &lt;http:listener-connection host="0.0.0.0" port="${http.port}" protocol="HTTP"/&gt;
+    &lt;/http:listener-config&gt;
+
+    &lt;http:request-config name="http.request.config" basePath="mule"&gt;
+        &lt;http:request-connection host="127.0.0.1" port="${http.port}"/&gt;
+    &lt;/http:request-config&gt;
+
+    &lt;email:smtp-config name="email.config"&gt;
+        &lt;email:smtp-connection host="${email.host}" port="${email.smtp.port}"/&gt;
+    &lt;/email:smtp-config&gt;
+
+    &lt;flow name="integration-routing-contentFlow"&gt;
+        &lt;http:listener config-ref="https.listener.config" path="routing/main"/&gt;
+        &lt;logger level="INFO" message="#[attributes.headers]"/&gt;
+
+        &lt;choice&gt;
+            &lt;when expression="#[attributes.headers.'content-type' contains 'application/json']"&gt;
+                &lt;http:request config-ref="http.request.config" path="routing/http" method="POST"/&gt;
+            &lt;/when&gt;
+            &lt;otherwise&gt;
+                &lt;set-payload value="Error: Unexpected unmapped choice element when trying to route the request."/&gt;
+                &lt;email:send config-ref="email.config" subject="Email routing"&gt;
+                    &lt;email:to-addresses&gt;
+                        &lt;email:to-address value="routing@mulesoft.com"/&gt;
+                    &lt;/email:to-addresses&gt;
+                    &lt;email:body contentType="text/plain"&gt;
+                        &lt;email:content&gt;#[payload]&lt;/email:content&gt;
+                    &lt;/email:body&gt;
+                &lt;/email:send&gt;
+            &lt;/otherwise&gt;
+        &lt;/choice&gt;
+    &lt;/flow&gt;
+
+&lt;/mule&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="full-policy-example">
+   <a class="anchor" href="#full-policy-example">
+   </a>
+   Full Policy Example
+  </h2>
+  <div class="sectionbody">
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;mule xmlns="http://www.mulesoft.org/schema/mule/core"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xmlns:http="http://www.mulesoft.org/schema/mule/http"
+     xmlns:http-policy="http://www.mulesoft.org/schema/mule/http-policy"
+     xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+              http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+              http://www.mulesoft.org/schema/mule/http-policy http://www.mulesoft.org/schema/mule/http-policy/current/mule-http-policy.xsd"&gt;
+
+   &lt;http-policy:proxy name="policy-example"&gt;
+       &lt;http-policy:source&gt;
+           &lt;http-policy:execute-next/&gt;
+           &lt;logger level="INFO" message="#[payload]"/&gt;
+       &lt;/http-policy:source&gt;
+   &lt;/http-policy:proxy&gt;
+&lt;/mule&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="full-domain-example">
+   <a class="anchor" href="#full-domain-example">
+   </a>
+   Full Domain Example
+  </h2>
+  <div class="sectionbody">
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;domain:mule-domain
+        xmlns:http="http://www.mulesoft.org/schema/mule/http"
+        xmlns="http://www.mulesoft.org/schema/mule/core"
+        xmlns:domain="http://www.mulesoft.org/schema/mule/ee/domain"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xsi:schemaLocation="
+               http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+               http://www.mulesoft.org/schema/mule/ee/domain http://www.mulesoft.org/schema/mule/ee/domain/current/mule-domain-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd"&gt;
+
+    &lt;!-- configure here resource to be shared within the domain --&gt;
+
+    &lt;http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="e252ad6a-220d-4c1f-865b-d7aec30bfc30" basePath="/api" &gt;
+          &lt;http:listener-connection host="0.0.0.0" port="8081" /&gt;
+      &lt;/http:listener-config&gt;
+
+&lt;/domain:mule-domain&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="shared-resources">
+        Mule Domains
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../mule-gateway/policies-custom-getting-started">
+        Mule Custom Policies
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="configuring-properties">
+        Configuring Properties
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="intro-packaging">
+        Packaging Applications
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

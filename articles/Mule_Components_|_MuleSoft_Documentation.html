@@ -1,0 +1,178 @@
+<article class="doc">
+ <h1 class="page">
+  Mule Components
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The main building blocks of Mule applications are components. Components execute
+business logic on the messages that flow through your Mule applications. There
+are a couple types of component: Core components and the components that
+belong to connectors and modules.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="core-components">
+   <a class="anchor" href="#core-components">
+   </a>
+   Core Components
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     These are individual components that are part of the core of the functionality of Mule Runtime. Here is a sampling of the features that core components let you add to your apps:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Asynchronous processing of parts of a flow or subflow
+      </p>
+     </li>
+     <li>
+      <p>
+       Batch processing of messages
+      </p>
+     </li>
+     <li>
+      <p>
+       Initiating subflows
+      </p>
+     </li>
+     <li>
+      <p>
+       Logging
+      </p>
+     </li>
+     <li>
+      <p>
+       Setting payloads
+      </p>
+     </li>
+     <li>
+      <p>
+       Transforming messages with the DataWeave language
+      </p>
+     </li>
+     <li>
+      <p>
+       Creating Try scopes in your flows so that you can catch and respond to errors
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     For example, the Choice router is a component that dynamically routes messages through a flow according to a set of DataWeave expressions that evaluate message content. Each expression is associated with a different routing option. The effect is to add conditional processing to a flow, similar to an
+     <code>
+      if
+     </code>
+     /
+     <code>
+      then
+     </code>
+     /
+     <code>
+      else
+     </code>
+     code block in most programming languages.
+    </p>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="The Core components for Mule applications listed in Anypoint Studio" src="_images/about-mule-apps-core-components.png"/>
+    </div>
+    <div class="title">
+     Figure 1. A List of the Core Components in Anypoint Studio
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     For component documentation, see
+     <a class="xref page" href="about-components">
+      Core Components
+     </a>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="connectors">
+   <a class="anchor" href="#connectors">
+   </a>
+   Connectors
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Connectors group together components that were created to facilitate the integration of MuleSoft applications with any external resources, such as third-party APIs or standard integration protocols. They enable connectivity to SaaS and on-premises applications, systems, and services.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     For example, the Salesforce Connector provides components that let you use the Salesforce platform APIs to perform a large number of different operations.
+    </p>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="The Salesforce connector and its operations listed in Anypoint Studio" src="_images/about-mule-apps-salesforce-connector.png"/>
+    </div>
+    <div class="title">
+     Figure 2. The Salesforce connector and its operations listed in Anypoint Studio
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="modules">
+   <a class="anchor" href="#modules">
+   </a>
+   Modules
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Modules group together components that were created to add flexibility to your applications by allowing you to aggregate values compress data, use Java features, use extra features for processing JSON, and more. The features that modules offer are more at the level of traditional application coding.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     For example, the XML module provides components that can process and extract data from an XML document.
+    </p>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="The XML module and its components listed in Anypoint Studio" src="_images/about-mule-apps-xml-module.png"/>
+    </div>
+    <div class="title">
+     Figure 3. The XML module and its components listed in Anypoint Studio
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../connectors/">
+        Connectors and Modules (for Mule 4)
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

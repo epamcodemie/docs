@@ -1,0 +1,559 @@
+<article class="doc">
+ <h1 class="page">
+  Using Bitronix to Manage Transactions
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Bitronix Transaction Manager allows Mule to automatically recover interrupted transactions on restart.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     If a Mule instance crashes or loses connectivity to a resource manager (such as a JMS broker, database, etc.), this can cause a transaction to fail abnormally between the prepare phase and the commit phase of the two-phase commit protocol (2PC). In this case, the transaction manager needs to run a recovery process to complete any in-flight transaction that was taking place during the failure. While this kind of failure is unlikely, a mechanism is needed to retain data consistency when this happens.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="using-bitronix-in-a-single-application">
+   <a class="anchor" href="#using-bitronix-in-a-single-application">
+   </a>
+   Using Bitronix in a Single Application
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To configure an application to use Bitronix, declare the transaction manager outside of your flows, as shown below.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:bti="http://www.mulesoft.org/schema/mule/ee/bti"
+      xsi:schemaLocation="
+       http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+       http://www.mulesoft.org/schema/mule/ee/bti http://www.mulesoft.org/schema/mule/ee/bti/current/mule-bti-ee.xsd"&gt;
+    &lt;bti:transaction-manager/&gt;
+...
+&lt;/mule&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="using-bitronix-in-all-applications-in-a-mule-domain">
+   <a class="anchor" href="#using-bitronix-in-all-applications-in-a-mule-domain">
+   </a>
+   Using Bitronix in All Applications in a Mule Domain
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To use Bitronix in all applications associated with a Mule domain, define Bitronix as the transaction manager in your domain configuration file, as shown below. Doing so causes all applications associated with the domain to use Bitronix, without needing to declare the transaction manager in individual applications.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;domain:mule-domain
+        xmlns:bti="http://www.mulesoft.org/schema/mule/ee/bti"
+        xmlns="http://www.mulesoft.org/schema/mule/core"
+        xmlns:domain="http://www.mulesoft.org/schema/mule/ee/domain"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xsi:schemaLocation="
+               http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+               http://www.mulesoft.org/schema/mule/ee/domain http://www.mulesoft.org/schema/mule/ee/domain/current/mule-domain-ee.xsd
+http://www.mulesoft.org/schema/mule/ee/bti http://www.mulesoft.org/schema/mule/ee/bti/current/mule-bti-ee.xsd"&gt;
+	&lt;bti:transaction-manager/&gt;
+
+    &lt;!-- ... --&gt;
+
+&lt;/domain:mule-domain&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     See
+     <a class="xref page" href="shared-resources">
+      Shared Resources
+     </a>
+     for information about domains.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="adding-bitronix-from-anypoint-studio">
+   <a class="anchor" href="#adding-bitronix-from-anypoint-studio">
+   </a>
+   Adding Bitronix from Anypoint Studio
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You can add Bitronix to your application or domain from Studio, by following these steps:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Go to the
+       <strong>
+        Global Elements
+       </strong>
+       tab.
+      </p>
+     </li>
+     <li>
+      <p>
+       Click on
+       <strong>
+        Create
+       </strong>
+       button.
+      </p>
+     </li>
+     <li>
+      <p>
+       Search for
+       <code>
+        Bitronix Transaction Manager
+       </code>
+       .
+      </p>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="A configuration tab for selecting a global element type with options including Bitronix Transaction Manager in Anypoint Studio" src="_images/bitronix-studio.png"/>
+       </div>
+      </div>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="configuring-the-bitronix-transaction-manager">
+   <a class="anchor" href="#configuring-the-bitronix-transaction-manager">
+   </a>
+   Configuring the Bitronix Transaction Manager
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The default configuration values for Bitronix are suitable for most use cases. However, if you wish to customize the transaction manager, you can do so by using system properties or the
+     <code>
+      wrapper.conf
+     </code>
+     file located in the
+     <code>
+      $MULE_HOME/conf
+     </code>
+     directory.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The table below lists configuration attributes for Bitronix.
+    </p>
+   </div>
+   <table class="tableblock frame-all grid-all stretch">
+    <colgroup>
+     <col style="width: 35%;"/>
+     <col style="width: 40%;"/>
+     <col style="width: 25%;"/>
+    </colgroup>
+    <thead>
+     <tr>
+      <th class="tableblock halign-left valign-top">
+       Configuration Attribute
+      </th>
+      <th class="tableblock halign-left valign-top">
+       Description
+      </th>
+      <th class="tableblock halign-left valign-top">
+       Default value
+      </th>
+     </tr>
+    </thead>
+    <tbody>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        <code>
+         mule.bitronix.transactiontimeout
+        </code>
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Timeout for XA transactions, in seconds.
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        60
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        <code>
+         mule.bitronix.recoveryinterval
+        </code>
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Recovery execution interval for XA transactions, in seconds.
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        60
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        <code>
+         mule.bitronix.serverId
+        </code>
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Unique ID for the transaction manager to register in the XA transaction logs. This value must be unique for each Mule instance.
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Combination of the host IP and, if running in HA, the cluster node ID.
+       </p>
+      </td>
+     </tr>
+    </tbody>
+   </table>
+   <div class="sect2">
+    <h3 id="configuring-a-pooling-data-source-for-databases">
+     <a class="anchor" href="#configuring-a-pooling-data-source-for-databases">
+     </a>
+     Configuring a Pooling Data Source for Databases
+    </h3>
+    <div class="paragraph">
+     <p>
+      Bitronix integration provides a data source connection pool for the Database connector, which you must use whenever you want to implement resource pooling in the Database connector.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      You can configure a shared Pooling Data Source for all connections. This improves connection utilization when those data sources are not heavily used by applications.
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;mule-domain xmlns="http://www.mulesoft.org/schema/mule/ee/domain"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:db="http://www.mulesoft.org/schema/mule/db"
+      xmlns:bti="http://www.mulesoft.org/schema/mule/ee/bti"
+      xmlns:spring="http://www.mulesoft.org/schema/mule/spring"
+      xsi:schemaLocation="
+               http://www.mulesoft.org/schema/mule/ee/bti http://www.mulesoft.org/schema/mule/ee/bti/current/mule-bti-ee.xsd
+               http://www.mulesoft.org/schema/mule/ee/domain http://www.mulesoft.org/schema/mule/ee/domain/current/mule-domain-ee.xsd
+               http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd"&gt;
+
+    &lt;spring:config name="springConfig" files="domain-config/datasource-beans.xml"/&gt;
+
+    &lt;bti:transaction-manager/&gt;
+
+    &lt;bti:xa-data-source-pool name="pooledDataSource" dataSource-ref="jdbcDataSource"/&gt;
+
+    &lt;db:generic-config name="dbConfig" dataSource-ref="pooledDataSource"/&gt;
+
+&lt;/mule-domain&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      The table below lists configuration attributes for Pooling Data Source.
+     </p>
+    </div>
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col style="width: 35%;"/>
+      <col style="width: 45%;"/>
+      <col style="width: 10%;"/>
+      <col style="width: 10%;"/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-top">
+        Attribute
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Description
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Required
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Default value
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          name
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Identifies the pool so that the connector can reference it.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Yes
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          datasource-ref
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Reference to the JDBC data source object. An
+         <code>
+          XADataSource
+         </code>
+         object must be provided.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Yes
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          minPoolSize
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Defines the minimal amount of connections that can be in the pool.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         No
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         4
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          maxPoolSize
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Defines the maximum amount of connections that can be in the pool.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         No
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         16
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          maxIdleTime
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Defines the number of seconds an idle connection can stay in the pool before it is closed.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         No
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         60
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          acquireIncrement
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Determines how many connections at a time will try to acquire when the pool is exhausted.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         No
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         1
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          acquireTimeoutSeconds
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         The number of seconds a client calling
+         <code>
+          getConnection()
+         </code>
+         will wait for a Connection to be checked-in or acquired when the pool is exhausted. Zero means wait indefinitely.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         No
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         30
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          preparedStatementCacheSize
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Determines how many statements are cached per pooled connection. 0 means caching is disabled.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         No
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         5
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="transaction-recovery">
+   <a class="anchor" href="#transaction-recovery">
+   </a>
+   Transaction Recovery
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Mule includes a transaction recovery procedure that is executed automatically, no configuration is needed. When Mule restarts after a system crash, it connects to all of the resources involved in XA transactions and starts the transaction recovery process, leaving all systems in a consistent state.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="shared-resources">
+        Shared Resources
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="transaction-management">
+        Transaction Management
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="xa-transactions">
+        XA Transactions
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

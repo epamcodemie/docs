@@ -1,0 +1,884 @@
+<article class="doc">
+ <h1 class="page">
+  Build an Application from an API Specification
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     During your app development lifecycle, you can build Mule REST or SOAP APIs from an API specification using APIkit.  You develop APIs based on the following modeling languages:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       RAML (RESTful API Modeling Language)
+      </p>
+     </li>
+     <li>
+      <p>
+       WSDL (Web Service Description Language)
+      </p>
+     </li>
+     <li>
+      <p>
+       OData (OData-Enabled APIs using APIkit OData Extension)
+      </p>
+     </li>
+     <li>
+      <p>
+       OAS (Open API Specification)
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     By using APIkit in Anypoint Studio, you can simplify the design and implementation of APIs by automating Mule flow creation based on importing either a RAML or a WSDL specification file. After generating the API, you can perform calls to test the API and then finalize its implementation.
+     <br/>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Additionally, APIkit helps you build applications using Apache Maven, and also provides a CLI tool to generate flows for an already existing application. However, before you perform any of these tasks, you must learn the basic APIkit anatomy and understand the scaffolding technique that generates Mule flows when you start APIkit projects.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="apikit-anatomy">
+   <a class="anchor" href="#apikit-anatomy">
+   </a>
+   APIkit Anatomy
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     A REST or SOAP Studio project that uses APIkit has the following parts:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       A REST or SOAP interface
+      </p>
+     </li>
+     <li>
+      <p>
+       A main flow
+      </p>
+     </li>
+     <li>
+      <p>
+       Backend flows
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="A REST Studio project showing components including APIkit Router and API console" src="_images/mruntime-rest-studio-project.png"/>
+    </div>
+    <div class="title">
+     Figure 1. REST Studio Project.
+    </div>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="A SOAP Studio project showing components including SOAP Router and Transform Message" src="_images/mruntime-soap-studio-project.png"/>
+    </div>
+    <div class="title">
+     Figure 2. SOAP Studio Project.
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="rest-interface">
+     <a class="anchor" href="#rest-interface">
+     </a>
+     REST Interface
+    </h3>
+    <div class="paragraph">
+     <p>
+      The relationship between REST resources and actions is called
+      <em>
+       resource-action
+      </em>
+      pairing. The interface exposes internal data assets requested by the REST service. Also, the interface defines the API, designating resources that contain or access data and specify actions, such as GET and PUT, on the example data.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="soap-interface">
+     <a class="anchor" href="#soap-interface">
+     </a>
+     SOAP Interface
+    </h3>
+    <div class="paragraph">
+     <p>
+      The interface defined by a WSDL file exposes a number of services. Each service has a set of operations. The underlying type of data is XML defined by schemas within the WSDL file or by an imported XSD file.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="main-flow">
+     <a class="anchor" href="#main-flow">
+     </a>
+     Main Flow
+    </h3>
+    <div class="paragraph">
+     <p>
+      The main flow for the API manages these functions:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        Exposes the API using Anypoint Connector for HTTP (HTTP Connector).
+       </p>
+      </li>
+      <li>
+       <p>
+        Routes requests between the interface and the backend flows based on the HTTP request.
+       </p>
+      </li>
+      <li>
+       <p>
+        Accepts requests, sends responses, and facilitates communication between the interface and API processes.
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="paragraph">
+     <p>
+      The main flow consists of HTTP Listener and APIkit (REST or SOAP) Router components. The APIkit Router is a key message processor that validates requests against the provided definition, enriches messages (for example by adding default values to the messages) and routes requests to a particular flow. Also, the Router raises errors messages if errors occurs while routing, validating or processing the user request.
+     </p>
+    </div>
+    <div class="imageblock">
+     <div class="content">
+      <img alt="A REST API main flow with components including Listener and APIkit Router" src="_images/mruntime-rest-main-flow.png"/>
+     </div>
+     <div class="title">
+      Figure 3. REST API Main Flow.
+     </div>
+    </div>
+    <div class="imageblock">
+     <div class="content">
+      <img alt="A SOAP API main flow with components including Listener and SOAP Router" src="_images/mruntime-soap-main-flow.png"/>
+     </div>
+     <div class="title">
+      Figure 4. SOAP API Main Flow.
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="backend-flows">
+     <a class="anchor" href="#backend-flows">
+     </a>
+     Backend Flows
+    </h3>
+    <div class="paragraph">
+     <p>
+      APIkit for REST generates a backend flow for each resource-action pairing in a RAML file.
+      <br/>
+      APIkit for SOAP generates a backend flow for each operation in a WSDL.
+      <br/>
+      In the following example, the RAML interface receives the GET request users. The backend flow accesses a database to look up users by ID.
+     </p>
+    </div>
+    <div class="imageblock">
+     <div class="content">
+      <img alt="REST API backend flows" src="_images/mruntime-rest-backend-flows.png"/>
+     </div>
+     <div class="title">
+      Figure 5. REST API Backend Flows.
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="perform-calls">
+     <a class="anchor" href="#perform-calls">
+     </a>
+     Perform Calls
+    </h3>
+    <div class="paragraph">
+     <p>
+      For REST APIs, use API Console to perform calls to the API.
+      <br/>
+      For SOAP APIs, use a SOAP testing tool such as SoapUI to perform calls to the API.
+     </p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="start-apikit-project-and-generate-mule-flows">
+   <a class="anchor" href="#start-apikit-project-and-generate-mule-flows">
+   </a>
+   Start APIkit Project and Generate Mule Flows
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     When you start a new APIkit project in Studio, you have the option to import an API definition file. When you import the file, the APIkit scaffolding mechanism generates different flows for the API. There are three ways to start an APIkit project in Anypoint Studio:
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="start-a-new-apikit-project-using-an-api-definition-file">
+     <a class="anchor" href="#start-a-new-apikit-project-using-an-api-definition-file">
+     </a>
+     Start a New APIkit Project Using an API Definition File
+    </h3>
+    <div class="paragraph">
+     <p>
+      Use this method if you want to start a project by either importing an existing RAML or WSDL file or by referencing the file URL:
+     </p>
+    </div>
+    <div class="olist arabic">
+     <ol class="arabic">
+      <li>
+       <p>
+        Select
+        <strong>
+         File &gt; New &gt; Mule Project
+        </strong>
+        .
+       </p>
+      </li>
+      <li>
+       <p>
+        In
+        <strong>
+         Project Name
+        </strong>
+        , enter a name for the project, for example
+        <strong>
+         myproject
+        </strong>
+        .
+       </p>
+      </li>
+      <li>
+       <p>
+        Select or accept the default EE Runtime, for example
+        <strong>
+         Mule Server 4.2.0 EE
+        </strong>
+        .
+       </p>
+      </li>
+      <li>
+       <p>
+        In
+        <strong>
+         API Implementation
+        </strong>
+        , select
+        <strong>
+         Specify API Definition File Location or URL
+        </strong>
+        .
+       </p>
+      </li>
+      <li>
+       <p>
+        In
+        <strong>
+         Location
+        </strong>
+        , do one of the following:
+       </p>
+       <div class="ulist">
+        <ul>
+         <li>
+          <p>
+           If you created an
+           <code>
+            api.raml
+           </code>
+           file in Design Center, select
+           <strong>
+            Design Center
+           </strong>
+           . Login to Anypoint Platform if necessary, and select
+           <code>
+            api.raml
+           </code>
+           .
+          </p>
+         </li>
+         <li>
+          <p>
+           If you didn’t create a RAML file in Design Center, select
+           <strong>
+            Browse Files
+           </strong>
+           and select the RAML or WSDL file that you created in a text editor. For a WSDL file, select a service and port from the drop-down menus or accept the defaults.
+          </p>
+         </li>
+        </ul>
+       </div>
+      </li>
+     </ol>
+    </div>
+    <div class="olist arabic">
+     <ol class="arabic" start="6">
+      <li>
+       <p>
+        Accept the Location default options, and click
+        <strong>
+         Finish
+        </strong>
+        .
+       </p>
+      </li>
+     </ol>
+    </div>
+    <div class="imageblock">
+     <div class="content">
+      <img alt="A new Mule project with an API specification selected" src="_images/mruntime-start-apikit-project-1.png"/>
+     </div>
+     <div class="title">
+      Figure 6. New Mule Project window selecting API specification .
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      Using this method the APIkit scaffolding technique generates:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        An archetype that contains basic configuration files plus a Mule XML configuration file
+       </p>
+      </li>
+      <li>
+       <p>
+        An implementation of the API
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="paragraph">
+     <p>
+      For RAML-based APIs, the RAML file appears under the
+      <code>
+       src/main/resources/api
+      </code>
+      folder. The implementation of the API contains:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        A main flow with an HTTP Listener
+       </p>
+      </li>
+      <li>
+       <p>
+        APIkit Router component
+       </p>
+      </li>
+      <li>
+       <p>
+        Error handlers
+       </p>
+      </li>
+      <li>
+       <p>
+        RAML dependencies (push or pull changes from one location, such as Studio, to the other, such as Design Center)
+       </p>
+      </li>
+      <li>
+       <p>
+        Backend flows containing REST resource-action mappings
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="paragraph">
+     <p>
+      For WSDL-based APIs, the WSDL file appears under the
+      <code>
+       src/main/resources/api
+      </code>
+      folder. The implementation of the API contains:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        A SOAP Router
+       </p>
+      </li>
+      <li>
+       <p>
+        A SOAP fault response template
+       </p>
+      </li>
+      <li>
+       <p>
+        Backend flows containing SOAP message templates
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="paragraph">
+     <p>
+      The following graphics illustrate the APIkit scaffolding:
+     </p>
+    </div>
+    <div class="imageblock">
+     <div class="content">
+      <img alt="XML configuration for RAML scaffolding including Listener, APIkit Router, and Error handling components." src="_images/mruntime-raml-scaffolding.png"/>
+     </div>
+     <div class="title">
+      Figure 7. RAML Scaffolding.
+     </div>
+    </div>
+    <div class="imageblock">
+     <div class="content">
+      <img alt="XML configuration for WSDL scaffolding including Listener, SOAP Router, and Error handling components" src="_images/mruntime-wsdl-scaffolding.png"/>
+     </div>
+     <div class="title">
+      Figure 8. WSDL Scaffolding.
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      In Studio, the REST API APIkit project looks like this:
+     </p>
+    </div>
+    <div class="imageblock">
+     <div class="content">
+      <img alt="An APIkit project with files and configurations for handling REST API requests." src="_images/mruntime-rest-api-studio-apikit.png"/>
+     </div>
+     <div class="title">
+      Figure 9. REST API in Anypoint Studio UI with the Package Explorer and Canvas sections.
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      The five items illustrated here show:
+     </p>
+    </div>
+    <div class="olist arabic">
+     <ol class="arabic">
+      <li>
+       <p>
+        The project files in the Package Explorer of Studio with the
+        <code>
+         api.raml
+        </code>
+        file under
+        <code>
+         src/main/resources/api
+        </code>
+        folder.
+       </p>
+      </li>
+      <li>
+       <p>
+        The main flow, with the APIkit Router.
+       </p>
+      </li>
+      <li>
+       <p>
+        APIkit Console
+       </p>
+      </li>
+      <li>
+       <p>
+        Error Handling
+       </p>
+      </li>
+      <li>
+       <p>
+        Generated flows for each resource method.
+        <br/>
+        The generated minimal flows meets the communication operations required by a REST contract.
+       </p>
+      </li>
+     </ol>
+    </div>
+    <div class="paragraph">
+     <p>
+      In Studio, the SOAP API APIkit project looks like this:
+     </p>
+    </div>
+    <div class="imageblock">
+     <div class="content">
+      <img alt="A REST API APIkit project setup showing the Package Explorer and canvas in Anypoint Studio" src="_images/mruntime-soap-api-studio-apikit.png"/>
+     </div>
+     <div class="title">
+      Figure 10. SOAP API in Anypoint Studio UI with the Package Explorer and Canvas sections.
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      The four items illustrated here show:
+     </p>
+    </div>
+    <div class="olist arabic">
+     <ol class="arabic">
+      <li>
+       <p>
+        The project files in the Package Explorer of Studio with the
+        <code>
+         example.wsdl
+        </code>
+        file under
+        <code>
+         src/main/resources/api
+        </code>
+        folder.
+       </p>
+      </li>
+      <li>
+       <p>
+        The main flow, with the SOAP Router.
+       </p>
+      </li>
+      <li>
+       <p>
+        SOAP fault response template
+       </p>
+      </li>
+      <li>
+       <p>
+        Generated backend flows containing SOAP message templates.
+       </p>
+      </li>
+     </ol>
+    </div>
+    <div class="paragraph">
+     <p>
+      After you create your APIkit project, you can continue building the application by performing calls to test the API and finalize its implementation. See
+      <a href="#build-applications-workflows">
+       Build Applications Workflows
+      </a>
+      for details.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="start-a-new-apikit-project">
+     <a class="anchor" href="#start-a-new-apikit-project">
+     </a>
+     Start a New APIkit Project
+    </h3>
+    <div class="paragraph">
+     <p>
+      Use this method if you start an APIkit project without an API specification file and you can later add it into the project. APIkit generates a skeletal RAML file and XML configuration file.
+     </p>
+    </div>
+    <div class="olist arabic">
+     <ol class="arabic">
+      <li>
+       <p>
+        Select
+        <strong>
+         File &gt; New &gt; Mule Project
+        </strong>
+        .
+       </p>
+      </li>
+      <li>
+       <p>
+        In
+        <strong>
+         Project Name
+        </strong>
+        , enter a name for the project, for example
+        <strong>
+         myproject
+        </strong>
+        .
+       </p>
+      </li>
+      <li>
+       <p>
+        Select or accept the default EE . Runtime, for example
+        <strong>
+         Mule Server 4.2.0 EE
+        </strong>
+        .
+       </p>
+      </li>
+      <li>
+       <p>
+        In
+        <strong>
+         API Implementation
+        </strong>
+        ,  do
+        <em>
+         not
+        </em>
+        select
+        <strong>
+         Specify API Definition File Location or URL
+        </strong>
+        .
+        <br/>
+        This creates the backend-first APIkit design.
+       </p>
+      </li>
+      <li>
+       <p>
+        Accept the other default options, and click
+        <strong>
+         Finish
+        </strong>
+        .
+       </p>
+      </li>
+     </ol>
+    </div>
+    <div class="imageblock">
+     <div class="content">
+      <img alt="A new Mule project without an API specification" src="_images/mruntime-start-apikit-project-2.png"/>
+     </div>
+     <div class="title">
+      Figure 11. New Mule Project window.
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      Using this method the APIkit scaffolding generates a skeletal RAML file and XML configuration file that includes the following components:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        A main flow
+        <code>
+         &lt;flow name="main-api"&gt;&lt;/flow&gt;
+        </code>
+       </p>
+      </li>
+      <li>
+       <p>
+        HTTP Listener configuration in the main flow
+       </p>
+      </li>
+      <li>
+       <p>
+        APIkit Router component
+       </p>
+      </li>
+      <li>
+       <p>
+        Error handlers
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="paragraph">
+     <p>
+      You can later add an API specification to the backend-first APIkit design and generate backend flows to continue building the application. See
+      <a href="#build-applications-workflows">
+       Build Applications Workflows
+      </a>
+      for details.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="start-a-new-apikit-project-by-generating-backend-flows">
+     <a class="anchor" href="#start-a-new-apikit-project-by-generating-backend-flows">
+     </a>
+     Start a New APIkit Project by Generating Backend Flows
+    </h3>
+    <div class="paragraph">
+     <p>
+      To perform this task, you must have met the following prerequisites:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        Created a RAML file in Studio (RAML editor)
+       </p>
+      </li>
+      <li>
+       <p>
+        Created a main flow with an HTTP Listener and APIkit Router components
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="paragraph">
+     <p>
+      When you create a RAML file in Studio, generating backend flows is optional. Error handling is generated automatically for a RAML-based API. To start the APIkit project, you need to generate the backend flows from the main flow. Follow the next steps:
+     </p>
+    </div>
+    <div class="olist arabic">
+     <ol class="arabic">
+      <li>
+       <p>
+        In Package Explorer, right-click the project name.
+       </p>
+      </li>
+      <li>
+       <p>
+        Select
+        <strong>
+         Mule &gt; Generate Flows From REST API
+        </strong>
+        .
+       </p>
+      </li>
+     </ol>
+    </div>
+    <div class="imageblock">
+     <div class="content">
+      <img alt="A Package Explorer view showing options for generating backend flows from Mule project" src="_images/mruntime-start-apikit-project-3.png"/>
+     </div>
+     <div class="title">
+      Figure 12. Generating backend flows from Mule Project.
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      The APIkit scaffolding technique generates the backend flows following the main flow. You can then continue building the application by performing calls to test the API and finalize its implementation. See
+      <a href="#build-applications-workflows">
+       Build Applications Workflows
+      </a>
+      for details.
+     </p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="build-applications-workflows">
+   <a class="anchor" href="#build-applications-workflows">
+   </a>
+   Build Applications Workflows
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     After you are familiar with the basic APIkit anatomy and the scaffolding technique, examine the following workflows to help you build your desired application by creating the APIkit project, generating Mule flows, performing calls to the API, and finalizing its implementation:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../apikit/latest/apikit-4-for-rest">
+        Build a REST API using APIKit for REST
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../apikit/latest/apikit-4-for-soap">
+        Build a SOAP API using APKit for SOAP
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     Additionally, you can:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../apikit/latest/apikit-workflow-convert-existing">
+        Convert an Existing Mule Project to an APIkit Project
+       </a>
+       <br/>
+       Add an API specification to an existing APIkit backend-first design, define API definition files, create main flow,  generate backend REST API flows, map RAML resources to actions.
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../apikit/latest/key-configurations">
+        Perform APIkit 4.x Tasks
+       </a>
+       <br/>
+       Change APIkit project, customize API console, configure headers, retrieve RAML files, execute nonfunctional requirements, configure load balancers.
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../apikit/latest/creating-an-odatav4-api-with-apikit">
+        Create an Enable O-Data API using the APIkit OData Extension
+       </a>
+       <br/>
+       Generate Mule flows to handle OData requests.
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../apikit/latest/apikit-4-scaffolding-reference">
+        Create an APIkit project with Maven
+       </a>
+       <br/>
+       Add APIkit components to an existing Apache Maven project.
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="consume-data-from-an-api">
+   <a class="anchor" href="#consume-data-from-an-api">
+   </a>
+   Consume Data from an API
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     After you build your application, you can start consuming data from the API. Review the
+     <a class="xref page" href="consume-data-from-an-api">
+      Consume Data from an API documentation
+     </a>
+     for guidelines.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../apikit/latest/">
+        APIkit
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../apikit/latest/apikit-error-handling-reference">
+        APIKit Handling Errors
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

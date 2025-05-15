@@ -1,0 +1,429 @@
+<article class="doc">
+ <h1 class="page">
+  Core Components
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Like the operations in connectors and modules, Core components are important
+building blocks of flows in a Mule app. Core components provide the logic
+for processing a Mule event as it travels in a series of linked steps through
+the app. Examples include the Scheduler, For Each, and Logger components.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     In Studio, Mule components are accessible by clicking
+     <strong>
+      Core
+     </strong>
+     from the Mule palette.
+    </p>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="Core components in Anypoint Studio" src="_images/components-core-studio.png"/>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Notice that the components are subdivided into types, including Batch,
+Error Handling, and Flow Control.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="batch">
+   <a class="anchor" href="#batch">
+   </a>
+   Batch
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To process Mule messages in batches, instead of processing them all together,
+you can use Batch components, which include:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Batch Aggregator
+      </p>
+     </li>
+     <li>
+      <p>
+       Batch Job
+      </p>
+     </li>
+     <li>
+      <p>
+       Batch Step
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     See
+     <a class="xref page" href="batch-processing-concept">
+      Batch Processors
+     </a>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="components">
+   <a class="anchor" href="#components">
+   </a>
+   Components
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     These Core components perform a variety of tasks:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="business-events-custom">
+        Custom Business Events
+       </a>
+       : For collecting information
+about flows and message processors that handle your business transactions. See also
+       <a class="xref page" href="business-events">
+        Business Events
+       </a>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="dynamic-evaluate-component-reference">
+        Dynamic Evaluate
+       </a>
+       : For dynamically
+selecting a script, instead of forcing you to hardcode it through the Transform Message Component.
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="flowref-about">
+        Flow Reference
+       </a>
+       : For routing the Mule event to another
+flow or subflow (and back) within a Mule app.
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="logger-component-reference">
+        Logger
+       </a>
+       : For logging important information about
+your Mule app, such as error messages and status notifications.
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="parse-template-reference">
+        Parse Template
+       </a>
+       : For processing a template
+and obtaining a result.
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="transform-component-about">
+        Transform Message
+       </a>
+       : For converting input
+data to a new output structure or format.
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="endpoints">
+   <a class="anchor" href="#endpoints">
+   </a>
+   Endpoints
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Endpoints (sometimes called Sources in Studio) include
+components that initiate (or trigger) processing in a Mule flow. The
+     <a class="xref page" href="scheduler-concept">
+      Scheduler
+     </a>
+     is an endpoint. It triggers a flow to start
+at a configurable interval.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Note that some connectors provide listeners that serve as endpoints. Listeners
+can trigger a flow when they receive an external request. For example, an HTTP
+Listener that is configured for a given URL can trigger a flow when someone or
+some process goes to that URL.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="error-handling">
+   <a class="anchor" href="#error-handling">
+   </a>
+   Error Handling
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Error handling components route and process Mule errors that occur in a Mule app:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Error Handler
+      </p>
+     </li>
+     <li>
+      <p>
+       On Error Continue
+      </p>
+     </li>
+     <li>
+      <p>
+       On Error Propagate
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     See
+     <a class="xref page" href="error-handling">
+      Error Handlers
+     </a>
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="flow-control-routers">
+   <a class="anchor" href="#flow-control-routers">
+   </a>
+   Flow Control (Routers)
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     A Flow Control component (or Router) takes the input Mule event and routes it to
+one or more separate sequences of components. Flow Control components include:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Choice
+      </p>
+     </li>
+     <li>
+      <p>
+       First Successful
+      </p>
+     </li>
+     <li>
+      <p>
+       Round Robin
+      </p>
+     </li>
+     <li>
+      <p>
+       Scatter-Gather
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     For example, a
+     <a class="xref page" href="choice-router-concept">
+      Choice router
+     </a>
+     applies
+DataWeave logic to pick one of two or more routes, where each route is a separate
+sequence of event processors.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     A
+     <a class="xref page" href="scatter-gather-concept">
+      Scatter-Gather router
+     </a>
+     router sends the
+input event to every route, and each route independently processes the event.
+After every route has processed the event, the results from all the routes are
+combined together into one output event.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="scopes">
+   <a class="anchor" href="#scopes">
+   </a>
+   Scopes
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     A Scope is a type of component that groups together a sequence of event processors
+(such as other Core components and operations from both modules and connectors)
+to apply some programming behavior to that isolated sequence of event processors.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Scopes include these components:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Async
+      </p>
+     </li>
+     <li>
+      <p>
+       Cache
+      </p>
+     </li>
+     <li>
+      <p>
+       Flow
+      </p>
+     </li>
+     <li>
+      <p>
+       For Each
+      </p>
+     </li>
+     <li>
+      <p>
+       Try
+      </p>
+     </li>
+     <li>
+      <p>
+       Until Successful
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     For example, a Try scope lets you isolate and handle any errors that occur in
+a particular sequence of flows. So, you might wrap an outbound HTTP Request
+connector (and perhaps some other surrounding components before and after
+the HTTP Request connector, such as a Transform Message component or a
+Logging component) in a Try scope, so if an error results, you can apply
+logging or compensation logic specific to that grouping of components. See
+     <a class="xref page" href="try-scope-concept">
+      Try Scope
+     </a>
+     .
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Another example is the For Each (or Foreach) scope, which takes a collection
+of data, usually extracted from the current input event, and applies the same
+sequence of event processors to every item in the collection. For example, a
+For Each scope might be used to process each individual row returned from a
+database query or each individual line from a CSV file. See
+     <a class="xref page" href="for-each-scope-concept">
+      For Each Scope
+     </a>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="transformers">
+   <a class="anchor" href="#transformers">
+   </a>
+   Transformers
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Transformers are components you can use to set or remove a part of the Mule event.
+Transformers include:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="remove-variable">
+        Remove Variable
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="set-payload-transformer-reference">
+        Set Payload
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="variable-transformer-reference">
+        Set Variable
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../connectors/">
+        Connectors and Modules
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

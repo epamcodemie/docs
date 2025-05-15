@@ -1,0 +1,103 @@
+<article class="doc">
+ <h1 class="page">
+  Distributed File Polling
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     <strong>
+      <em>
+       Enterprise Edition
+      </em>
+     </strong>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Some connectors, such as the File connector or FTP connector, poll directories and read certain files as they are created in the directories polled. These files can reside on a remote file system, including file systems of nodes belonging to a Mule High Availability (HA) Cluster.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     In Mule 4, distributed file polling makes it possible to poll files in all cluster nodes. Enabled by default, this feature is used by the following connectors:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../file-connector/latest/">
+        File Connector
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../ftp-connector/latest/">
+        FTP Connector
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../sftp-connector/latest/">
+        SFTP Connector
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     You can configure connectors to only poll from the primary node,
+     <code>
+      @PrimaryNodeOnly
+     </code>
+     , which ignores the default setting set by the Mule runtime engine. This feature is only available in Mule 4.x
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="creating-and-managing-a-cluster-manually">
+        Creating and Managing a Cluster Manually
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="mule-high-availability-ha-clusters">
+        Mule High Availability (HA) Cluster
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="migration-connectors-file">
+        Migrating File Connector
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="migration-connectors-ftp-sftp">
+        Migrating FTP and SFTP Connectors
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

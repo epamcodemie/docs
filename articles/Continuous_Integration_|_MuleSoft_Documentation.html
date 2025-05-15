@@ -1,0 +1,278 @@
+<article class="doc">
+ <h1 class="page">
+  Continuous Integration
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The need for continuous integration (CI) for a project is very important. By using Maven as your build tool, you can create a build that gets triggered on every project change, and run all of its unit and functional tests automatically.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The advantages of CI are:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Provides early notification of issues in the software development lifecycle.
+      </p>
+     </li>
+     <li>
+      <p>
+       Ensures code gets fully tested before release.
+      </p>
+     </li>
+     <li>
+      <p>
+       Successfully tested branches ensure better success when merging to the main branch.
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="continuous-integration-objectives">
+   <a class="anchor" href="#continuous-integration-objectives">
+   </a>
+   Continuous Integration Objectives
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     A CI system does all of the following:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Listens for new commits to a project’s source code management system. The CI system watches many branches for new commits. You can either use polling to find new commits, or the management system can trigger events that inform your program of commits.
+      </p>
+     </li>
+     <li>
+      <p>
+       Pulls the newest branch into a centralized server.
+      </p>
+     </li>
+     <li>
+      <p>
+       Creates build jobs on a centralized server.
+      </p>
+     </li>
+     <li>
+      <p>
+       Runs configurable unit and integration tests on the code base that compile, test, package, and deploy the project in a sandbox to ensure the project works correctly.
+      </p>
+     </li>
+     <li>
+      <p>
+       Stores artifacts in a repository.
+      </p>
+     </li>
+     <li>
+      <p>
+       Displays the results of each build.
+      </p>
+     </li>
+     <li>
+      <p>
+       Deploys passing builds to production.
+      </p>
+     </li>
+    </ol>
+   </div>
+   <div class="paragraph">
+    <p>
+     For information about these tools, see their websites.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="mulesoft-ci-tools">
+   <a class="anchor" href="#mulesoft-ci-tools">
+   </a>
+   MuleSoft CI Tools
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You can deploy Mule applications using:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../api-manager/latest/getting-started-proxy">
+        The API Manager
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../runtime-manager/runtime-manager-agent">
+        The Runtime Manager Agent
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     You can create functional tests with
+     <a class="xref page" href="../../munit/2.1/">
+      MUnit Unit Testing
+     </a>
+     .
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The mule-maven-plugin supports deployments to:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       CloudHub
+      </p>
+     </li>
+     <li>
+      <p>
+       Runtime Fabric
+      </p>
+     </li>
+     <li>
+      <p>
+       On-premises Mule instances
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          Standalone deployment
+         </p>
+        </li>
+        <li>
+         <p>
+          Using Anypoint Runtime Manager REST API
+         </p>
+        </li>
+        <li>
+         <p>
+          Using Runtime Manager agent
+         </p>
+        </li>
+       </ul>
+      </div>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     For a complete CI example that uses Jenkins and Maven, see the Anypoint Platform Development: Advanced class on the
+     <a href="https://training.mulesoft.com/course-catalog">
+      MuleSoft training site
+     </a>
+     . The training site also includes related classes and certification exams.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="external-ci-tools">
+   <a class="anchor" href="#external-ci-tools">
+   </a>
+   External CI Tools
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Popular CI tools are:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Jenkins
+      </p>
+     </li>
+     <li>
+      <p>
+       Hudson
+      </p>
+     </li>
+     <li>
+      <p>
+       TeamCity
+      </p>
+     </li>
+     <li>
+      <p>
+       Bamboo
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     For information about these tools, see their websites.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="integration-notes">
+   <a class="anchor" href="#integration-notes">
+   </a>
+   Integration Notes
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     If you’ve chosen to use connectors in your functional test cases, watch out for potential port conflicts that can occur in a continuous build server.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     If your target deployable is a web application and not a Mule application, consider using Junit Integration Test Runner for running your functional tests and avoiding port conflicts.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="using-maven-with-mule">
+        Maven Support in Mule
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../munit/2.1/">
+        MUnit Unit Testing
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

@@ -1,0 +1,844 @@
+<article class="doc">
+ <h1 class="page">
+  REST API Example
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The following example describes how to write an API that retrieves data from a publicly available REST API, using Anypoint Studio or a standalone XML in Mule runtime engine. The example API generates lorem ipsum text and queries the Bacon Ipsum REST API at:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre>http://baconipsum.com/</pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="consume-a-rest-api-in-anypoint-studio">
+   <a class="anchor" href="#consume-a-rest-api-in-anypoint-studio">
+   </a>
+   Consume a REST API in Anypoint Studio
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To consume the REST API in Studio, you must configure HTTP connectors, add a file write operation, and then run the application.
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Begin in Studio by adding and configuring an HTTP Listener and an HTTP Request connector. You don’t have to use HTTPS or set up an account.
+      </p>
+     </li>
+    </ol>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="Flow with components like Listener, Request, and Error handling for consuming a REST API" src="_images/mruntime-rest-api-example-1.png"/>
+    </div>
+    <div class="title">
+     Figure 1. ConsumeRestAPI flow with HTTP Listener and HTTP Request Connectors.
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     At this point, you can call the API and receive
+     <code>
+      bacon ipsum
+     </code>
+     text in a web browser.
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic" start="2">
+     <li>
+      <p>
+       Next, add a File Write component to save the output of the request for
+       <code>
+        bacon ipsum
+       </code>
+       text to a file on your file system:
+      </p>
+     </li>
+    </ol>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="Flow showing components like Listener, Request, and Write for consuming a REST API" src="_images/mruntime-rest-api-example-2.png"/>
+    </div>
+    <div class="title">
+     Figure 2. Flow with HTTP Listener, HTTP Request Connectors and File Write component.
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The first element, an HTTP Listener, listens on localhost port 8081 (default) for incoming GET requests. Calling the listener from a browser triggers the flow.
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic" start="3">
+     <li>
+      <p>
+       Finally, send requests using the following syntax:
+      </p>
+     </li>
+    </ol>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre>http://localhost:8081?&lt;query&gt;</pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The
+     <code>
+      &lt;query&gt;
+     </code>
+     consists of the parameters accepted by the REST API. When the HTTP Listener receives the HTTP Request, the application records
+     <code>
+      &lt;query&gt;
+     </code>
+     as a set of query parameters. The HTTP Listener passes these parameters to the next element in the flow, the HTTP Request operation. This operation is configured to query the remote REST API at
+     <code>
+      <a class="bare" href="http://baconipsum.com/api">
+       http://baconipsum.com/api
+      </a>
+     </code>
+     . The HTTP Request Connector uses DataWeave expressions to extract the query parameters from the properties in the message, and constructs the full URL for the remote API, including the query parameters.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     For example, assume that you enter the following local browser request:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre>http://localhost:8081?type=meat-and-filler</pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     As a result, the application issues the following query:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre>http://baconipsum.com/api/?type=meat-and-filler</pre>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="configure-http-connectors">
+     <a class="anchor" href="#configure-http-connectors">
+     </a>
+     Configure HTTP Connectors
+    </h3>
+    <div class="paragraph">
+     <p>
+      Specify how to call the API and what to return by configuring the HTTP Listener and HTTP Request Connectors.
+     </p>
+    </div>
+    <div class="sect3">
+     <h4 id="http-listener">
+      <a class="anchor" href="#http-listener">
+      </a>
+      HTTP Listener
+     </h4>
+     <div class="paragraph">
+      <p>
+       To configure the HTTP Listener, follow these steps:
+      </p>
+     </div>
+     <div class="olist arabic">
+      <ol class="arabic">
+       <li>
+        <p>
+         Select the HTTP Listener component.
+        </p>
+       </li>
+       <li>
+        <p>
+         In
+         <strong>
+          Connector Configuration
+         </strong>
+         , click
+         <span class="image">
+          <img alt="Add icon" height="5%" src="_images/mruntime-add-plus.png" width="5%"/>
+         </span>
+         , and set
+         <strong>
+          Host
+         </strong>
+         to
+         <code>
+          localhost
+         </code>
+         and
+         <strong>
+          Port
+         </strong>
+         to
+         <code>
+          8081
+         </code>
+         .
+        </p>
+       </li>
+       <li>
+        <p>
+         Click
+         <strong>
+          OK
+         </strong>
+         .
+        </p>
+       </li>
+      </ol>
+     </div>
+     <div class="imageblock">
+      <div class="content">
+       <img alt="HTTP Listener configuration showing protocol, host, and port settings" src="_images/mruntime-rest-api-example-3.png"/>
+      </div>
+      <div class="title">
+       Figure 3. HTTP Listener Configuration with Host and Port.
+      </div>
+     </div>
+     <div class="olist arabic">
+      <ol class="arabic" start="4">
+       <li>
+        <p>
+         In the HTTP Listener properties editor, set
+         <strong>
+          Path
+         </strong>
+         to
+         <code>
+          /
+         </code>
+         :
+        </p>
+       </li>
+      </ol>
+     </div>
+     <div class="imageblock">
+      <div class="content">
+       <img alt="Configuration settings for an HTTP Listener including path, MIME type, and error handling" src="_images/mruntime-rest-api-example-4.png"/>
+      </div>
+      <div class="title">
+       Figure 4. HTTP Listener properties editor with Path.
+      </div>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="http-request">
+      <a class="anchor" href="#http-request">
+      </a>
+      HTTP Request
+     </h4>
+     <div class="olist arabic">
+      <ol class="arabic">
+       <li>
+        <p>
+         In
+         <strong>
+          Connector Configuration
+         </strong>
+         , click
+         <span class="image">
+          <img alt="Add icon" height="5%" src="_images/mruntime-add-plus.png" width="5%"/>
+         </span>
+         , and set
+         <strong>
+          Host
+         </strong>
+         to
+         <code>
+          baconipsum.com
+         </code>
+         ,
+         <strong>
+          Port
+         </strong>
+         to
+         <code>
+          80
+         </code>
+         , and
+         <strong>
+          Base Path
+         </strong>
+         to
+         <code>
+          api
+         </code>
+         . This configuration sends requests to
+         <code>
+          <a class="bare" href="http://baconipsum.com/api">
+           http://baconipsum.com/api
+          </a>
+         </code>
+         .
+        </p>
+       </li>
+       <li>
+        <p>
+         Click
+         <strong>
+          OK
+         </strong>
+         .
+        </p>
+       </li>
+      </ol>
+     </div>
+     <div class="imageblock">
+      <div class="content">
+       <img alt="Configuration settings for an HTTP Request including URL, host, port, and connection details" src="_images/mruntime-rest-api-example-5.png"/>
+      </div>
+      <div class="title">
+       Figure 5. HTTP Request Connector Configuration Settings.
+      </div>
+     </div>
+     <div class="olist arabic">
+      <ol class="arabic" start="3">
+       <li>
+        <p>
+         In the properties editor, set
+         <strong>
+          Path
+         </strong>
+         to
+         <code>
+          /
+         </code>
+         and
+         <strong>
+          Method
+         </strong>
+         to
+         <code>
+          GET
+         </code>
+         .
+        </p>
+       </li>
+       <li>
+        <p>
+         In the Query Parameters tab, add two query parameters.
+         <br/>
+         For each
+         <code>
+          value
+         </code>
+         field, provide a Mule expression that takes the specified value from the query parameters of the request that first reaches the HTTP Listener.
+        </p>
+       </li>
+      </ol>
+     </div>
+     <table class="tableblock frame-all grid-all fit-content spread">
+      <colgroup>
+       <col/>
+       <col/>
+      </colgroup>
+      <thead>
+       <tr>
+        <th class="tableblock halign-left valign-top">
+         Parameter
+        </th>
+        <th class="tableblock halign-left valign-top">
+         Value
+        </th>
+       </tr>
+      </thead>
+      <tbody>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <strong>
+           Type
+          </strong>
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <code>
+           query-param
+          </code>
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <strong>
+           Name
+          </strong>
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <code>
+           type
+          </code>
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <strong>
+           Value
+          </strong>
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <code>
+           #[message.attributes.queryParams['type']]
+          </code>
+         </p>
+        </td>
+       </tr>
+      </tbody>
+     </table>
+     <table class="tableblock frame-all grid-all fit-content spread">
+      <colgroup>
+       <col/>
+       <col/>
+      </colgroup>
+      <thead>
+       <tr>
+        <th class="tableblock halign-left valign-top">
+         Parameter
+        </th>
+        <th class="tableblock halign-left valign-top">
+         Value
+        </th>
+       </tr>
+      </thead>
+      <tbody>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <strong>
+           Type
+          </strong>
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <code>
+           query-param
+          </code>
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <strong>
+           Name
+          </strong>
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <code>
+           sentences
+          </code>
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <strong>
+           Value
+          </strong>
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          `#[message.attributes.queryParams['sentences']]
+         </p>
+        </td>
+       </tr>
+      </tbody>
+     </table>
+     <div class="imageblock">
+      <div class="content">
+       <img alt="Configuration panel for an HTTP Request showing method, path, and URL settings" src="_images/mruntime-rest-api-example-6.png"/>
+      </div>
+      <div class="title">
+       Figure 6. Query Parameters with name and values.
+      </div>
+     </div>
+     <div class="paragraph">
+      <p>
+       The Bacon Ipsum API page contains a list of parameters that you can use, but this application only uses
+       <code>
+        type
+       </code>
+       and
+       <code>
+        sentences
+       </code>
+       parameters. The optional
+       <code>
+        sentences
+       </code>
+       parameter determines the number of sentences to return in the JSON response.
+      </p>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="file-write-operation">
+     <a class="anchor" href="#file-write-operation">
+     </a>
+     File Write Operation
+    </h3>
+    <div class="paragraph">
+     <p>
+      Set up the File Write component properties to save the output of the application to a file.
+     </p>
+    </div>
+    <div class="olist arabic">
+     <ol class="arabic">
+      <li>
+       <p>
+        Drag a File Write component onto the canvas.
+       </p>
+      </li>
+      <li>
+       <p>
+        In the properties editor, set the directory and file name for storing the output:
+        <code>
+         /tmp/output
+        </code>
+        .
+       </p>
+       <div class="imageblock">
+        <div class="content">
+         <img alt="Flow showing components like Listener, Request, and Write for consuming a REST API" src="_images/mruntime-rest-api-example-2.png"/>
+        </div>
+       </div>
+      </li>
+      <li>
+       <p>
+        In the properties editor, specify any actual path on your file system for
+        <strong>
+         Path
+        </strong>
+        :
+       </p>
+      </li>
+     </ol>
+    </div>
+    <div class="imageblock">
+     <div class="content">
+      <img alt="Configuration settings for a file write operation showing path, content type, and write mode" src="_images/mruntime-rest-api-example-7.png"/>
+     </div>
+     <div class="title">
+      Figure 7. File Write properties editor and Path.
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="run-the-application-to-consume-a-rest-api">
+     <a class="anchor" href="#run-the-application-to-consume-a-rest-api">
+     </a>
+     Run the Application to Consume a REST API
+    </h3>
+    <div class="paragraph">
+     <p>
+      Follow these steps to run the application:
+     </p>
+    </div>
+    <div class="olist arabic">
+     <ol class="arabic">
+      <li>
+       <p>
+        In Studio, within your project, click
+        <span class="image">
+         <img alt="Run icon" height="5%" src="_images/mruntime-run-button.png" width="5%"/>
+        </span>
+        to run the example as a Mule application. Test
+       </p>
+      </li>
+      <li>
+       <p>
+        In a web browser window, trigger the flow of the application by querying the HTTP Listener on localhost port 8081:
+       </p>
+      </li>
+     </ol>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre>http://localhost:8081?type=meat-and-filler</pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      The Bacon Ipsum API page contains a list of parameters you can use, but when configuring the HTTP Request Connector, you set up your connector to use only the
+      <code>
+       type
+      </code>
+      and
+      <code>
+       sentences
+      </code>
+      parameters.
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        The first parameter=value pair must be preceded by the
+        <code>
+         ?
+        </code>
+        operator.
+       </p>
+      </li>
+      <li>
+       <p>
+        To insert additional parameter=value pairs, use the
+        <code>
+         &amp;
+        </code>
+        operator.
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="paragraph">
+     <p>
+      The following queries are examples that you can send to the HTTP Listener on localhost port 8081:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre>http://localhost:8081?type=meat-and-filler
+http://localhost:8081?sentences=2
+http://localhost:8081?type=all-meat&amp;sentences=3</pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      The
+      <code>
+       type=meat-and-filler
+      </code>
+      example returns the following output:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre>["Doner ullamco ea non, porchetta incididunt brisket ball tip in chuck ex bresaola beef tongue.  Et aute ham hock kielbasa chuck fatback short ribs.  Kevin in reprehenderit est esse, ham bacon ut ball tip.  Laborum ut nulla ex irure t-bone flank, biltong cupidatat venison proident aliquip pork belly ham hock.  In consequat proident, cillum labore pariatur nisi.  Reprehenderit boudin beef ribs, frankfurter cillum enim pork loin consectetur kielbasa laboris.  Hamburger prosciutto nisi, jerky biltong ex pork chop venison.","Fatback tongue anim, irure ut ut cupidatat occaecat eiusmod ham hock laborum commodo.  Anim pig shank kielbasa, drumstick corned beef esse nostrud ham salami id laborum ribeye aute.  Duis pancetta sunt magna occaecat dolor leberkas, short loin meatloaf flank enim pastrami.  Prosciutto proident landjaeger deserunt tenderloin short loin.  Adipisicing aute in bresaola meatball, ut frankfurter pastrami shoulder porchetta turducken strip steak doner.  In filet mignon bresaola, sed deserunt pariatur eu mollit commodo shankle laborum.  Andouille aliqua jowl pork chop jerky sed consequat turkey voluptate bacon pastrami.","Ground round elit boudin reprehenderit.  Brisket shankle esse, leberkas veniam andouille rump proident drumstick.  Consequat sausage do ut prosciutto nostrud andouille tongue ullamco bacon est exercitation.  Do fugiat biltong est tempor short ribs reprehenderit adipisicing shoulder.  Tail venison shank incididunt, hamburger adipisicing voluptate corned beef fugiat sirloin fatback in tri-tip nisi ut.  Tail non excepteur, fugiat veniam corned beef dolore ex pig pork belly sint mollit chuck pork.","Pig hamburger dolore proident brisket landjaeger in boudin kielbasa ut elit.  Velit incididunt boudin qui.  Fatback anim adipisicing, pig jowl voluptate sirloin drumstick chicken esse.  Strip steak consequat tenderloin pastrami, ullamco brisket hamburger bacon beef adipisicing.  Tri-tip ham hock eu non et, flank dolore kevin.  Et duis frankfurter, ut ullamco do non quis boudin andouille aliqua venison ham.  Ut aliqua shoulder, aliquip pariatur bacon spare ribs irure.","Aliqua jerky frankfurter, swine ham in ground round sed qui laborum cow.  Sint turducken shank ut ea id.  Kevin dolore pig excepteur, anim ut magna.  Enim consequat short ribs corned beef ham hock nostrud fugiat chuck.  Tail spare ribs dolore boudin, andouille incididunt laboris occaecat strip steak.  Cow frankfurter capicola, landjaeger cupidatat porchetta ad ground round voluptate."]</pre>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="consume-a-rest-api-in-standalone-xml">
+   <a class="anchor" href="#consume-a-rest-api-in-standalone-xml">
+   </a>
+   Consume a REST API in Standalone XML
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To consume the REST API in Standalone XML, you need to configure the HTTP Listener and HTTP Request connectors as well as add the File Write component.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="configure-http-connectors-2">
+     <a class="anchor" href="#configure-http-connectors-2">
+     </a>
+     Configure HTTP Connectors
+    </h3>
+    <div class="paragraph">
+     <p>
+      Specify how to call the API and what to return by configuring the HTTP Listener and HTTP Request connectors.
+     </p>
+    </div>
+    <div class="sect3">
+     <h4 id="http-listener-2">
+      <a class="anchor" href="#http-listener-2">
+      </a>
+      HTTP Listener
+     </h4>
+     <div class="paragraph">
+      <p>
+       To configure the HTTP Listener, reference an abstract element called a
+       <strong>
+        Connector Configuration
+       </strong>
+       , which contains several of the high level necessary configuration properties:
+      </p>
+     </div>
+     <div class="listingblock">
+      <div class="content">
+       <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;http:listener config-ref="HTTP_Listener_config" path="/"/&gt;</code></pre>
+      </div>
+     </div>
+     <div class="paragraph">
+      <p>
+       The
+       <code>
+        config-ref
+       </code>
+       attribute in the connector references this connector configuration element. You must now create an element outside the flow that matches the referenced name.
+      </p>
+     </div>
+     <div class="listingblock">
+      <div class="content">
+       <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;http:listener-config name="HTTP_Listener_config"&gt;
+	&lt;http:listener-connection host="0.0.0.0" port="8081" /&gt;
+&lt;/http:listener-config&gt;</code></pre>
+      </div>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="http-request-2">
+      <a class="anchor" href="#http-request-2">
+      </a>
+      HTTP Request
+     </h4>
+     <div class="paragraph">
+      <p>
+       To configure the HTTP Request, reference an abstract element called a
+       <strong>
+        Connector Configuration
+       </strong>
+       , which contains several of the high level necessary configuration properties.
+      </p>
+     </div>
+     <div class="listingblock">
+      <div class="content">
+       <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;http:request method="GET" config-ref="HTTP_Request_configuration" path="/"&gt;
+	&lt;http:query-params &gt;
+		&lt;![CDATA[#[output application/java
+			---
+			{
+				"type" : message.attributes.queryParams['type'],
+				"sentences" : message.attributes.queryParams['sentences']
+			}
+		]]]&gt;
+	&lt;/http:query-params&gt;
+&lt;/http:request&gt;</code></pre>
+      </div>
+     </div>
+     <div class="paragraph">
+      <p>
+       The
+       <code>
+        config-ref
+       </code>
+       attribute in the connector references this connector configuration element. You must now create an element outside the flow that matches the referenced name.
+      </p>
+     </div>
+     <div class="listingblock">
+      <div class="content">
+       <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;http:request-config name="HTTP_Request_configuration" basePath="/api"&gt;
+		&lt;http:request-connection host="baconipsum.com" port="80"/&gt;
+	&lt;/http:request-config&gt;</code></pre>
+      </div>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="file-write-operation-2">
+     <a class="anchor" href="#file-write-operation-2">
+     </a>
+     File Write Operation
+    </h3>
+    <div class="paragraph">
+     <p>
+      Finally, add the File Write operation in the XML:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;file:write path="/Users/max/output.txt"/&gt;</code></pre>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="xml">
+     <a class="anchor" href="#xml">
+     </a>
+     XML
+    </h3>
+    <div class="paragraph">
+     <p>
+      Review the complete XML:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+
+&lt;mule xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd"&gt;
+	&lt;http:request-config name="HTTP_Request_configuration" basePath="/api"&gt;
+		&lt;http:request-connection host="baconipsum.com" port="80"/&gt;
+	&lt;/http:request-config&gt;
+	&lt;http:listener-config name="HTTP_Listener_config"&gt;
+		&lt;http:listener-connection host="0.0.0.0" port="8081" /&gt;
+	&lt;/http:listener-config&gt;
+
+	&lt;flow name="consumeRestAPI"&gt;
+		&lt;http:listener config-ref="HTTP_Listener_config" path="/"/&gt;
+		&lt;http:request method="GET" config-ref="HTTP_Request_configuration" path="/"&gt;
+			&lt;http:query-params &gt;&lt;![CDATA[#[output application/java
+				---
+				{
+					"type" : message.attributes.queryParams['type'],
+					"sentences" : message.attributes.queryParams['sentences']
+				}]]]&gt;
+			&lt;/http:query-params&gt;
+		&lt;/http:request&gt;
+		&lt;file:write path="/Users/max/output.txt"/&gt;
+	&lt;/flow&gt;
+&lt;/mule&gt;</code></pre>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="consume-data-from-an-api">
+        Consume Data from an API
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

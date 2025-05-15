@@ -1,0 +1,326 @@
+<article class="doc">
+ <h1 class="page">
+  Configure Default Events Tracking
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Because event tracking requires processing and network overhead to aggregate and store the events that Mule runtime engine generates, it is disabled by default. However, you can enable and configure default events tracking for connectors or message processors that support it, at one of two levels:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       At the flow level
+      </p>
+     </li>
+     <li>
+      <p>
+       At the message processor (connector or component) level, which takes precedence over the flow-level setting
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     After you enable event tracking, customize the transaction ID to identify specific tracked events so that you can analyze them at runtime.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="flow-level-event-tracking">
+   <a class="anchor" href="#flow-level-event-tracking">
+   </a>
+   Flow-Level Event Tracking
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Use this option in the
+     <a class="xref page" href="flow-component">
+      Flow
+     </a>
+     component to enable default event tracking for all elements in a flow that support event tracking.
+You can disable tracking for specific processors or connectors to override the flow level setting.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Steps to enable default events tracking for all components in a flow:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Select your flow component to open the properties view.
+      </p>
+     </li>
+     <li>
+      <p>
+       Enable default business events using either the UI or XML:
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          In the UI, select
+          <strong>
+           Enable default events tracking
+          </strong>
+          :
+         </p>
+         <div class="imageblock">
+          <div class="content">
+           <img alt="A flow configuration interface for JMS processing with options to enable event tracking" src="_images/mruntime-business-event-flow.png"/>
+          </div>
+         </div>
+        </li>
+        <li>
+         <p>
+          In the XML, add attribute
+          <code>
+           tracking:enable-default-events="true"
+          </code>
+          to the
+          <code>
+           flow
+          </code>
+          element:
+         </p>
+         <div class="listingblock">
+          <div class="content">
+           <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="testFlow" tracking:enable-default-events="true"&gt;</code></pre>
+          </div>
+         </div>
+        </li>
+       </ul>
+      </div>
+     </li>
+     <li>
+      <p>
+       Save your settings.
+      </p>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="message-processor-level-event-tracking">
+   <a class="anchor" href="#message-processor-level-event-tracking">
+   </a>
+   Message Processor-Level Event Tracking
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You can enable event tracking on individual connectors and Mule components that support event tracking.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The following Mule components provide a configuration for enabling business events:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="choice-router-concept">
+        Choice
+       </a>
+       router
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="round-robin">
+        Round Robin
+       </a>
+       router
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="first-successful">
+        First Successful
+       </a>
+       router
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     Steps to enable default events tracking for an individual component:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Open the connector or component properties view.
+      </p>
+     </li>
+     <li>
+      <p>
+       Enable default business events using any of the following options:
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          In the UI, select
+          <strong>
+           Enable default events tracking
+          </strong>
+          :
+         </p>
+         <div class="imageblock">
+          <div class="content">
+           <img alt="A business event tracking within a choice component" src="_images/mruntime-business-event-component.png"/>
+          </div>
+         </div>
+        </li>
+        <li>
+         <p>
+          In the XML, add attribute
+          <code>
+           tracking:enable-default-events="true"
+          </code>
+          inside your component element:
+         </p>
+         <div class="listingblock">
+          <div class="content">
+           <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="flow"&gt;
+  ...
+    &lt;choice doc:name="Choice" tracking:enable-default-events="true"/&gt;
+  ...
+&lt;/flow&gt;</code></pre>
+          </div>
+         </div>
+        </li>
+       </ul>
+      </div>
+     </li>
+     <li>
+      <p>
+       Save your settings.
+      </p>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="customize-transaction-id">
+   <a class="anchor" href="#customize-transaction-id">
+   </a>
+   Customize the Transaction ID
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The Set Transaction Id component enables you to set an identifier for all tracked events so that meaningful information, such as an order number, is displayed for a transaction when analyzing tracked events at runtime, whether using Anypoint Runtime Manager or CloudHub.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The transaction ID supports DataWeave expressions, which enables you to create an ID dynamically and include information related to the event into the ID.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Follow these steps to set a transaction ID either in Anypoint Studio or by editing the configuration XML:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       In the Studio UI:
+      </p>
+      <div class="olist arabic">
+       <ol class="arabic">
+        <li>
+         <p>
+          Drag the
+          <strong>
+           Set Transaction Id
+          </strong>
+          component to your flow.
+         </p>
+        </li>
+        <li>
+         <p>
+          In the
+          <strong>
+           Set Transaction ID
+          </strong>
+          configuration screen, set an ID value for the
+          <strong>
+           Transaction ID
+          </strong>
+          field:
+         </p>
+         <div class="imageblock">
+          <div class="content">
+           <img alt="Configuration for setting a transaction ID in a Mule flow" src="_images/mruntime-custom-transaction-id.png"/>
+          </div>
+         </div>
+        </li>
+       </ol>
+      </div>
+     </li>
+     <li>
+      <p>
+       In the XML editor:
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          Add a child element to the
+          <code>
+           flow
+          </code>
+          element:
+         </p>
+         <div class="listingblock">
+          <div class="content">
+           <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="flow"&gt;
+...
+  &lt;tracking:transaction id="#[payload.orderId]" /&gt;
+...
+&lt;/flow&gt;</code></pre>
+          </div>
+         </div>
+        </li>
+       </ul>
+      </div>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     <a class="xref page" href="business-events">
+      Business Events
+     </a>
+    </p>
+   </div>
+  </div>
+ </div>
+</article>

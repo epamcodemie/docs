@@ -1,0 +1,564 @@
+<article class="doc">
+ <h1 class="page">
+  Enterprise Integration Patterns Using Mule
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Enterprise Integration Patterns are accepted solutions to recurring problems within a given context. The patterns provide a framework for designing, building messaging and integration systems, as well as a common language for teams to use when architecting solutions.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Mule supports most of the patterns shown in the Enterprise Integration Patterns book written by Gregor Hohpe and Bobby Woolf.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Mule reduces the effort required when building integrations by implementing the patterns that you use to design solutions. You can then simply configure and use these same patterns in Mule.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="mapping-enterprise-integration-patterns-into-mule-objects">
+   <a class="anchor" href="#mapping-enterprise-integration-patterns-into-mule-objects">
+   </a>
+   Mapping Enterprise Integration Patterns into Mule Objects
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Review the following list of Enterprise Integration Patterns that can be mapped directly to Mule objects:
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="integration-styles">
+     <a class="anchor" href="#integration-styles">
+     </a>
+     Integration Styles
+    </h3>
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col style="width: 50%;"/>
+      <col style="width: 50%;"/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-top">
+        Pattern
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Mapping to a Mule Object
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         File Transfer
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <a class="xref page" href="../../file-connector/latest/">
+          File Connector
+         </a>
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Shared Database
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <a class="xref page" href="../../db-connector/latest/">
+          DataBase Connector
+         </a>
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Remote Procedure Invocation
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Mule APIs are meant to work like this procedure or even doing requests to external APIs.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Messaging
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Mule is all about Messaging.
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+   <div class="sect2">
+    <h3 id="messaging-systems">
+     <a class="anchor" href="#messaging-systems">
+     </a>
+     Messaging Systems
+    </h3>
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col style="width: 50%;"/>
+      <col style="width: 50%;"/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-top">
+        Pattern
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Mapping to a Mule Object
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Message Channel
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Mule provides a message channel that connects the message processors in a flow.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Pipes and Filters
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         A flow implements a pipe and filter architecture.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Message Router
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <a class="xref page" href="about-components#flow-control-routers">
+          Message Routers
+         </a>
+         .
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Message Translator
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <a class="xref page" href="transform-component-about">
+          Message Transformer
+         </a>
+         .
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Message Endpoint
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <a class="xref page" href="../../mule-sdk/latest/sources">
+          Creating Message Sources with the Mule SDK
+         </a>
+         and
+         <a class="xref page" href="../../mule-sdk/latest/operations">
+          Operations
+         </a>
+         .
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+   <div class="sect2">
+    <h3 id="messaging-channels">
+     <a class="anchor" href="#messaging-channels">
+     </a>
+     Messaging Channels
+    </h3>
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col style="width: 50%;"/>
+      <col style="width: 50%;"/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-top">
+        Pattern
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Mapping to a Mule Object
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Point-to-Point Channel
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         The default channel within a flow.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Message Bus
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Mule is a message bus.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Guaranteed Delivery
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Using
+         <a class="xref page" href="reliability-patterns">
+          Reliability Patterns
+         </a>
+         .
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+   <div class="sect2">
+    <h3 id="message-construction">
+     <a class="anchor" href="#message-construction">
+     </a>
+     Message Construction
+    </h3>
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col style="width: 50%;"/>
+      <col style="width: 50%;"/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-top">
+        Pattern
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Mapping to a Mule Object
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Event Message
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Mule transmits events from different Application or Processors.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Request Reply
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Mule uses connectors that facilitate request-reply wise operations, or using
+         <a class="xref page" href="reliability-patterns">
+          Reliability Patterns
+         </a>
+         .
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+   <div class="sect2">
+    <h3 id="message-routing">
+     <a class="anchor" href="#message-routing">
+     </a>
+     Message Routing
+    </h3>
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col style="width: 50%;"/>
+      <col style="width: 50%;"/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-top">
+        Pattern
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Mapping to a Mule Object
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Content-Based Router
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <a class="xref page" href="choice-router-concept">
+          Choice Router
+         </a>
+         .
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Message Filter
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <a class="xref page" href="../../validation-connector/latest/">
+          Validation Module
+         </a>
+         .
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Dynamic Routing
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <a class="xref page" href="about-components#flow-control-routers">
+          Message Routers
+         </a>
+         .
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Scatter Gather
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <a class="xref page" href="scatter-gather-concept">
+          Scatter Gather Router
+         </a>
+         .
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Splitter
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <a class="xref page" href="for-each-scope-concept">
+          Foreach Scope
+         </a>
+         ,
+         <a class="xref page" href="parallel-foreach-scope">
+          Parape
+         </a>
+         and
+         <a class="xref page" href="batch-processing-concept">
+          Batch
+         </a>
+         .
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Aggregator
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <a class="xref page" href="../../aggregators-module/latest/">
+          Aggregator Module
+         </a>
+         .
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+   <div class="sect2">
+    <h3 id="message-transformation">
+     <a class="anchor" href="#message-transformation">
+     </a>
+     Message Transformation
+    </h3>
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col style="width: 50%;"/>
+      <col style="width: 50%;"/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-top">
+        Pattern
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Mapping to a Mule Object
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Content Enricher
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <a class="xref page" href="target-variables">
+          Target Variables
+         </a>
+         .
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+   <div class="sect2">
+    <h3 id="messaging-endpoints">
+     <a class="anchor" href="#messaging-endpoints">
+     </a>
+     Messaging Endpoints
+    </h3>
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col style="width: 50%;"/>
+      <col style="width: 50%;"/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-top">
+        Pattern
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Mapping to a Mule Object
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Polling Consumer
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <a class="xref page" href="../../mule-sdk/latest/sources">
+          Creating Message Sources with the Mule SDK
+         </a>
+         .
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Transactional Client
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <a class="xref page" href="transaction-management">
+          Transaction Management
+         </a>
+         .
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Idempotent Receiver
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <a class="xref page" href="redelivery-policy">
+          Redelivery Policy
+         </a>
+         .
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+  </div>
+ </div>
+</article>

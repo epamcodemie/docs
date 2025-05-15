@@ -1,0 +1,43 @@
+<article class="doc">
+ <h1 class="page">
+  Reproducible Builds
+ </h1>
+ <div class="paragraph">
+  <p>
+   Being able to build a particular version of your Mule project at any time facilitates maintenance, because the versions of your projects in production are not always the latest ones.
+  </p>
+ </div>
+ <div class="paragraph">
+  <p>
+   To help achieve this goal:
+  </p>
+ </div>
+ <div class="ulist">
+  <ul>
+   <li>
+    <p>
+     Use source control for all your Mule projects and apply branching, merging, and tagging to them.
+     <br/>
+     Do not check in Eclipse-specific files.
+     <br/>
+     See
+     <a href="https://git-scm.com/book/en/v2">
+      Git Source Control
+     </a>
+     documentation for details.
+    </p>
+   </li>
+   <li>
+    <p>
+     Manage dependencies strictly by using Apache Maven and an in-house repository manager, such as Nexus.
+     <br/>
+     See
+     <a class="xref page" href="using-maven-with-mule">
+      Maven Support in Mule
+     </a>
+     documentation for guidelines.
+    </p>
+   </li>
+  </ul>
+ </div>
+</article>

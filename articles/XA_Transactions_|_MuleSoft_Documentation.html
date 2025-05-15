@@ -1,0 +1,469 @@
+<article class="doc">
+ <h1 class="page">
+  XA Transactions
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Extended Architecture Transactions (or XA Transactions) can be used to group a series of operations from multiple transactional resources, such as VM, JMS or Database, into a single reliable global transaction.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The XA (eXtended Architecture) standard is an X/Open group standard which specifies the interface between a global transaction manager and local transactional resource managers. The XA protocol defines a 2-phase commit protocol which can be used to reliably coordinate and sequence a series of atomic operations across multiple servers of different types. Each local XA resource manager supports the A.C.I.D properties (Atomicity, Consistency, Isolation, and Durability) which help guarantee completion of a sequence of operations in the resource managed by the XA resource manager. Examples of transactional systems which often include local XA resource managers include databases, application servers, messaging queues, and transactional caches.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The global transaction manager is responsible for coordinating the transactional semantics of the global transaction between all the local XA transaction managers participating in the global transaction. To do this, each prepare and commit phase in the 2-phase commit is coordinated globally (often over the network) with each local XA resource manager.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The advantage of XA global transactions is that one global transaction manager can communicate and coordinate with multiple different transactional resources in a common and standard way. If any of the local resource managers report an error in the global transaction, the global transaction manager coordinates the rollback of any already prepared operations in each of the other local resource managers.
+For example, a global transaction might include several operations to one or more databases, as well as messages sent to a JMS server on one or more topics. If anything goes wrong in the transaction, the global transaction manager guarantees that every resource is reset to the state before the global transaction was started. This keeps developers from having to include complex rollback or recovery logic outside the application.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The disadvantage of XA global transactions is that they can add tremendous latency to your transactions, especially if the resources are distributed over slow or unreliable network connections, and it can be difficult to recover if there are physical failures of systems in the middle of a globally distributed transaction.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="performance-considerations">
+   <a class="anchor" href="#performance-considerations">
+   </a>
+   Performance Considerations
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     A global XA transaction is a reliable way of coordinating multiple XA resources, but it often increases latency and also requires additional resources such as an external transaction manager. A global transaction is only as reliable as the global transaction manager itself. For greater reliability, you need to use a transaction manager that also persists the state of each XA resource as the global transaction progresses through the prepare and commit phases, in case the transaction manager fails or loses network connectivity to any of the local XA resource managers during the global transaction.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="configuring-your-resource-to-use-xa-transactions">
+   <a class="anchor" href="#configuring-your-resource-to-use-xa-transactions">
+   </a>
+   Configuring your Resource to use XA Transactions
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To configure the event sources that support XA transactions, refer to the Connectors documentation:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../jms-connector/latest/jms-xa-transactions">
+        JMS Connector
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../ibm-mq-connector/latest/ibm-mq-transactions#xa-transactions">
+        IBM MQ Connector
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../vm-connector/latest/vm-reference#parameters-6">
+        VM Connector
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../db-connector/latest/database-connector-xa-transactions">
+        Database Connector
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="configuring-a-try-scope-to-use-xa-transactions">
+   <a class="anchor" href="#configuring-a-try-scope-to-use-xa-transactions">
+   </a>
+   Configuring a Try Scope to use XA Transactions
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To configure a Try Scope to use XA Transactions, follow these steps:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Add the Try Scope from the Mule Palette.
+      </p>
+     </li>
+     <li>
+      <p>
+       Go to the
+       <strong>
+        General
+       </strong>
+       tab in the Try configuration panel.
+      </p>
+     </li>
+     <li>
+      <p>
+       Configure the Try Scope
+       <code>
+        Transactional Action
+       </code>
+       to
+       <code>
+        ALWAYS_BEGIN
+       </code>
+       , and the
+       <code>
+        Transaction Type
+       </code>
+       to
+       <code>
+        XA
+       </code>
+       .
+      </p>
+     </li>
+    </ol>
+   </div>
+   <div class="paragraph">
+    <p>
+     See also
+     <a class="xref page" href="try-scope-concept">
+      Try Scope Concept
+     </a>
+     for more information on how Try Scope handles transactions.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="using-xa-transactions-with-different-resources">
+   <a class="anchor" href="#using-xa-transactions-with-different-resources">
+   </a>
+   Using XA Transactions with Different Resources
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Regardless of how the Transaction is started (either from a Transactional event source or from a Try Scope), any Connector Operation that supports Transactions may join the Transaction by setting its Transactional Action to
+     <code>
+      ALWAYS_JOIN
+     </code>
+     or
+     <code>
+      JOIN_IF_POSSIBLE
+     </code>
+     .
+XA Transactions are prepared to work with different resources, this means that operations from different resources can join the transaction. For example:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="exampleFlow" &gt;
+	&lt;try transactionalAction="ALWAYS_BEGIN" transactionType="XA"&gt;
+		&lt;set-payload value="Hello World"/&gt;
+		&lt;vm:publish queueName="someVmQueue" config-ref="VM_Config"/&gt;
+		&lt;jms:consume config-ref="JMS_Config" destination="someQueue"/&gt;
+		&lt;db:insert config-ref="Database_Config"&gt;
+			&lt;db:sql&gt;${insertQuery}&lt;/db:sql&gt;
+		&lt;/db:insert&gt;
+	&lt;/try&gt;
+	&lt;error-handler&gt;
+		&lt;on-error-propagate enableNotifications="true" logException="true"/&gt;
+	&lt;/error-handler&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     If the
+     <code>
+      db:insert
+     </code>
+     operation fails, the transaction is rolled back before the error handler (
+     <code>
+      on-error-propagate
+     </code>
+     ) is executed. Therefore, the message sent through the
+     <code>
+      vm:publish
+     </code>
+     is not confirmed to be sent, and
+the message in the
+     <code>
+      jms:consume
+     </code>
+     is not actually consumed, so it is available next time to be consumed again.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     In the following example, the error handler is changed to an
+     <code>
+      on-error-continue
+     </code>
+     :
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="exampleFlow" &gt;
+	&lt;try transactionalAction="ALWAYS_BEGIN" transactionType="XA"&gt;
+		&lt;set-payload value="Hello World"/&gt;
+		&lt;vm:publish queueName="someVmQueue" config-ref="VM_Config"/&gt;
+		&lt;jms:consume config-ref="JMS_Config" destination="someQueue"/&gt;
+		&lt;db:insert config-ref="Database_Config"&gt;
+			&lt;db:sql&gt;${insertQuery}&lt;/db:sql&gt;
+		&lt;/db:insert&gt;
+	&lt;/try&gt;
+	&lt;error-handler&gt;
+		&lt;on-error-continue enableNotifications="true" logException="true"&gt;
+			&lt;jms:publish config-ref="ANOTHER_JMS_Config" destination="someOtherQueue" transactionalAction="ALWAYS_JOIN"/&gt;
+		&lt;/on-error-continue&gt;
+	&lt;/error-handler&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     If the
+     <code>
+      db:insert
+     </code>
+     operation fails, the transaction is not rolled back. Instead, the Transaction is committed after the
+     <code>
+      jms:publish
+     </code>
+     (which runs within the XA Transaction) executes. Therefore, the message sent using
+     <code>
+      vm:publish
+     </code>
+     is published, the message from
+     <code>
+      jms:consume
+     </code>
+     is consumed, and the message sent using
+     <code>
+      jms:publish
+     </code>
+     is also published.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Consider that the
+     <code>
+      jms:publish
+     </code>
+     inside the
+     <code>
+      on-error-continue
+     </code>
+     has another configuration for the connector. This is not required but is possible. With single source (local) Transactions, this is not a valid configuration, since all operations that join a Transaction must use the same Configuration to work as designed.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="nested-transactions">
+   <a class="anchor" href="#nested-transactions">
+   </a>
+   Nested Transactions
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     XA Transactions support nested transactions. You can create a new transaction when already executing within a transaction by using the Try Scope. Therefore, operations that run within the new transaction are accountable to it. If the nested transaction is rolled back, it does not mean that its parent transaction is also rolled back. After the nested transaction finishes (either with a commit or a rollback), the parent transaction continues its execution.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     For example:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="exampleFlow" &gt;
+	&lt;try transactionalAction="ALWAYS_BEGIN" transactionType="XA"&gt;
+		&lt;vm:publish queueName="someVmQueue" config-ref="VM_Config"/&gt;
+		&lt;try transactionalAction="ALWAYS_BEGIN" transactionType="XA"/&gt;
+			&lt;jms:consume config-ref="JMS_Config" destination="someQueue"/&gt;
+			&lt;db:insert config-ref="Database_Config"&gt;
+				&lt;db:sql&gt;${insertQuery}&lt;/db:sql&gt;
+			&lt;/db:insert&gt;
+			&lt;raise-error type="APP:SOME"/&gt;
+		&lt;/try&gt;
+		&lt;error-handler&gt;
+			&lt;on-error-continue/&gt;
+		&lt;/error-handler&gt;
+	&lt;/try&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     In the previous example, the first
+     <code>
+      try
+     </code>
+     Scope creates a transaction. Then, the second
+     <code>
+      try
+     </code>
+     Scope creates a second transaction. The
+     <code>
+      vm:publish
+     </code>
+     operation runs within the first transaction, the
+     <code>
+      jms:consume
+     </code>
+     and the
+     <code>
+      db:insert
+     </code>
+     run within the second transaction. When the error is raised, the second transaction is rolled back along with the
+     <code>
+      jms:consume
+     </code>
+     and the
+     <code>
+      db:insert
+     </code>
+     operations. However, the first
+     <code>
+      try
+     </code>
+     handles the error with an
+     <code>
+      on-error-continue
+     </code>
+     , so the first transaction commits along with the
+     <code>
+      vm:publish
+     </code>
+     operation.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Consider the following example:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="exampleFlow" &gt;
+	&lt;try transactionalAction="ALWAYS_BEGIN" transactionType="XA"&gt;
+		&lt;vm:publish queueName="someVmQueue" config-ref="VM_Config"/&gt;
+		&lt;try&gt;
+			&lt;try transactionalAction="ALWAYS_BEGIN" transactionType="XA"/&gt;
+				&lt;jms:consume config-ref="JMS_Config" destination="someQueue"/&gt;
+				&lt;raise-error type="APP:SOME"/&gt;
+			&lt;/try&gt;
+			&lt;error-handler&gt;
+				&lt;on-error-continue/&gt;
+			&lt;/error-handler&gt;
+		&lt;/try&gt;
+		&lt;db:insert config-ref="Database_Config"&gt;
+			&lt;db:sql&gt;${insertQuery}&lt;/db:sql&gt;
+		&lt;/db:insert&gt;
+	&lt;/try&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     In this case, the second
+     <code>
+      try
+     </code>
+     scope does not create a transaction. It only provides error handling, so that the next operations can continue. The third
+     <code>
+      try
+     </code>
+     scope does create a transaction. Both
+     <code>
+      vm:publish
+     </code>
+     and
+     <code>
+      db:insert
+     </code>
+     run within the first transaction, and
+     <code>
+      jms:consume
+     </code>
+     operation runs within the second one. When the error is raised, the second operation is rolled back. The error is propagated and handled by the
+     <code>
+      on-error-continue
+     </code>
+     of the second
+     <code>
+      try
+     </code>
+     scope. After that, the first
+     <code>
+      try
+     </code>
+     scope continues with its execution (the
+     <code>
+      db:insert
+     </code>
+     operation), and the first transaction is committed.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="try-scope-concept">
+        Try Scope
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="using-bitronix-to-manage-transactions">
+        Using Bitronix to Manage Transactions
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="transaction-management">
+        Transaction Management
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

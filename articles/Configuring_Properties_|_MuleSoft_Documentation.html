@@ -1,0 +1,966 @@
+<article class="doc">
+ <h1 class="page">
+  Configuring Properties
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You can configure properties, such as property placeholders and system properties.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="property-placeholders">
+   <a class="anchor" href="#property-placeholders">
+   </a>
+   Property Placeholders
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You can use
+     <a href="http://ant.apache.org/">
+      Ant
+     </a>
+     -style property placeholders in your Mule configuration. For example:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;email:smtp-config name="config"&gt;
+    &lt;email:smtp-connection host="${smtp.host}" port="${smtp.port}"/&gt;
+&lt;/email:smtp-config&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The values for these placeholders can be made available in a variety of ways, as described in the sections that follow.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     You can also escape the resolution of property placeholder values:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;logger message="\${property.value}"/&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Instead of returning the value of the property, the Logger component returns the string
+     <code>
+      "${property.value}"
+     </code>
+     . You can also use the escape character
+     <code>
+      \
+     </code>
+     to escape the resolution of the property prefix (the
+     <code>
+      ${
+     </code>
+     character sequence).
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="global-properties">
+   <a class="anchor" href="#global-properties">
+   </a>
+   Global Properties
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You can use the
+     <code>
+      &lt;global-property&gt;
+     </code>
+     element to set a placeholder value from within your Mule configuration, such as from within another Mule configuration file. You can use the global property syntax to reference the values from a
+     <code>
+      .yaml
+     </code>
+     or
+     <code>
+      .properties
+     </code>
+     file, and create new (global) properties that depends on configuration properties, or secure configuration properties. To reference configuration properties, read the section on properties files.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;global-property name="smtp.host" value="smtp.mail.com"/&gt;
+&lt;global-property name="smtp.subject" value="Subject of Email"/&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="properties-files">
+   <a class="anchor" href="#properties-files">
+   </a>
+   Properties Files
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To load properties from a custom file, you can place your custom properties file at
+     <code>
+      src/main/resources
+     </code>
+     and use the tag
+     <code>
+      &lt;configuration-properties&gt;
+     </code>
+     :
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+
+&lt;mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd"&gt;
+
+&lt;configuration-properties file="smtp.yaml"/&gt;
+
+&lt;flow name="myProject_flow1"&gt;
+    &lt;logger message="${propertyFromFile}" doc:name="System Property Set in Property File"/&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     To load multiple properties files simply define a
+     <code>
+      &lt;configuration-properties/&gt;
+     </code>
+     tag for each file you want to load.
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       If a property is defined in more than one file referenced in
+       <code>
+        &lt;configuration-properties/&gt;
+       </code>
+       tags, the first definition will be preserved.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     These files must be located at
+     <code>
+      src/main/resources
+     </code>
+     , inside your Mule project, or you can also use absolute paths.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="supported_files">
+   <a class="anchor" href="#supported_files">
+   </a>
+   Supported Files
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The Configuration Properties support both YAML configuration files (
+     <code>
+      .yaml
+     </code>
+     ) and Properties configuration files (
+     <code>
+      .properties
+     </code>
+     ).
+     <code>
+      String
+     </code>
+     is the only supported type in both file formats. Use the format that you find easier to read and edit.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     YAML file example:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;configuration-properties file="ports.yaml"/&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Where
+     <code>
+      ports.yaml
+     </code>
+     is:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml">smtp:
+    port: "8957"
+http:
+    port: "8081"</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Properties file example:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;configuration-properties file="ports.properties"/&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Where
+     <code>
+      ports.properties
+     </code>
+     is:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">smtp.port=8957
+http.port=8081</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="file-properties">
+   <a class="anchor" href="#file-properties">
+   </a>
+   File Properties
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The placeholder value can also be the entire content of the file. The placeholder value becomes the string value, for example:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     properties-file.txt
+    </div>
+    <div class="content">
+     <pre>Some content</pre>
+    </div>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;mule:set-payload value="${file::properties-file.txt}"/&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The payload’s value becomes
+     <code>
+      "Some content"
+     </code>
+     . Just like other properties files, these files must be located in
+     <code>
+      src/main/resources
+     </code>
+     , inside your Mule project. Absolute paths can also be used.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     This practice is useful for modularizing the configuration file: You can extract large contents from the config file, SQL queries, or transformations to make the config file clearer, and you can reuse the contents.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="system-properties">
+   <a class="anchor" href="#system-properties">
+   </a>
+   System Properties
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You can set JDK system properties when running Mule On-Premises, and later use these properties to configure components or modules in a Mule application. There are two ways to specify properties:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       From the command line, when starting the Mule instance:
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre>mule -M-Dsmtp.username=JSmith -M-Dsmtp.password=ChangeMe</pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Editing the
+       <code>
+        wrapper.conf
+       </code>
+       file located in the
+       <code>
+        $MULE_HOME/conf
+       </code>
+       directory, adding entries for each property:
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre>wrapper.java.additional.999=-Dsmtp.username=JSmith
+wrapper.java.additional.1000=-Dsmtp.password=ChangeMe</pre>
+       </div>
+      </div>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     See
+     <a class="xref page" href="mule-app-properties-system#set-properties">
+      System Properties
+     </a>
+     for additional configuration details.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="custom-properties-provider">
+   <a class="anchor" href="#custom-properties-provider">
+   </a>
+   Custom Properties Provider
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     It is possible to create a custom properties provider implementation using the Mule API. See
+     <a class="xref page" href="custom-configuration-properties-provider">
+      Custom Configuration Properties Provider
+     </a>
+     for more details.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="setting-system-properties-in-anypoint-studio">
+     <a class="anchor" href="#setting-system-properties-in-anypoint-studio">
+     </a>
+     Setting System Properties in Anypoint Studio
+    </h3>
+    <div class="paragraph">
+     <p>
+      You can add properties when you launch your project on Anypoint Studio, through the Run Configurations menu:
+     </p>
+    </div>
+    <div class="olist arabic">
+     <ol class="arabic">
+      <li>
+       <p>
+        Right-click your project in Package Explorer.
+       </p>
+      </li>
+      <li>
+       <p>
+        Click
+        <strong>
+         Run As
+        </strong>
+        &gt;
+        <strong>
+         Run Configurations
+        </strong>
+        .
+       </p>
+      </li>
+      <li>
+       <p>
+        Pick the
+        <strong>
+         Arguments
+        </strong>
+        tab.
+       </p>
+      </li>
+      <li>
+       <p>
+        Add your arguments to the
+        <strong>
+         VM arguments
+        </strong>
+        field, preceding property names with
+        <strong>
+         -D
+        </strong>
+        :
+       </p>
+       <div class="imageblock">
+        <div class="content">
+         <img alt="Arguments tab showing settings for JVM arguments in Anypoint Studio" src="_images/arguments-tab.png"/>
+        </div>
+       </div>
+       <div class="paragraph">
+        <p>
+         Your properties are now available each time you deploy your app through Studio. You can then reference them with the following syntax:
+        </p>
+       </div>
+       <div class="listingblock">
+        <div class="content">
+         <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;logger message="${propertyFromJVMArg}" doc:name="System Property Set in Studio through JVM args"/&gt;</code></pre>
+        </div>
+       </div>
+      </li>
+     </ol>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="environment-variables">
+   <a class="anchor" href="#environment-variables">
+   </a>
+   Environment Variables
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Environment variables can be defined in various different ways, there are also several ways to access these from your apps. Regardless of how an environment variable is defined, the recommended way to reference it is through the following syntax:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre>${variableName}</pre>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="environment-variables-from-the-os">
+     <a class="anchor" href="#environment-variables-from-the-os">
+     </a>
+     Environment Variables From the OS
+    </h3>
+    <div class="paragraph">
+     <p>
+      To reference a variable that is defined in the OS, you can simply use the following syntax:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;logger message="${USER}" doc:name="Environment Property Set in OS" /&gt;</code></pre>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="setting-environment-variables-in-anypoint-studio">
+     <a class="anchor" href="#setting-environment-variables-in-anypoint-studio">
+     </a>
+     Setting Environment Variables in Anypoint Studio
+    </h3>
+    <div class="paragraph">
+     <p>
+      You can set variables in Studio through the Run Configuration menu:
+     </p>
+    </div>
+    <div class="olist arabic">
+     <ol class="arabic">
+      <li>
+       <p>
+        Right-click your project in Package Explorer.
+       </p>
+      </li>
+      <li>
+       <p>
+        Select
+        <strong>
+         Run As
+        </strong>
+        &gt;
+        <strong>
+         Run Configurations
+        </strong>
+        .
+       </p>
+      </li>
+      <li>
+       <p>
+        Pick the Environment tab.
+       </p>
+      </li>
+      <li>
+       <p>
+        Click the
+        <strong>
+         New
+        </strong>
+        button and assign your variable a name and value.
+       </p>
+       <div class="imageblock">
+        <div class="content">
+         <img alt="An Environment tab with options including New" src="_images/environment-tab.png"/>
+        </div>
+       </div>
+      </li>
+     </ol>
+    </div>
+    <div class="paragraph">
+     <p>
+      Your variable is now available each time you deploy through Studio. You can reference it with the following syntax:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;logger message="${TEST_ENV_VAR}" doc:name="Environment Property Set in Studio"/&gt;</code></pre>
+     </div>
+    </div>
+    <div class="admonitionblock note">
+     <table>
+      <tr>
+       <td class="icon">
+        <i class="fa icon-note" title="Note">
+        </i>
+       </td>
+       <td class="content">
+        The syntax is the same for referencing variables defined in the OS and variables defined in Studio. You can select if variables defined in Studio replace variables with the same name defined in the OS or not, by checking the corresponding radio button in the UI when creating the variables.
+       </td>
+      </tr>
+     </table>
+    </div>
+    <div class="imageblock">
+     <div class="content">
+      <img alt="An Environment tab with options to define variables" src="_images/environment-tab2.png"/>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="setting-the-properties-file-dynamically">
+   <a class="anchor" href="#setting-the-properties-file-dynamically">
+   </a>
+   Setting the Properties File Dynamically
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     A common configuration use case is to set the file to depend on a property (for example,
+     <code>
+      env
+     </code>
+     ) to determine which file to use, for example, to use a
+     <code>
+      development-properties
+     </code>
+     file in development stage or a production file.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;configuration-properties file="${env}-properties.yaml"/&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     This way, the value of the property
+     <code>
+      env
+     </code>
+     determines which file to use to load the configuration properties. That
+     <code>
+      env
+     </code>
+     property can be set by a global property, system property, or environment property. You can use global properties as a way to define default values for configuration properties. System and environment properties with the same name as a global property will override that global property.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;global-property name="env" value="dev"/&gt;
+
+&lt;configuration-properties file="${env}-properties.yaml"/&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     This way, the default value for the
+     <code>
+      env
+     </code>
+     property is
+     <code>
+      dev
+     </code>
+     , which can still be overridden with a system or environment property. Please note that this configuration is
+     <strong>
+      required
+     </strong>
+     for metadata resolution in Anypoint Studio. If you do not define default values for the properties that are passed through the command line, you receive an error while creating an application model for all message processors that depend on them.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Another thing to consider is that placeholders of a configuration property setting cannot depend on the properties loaded from another configuration property. In the example above, the property
+     <code>
+      env
+     </code>
+     couldn’t have been defined in a configuration property. The example below
+     <strong>
+      is not correct
+     </strong>
+     :
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;configuration-properties file="file-with-env-property.yaml"/&gt;
+
+&lt;configuration-properties file="${env}-properties.yaml"/&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     This also includes other type of properties, such as Secure Configuration Properties or Custom Configuration Properties.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="setting-properties-values-in-runtime-manager">
+   <a class="anchor" href="#setting-properties-values-in-runtime-manager">
+   </a>
+   Setting Properties Values in Runtime Manager
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     If you deploy your application to
+     <a class="xref page" href="../../runtime-manager/">
+      Runtime Manager
+     </a>
+     , you can also set properties through the Runtime Manager console. These can be defined when
+     <a class="xref page" href="../../cloudhub/deploying-to-cloudhub">
+      Deploying to CloudHub
+     </a>
+     , or on an
+     <a class="xref page" href="../../cloudhub/managing-applications-on-cloudhub">
+      already running application
+     </a>
+     .
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     To create an environment variable or application property:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Log in to your Anypoint Platform account.
+      </p>
+     </li>
+     <li>
+      <p>
+       Click Runtime Manager.
+      </p>
+     </li>
+     <li>
+      <p>
+       Either click
+       <strong>
+        Deploy Application
+       </strong>
+       to deploy a new application, or select a running application and click
+       <strong>
+        Manage Application
+       </strong>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       Select the
+       <strong>
+        Properties
+       </strong>
+       tab in the
+       <strong>
+        Settings
+       </strong>
+       section.
+      </p>
+     </li>
+    </ol>
+   </div>
+   <div class="paragraph">
+    <p>
+     See
+     <a class="xref page" href="../../cloudhub/managing-applications-on-cloudhub">
+      Managing Applications on CloudHub
+     </a>
+     and
+     <a class="xref page" href="../../cloudhub/secure-application-properties">
+      Secure Application Properties
+     </a>
+     for more details.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="properties-hierarchy">
+   <a class="anchor" href="#properties-hierarchy">
+   </a>
+   Properties Hierarchy
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Configuration properties can be overwritten. The Mule runtime engine uses the following hierarchy to determine which properties take precedence if they have the same name. In this hierarchy, deployment properties are at the top, so they take precedence over the other types of properties.
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Deployment properties
+      </p>
+     </li>
+     <li>
+      <p>
+       System properties
+      </p>
+     </li>
+     <li>
+      <p>
+       Environment properties
+      </p>
+     </li>
+     <li>
+      <p>
+       Application properties (includes configuration properties, secure configuration properties, and other custom configuration properties)
+      </p>
+     </li>
+     <li>
+      <p>
+       Global Properties
+      </p>
+     </li>
+    </ol>
+   </div>
+   <div class="paragraph">
+    <p>
+     So, for example, if a configuration property named
+     <code>
+      size
+     </code>
+     is defined as a system property, and there is also an application configuration property named
+     <code>
+      size
+     </code>
+     , the value for the application is the value of the property with the most precedence (in this case, the system property).
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Also, a property can derive its value from other properties that are higher in the hierarchy. Therefore, an application property can derive its value from environment, system, and deployment properties. A system property can derive its value from a deployment property, and so on. For example, if there is a system property named
+     <code>
+      env
+     </code>
+     , an application configuration property can have the value
+     <code>
+      file.${env}.xml
+     </code>
+     . However, an application property cannot depend on an application property’s value unless it’s defined in the same file. For example, a Secure Configuration property cannot depend on a Configuration property.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Because of this hierarchical structure, Mule components that load files cannot depend on an application or a global property. Mule runtime engine loads both, the component and the application property, at the same hierarchy. For example, if Mule loads an
+     <code>
+      import
+     </code>
+     component before loading the application property, the deployment fails because the property is not resolved by the time the
+     <code>
+      import
+     </code>
+     component needs to load.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="built-in-properties">
+   <a class="anchor" href="#built-in-properties">
+   </a>
+   Built-in Properties
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Mule runtime engine defines internal Application properties and assigns a value to them based on the configuration of the Mule instance and the deployed applications:
+    </p>
+   </div>
+   <table class="tableblock frame-all grid-all fit-content spread">
+    <colgroup>
+     <col/>
+     <col/>
+    </colgroup>
+    <thead>
+     <tr>
+      <th class="tableblock halign-left valign-top">
+       Property
+      </th>
+      <th class="tableblock halign-left valign-top">
+       Description
+      </th>
+     </tr>
+    </thead>
+    <tbody>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           app.home
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          The path to the Mule application
+          <code>
+           /home
+          </code>
+          directory
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           app.name
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          The name of the Mule application
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           domain.name
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          The name of the Domain
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           api.name
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          The name of the API
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           mule.home
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          The path to the Mule instance
+          <code>
+           /home
+          </code>
+          directory
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+    </tbody>
+   </table>
+   <div class="paragraph">
+    <p>
+     Do not overwrite any of these properties; Mule uses some of these values internally and overwriting them might cause unexpected behaviors.
+    </p>
+   </div>
+  </div>
+ </div>
+</article>

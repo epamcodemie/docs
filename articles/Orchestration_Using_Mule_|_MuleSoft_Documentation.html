@@ -1,0 +1,179 @@
+<article class="doc">
+ <h1 class="page">
+  Orchestration Using Mule
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Orchestration is how Mule facilitates the process of moving data through a Mule implementation based on flows. Orchestration can be seen as combining service calls to create higher-level, more useful composite services, and implies implementing business-level processes combining business-specific services across applications and information systems.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="orchestration-and-flows">
+   <a class="anchor" href="#orchestration-and-flows">
+   </a>
+   Orchestration and Flows
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Orchestration involves decoupling point-to-point integration in favor of chains of operations that can be reused or changed as systems or business needs change. It involves moving beyond patterns into a service-based framework, where you wrap multiple components with sources to decouple them from protocols and routing requirements. This enables multiple services to work as one when implementation requirements demand it. Some common use cases that flows easily orchestrate include:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Simple integration
+      </p>
+     </li>
+     <li>
+      <p>
+       Scheduling data processing
+      </p>
+     </li>
+     <li>
+      <p>
+       Connecting cloud and on-premise applications
+      </p>
+     </li>
+     <li>
+      <p>
+       Event processing, where multiple services must be composed and must operate simultaneously
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="how-flows-enable-the-implementation-of-orchestration">
+   <a class="anchor" href="#how-flows-enable-the-implementation-of-orchestration">
+   </a>
+   How Flows Enable the Implementation of Orchestration
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Flows enable new ways to orchestrate service mediation. For example, you can combine an arbitrary number of sources, routers, and components that work together to achieve implementation requirements. Flows enable you to orchestrate new forms of data movement based on flow-specific routers. Orchestration enables you to create and reuse flows and component chains, chain together multiple components in one flow, and integrate sources or connectors anywhere in a flow.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="when-to-use-orchestration">
+   <a class="anchor" href="#when-to-use-orchestration">
+   </a>
+   When to Use Orchestration
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Use orchestration when you need to combine existing services to meet business requirements. For example, you might use orchestration when you’re adding a new employee who needs to be entered in both the payroll system and HR system. You might also use orchestration for order processing. In this scenario, you can use orchestration to accept an order, make sure the order is in the inventory system., use a credit check system to ensure that you trust the customer’s credit, and enter the order into billing and shipping systems.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="an-example-of-orchestration">
+   <a class="anchor" href="#an-example-of-orchestration">
+   </a>
+   An Example of Orchestration
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The following example of orchestration uses a flow to do the following:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Transform the file’s contents into a standard format that contains one or more specific orders.
+      </p>
+     </li>
+     <li>
+      <p>
+       Split out the orders for separate processing and filter out non-book orders.
+      </p>
+     </li>
+     <li>
+      <p>
+       Call two services: one to check whether the book is in the inventory, and the other to create a customer order.
+      </p>
+     </li>
+     <li>
+      <p>
+       Email the order to the customer and store it in a database.
+      </p>
+     </li>
+    </ol>
+   </div>
+   <div class="paragraph">
+    <p>
+     If any step in this process fails, a message is placed in a JMS queue of failed orders. You can view, fix, and resubmit the affected orders.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="orderHandling"&gt;
+  &lt;file:listener directory="/myDirectory"&gt;
+    &lt;scheduling-strategy&gt;
+      &lt;fixed-frequency/&gt;
+    &lt;/scheduling-strategy&gt;
+    &lt;file:matcher filenamePattern="*.xml"/&gt;
+  &lt;/file:listener&gt;
+  &lt;ee:transform&gt;
+    &lt;ee:message&gt;
+      &lt;ee:set-payload resource="createBookOrdersTransformation.dwl"/&gt;
+    &lt;/ee:message&gt;
+  &lt;/ee:transform&gt;
+  &lt;foreach collection="#[payload.orders filterObject ((value, key, index) -&gt; value.type == 'books')]"&gt;
+      &lt;http:request method="POST" path="/book/inventory"/&gt;
+      &lt;http:request method="POST" path="/book/order"/&gt;
+      &lt;email:send toAddresses="#[payload.customer.email]"&gt;
+        &lt;email:body &gt;
+          &lt;email:content &gt;&lt;![CDATA[#['Your order has been placed.']]]&gt;&lt;/email:content&gt;
+        &lt;/email:body&gt;
+      &lt;/email:send&gt;
+      &lt;db:insert&gt;
+        &lt;db:sql &gt;INSERT INTO ORDERS(CUSTOMER, AMOUNT) VALUES (:id, :amount)&lt;/db:sql&gt;
+        &lt;db:input-parameters&gt;&lt;![CDATA[#[{ id : payload.customer.id, amount: payload.order.total }]]]&gt;&lt;/db:input-parameters&gt;
+      &lt;/db:insert&gt;
+    &lt;/choice&gt;
+  &lt;/foreach&gt;
+  &lt;error-handler &gt;
+    &lt;on-error-continue&gt;
+      &lt;jms:publish destination="failedOrders"/&gt;
+    &lt;/on-error-continue&gt;
+  &lt;/error-handler&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="about-flows">
+        Flows and Subflows
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

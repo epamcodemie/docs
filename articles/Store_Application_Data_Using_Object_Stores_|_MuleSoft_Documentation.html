@@ -1,0 +1,310 @@
+<article class="doc">
+ <h1 class="page">
+  Store Application Data Using Object Stores
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     An object store is a facility for storing objects in or across Mule applications. Mule runtime engine (Mule) uses object stores to persist data for eventual retrieval. Internally, Mule uses object stores in various filters, routers, and other message processors that need to store states between messages.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Object stores are available in all deployment targets. If you deploy your application to CloudHub, you can also use Object Store V2.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="use-cases">
+   <a class="anchor" href="#use-cases">
+   </a>
+   Use Cases
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You can configure a custom object store to use in the following scenarios:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       When configuring an Idempotent Message Validator, to store the unique IDs in the specified object store.
+      </p>
+     </li>
+     <li>
+      <p>
+       When configuring a Redelivery policy in a listener (HTTP, File, JMS, VM, Socket), to store the redelivery count in the specified object store.
+      </p>
+     </li>
+     <li>
+      <p>
+       When configuring a Cache scope that uses a custom caching strategy, to store the cached data in the specified object store.
+      </p>
+     </li>
+     <li>
+      <p>
+       When a custom component uses an object store to persist information.
+      </p>
+     </li>
+     <li>
+      <p>
+       When storing or retrieving information from a Mule flow, by using Anypoint Connector for Object Store (Object Store Connector).
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="object-store-config">
+   <a class="anchor" href="#object-store-config">
+   </a>
+   Object Store Configuration
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     By default, each Mule application has an object store that is persistent and is always available to the app. You can also create custom object stores, which can be persistent or in-memory.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     You can configure an object store as a global element, to be accessible for any component in your app, or configure a custom object store for a specific component that supports its usage.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="configure-a-global-object-store">
+     <a class="anchor" href="#configure-a-global-object-store">
+     </a>
+     Configure a Global Object Store
+    </h3>
+    <div class="paragraph">
+     <p>
+      To configure a global object store that can be referenced by other components in your application, follow these steps in Anypoint Studio:
+     </p>
+    </div>
+    <div class="olist arabic">
+     <ol class="arabic">
+      <li>
+       <p>
+        Open the
+        <strong>
+         Global Elements
+        </strong>
+        tab.
+       </p>
+      </li>
+      <li>
+       <p>
+        Click
+        <strong>
+         Create
+        </strong>
+        .
+       </p>
+      </li>
+      <li>
+       <p>
+        Select
+        <strong>
+         Component configurations
+        </strong>
+        &gt;
+        <strong>
+         Object Store
+        </strong>
+        .
+       </p>
+      </li>
+      <li>
+       <p>
+        Complete the required configuration attributes and click
+        <strong>
+         OK
+        </strong>
+        .
+        <br/>
+        <span class="image">
+         <img alt="A properties panel for configuring a global object store in Mule" src="_images/mruntime-object-store-global.png"/>
+        </span>
+       </p>
+      </li>
+     </ol>
+    </div>
+    <div class="paragraph">
+     <p>
+      Alternatively, you can create a global object store by including the following code as a top-level element in your application XML:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;os:object-store name="myObjectStore"
+   entryTtl="1"
+   entryTtlUnit="HOURS"
+   maxEntries="100"
+   persistent="true"
+   expirationInterval="30"
+   expirationIntervalUnit="MINUTES" /&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      Configure each attribute with the desired value.
+      <br/>
+      See
+      <a class="xref page" href="../../object-store-connector/latest/object-store-connector-reference#objectStore">
+       Object Store Reference
+      </a>
+      for a definition of each XML attribute.
+     </p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="configure-an-object-store-for-a-specific-component">
+   <a class="anchor" href="#configure-an-object-store-for-a-specific-component">
+   </a>
+   Configure an Object Store for a Specific Component
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You can configure an object store that is available only for a specific component. For example, to configure an object store for an Idempotent Message Validator, follow these steps in Anypoint Studio:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Open the
+       <strong>
+        Idempotent Message Validator
+       </strong>
+       properties.
+      </p>
+     </li>
+     <li>
+      <p>
+       In
+       <strong>
+        Object Store
+       </strong>
+       , select
+       <strong>
+        Edit Inline
+       </strong>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       Complete the required configuration attributes and click
+       <strong>
+        OK
+       </strong>
+       .
+       <br/>
+       <span class="image">
+        <img alt="Inline object store" src="_images/mruntime-object-store-inline.png"/>
+       </span>
+      </p>
+     </li>
+    </ol>
+   </div>
+   <div class="paragraph">
+    <p>
+     Alternatively, you can create the object store by including the object store configuration inside the component element in the XML configuration file:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;idempotent-message-validator doc:name="Idempotent Message Validator" &gt;
+  &lt;os:private-object-store
+    maxEntries="20"
+    entryTtl="20"
+    entryTtlUnit="MILLISECONDS"
+    expirationInterval="20"
+    expirationIntervalUnit="MILLISECONDS"
+    config-ref="ObjectStore_Config" /&gt;
+&lt;/idempotent-message-validator&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="manage-data-using-the-object-store-connector">
+   <a class="anchor" href="#manage-data-using-the-object-store-connector">
+   </a>
+   Manage Data Using the Object Store Connector
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The Object Store connector enables you to perform different operations to interact with the object stores in your Mule application. Example operations include Store, Retrieve and Remove.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     See the
+     <a class="xref page" href="../../object-store-connector/latest/">
+      Object Store Connector
+     </a>
+     documentation for details about available operations and configuration examples.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../object-store-connector/latest/object-store-to-define-a-new-os">
+        Examples: Defining Object Stores
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../object-store/">
+        Object Store V2
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="idempotent-message-validator">
+        Idempotent Message Validator
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="redelivery-policy">
+        Redelivery Policy
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="cache-scope">
+        Cache Scope
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>
