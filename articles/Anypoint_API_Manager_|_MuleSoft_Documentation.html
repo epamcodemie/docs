@@ -1,0 +1,1202 @@
+<article class="doc">
+ <h1 class="page">
+  Anypoint API Manager
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Anypoint API Manager (API Manager) is a component of Anypoint Platform that enables you to manage, govern, and secure APIs. It provides an interface to configure the runtime capabilities of Anypoint Flex Gateway, Anypoint Mule Gateway, and Anypoint Service Mesh. With API Manager you can:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Enforce policies
+      </p>
+     </li>
+     <li>
+      <p>
+       Collect and track analytics data
+      </p>
+     </li>
+     <li>
+      <p>
+       Manage proxies and applications
+      </p>
+     </li>
+     <li>
+      <p>
+       Provide encryption and authentication
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     API Manager is tightly integrated with the following tools:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../design-center/">
+        Design Center
+       </a>
+       : To specify the structure of the API
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../exchange/">
+        Exchange
+       </a>
+       : To store and publish API assets
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../studio/latest/">
+        Studio
+       </a>
+       : To implement the API
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../runtime-manager/">
+        Runtime Manager
+       </a>
+       : To deploy, manage, and monitor API instances
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../api-governance/">
+        API Governance
+       </a>
+       : To govern API instances
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     Before using API Manager, familiarize yourself with the user interface and the tasks you can perform therein.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The following video provides a quick overview of API Manager:
+    </p>
+   </div>
+   <script async="" data-playbackurl="play.vidyard.com" src="https://play.vidyard.com/embed/v4.js" type="text/javascript">
+   </script>
+   <img class="vidyard-player-embed" data-action="show" data-controller="hubs" data-height="540" data-type="inline" data-uuid="DVBh7B1suty8yk1igmD2FC" data-width="auto" src="https://play.vidyard.com/DVBh7B1suty8yk1igmD2FC.jpg" style="margin: auto; display: block; width: 100%;
+    ">
+   </img>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="what-api-manager-looks-like">
+   <a class="anchor" href="#what-api-manager-looks-like">
+   </a>
+   What API Manager Looks Like
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To access API Manager, log in to Anypoint Platform and select
+     <strong>
+      API Manager
+     </strong>
+     :
+    </p>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="API Manager page navigation shown with callouts." height="97%" src="_images/api-manager-ui-overview.png" width="97%"/>
+    </div>
+   </div>
+   <div class="colist calloutlist">
+    <table>
+     <tr>
+      <td>
+       <i class="conum" data-value="1">
+       </i>
+       <b>
+        1
+       </b>
+      </td>
+      <td>
+       The environment selector. Anypoint Platform enables you to create and manage separate deployment environments for APIs and applications. API Manager displays all environments except design environments. For details, see
+       <a class="xref page" href="switch-environment-task">
+        Switching Environments
+       </a>
+       .
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="2">
+       </i>
+       <b>
+        2
+       </b>
+      </td>
+      <td>
+       Sidebar:
+       <div class="ulist">
+        <ul>
+         <li>
+          <p>
+           <strong>
+            API Groups
+           </strong>
+          </p>
+          <div class="paragraph">
+           <p>
+            An
+            <em>
+             API group
+            </em>
+            is an API asset that enables organizations to publish a group of API instances as a single unit. For details, see
+            <a class="xref page" href="api-groups-landing-page">
+             API Groups
+            </a>
+            .
+           </p>
+          </div>
+         </li>
+         <li>
+          <p>
+           <strong>
+            Automated Policies
+           </strong>
+          </p>
+          <div class="paragraph">
+           <p>
+            Policy automation enables security architects and administrators to secure and govern every API running in an environment. For details, see
+            <a class="xref page" href="../../gateway/latest/policies-automated-overview">
+             Automated Policies
+            </a>
+            .
+           </p>
+          </div>
+         </li>
+         <li>
+          <p>
+           <strong>
+            Client Applications
+           </strong>
+          </p>
+          <div class="paragraph">
+           <p>
+            <em>
+             Applications
+            </em>
+            are external services that consume APIs. For details about applications and their related contracts, see
+            <a class="xref page" href="view-api-contracts">
+             View API Instance Contracts
+            </a>
+            .
+           </p>
+          </div>
+         </li>
+         <li>
+          <p>
+           <strong>
+            Custom Policies
+           </strong>
+          </p>
+          <div class="paragraph">
+           <p>
+            <em>
+             Custom policies
+            </em>
+            are policies that anyone can develop and apply to their APIs, with the intention of extending existing functionality or defining new functionality. For details, see
+            <a class="xref page" href="../../gateway/latest/policies-custom-overview">
+             Custom Policies
+            </a>
+            .
+           </p>
+          </div>
+         </li>
+         <li>
+          <p>
+           <strong>
+            DataGraph Administration
+           </strong>
+          </p>
+          <div class="paragraph">
+           <p>
+            Anypoint DataGraph enables you to unify all the data within your application network in a unified schema. For details, see
+            <a class="xref page" href="../../datagraph/">
+             Anypoint DataGraph Overview
+            </a>
+            .
+            <strong>
+             DataGraph Administration
+            </strong>
+            is only visible after you configure a DataGraph unified schema.
+           </p>
+          </div>
+         </li>
+         <li>
+          <p>
+           <strong>
+            Mule API Analytics
+           </strong>
+          </p>
+          <div class="paragraph">
+           <p>
+            Mule API Analytics provide insight into how your Mule APIs are being used and how they are performing. For details, see
+            <a class="xref page" href="viewing-api-analytics">
+             Reviewing Mule API Analytics Usage
+            </a>
+            .
+           </p>
+          </div>
+         </li>
+        </ul>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="3">
+       </i>
+       <b>
+        3
+       </b>
+      </td>
+      <td>
+       The
+       <strong>
+        Add API
+       </strong>
+       button. Enables you to add a new API instance, to promote an API from any environment to the current environment, or to import a configuration ZIP file that was exported from API Manager. For details, see
+       <a class="xref page" href="getting-started-proxy">
+        Getting Started with Managing an API
+       </a>
+       .
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="4">
+       </i>
+       <b>
+        4
+       </b>
+      </td>
+      <td>
+       The
+       <strong>
+        Environment information
+       </strong>
+       button, available only to administrator users. Enables administrators to display a dialog with information about the current environment, such as environment credentials. Use environment credentials to provision the Anypoint Service Mesh adapter or to configure Studio to sync with your environment.
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="5">
+       </i>
+       <b>
+        5
+       </b>
+      </td>
+      <td>
+       Search. Enables you to search for managed APIs using the API search field. Searches are case-insensitive. Filter search results by selecting
+       <strong>
+        Active
+       </strong>
+       .
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="6">
+       </i>
+       <b>
+        6
+       </b>
+      </td>
+      <td>
+       The tracking registration status of each API:
+       <strong>
+        Active
+       </strong>
+       ,
+       <strong>
+        Inactive
+       </strong>
+       , or
+       <strong>
+        Unregistered
+       </strong>
+       .
+       <div class="paragraph">
+        <p>
+         A status of
+         <strong>
+          Unregistered
+         </strong>
+         means that Anypoint Platform has never tracked the endpoint for this API version. Either you have entered a URL for an API or proxy that hasn’t yet communicated with the platform, or you have declared an endpoint that is hosted somewhere other than an API gateway and need to proxy that endpoint so that the platform can track it.
+        </p>
+       </div>
+       <div class="paragraph">
+        <p>
+         The endpoint must have a tracking registration status of
+         <strong>
+          Active
+         </strong>
+         for governance policies and SLA tiers to function.
+        </p>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="7">
+       </i>
+       <b>
+        7
+       </b>
+      </td>
+      <td>
+       The name of each API. Clicking the API name navigates you to the API
+       <strong>
+        Settings
+       </strong>
+       view, where you manage the following:
+       <div class="ulist">
+        <ul>
+         <li>
+          <p>
+           <strong>
+            API Summary
+           </strong>
+          </p>
+          <div class="paragraph">
+           <p>
+            For details, see
+            <a class="xref page" href="api-instance-landing-page">
+             Managing API Instances
+            </a>
+            .
+           </p>
+          </div>
+         </li>
+         <li>
+          <p>
+           <strong>
+            Alerts
+           </strong>
+          </p>
+          <div class="paragraph">
+           <p>
+            For details, see
+            <a class="xref page" href="using-api-alerts">
+             Reviewing Alerts Concepts
+            </a>
+            .
+           </p>
+          </div>
+         </li>
+         <li>
+          <p>
+           <strong>
+            Contracts
+           </strong>
+          </p>
+          <div class="paragraph">
+           <p>
+            For details, see
+            <a class="xref page" href="api-contracts-landing-page">
+             Client Applications, Contracts, and Credentials
+            </a>
+            .
+           </p>
+          </div>
+         </li>
+         <li>
+          <p>
+           <strong>
+            Policies
+           </strong>
+          </p>
+          <div class="paragraph">
+           <p>
+            For details, see
+            <a class="xref page" href="../../gateway/latest/flex-gateway-secure-apis">
+             Securing and Governing Flex Gateway APIs
+            </a>
+            .
+           </p>
+          </div>
+         </li>
+         <li>
+          <p>
+           <strong>
+            SLA Tiers
+           </strong>
+          </p>
+          <div class="paragraph">
+           <p>
+            For details, see
+            <a class="xref page" href="defining-sla-tiers">
+             Reviewing SLA Tiers Concepts
+            </a>
+            .
+           </p>
+          </div>
+         </li>
+         <li>
+          <p>
+           <strong>
+            Settings
+           </strong>
+          </p>
+          <div class="paragraph">
+           <p>
+            For details, see
+            <a class="xref page" href="edit-api-endpoint-task">
+             Editing an API Instance
+            </a>
+            .
+           </p>
+          </div>
+         </li>
+         <li>
+          <p>
+           <strong>
+            Governance Report
+           </strong>
+          </p>
+          <div class="paragraph">
+           <p>
+            For details, see
+            <a class="xref page" href="govern-api-instances">
+             Governing API Instances
+            </a>
+            .
+           </p>
+          </div>
+         </li>
+        </ul>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="8">
+       </i>
+       <b>
+        8
+       </b>
+      </td>
+      <td>
+       The percentage of API requests that resulted in errors (in the past 24 hours).
+       <div class="paragraph">
+        <p>
+         If "No Data" is displayed, automatic monitoring has not been enabled for the API. For details, see
+         <a class="xref page" href="../../monitoring/quick-start">
+          Getting Started
+         </a>
+         .
+        </p>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="9">
+       </i>
+       <b>
+        9
+       </b>
+      </td>
+      <td>
+       The total number of API requests (in the past 24 hours).
+       <div class="paragraph">
+        <p>
+         If "No Data" is displayed, automatic monitoring has not been enabled for the API. For details, see
+         <a class="xref page" href="../../monitoring/quick-start">
+          Getting Started
+         </a>
+         .
+        </p>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="10">
+       </i>
+       <b>
+        10
+       </b>
+      </td>
+      <td>
+       The number of contracted client applications for each API. For details,
+see
+       <a class="xref page" href="api-contracts-landing-page">
+        Client Applications, Contracts, and Credentials
+       </a>
+       .
+      </td>
+     </tr>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="api-manager-components-concepts-and-features">
+   <a class="anchor" href="#api-manager-components-concepts-and-features">
+   </a>
+   API Manager Components, Concepts, and Features
+  </h2>
+  <div class="sectionbody">
+   <div class="sect2">
+    <h3 id="api-instances">
+     <a class="anchor" href="#api-instances">
+     </a>
+     API Instances
+    </h3>
+    <div class="paragraph">
+     <p>
+      An API instance describes a configuration of an API that is deployed on one of the following runtimes: Flex Gateway, Mule Gateway, or Anypoint Service Mesh. API instances are managed by API Manager after they are created by using the add, promote, or import options. API instances remain under management until they are deleted. To view the API Summary for an API instance, click the API instance name.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      For more detail, see
+      <a class="xref page" href="api-instance-landing-page">
+       Managing API Instances
+      </a>
+      .
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="api-summary">
+     <a class="anchor" href="#api-summary">
+     </a>
+     API Summary
+    </h3>
+    <div class="paragraph">
+     <p>
+      The API Summary shows key information about a deployed API instance:
+     </p>
+    </div>
+    <div class="imageblock">
+     <div class="content">
+      <img alt="API Summary page" src="_images/api-instance-summary.png"/>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="key-metrics">
+     <a class="anchor" href="#key-metrics">
+     </a>
+     Key Metrics
+    </h3>
+    <div class="paragraph">
+     <p>
+      The API Summary page includes a Key Metrics section.
+     </p>
+    </div>
+    <div class="sect3">
+     <h4 id="key-metrics">
+      <a class="anchor" href="#key-metrics">
+      </a>
+      Understanding Key Metrics
+     </h4>
+     <div class="paragraph">
+      <p>
+       The
+       <strong>
+        Key Metrics
+       </strong>
+       section of the API summary contains the following charts:
+      </p>
+     </div>
+     <div class="dlist">
+      <dl>
+       <dt class="hdlist1">
+        Total Requests
+       </dt>
+       <dd>
+        <p>
+         Sum of requests in the selected time period for the given API.
+        </p>
+        <div class="paragraph">
+         <p>
+          Data is aggregated in one minute increments.
+         </p>
+        </div>
+       </dd>
+       <dt class="hdlist1">
+        Total Policy Violations
+       </dt>
+       <dd>
+        <p>
+         Sum of requests that return policy violations.
+        </p>
+        <div class="paragraph">
+         <p>
+          Data is aggregated in one minute increments.
+         </p>
+        </div>
+       </dd>
+       <dt class="hdlist1">
+        Total Errors
+       </dt>
+       <dd>
+        <p>
+         Sum of HTTP response codes that occur in the selected time period. The response codes counted in this metric are 400, 401, 402, 403, 404, 405, 408, 409, 410, 411, 412, 413, 415, 416, 417, 420, 422, 429, 500, 502, 503, 504, 504, 510, and 511.
+        </p>
+        <div class="paragraph">
+         <p>
+          Data is aggregated in one minute increments. In the chart, HTTP response codes are abbreviated as 4xx and 5xx.
+         </p>
+        </div>
+       </dd>
+       <dt class="hdlist1">
+        Average Response Time
+       </dt>
+       <dd>
+        <p>
+         Average response time of requests in the selected time period for the given API.
+        </p>
+        <div class="paragraph">
+         <p>
+          Data is aggregated in one minute increments.
+         </p>
+        </div>
+       </dd>
+      </dl>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="setting-the-time-period-for-key-metrics">
+      <a class="anchor" href="#setting-the-time-period-for-key-metrics">
+      </a>
+      Setting the Time Period for Key Metrics
+     </h4>
+     <div class="paragraph">
+      <p>
+       You can view the data points collected for the last given period of time (such as the last 5 or 30 minutes) or over a given date and time range. Use the drop-down in the calendar icon to select the time period to display.
+      </p>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="api-alerts">
+     <a class="anchor" href="#api-alerts">
+     </a>
+     API Alerts
+    </h3>
+    <div class="paragraph">
+     <p>
+      An
+      <em>
+       API alert
+      </em>
+      (different from a Runtime Manager alert) is an alarm that flags one of the following:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        The API request violates a policy.
+       </p>
+      </li>
+      <li>
+       <p>
+        Requests received by the API exceed a given number within a specified period of time.
+       </p>
+      </li>
+      <li>
+       <p>
+        The API returns a specified HTTP error code.
+       </p>
+      </li>
+      <li>
+       <p>
+        The API response time exceeds a specified timeout value.
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="paragraph">
+     <p>
+      API Manager triggers alerts when states change from desirable to undesirable or vice versa. When an alert is triggered, API Manager sends an email notification to you and to anyone else you specify in the configuration.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      For details, see
+      <a class="xref page" href="using-api-alerts">
+       Reviewing Alerts Concepts
+      </a>
+      .
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="contracts">
+     <a class="anchor" href="#contracts">
+     </a>
+     Contracts
+    </h3>
+    <div class="paragraph">
+     <p>
+      Contracts define how client applications consume APIs. A client application requests access in Exchange. Either the owner of the API instance approves the request in API Manager or the approval is automatic, depending on configuration.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      Contracts are enforced with either of the following:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        SLA enforcement policies
+       </p>
+      </li>
+      <li>
+       <p>
+        Client enforcement policies
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="paragraph">
+     <p>
+      For details about enforcement policies, see
+      <a class="xref page" href="api-contracts-landing-page">
+       Client Applications, Contracts, and Credentials
+      </a>
+      .
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="policies">
+     <a class="anchor" href="#policies">
+     </a>
+     Policies
+    </h3>
+    <div class="paragraph">
+     <p>
+      Policies enable you to enforce regulations to help manage security, control traffic, and improve adaptability of your APIs. For example, a policy can control authentication, access, allotted consumption, and service level access (SLA).
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      API Manager supports the following types of policies:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        Default policies
+       </p>
+      </li>
+      <li>
+       <p>
+        Custom policies
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="paragraph">
+     <p>
+      For details, see
+      <a class="xref page" href="../../gateway/latest/flex-gateway-secure-apis">
+       Securing and Governing Flex Gateway APIs
+      </a>
+      .
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="sla-tiers">
+     <a class="anchor" href="#sla-tiers">
+     </a>
+     SLA Tiers
+    </h3>
+    <div class="paragraph">
+     <p>
+      <em>
+       Service Level Access (SLA) tiers
+      </em>
+      are categories of user access that you define for an API. The tier definition combined with an SLA-based policy determines whether access to the API at a certain level requires your approval. The tier definition also can limit the number of requests an application can make to the API. To enforce SLA tiers, you need to apply a rate-limiting or throttling policy that is SLA-based.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      For details, see
+      <a class="xref page" href="defining-sla-tiers">
+       Reviewing SLA Tiers Concepts
+      </a>
+      .
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="settings">
+     <a class="anchor" href="#settings">
+     </a>
+     Settings
+    </h3>
+    <div class="paragraph">
+     <p>
+      When adding an API instance, you configure the API instance settings to set parameters such as the runtime and upstream and downstream URIs.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      To add an API instance, see
+      <a class="xref page" href="add-api-instances">
+       Add API Instances
+      </a>
+      .
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      After you create the API instance, you can edit the configuration settings from Settings.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      To edit an API instance, see
+      <a class="xref page" href="edit-api-endpoint-task">
+       Editing an API Instance
+      </a>
+      .
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="governance-report">
+     <a class="anchor" href="#governance-report">
+     </a>
+     Governance Report
+    </h3>
+    <div class="paragraph">
+     <p>
+      API Governance is integrated with API Manager to identify the conformance status of your API instances.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      API Governance tests API instances against rulesets to determine conformance issues such as missing policies and missing TLS contexts.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      You can view the governance validation report details to get the information you need to fix conformance issues. The validation report is available both in API Manager on the Governance Report page and in API Governance.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      To learn more about governing your API instances, see
+      <a class="xref page" href="govern-api-instances">
+       Governing API Instances
+      </a>
+      .
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="client-providers-identity-providers">
+     <a class="anchor" href="#client-providers-identity-providers">
+     </a>
+     Client Providers (Identity Providers)
+    </h3>
+    <div class="paragraph">
+     <p>
+      You use client providers to enforce security and regulations in your business organization. Client providers authorize client applications.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      For details about using client providers, see
+      <a class="xref page" href="configure-multiple-credential-providers">
+       Configure Multiple Client Providers for Client Management
+      </a>
+      .
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="api-assets">
+     <a class="anchor" href="#api-assets">
+     </a>
+     API Assets
+    </h3>
+    <div class="paragraph">
+     <p>
+      API assets, published by Exchange, are the components that comprise applications. Components include any of the following:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        APIs (OAS, RAML, RAML fragments, HTTP, WSDL, and custom)
+       </p>
+      </li>
+      <li>
+       <p>
+        API groups
+       </p>
+      </li>
+      <li>
+       <p>
+        Policies
+       </p>
+      </li>
+      <li>
+       <p>
+        Examples
+       </p>
+      </li>
+      <li>
+       <p>
+        Templates
+       </p>
+      </li>
+      <li>
+       <p>
+        Modules
+       </p>
+      </li>
+      <li>
+       <p>
+        Connectors
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="paragraph">
+     <p>
+      For details about sharing assets via a private Exchange or an Exchange public portal, see
+      <a class="xref page" href="../../exchange/about-sharing-assets">
+       Publish Assets
+      </a>
+      .
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="api-console">
+     <a class="anchor" href="#api-console">
+     </a>
+     API Console
+    </h3>
+    <div class="paragraph">
+     <p>
+      When you create or edit APIs in API Manager, use
+      <a class="xref page" href="../../apikit/latest/apikit-4-implement-rest-api">
+       Building, Implementing, and Testing a REST API
+      </a>
+      to expose and test your API specification. You can test RAML and OAS APIs when you manage the API as an endpoint with proxy. The console flow is already included and enabled (by default) in the API specification when you download an out-of-the-box proxy for your Mule application.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      Starting with Mule 4, you can enable access to API Console and modify the API Console path from API Manager. API Console access from API Manager is disabled by default. For information about how to enable API Console access from API Manager, see
+      <a class="xref page" href="create-instance-task-mule">
+       Adding a Mule Gateway API Instance
+      </a>
+      .
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="api-groups">
+     <a class="anchor" href="#api-groups">
+     </a>
+     API Groups
+    </h3>
+    <div class="paragraph">
+     <p>
+      An
+      <em>
+       API group
+      </em>
+      is a collection of API instances that act as a single unit, so that applications can access them using one client ID. API groups are created in API Manager and published to Exchange.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      For details, see
+      <a class="xref page" href="api-groups-landing-page">
+       API Groups
+      </a>
+      .
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="autodiscovery-schemes">
+     <a class="anchor" href="#autodiscovery-schemes">
+     </a>
+     Autodiscovery Schemes
+    </h3>
+    <div class="paragraph">
+     <p>
+      Through autodiscovery schemes, API Manager can track the API throughout the life cycle as you modify, version, deploy, govern, and publish it.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="business-groups">
+     <a class="anchor" href="#business-groups">
+     </a>
+     Business Groups
+    </h3>
+    <div class="paragraph">
+     <p>
+      A system administrator groups individuals within an organization into business groups. Each group has its own Exchange API assets and its own environments.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      For details, see
+      <a class="xref page" href="../../access-management/business-groups">
+       Resource Organization and Access Control with Business Groups
+      </a>
+      .
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="environments">
+     <a class="anchor" href="#environments">
+     </a>
+     Environments
+    </h3>
+    <div class="paragraph">
+     <p>
+      Anypoint Platform enables you to create and manage separate deployment environments for APIs and applications. These environments are independent from each other and enable you to test your applications under the same conditions as in your production environment.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      The support for environments in strategic components of Anypoint Platform eliminates the need to construct version names to reflect an environment. Restricting access to and managing environments is also simplified. Permissions to access APIs are environment-based.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      For details, see
+      <a class="xref page" href="../../access-management/environments">
+       Environments
+      </a>
+      .
+     </p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="APIM-hyperforce">
+   <a class="anchor" href="#APIM-hyperforce">
+   </a>
+   API Manager on Hyperforce
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     All features of Anypoint API Manager are supported on Hyperforce with these exceptions:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       API Alerts.
+      </p>
+     </li>
+     <li>
+      <p>
+       Key Metrics. Instead, use
+       <a class="xref page" href="../../monitoring/">
+        Anypoint Monitoring
+       </a>
+       , to access metrics to monitor API performance.
+      </p>
+     </li>
+     <li>
+      <p>
+       Mule Hybrid and CloudHub deployment. Migrate to
+       <a class="xref page" href="../../cloudhub-2/">
+        CloudHub 2.0
+       </a>
+       to deploy your APIs.
+      </p>
+     </li>
+     <li>
+      <p>
+       API Service Mesh is scheduled for End of Life and is not available on Hyperforce. For service mesh capabilities, consider upgrading to
+       <a class="xref page" href="../../gateway/latest/">
+        API Gateway
+       </a>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       API Manager 1.x. Migrate to API Manager 2.x dor continued use and access to the latest features.
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../general/api-led-overview">
+        Tutorial: Build an API from Start to Finish
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="getting-started-proxy">
+        Getting Started with Managing an API
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../general/glossary">
+        Anypoint Platform Glossary
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

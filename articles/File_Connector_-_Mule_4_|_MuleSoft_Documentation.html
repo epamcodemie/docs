@@ -1,0 +1,150 @@
+<article class="doc">
+ <h1 class="page">
+  File Connector - Mule 4
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Anypoint Connector for File (File Connector) manages files and folders on a locally mounted file system. The connector’s main features include:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       The ability to read files or fully list directory contents on demand
+      </p>
+     </li>
+     <li>
+      <p>
+       Support for common file operations such as creating directories, reading, writing, copying, moving, renaming, deleting and listing files
+      </p>
+     </li>
+     <li>
+      <p>
+       Support for locking files
+      </p>
+     </li>
+     <li>
+      <p>
+       File matching functionality
+      </p>
+     </li>
+     <li>
+      <p>
+       A design that is consistent with FTP Connector and SFTP Connector
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="representation-of-file-attributes">
+   <a class="anchor" href="#representation-of-file-attributes">
+   </a>
+   Representation of File Attributes
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Mule 4 provides a message structure of a payload and attributes in which the data moves around, making that payload file content. The attributes provide an object that contains metadata on the payload and information such as the file’s name, path, size, and timestamps. For FTP Connector and SFTP Connector, these attributes are named
+     <em>
+      file attributes
+     </em>
+     .
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The Mule message specifies the encoding and MIME type, which describe the format in which a payload is represented. The file attributes describe a file’s encoding and MIME type.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="before-you-begin">
+   <a class="anchor" href="#before-you-begin">
+   </a>
+   Before You Begin
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To use this connector, you must be familiar with:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Anypoint Connectors
+      </p>
+     </li>
+     <li>
+      <p>
+       Mule runtime engine (Mule)
+      </p>
+     </li>
+     <li>
+      <p>
+       Elements and global elements in a Mule flow
+      </p>
+     </li>
+     <li>
+      <p>
+       Creating a Mule app using Anypoint Studio (Studio)
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     Before creating an app, you must have access to Anypoint Platform and Anypoint Studio.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../connectors/introduction/introduction-to-anypoint-connectors">
+        Introduction to Anypoint Connectors
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../connectors/introduction/intro-use-exchange">
+        Use Exchange to Discover Connectors, Templates, and Examples
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="file-documentation">
+        File Connector Reference
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="https://help.mulesoft.com">
+        MuleSoft Help Center
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

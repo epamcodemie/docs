@@ -1,0 +1,385 @@
+<article class="doc">
+ <h1 class="page">
+  Getting Started
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Anypoint Monitoring provides data on Mule apps that are running on either CloudHub or an on-premises server. It is part of the Management Center in Anypoint Platform, and you need to have the
+     <a href="#required_permission">
+      Required Permission
+     </a>
+     to use it.
+    </p>
+   </div>
+   <div class="admonitionblock note">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-note" title="Note">
+       </i>
+      </td>
+      <td class="content">
+       Functional Monitoring is covered in
+       <a class="xref page" href="../api-functional-monitoring/">
+        API Functional Monitoring
+       </a>
+       .
+      </td>
+     </tr>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="supported-versions-of-mule-runtime-engine">
+   <a class="anchor" href="#supported-versions-of-mule-runtime-engine">
+   </a>
+   Supported Versions of Mule Runtime Engine
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Run your Mule app on a supported Mule runtime version. For supported versions, see
+     <a class="xref page" href="../release-notes/mule-runtime/mule-esb">
+      Mule Runtime Release Notes
+     </a>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="using_monitoring">
+   <a class="anchor" href="#using_monitoring">
+   </a>
+   Use Anypoint Monitoring
+  </h2>
+  <div class="sectionbody">
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Log in to Anypoint Platform with a user account that has
+       <a class="xref page" href="am-permissions">
+        permission to access Anypoint Monitoring content
+       </a>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       Navigate to
+       <strong>
+        Anypoint Monitoring
+       </strong>
+       .
+      </p>
+      <div class="paragraph">
+       <p>
+        If you do not see Anypoint Monitoring or are unable to use it, it might be a permissions issue. See
+        <a href="#required_permission">
+         Required Permission
+        </a>
+        .
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       From Anypoint Monitoring, you can find and use the monitoring tools:
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          <a class="xref page" href="logs">
+           Using Logs
+          </a>
+         </p>
+        </li>
+        <li>
+         <p>
+          <a class="xref page" href="alerts">
+           Alerts
+          </a>
+         </p>
+        </li>
+       </ul>
+      </div>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="configurations">
+   <a class="anchor" href="#configurations">
+   </a>
+   Configurations
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Custom dashboards and alerts require configuration before you can use them. For guidance, see:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="dashboard-custom-config">
+        Configuring Custom Dashboards
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="alerts">
+        Configuring Alerts
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="required_permission">
+   <a class="anchor" href="#required_permission">
+   </a>
+   Required Permission
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To use Anypoint Monitoring, you need this permission:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Anypoint Monitoring User
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     Typically, administrators set permissions through Access Management. See
+     <a class="xref page" href="../access-management/users#granting-permissions-and-roles-to-users">
+      Granting Permissions and Roles to Users
+     </a>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="runtime_versions">
+   <a class="anchor" href="#runtime_versions">
+   </a>
+   Enable Anypoint Monitoring on CloudHub
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     For Anypoint Monitoring to start monitoring your Mule apps, you must deploy them to the appropriate version of Mule runtime engine.  See
+     <a class="xref page" href="configure-monitoring-cloudhub">
+      Configure Anypoint Monitoring for Mule Apps (CloudHub)
+     </a>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="enable-anypoint-monitoring-on-premises">
+   <a class="anchor" href="#enable-anypoint-monitoring-on-premises">
+   </a>
+   Enable Anypoint Monitoring On-Premises
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You can
+     <a class="xref page" href="am-installing">
+      install Anypoint Monitoring
+     </a>
+     on an on-premises server to monitor applications that are running on that server and managed via Runtime Manager (hybrid apps).
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="access-key-metrics">
+   <a class="anchor" href="#access-key-metrics">
+   </a>
+   Access Key Metrics through the Anypoint Monitoring Agent
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Access to
+     <a class="xref page" href="../api-manager/latest/analytics-chart">
+      Key Metrics in API Manager
+     </a>
+     relies on the Anypoint Monitoring agent. The agent is available by default for some Mule app deployment models. Other models require enablement of Anypoint Monitoring or installation of the agent.
+    </p>
+   </div>
+   <table class="tableblock frame-all grid-all fit-content spread">
+    <colgroup>
+     <col/>
+     <col/>
+    </colgroup>
+    <thead>
+     <tr>
+      <th class="tableblock halign-left valign-top">
+       Mule App Deployment Model
+      </th>
+      <th class="tableblock halign-left valign-top">
+       Action
+      </th>
+     </tr>
+    </thead>
+    <tbody>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        CloudHub 1.0
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Enable Anypoint Monitoring for your Mule Apps. See
+        <a class="xref page" href="configure-monitoring-cloudhub">
+         Setting Up Monitoring for CloudHub Deployments
+        </a>
+        .
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        CloudHub 2.0
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        No action is required. Key Metrics and Anypoint Monitoring are available by default.
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Runtime Fabric
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        No action is required. Key Metrics and Anypoint Monitoring are available by default. See also,
+        <a class="xref page" href="monitor-applications-on-rtf">
+         Setting Up Monitoring for Runtime Fabric Deployments
+        </a>
+        and
+        <a class="xref page" href="monitor-applications-on-rtf#supported-versions-of-mule-runtime-engine">
+         Supported Versions of Mule Runtime Engine
+        </a>
+        .
+       </p>
+       <p class="tableblock">
+        <a id="hybrid">
+        </a>
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Hybrid Deployments
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Install the Anypoint Monitoring agent. See
+        <a class="xref page" href="am-installing">
+         Setting Up Monitoring for Hybrid Deployments
+        </a>
+        . If you proxy your monitoring data as it leaves the data center, you must configure the Anypoint Monitoring agent to communicate through the proxy. See
+        <a class="xref page" href="am-installing#proxy-settings">
+         Proxy Settings
+        </a>
+        .
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Standalone Deployments On-Prem
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Key Metrics are not supported because standalone deployments are not managed in Anypoint Platform. If you require Key Metrics, convert your standalone deployment to a hybrid deployment (see
+        <a class="xref page" href="../runtime-manager/servers-create">
+         Add Servers to Runtime Manager
+        </a>
+        ), and install the Anypoint Monitoring agent (see
+        <a href="#hybrid">
+         Hybrid Deployments
+        </a>
+        ).
+       </p>
+      </td>
+     </tr>
+    </tbody>
+   </table>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="monitoring-settings-page">
+        Anypoint Monitoring Settings
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="configure-monitoring-cloudhub">
+        Configure Anypoint Monitoring for Mule Apps
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="am-installing">
+        Install Anypoint Monitoring On-Premises
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../api-functional-monitoring/afm-create-monitor">
+        Create a Monitor
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

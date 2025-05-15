@@ -1,0 +1,606 @@
+<article class="doc">
+ <h1 class="page">
+  Flow and Subflow Scopes
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <!-- toc disabled -->
+   <div class="paragraph" id="short_description">
+    <p>
+     Flow and Subflow scopes are components for grouping together a sequence of other
+Core components and operations (provided by connectors and modules) to help
+automate integration processes. The Flow component is fundamental to a
+Mule app. Because all Mule apps must contain at least one flow, Anypoint
+Studio automatically provides the first Flow component in
+your Mule app.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     A Mule app can contain additional flows and subflows, as this example shows:
+    </p>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="Example of Flow with Subflows" src="_images/component-flow-subflow.png"/>
+    </div>
+    <div class="title">
+     Figure 1. Example: Flow with Subflows
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     For a more in-depth discussion of uses, capabilities, and limits of flows and
+subflows, see
+     <a class="xref page" href="about-flows">
+      Flows and Subflows
+     </a>
+     .
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Note that flows always function synchronously. If you need to achieve
+asynchronous patterns, such as Fire-and-Forget, you can use the
+     <a class="xref page" href="async-scope-reference">
+      Async Scope
+     </a>
+     (
+     <code>
+      &lt;async/&gt;
+     </code>
+     ).
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="flow-configuration">
+   <a class="anchor" href="#flow-configuration">
+   </a>
+   Flow Configuration
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Flows are configurable. For example, you can set them to start or remained
+stopped when the Mule app starts, place limits on the allowed concurrency, or set
+up business events. You can also set up error handling for a component
+(see
+     <a href="#error_handling">
+      Error Handling
+     </a>
+     ).
+    </p>
+   </div>
+   <table class="tableblock frame-all grid-all stretch">
+    <colgroup>
+     <col style="width: 20%;"/>
+     <col style="width: 80%;"/>
+    </colgroup>
+    <thead>
+     <tr>
+      <th class="tableblock halign-left valign-top">
+       Field
+      </th>
+      <th class="tableblock halign-left valign-top">
+       Description
+      </th>
+     </tr>
+    </thead>
+    <tbody>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Name (
+        <code>
+         name
+        </code>
+        )
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Name for the flow. Flows automatically receive an editable name that matches (or partially matches) the project name.
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Initial State (
+        <code>
+         initialState
+        </code>
+        )
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Values: Started, Stopped. These are Mule runtime settings for the flow. The default, Started (
+          <code>
+           initialState="started"
+          </code>
+          , also called Empty in Studio), indicates that the flow is active when you start the app. So it can be triggered by an internal or external Mule event source within the flow (such as an HTTP listener or Scheduler), by a Flow Reference from another flow or subflow, or through a call to the
+          <a class="xref page" href="../../dataweave/latest/dataweave-runtime-functions#functions_runtime">
+           lookup
+          </a>
+          function.
+         </p>
+        </div>
+        <div class="paragraph">
+         <p>
+          If you set the initial state to Stopped (
+          <code>
+           initialState="stopped"
+          </code>
+          ), you need to use
+          <a class="xref page" href="../../runtime-manager/flow-management">
+           Runtime Manager
+          </a>
+          to activate the flow, or you can simply reset the Flow configuration to
+          <code>
+           Started
+          </code>
+          . Note that the console
+output for this state looks something like this:
+          <code>
+           Flow flow_component_ex has not been started (initial state = 'stopped')
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Max Concurrency (
+        <code>
+         maxConcurrency
+        </code>
+        )
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Optional. Sets the maximum number of concurrent messages that a flow can process. If not set, the container thread pool determines the maximum number of threads the flow can use to optimize the performance when processing messages. While the flow is processing the maximum number of concurrent messages, it cannot receive additional requests.
+         </p>
+        </div>
+        <div class="paragraph">
+         <p>
+          Set
+          <code>
+           maxConcurrency
+          </code>
+          to
+          <code>
+           1
+          </code>
+          to cause the flow to process requests one at a time.
+         </p>
+        </div>
+        <div class="paragraph">
+         <p>
+          See
+          <a class="xref page" href="execution-engine#backpressure">
+           Back-pressure
+          </a>
+          for details about Mule’s behavior after the the maximum concurrency value is reached.
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Business Events
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Optional: Defaults to
+          <code>
+           false
+          </code>
+          . For Mule apps that you deploy to CloudHub, you can enable business events (XML example:
+          <code>
+           tracking:enable-default-event="true"
+          </code>
+          ) and add a Transaction ID (XML example:
+          <code>
+           &lt;tracking:transaction id=12345
+          </code>
+          /&gt;). See
+          <a class="xref page" href="business-events">
+           Business Events
+          </a>
+          .
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Metadata
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        As with many other components, you can set metadata for this component. For more on this topic, see the Studio document
+        <a class="xref page" href="../../studio/latest/metadata-editor-concept">
+         Metadata Editor
+        </a>
+        .
+       </p>
+      </td>
+     </tr>
+    </tbody>
+   </table>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="subflow-configuration">
+   <a class="anchor" href="#subflow-configuration">
+   </a>
+   Subflow Configuration
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Subflow scopes provide a way to edit the name of the subflow and to add metadata. Unlike flows, subflows lack a built-in mechanism for setting up error handling, though you can use error handling provided by the
+     <a class="xref page" href="try-scope-concept">
+      Try Scope
+     </a>
+     within a subflow if you need to perform error handling.
+    </p>
+   </div>
+   <table class="tableblock frame-all grid-all stretch">
+    <colgroup>
+     <col style="width: 20%;"/>
+     <col style="width: 80%;"/>
+    </colgroup>
+    <thead>
+     <tr>
+      <th class="tableblock halign-left valign-top">
+       Field
+      </th>
+      <th class="tableblock halign-left valign-top">
+       Description
+      </th>
+     </tr>
+    </thead>
+    <tbody>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Name (
+        <code>
+         name
+        </code>
+        )
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Name for the subflow. Subflows automatically receive an editable name that matches (or partially matches) the project name.
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Metadata
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        As with many other components, you can set up metadata for this component. For more on this topic, see the Studio document
+        <a class="xref page" href="../../studio/latest/metadata-editor-concept">
+         Metadata Editor
+        </a>
+        .
+       </p>
+      </td>
+     </tr>
+    </tbody>
+   </table>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="xml-for-flows-and-subflows">
+   <a class="anchor" href="#xml-for-flows-and-subflows">
+   </a>
+   XML for Flows and Subflows
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     This example shows the XML for a simple flow  (
+     <code>
+      &lt;flow/&gt;
+     </code>
+     ) that uses a Scheduler as a source to trigger execution of
+the flow every 10 seconds, and it connects to a subflow (
+     <code>
+      &lt;sub-flow/&gt;
+     </code>
+     ) through a Flow Ref (
+     <code>
+      &lt;flow-ref/&gt;
+     </code>
+     ) component. That
+subflow then connects to another subflow, also using a Flow Ref component. Note
+that when you configure components through the Studio UI, Studio automatically adds the XML to the Configuration XML for your Mule app.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Example: XML for a Flow and Subflows
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="flow_component_ex"&gt;
+  &lt;scheduler doc:name="Scheduler" &gt;
+    &lt;scheduling-strategy &gt;
+      &lt;fixed-frequency frequency="10" timeUnit="SECONDS"/&gt;
+    &lt;/scheduling-strategy&gt;
+  &lt;/scheduler&gt;
+  &lt;ee:transform doc:name="Transform Message"&gt;
+    &lt;ee:message &gt;
+      &lt;ee:set-payload &gt;&lt;![CDATA[
+ %dw 2.0
+ var myXml =  read('&lt;prices&gt;
+    &lt;basic&gt;9.99&lt;/basic&gt;
+    &lt;premium&gt;53&lt;/premium&gt;
+    &lt;vip&gt;398.99&lt;/vip&gt;
+  &lt;/prices&gt;', 'application/xml')
+ output application/xml
+ ---
+ myXml
+]]&gt;&lt;/ee:set-payload&gt;
+    &lt;/ee:message&gt;
+  &lt;/ee:transform&gt;
+  &lt;flow-ref name="subflow_ex1"/&gt;
+&lt;/flow&gt;
+&lt;sub-flow name="subflow_ex1"&gt;
+  &lt;ee:transform doc:name="Transform Message"&gt;
+    &lt;ee:message&gt;
+      &lt;ee:set-payload&gt;&lt;![CDATA[%dw 2.0
+import * from dw::util::Timer
+output application/json
+var conversionRate=13
+---
+priceList: payload.prices mapObject(value, key, index) -&gt; {
+  (key) : {
+       dollars: value,
+       localCurrency: value * conversionRate,
+       index_plus_1: index + 1,
+       timer : currentMilliseconds()
+   }
+}]]&gt;
+      &lt;/ee:set-payload&gt;
+   &lt;/ee:message&gt;
+ &lt;/ee:transform&gt;
+ &lt;flow-ref name="subflow_ex2"/&gt;
+&lt;/sub-flow&gt;
+&lt;sub-flow name="subflow_ex2"&gt;
+  &lt;logger level="INFO" doc:name="Logger" message="#[payload]" /&gt;
+&lt;/sub-flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The example produces the following output:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Output
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">{
+  "priceList": {
+    "basic": {
+      "dollars": "9.99",
+      "localCurrency": 129.87,
+      "index_plus_1": 1,
+      "timer": 1533024312658
+    },
+    "premium": {
+      "dollars": "53",
+      "localCurrency": 689,
+      "index_plus_1": 2,
+      "timer": 1533024312659
+    },
+    "vip": {
+      "dollars": "398.99",
+      "localCurrency": 5186.87,
+      "index_plus_1": 3,
+      "timer": 1533024312659
+    }
+  }
+}</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="error_handling">
+   <a class="anchor" href="#error_handling">
+   </a>
+   Error Handling
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You can add
+     <a class="xref page" href="error-handling">
+      error handlers
+     </a>
+     to the Flow components (but not to subflows).
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     In Studio, you can simply expand the Error Handling area at the bottom of the Flow component and drag the error components into the flow. Note that this process automatically places the component into the Error Handler component, so there is no need to add the Error Handler component first.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Near the end of this XML example, the flow shows an On Error Continue configuration (
+     <code>
+      &lt;on-error-continue/&gt;
+     </code>
+     ):
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Example: XML for Flow with On Error Continue Configuration
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="flow_subflowFlow" &gt;
+  &lt;scheduler doc:name="Scheduler" &gt;
+    &lt;scheduling-strategy &gt;
+      &lt;fixed-frequency frequency="10" timeUnit="SECONDS"/&gt;
+    &lt;/scheduling-strategy&gt;
+  &lt;/scheduler&gt;
+  &lt;ee:transform doc:name="Transform Message" &gt;
+    &lt;ee:message &gt;
+      &lt;ee:set-payload &gt;&lt;![CDATA[
+ %dw 2.0
+ var myXml =  read('&lt;prices&gt;&lt;/prices&gt;', 'application/xml')
+ output application/xml
+ ---
+ myXml
+]]&gt;&lt;/ee:set-payload&gt;
+    &lt;/ee:message&gt;
+  &lt;/ee:transform&gt;
+  &lt;logger level="INFO" doc:name="Logger" message='#[payload.prices]'/&gt;
+  &lt;error-handler &gt;
+    &lt;on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" type="EXPRESSION" when="#[isEmpty(payload.prices)]"&gt;
+      &lt;logger level="ERROR" doc:name="Logger" message='"An Error Occurred"'/&gt;
+    &lt;/on-error-continue&gt;
+  &lt;/error-handler&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The preceding example produces an error. Notice the following:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       The variable
+       <code>
+        var myXml
+       </code>
+       in
+       <code>
+        &lt;set-payload/&gt;
+       </code>
+       configures an empty
+       <code>
+        &lt;prices&gt;&lt;/prices&gt;
+       </code>
+       tag as the payload.
+      </p>
+     </li>
+     <li>
+      <p>
+       The Logger beside the
+       <code>
+        &lt;set-payload/&gt;
+       </code>
+       component returns
+       <code>
+        null
+       </code>
+       because it is set to log the value of the empty tag.
+      </p>
+     </li>
+     <li>
+      <p>
+       The
+       <code>
+        &lt;on-error-continue/&gt;
+       </code>
+       component returns an error because the DataWeave condition
+       <code>
+        isEmpty(payload.prices)
+       </code>
+       returns
+       <code>
+        true
+       </code>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       The Logger (
+       <code>
+        &lt;logger/&gt;
+       </code>
+       ) within
+       <code>
+        &lt;on-error-continue/&gt;
+       </code>
+       configures an error message to print to the console when an error occurs. The resulting error message looks something like this:
+      </p>
+     </li>
+    </ol>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">ERROR 2018-07-30 23:58:45,293 [[MuleRuntime].cpuLight.06:
+ [flow_subflow].flow_subflowFlow.CPU_LITE @1b1529b2]
+ [event: 0-2aba3280-948f-11e8-82d0-f45c898f2549]
+ org.mule.runtime.core.internal.processor.LoggerMessageProcessor:
+ "An Error Occurred"</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     For details about these components, see
+     <a class="xref page" href="on-error-scope-concept">
+      On-Error
+     </a>
+     error handlers.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="tuning-backpressure-maxconcurrency">
+        Back-Pressure and MaxConcurrency
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

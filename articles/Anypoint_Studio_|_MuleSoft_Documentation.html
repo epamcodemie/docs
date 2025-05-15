@@ -1,0 +1,366 @@
+<article class="doc">
+ <h1 class="page">
+  Anypoint Studio
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Anypoint Studio is MuleSoft’s Eclipse-based integration development environment for designing and testing Mule applications.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Anypoint Studio features enhance your productivity when building Mule applications:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Instant run of your Mule application inside a local runtime
+      </p>
+     </li>
+     <li>
+      <p>
+       Visual editors to configure API specification files and Mule domains
+      </p>
+     </li>
+     <li>
+      <p>
+       Push changes to a local running app to test changes
+      </p>
+     </li>
+     <li>
+      <p>
+       Integration with Exchange to create projects from templates and examples, and import definitions and other resources from your Anypoint Platform organization
+      </p>
+     </li>
+     <li>
+      <p>
+       Embedded unit testing framework
+      </p>
+     </li>
+     <li>
+      <p>
+       Built-in support to deploy to CloudHub
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     Watch the Anypoint Studio Product Spotlight video to see a quick overview of Studio.
+    </p>
+   </div>
+   <script async="" data-playbackurl="play.vidyard.com" src="https://play.vidyard.com/embed/v4.js" type="text/javascript">
+   </script>
+   <img class="vidyard-player-embed" data-action="show" data-controller="hubs" data-height="540" data-type="inline" data-uuid="3tTERQRQzDA4j9i8mqdSKg" data-width="auto" src="https://play.vidyard.com/3tTERQRQzDA4j9i8mqdSKg.jpg" style="margin: auto; display: block; width: 100%; ">
+    <div class="paragraph">
+     <p>
+      Anypoint Studio 7.x only supports Mule 4.x projects because the structure of the project, export format, XML and scripting language are different. It isn’t possible to embed Mule 3.x runtimes or older versions into Anypoint Studio 7.x.
+     </p>
+    </div>
+   </img>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="editors">
+   <a class="anchor" href="#editors">
+   </a>
+   Editors
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Studio editors help you design and edit the definitions of your applications, APIs, properties, and configuration files:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Mule configuration files
+      </p>
+     </li>
+     <li>
+      <p>
+       API specifications
+      </p>
+     </li>
+     <li>
+      <p>
+       Properties files
+      </p>
+     </li>
+     <li>
+      <p>
+       A
+       <code>
+        pom.xml
+       </code>
+       file to handle dependencies
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     The Mule configuration file editor opens when you double-click on the application XML file in
+     <code>
+      /src/main/mule
+     </code>
+     . The editor contains three tabs which offer different ways to work with your application:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       The Message Flow tab
+      </p>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="A flowchart showing a listener, payload, and logger" src="_images/index-039ff.png"/>
+       </div>
+      </div>
+      <div class="paragraph">
+       <p>
+        Contains the canvas in which you can see a visual representation of your flows. You can drag and drop Event Processors from the Mule Palette into the canvas to add them to your flow.
+       </p>
+      </div>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     Clicking an Event Processor in the canvas opens up the Mule Properties View with the attributes for the selected processor, allowing you to edit them.
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       The Global Elements tab
+      </p>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="A table that lists global configuration elements, including type, name, and description, with buttons to create, edit, and delete them" src="_images/index-a2191.png"/>
+       </div>
+      </div>
+      <div class="paragraph">
+       <p>
+        Contains the global Mule configuration elements for your modules. In this tab you can create, edit or delete configuration files.
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       The Configuration XML tab
+      </p>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="XML code for a Mule project" src="_images/index-ebe7d.png"/>
+       </div>
+      </div>
+      <div class="paragraph">
+       <p>
+        Contains the XML that defines your Mule Application. All changes applied here are reflected in the canvas and the Properties view of your event processors in the Message Flow tab.
+       </p>
+      </div>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="views">
+   <a class="anchor" href="#views">
+   </a>
+   Views
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Views in Studio are a graphical representation of project metadata, or properties for the active editor. Move, close, and add views as you develop your Mule project.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Anypoint Studio displays the following default views.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="package-explorer">
+     <a class="anchor" href="#package-explorer">
+     </a>
+     Package Explorer
+    </h3>
+    <div class="paragraph">
+     <p>
+      The Package Explorer view displays the project folders and files that make up a Mule project.
+     </p>
+    </div>
+    <div class="imageblock">
+     <div class="content">
+      <img alt="A file tree showing a project’s structure and dependencies" src="_images/index-ee160.png"/>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      Click the open arrow next to a Mule project folder to expand or contract it. Double-click a folder or file to open it.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="mule-palette">
+     <a class="anchor" href="#mule-palette">
+     </a>
+     Mule Palette
+    </h3>
+    <div class="paragraph">
+     <p>
+      The Mule Palette view helps you manage the modules and connectors in your project. You can also add new elements from Exchange in this view.
+     </p>
+    </div>
+    <div class="imageblock">
+     <div class="content">
+      <img alt="A Mule Palette with a search bar, options to add modules, a favorites section, and a core section listing modules and their types" src="_images/mule-palette-concept-0bf01.png"/>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      Available event processors, such as scopes, filters, and flow control routers, along with modules and their related operations are displayed.
+      <br/>
+      Drag and drop any event processor to your Favorites or onto the canvas of the Mule Configuration File editor.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="mule-properties">
+     <a class="anchor" href="#mule-properties">
+     </a>
+     Mule Properties
+    </h3>
+    <div class="paragraph">
+     <p>
+      The Mule Properties view allows you to edit the properties of the module that is currently selected in your canvas.
+     </p>
+    </div>
+    <div class="imageblock">
+     <div class="content">
+      <img alt="A form with fields to configure a listener" src="_images/index-4cdd4.png"/>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      This view includes the DataSense Explorer which supplies real-time information about the data structure of your payload and any available inbound and outbound properties or variables.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="console">
+     <a class="anchor" href="#console">
+     </a>
+     Console
+    </h3>
+    <div class="paragraph">
+     <p>
+      The Console view contains the console for the embedded Mule server, which displays a list of events and problems (if any) that Studio reports as you create or run your Mule application.
+     </p>
+    </div>
+    <div class="imageblock">
+     <div class="content">
+      <img alt="A console log that displays status information for a Mule application" src="_images/index-0b4a5.png"/>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="problems">
+     <a class="anchor" href="#problems">
+     </a>
+     Problems
+    </h3>
+    <div class="paragraph">
+     <p>
+      The Problems view displays a list of all issues encountered in your project.
+     </p>
+    </div>
+    <div class="imageblock">
+     <div class="content">
+      <img alt="A table with two message flow errors" src="_images/index-7bcca.png"/>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="perspectives">
+   <a class="anchor" href="#perspectives">
+   </a>
+   Perspectives
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     A Perspective in Studio is a collection of views and editors in a specified arrangement. The default perspective is the Mule Design perspective. Studio also supplies a Mule Debug perspective, and an API design perspective.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     You can create your own perspectives, and add or remove any of the default views.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     To add a new view to your current Perspective in Anypoint Studio navigate to
+     <strong>
+      Window
+     </strong>
+     &gt;
+     <strong>
+      Show view
+     </strong>
+     and select the View you want to add.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     If your View does not appear on the list, click Other…​ to load an entire list of available Views.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Specific Mule views such as the Mule Palette, or the Mule Debugger View can be found in the MuleSoft folder.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="to-download-and-install-studio">
+        Install Anypoint Studio
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="set-credentials-in-studio-to">
+        Configure Anypoint Platform Credentials
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

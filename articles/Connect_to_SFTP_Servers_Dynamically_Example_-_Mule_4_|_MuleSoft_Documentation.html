@@ -1,0 +1,721 @@
+<article class="doc">
+ <h1 class="page">
+  Connect to SFTP Servers Dynamically Example - Mule 4
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Many integrations require connecting to different servers based on a specific condition, such as:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Connecting to different invoice storage servers depending on the branch that emits an invoice
+      </p>
+     </li>
+     <li>
+      <p>
+       Connecting to different servers depending on an integration subject, such as in a multi-tenant use case
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     To accommodate these use cases, the Anypoint Connector for SFTP (SFTP Connector) global configuration element supports parameter expressions that evaluate these conditions and connect to the correct server.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The following example shows how to configure SFTP Connector to connect dynamically to multiple servers:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       An HTTP
+       <strong>
+        Listener
+       </strong>
+       source initiates the flow by reading random content posted via HTTP.
+      </p>
+     </li>
+     <li>
+      <p>
+       The File Connector
+       <strong>
+        Read
+       </strong>
+       operation loads a recipients CSV file that contains a random set of SFTP destinations, with columns such as
+       <code>
+        host
+       </code>
+       ,
+       <code>
+        user
+       </code>
+       , and
+       <code>
+        port
+       </code>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       A DataWeave transformation maps the content and splits the CSV file.
+      </p>
+     </li>
+     <li>
+      <p>
+       A
+       <strong>
+        For Each
+       </strong>
+       component and an SFTP
+       <strong>
+        Write
+       </strong>
+       operation write the contents into each of the SFTP destinations.
+      </p>
+      <div class="paragraph">
+       <p>
+        On each
+        <strong>
+         For Each
+        </strong>
+        iteration, the expressions set in the SFTP global configuration element resolve to a different value and establish different connections to each of the servers.
+       </p>
+      </div>
+     </li>
+    </ol>
+   </div>
+   <div class="paragraph">
+    <p>
+     To test this example, create the Mule application, and run and test the application with curl commands:
+    </p>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="Connect to SFTP Servers Dynamically" src="_images/sftp-connection-dynamically.png"/>
+    </div>
+    <div class="title">
+     Figure 1. Connect to SFTP Servers Dynamically flow
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="create-the-mule-application">
+   <a class="anchor" href="#create-the-mule-application">
+   </a>
+   Create the Mule Application
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To create the Mule flow:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       In the
+       <strong>
+        Mule Palette
+       </strong>
+       view, select
+       <strong>
+        HTTP &gt; Listener
+       </strong>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       Drag
+       <strong>
+        HTTP Listener
+       </strong>
+       to the Studio canvas.
+      </p>
+     </li>
+     <li>
+      <p>
+       On the
+       <strong>
+        HTTP Listener
+       </strong>
+       configuration screen, optionally change the value of the
+       <strong>
+        Display Name
+       </strong>
+       field.
+      </p>
+     </li>
+     <li>
+      <p>
+       Set the
+       <strong>
+        Path
+       </strong>
+       field to
+       <code>
+        /multitenant
+       </code>
+      </p>
+     </li>
+     <li>
+      <p>
+       Click the plus sign (
+       <strong>
+        +
+       </strong>
+       ) next to the
+       <strong>
+        Connector configuration
+       </strong>
+       field to configure a global element that can be used by all instances of HTTP Listener in the app.
+      </p>
+     </li>
+     <li>
+      <p>
+       On the
+       <strong>
+        General
+       </strong>
+       tab, set the following fields:
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          <strong>
+           Host
+          </strong>
+          :
+          <code>
+           All Interfaces [0.0.0.0] (default)
+          </code>
+         </p>
+        </li>
+        <li>
+         <p>
+          <strong>
+           Port
+          </strong>
+          :
+          <code>
+           8081
+          </code>
+         </p>
+        </li>
+       </ul>
+      </div>
+     </li>
+     <li>
+      <p>
+       Click
+       <strong>
+        OK
+       </strong>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       Drag a
+       <strong>
+        Set Variable
+       </strong>
+       component to the right of the
+       <strong>
+        HTTP Listener
+       </strong>
+       source.
+      </p>
+     </li>
+     <li>
+      <p>
+       Set the
+       <strong>
+        Name
+       </strong>
+       field to
+       <code>
+        content
+       </code>
+       and the
+       <strong>
+        Value
+       </strong>
+       field to
+       <code>
+        #[payload]
+       </code>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       Drag the File Connector
+       <strong>
+        Read
+       </strong>
+       operation to the right of the
+       <strong>
+        Set Variable
+       </strong>
+       component.
+      </p>
+     </li>
+     <li>
+      <p>
+       Set the
+       <strong>
+        File Path
+       </strong>
+       field to
+       <code>
+        recipients.csv
+       </code>
+       .
+       <br/>
+       This reads a CSV file that contains a random set of SFTP destinations with columns such as
+       <code>
+        host
+       </code>
+       ,
+       <code>
+        user
+       </code>
+       , and
+       <code>
+        port
+       </code>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       Click the plus sign (
+       <strong>
+        +
+       </strong>
+       ) next to the
+       <strong>
+        Connector configuration
+       </strong>
+       field to configure a global element that can be used by all instances of File Connector in the app.
+      </p>
+     </li>
+     <li>
+      <p>
+       Accept the default settings and click
+       <strong>
+        OK
+       </strong>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       On the
+       <strong>
+        MIME Type
+       </strong>
+       tab of the
+       <strong>
+        Read
+       </strong>
+       operation, for the
+       <strong>
+        MIME Type
+       </strong>
+       field, select
+       <code>
+        application/csv
+       </code>
+       .
+      </p>
+     </li>
+    </ol>
+   </div>
+   <div class="sect2">
+    <h3 id="configure-additional-components-and-operations">
+     <a class="anchor" href="#configure-additional-components-and-operations">
+     </a>
+     Configure Additional Components and Operations
+    </h3>
+    <div class="paragraph">
+     <p>
+      Continue creating your Mule application by adding additional components and operations:
+     </p>
+    </div>
+    <div class="olist arabic">
+     <ol class="arabic">
+      <li>
+       <p>
+        In Studio, drag a
+        <strong>
+         Transform Message
+        </strong>
+        component to the right of the
+        <strong>
+         Read
+        </strong>
+        operation.
+       </p>
+      </li>
+      <li>
+       <p>
+        In the
+        <strong>
+         Output
+        </strong>
+        section of the component, add the following DataWeave code to map the columns of the CSV file:
+       </p>
+       <div class="listingblock">
+        <div class="title">
+         DataWeave script:
+        </div>
+        <div class="content">
+         <pre class="highlightjs highlight"><code class="language-dataweave hljs" data-lang="dataweave">%dw 2.0
+output application/java
+---
+payload map using (row = $) {
+   host: row.Host,
+   user: row.User,
+   password: row.Password}</code></pre>
+        </div>
+       </div>
+      </li>
+      <li>
+       <p>
+        Drag a
+        <strong>
+         For Each
+        </strong>
+        component to the right of the
+        <strong>
+         Transform Message
+        </strong>
+        component.
+       </p>
+      </li>
+      <li>
+       <p>
+        Drag an SFTP
+        <strong>
+         Write
+        </strong>
+        operation into the
+        <strong>
+         For Each
+        </strong>
+        component.
+        <br/>
+        On each For Each iteration, the
+        <strong>
+         Write
+        </strong>
+        operation writes the contents into each of the SFTP destinations.
+       </p>
+      </li>
+      <li>
+       <p>
+        Click the plus sign (
+        <strong>
+         +
+        </strong>
+        ) next to the
+        <strong>
+         Connector configuration
+        </strong>
+        field to configure a global element that can be used by all instances of SFTP Write operation in the app, and set the following fields:
+       </p>
+       <div class="ulist">
+        <ul>
+         <li>
+          <p>
+           <strong>
+            Host
+           </strong>
+           :
+           <code>
+            #[payload.host]
+           </code>
+          </p>
+         </li>
+         <li>
+          <p>
+           <strong>
+            Username
+           </strong>
+           :
+           <code>
+            #[payload.username]
+           </code>
+          </p>
+         </li>
+         <li>
+          <p>
+           <strong>
+            Password
+           </strong>
+           :
+           <code>
+            #[payload.password]
+           </code>
+          </p>
+         </li>
+        </ul>
+       </div>
+      </li>
+      <li>
+       <p>
+        Click
+        <strong>
+         OK
+        </strong>
+        .
+       </p>
+      </li>
+      <li>
+       <p>
+        On the configuration screen, set the
+        <strong>
+         Path
+        </strong>
+        field to
+        <code>
+         demo.txt
+        </code>
+        .
+       </p>
+      </li>
+      <li>
+       <p>
+        Set the
+        <strong>
+         Content
+        </strong>
+        field to
+        <code>
+         payload
+        </code>
+        .
+       </p>
+      </li>
+      <li>
+       <p>
+        Drag a
+        <strong>
+         Set Payload
+        </strong>
+        component to the right of the
+        <strong>
+         For Each
+        </strong>
+        component.
+       </p>
+      </li>
+      <li>
+       <p>
+        Set the
+        <strong>
+         Value
+        </strong>
+        field to
+        <code>
+         Multicast Ok
+        </code>
+        .
+       </p>
+      </li>
+     </ol>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="run-and-test-your-mule-application">
+   <a class="anchor" href="#run-and-test-your-mule-application">
+   </a>
+   Run and Test your Mule Application
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     After creating your Mule application, run and test it:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       In Studio, save your Mule app.
+      </p>
+     </li>
+     <li>
+      <p>
+       Click the project name in
+       <strong>
+        Package Explorer
+       </strong>
+       and then click
+       <strong>
+        Run
+       </strong>
+       &gt;
+       <strong>
+        Run As
+       </strong>
+       &gt;
+       <strong>
+        Mule Application
+       </strong>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       Open a browser and type
+       <code>
+        http://0.0.0.0:8081/multitenant
+       </code>
+       .
+       <br/>
+      </p>
+     </li>
+    </ol>
+   </div>
+   <div class="paragraph">
+    <p>
+     Note about Mule 4 behavior for Mule 3 users:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       The information posted through the HTTP Listener source is written to each SFTP site multiple times.
+      </p>
+      <div class="paragraph">
+       <p>
+        Because the listener makes use of the
+        <a class="xref page" href="../../mule-runtime/latest/streaming-about">
+         repeatable streams feature
+        </a>
+        , you do not need to worry about consuming the stream multiple times.
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       The For Each component automatically goes through each line of the CSV file.
+      </p>
+      <div class="paragraph">
+       <p>
+        In Mule 3, you first needed to transform the CSV file into a Java structure, but because Mule 4 is now Java agnostic, this works out-of-the-box.
+       </p>
+      </div>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     When reading or listing files, you might be interested in the file’s metadata (for example, the file name, full path, size, timestamp). The connector uses the Mule message attributes to access this information.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="xml-for-connecting-to-sftp-servers-dynamically">
+   <a class="anchor" href="#xml-for-connecting-to-sftp-servers-dynamically">
+   </a>
+   XML for Connecting to SFTP Servers Dynamically
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Paste this code into your Studio XML editor to quickly load the flow for this example into your Mule app:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+
+&lt;mule xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd"&gt;
+	&lt;http:listener-config name="HTTP_Listener_config" &gt;
+		&lt;http:listener-connection host="0.0.0.0" port="8081" /&gt;
+	&lt;/http:listener-config&gt;
+	&lt;file:config name="File_Config" doc:name="File Config"  /&gt;
+	&lt;sftp:config name="SFTP_Config" doc:name="SFTP Config"  &gt;
+		&lt;sftp:connection host="#[payload.host]" username="#[payload.user]" password="#[payload.password]" /&gt;
+	&lt;/sftp:config&gt;
+	&lt;flow name="SFTPexample" &gt;
+		&lt;http:listener doc:name="Listener" config-ref="HTTP_Listener_config" path="/multitenant"/&gt;
+		&lt;set-variable value="#[payload]" doc:name="Set Variable" variableName="content"/&gt;
+		&lt;file:read doc:name="Read" config-ref="File_Config" path="recipients.csv" outputMimeType="application/csv"/&gt;
+		&lt;ee:transform doc:name="Transform Message" &gt;
+			&lt;ee:message &gt;
+				&lt;ee:set-payload &gt;&lt;![CDATA[%dw 2.0
+output application/java
+---
+payload map using (row = $) {
+   host: row.Host,
+   user: row.User,
+   password: row.Password}]]&gt;&lt;/ee:set-payload&gt;
+			&lt;/ee:message&gt;
+		&lt;/ee:transform&gt;
+		&lt;foreach doc:name="For Each" &gt;
+			&lt;sftp:write doc:name="Write" config-ref="SFTP_Config" path="demo.txt"&gt;
+			&lt;/sftp:write&gt;
+		&lt;/foreach&gt;
+		&lt;set-payload value="Multicast OK" doc:name="Set Payload" /&gt;
+	&lt;/flow&gt;
+&lt;/mule&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="sftp-examples">
+        SFTP Connector Examples
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="https://help.mulesoft.com">
+        MuleSoft Help Center
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

@@ -1,0 +1,266 @@
+<article class="doc">
+ <h1 class="page">
+  Resource Organization and Access Control with Business Groups
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Business groups are self-contained resource groups within Anypoint Platform that help organize and manage resources like applications and APIs. They provide granular control over access to these resources.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     When you create an Anypoint Platform account, a root organization (business group) is created, and you become its owner and have the Organization Administrator permission. A root organization is a single instance of Anypoint Platform that includes all the entitlements, features, and capabilities you purchased. The root organization can contain multiple business groups. Multiple users in the root organization can share resources, such as applications and environments.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Access to resources is determined by assigned user roles and permissions. For example, one user might be able to manage API alerts, while another can only view them.
+    </p>
+   </div>
+   <div class="admonitionblock note">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-note" title="Note">
+       </i>
+      </td>
+      <td class="content">
+       Business groups are not enabled by default in a new Anypoint Platform account. To activate business groups in your organization, contact your MuleSoft representative. Organizations can have a maximum of 100 business groups.
+      </td>
+     </tr>
+    </table>
+   </div>
+   <div class="paragraph">
+    <p>
+     Within the root organization, business groups are arranged hierarchically. The root organization functions as the top-level business group, and each created business group has a single parent and can have multiple child business groups.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="organization-owner">
+   <a class="anchor" href="#organization-owner">
+   </a>
+   Organization Owner
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The user who first signs up for an Anypoint Platform account is designated as the organization owner.  The organization owner is automatically granted the Organization Administrator permission. This is not a permission that is assigned, rather it is an identifier for this single user (creator of the Anypoint Platform account).
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     When ownership of an organization is transferred to another user, the original organization owner retains the Organization Administrator permission unless you explicitly revoke it.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="business-group-ownership">
+   <a class="anchor" href="#business-group-ownership">
+   </a>
+   Business Group Ownership
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Every business group created within the organization hierarchy must have an owner with the Organization Administrator permission assigned. Any organization administrator can assign and change owners of business groups. A business group can have only one owner.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="creatingroles">
+   <a class="anchor" href="#creatingroles">
+   </a>
+   Permissions and Roles in Business Groups
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Because business groups are hierarchical, the owner of a parent business group automatically has and retains administrator permissions for any child business group of that parent, even if a different organization administrator owns the child business group.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Conversely, owners of child business groups can’t:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Access or modify the parent business group’s or root organization’s settings
+      </p>
+     </li>
+     <li>
+      <p>
+       View the parent business group’s client ID and client secret
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     When you create a business group under another business group, only the redistributable entitlements, such as VPCs and load balancers, that were assigned to the parent business group can be allocated to the child business group.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Permissions and roles are applied at both the root organization and individual business group levels, but control access to different resources at each level. Permissions and roles assigned to a user in one business group don’t apply to that user’s access in other business groups.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     To interact with a business group, a user must have a permission granted within that group or be a member of a team with permission in that group. All users belong to the root organization, regardless of business group membership.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     As a member of a business group, you are automatically granted permissions to view and access the business group, but to access certain resources, you must have the appropriate permissions or roles assigned to you. For example, to access APIs and CloudHub deployments in the business group, you must be assigned permissions that apply to that business group.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     For example:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       If you have the Organization Administrator permission in BusinessGroupA, you can grant users and teams access to APIs and CloudHub deployments within BusinessGroupA.
+      </p>
+     </li>
+     <li>
+      <p>
+       That same permission in BusinessGroupB doesn’t allow you to grant access to APIs and CloudHub deployments in BusinessGroupA.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     Resources that belong to the root organization require permissions specified at the root organization level.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Users with Organization Administrator permission at any level automatically have that permission in any child business group created within that level. This permission inheritance is not retroactive; it doesn’t apply to users who gain Organization Administrator permission
+     <strong>
+      after
+     </strong>
+     a child group is created.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="org-admin">
+     <a class="anchor" href="#org-admin">
+     </a>
+     Organization Administrator Capabilities
+    </h3>
+    <div class="paragraph">
+     <p>
+      An Anypoint Platform user who has the Organization Administrator permission can perform these types of tasks:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        Invite users to an organization.
+       </p>
+      </li>
+      <li>
+       <p>
+        Assign users to teams or roles that define their permissions in Anypoint Platform.
+       </p>
+      </li>
+      <li>
+       <p>
+        Edit and remove users from an organization.
+       </p>
+      </li>
+      <li>
+       <p>
+        Assign or change owners of business groups.
+       </p>
+      </li>
+      <li>
+       <p>
+        Configure organization settings.
+       </p>
+      </li>
+      <li>
+       <p>
+        Create and manage teams.
+       </p>
+      </li>
+      <li>
+       <p>
+        View a client ID and client secret for the root organization, business groups, and environments.
+       </p>
+      </li>
+      <li>
+       <p>
+        Access analytics for the APIs in your organization.
+       </p>
+      </li>
+      <li>
+       <p>
+        Create business groups to delegate management of the resources and define the scopes of roles and permissions.
+       </p>
+      </li>
+      <li>
+       <p>
+        Configure additional properties at the business group level.
+       </p>
+      </li>
+     </ul>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="see-also">
+     <a class="anchor" href="#see-also">
+     </a>
+     See Also
+    </h3>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        <a class="xref page" href="managing-business-groups">
+         Managing Business Groups
+        </a>
+       </p>
+      </li>
+      <li>
+       <p>
+        <a class="xref page" href="teams">
+         Teams
+        </a>
+       </p>
+      </li>
+      <li>
+       <p>
+        <a class="xref page" href="roles">
+         Roles
+        </a>
+       </p>
+      </li>
+      <li>
+       <p>
+        <a class="xref page" href="users">
+         Users
+        </a>
+       </p>
+      </li>
+     </ul>
+    </div>
+   </div>
+  </div>
+ </div>
+</article>

@@ -1,0 +1,546 @@
+<article class="doc">
+ <h1 class="page">
+  Getting Alerts in Anypoint Monitoring
+ </h1>
+ <div class="info-pills-row flex flex-wrap">
+  <a class="info-pill align-center flex" data-l10n-title="pill-anypoint-pricing-core-title" href="/monitoring/#billing">
+   <span class="info-pill-circle-crop">
+    <img class="icon-info-pill" data-l10n-alt="pill-info-icon-alt" src="../_/img/icons/info.svg">
+    </img>
+   </span>
+   <span class="hide-until-l10n" data-l10n-text="pill-anypoint-pricing-core-text">
+   </span>
+  </a>
+ </div>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Alerts indicate whether a resource (such as a Mule app or API) is behaving as expected or exceeding a defined threshold.
+    </p>
+   </div>
+   <div class="imageblock" id="alerts">
+    <div class="content">
+     <img alt="Alerts in Anypoint Monitoring" src="_images/intro-alerts.png"/>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     You can create these types of alerts:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="basic-alerts">
+        Basic alerts
+       </a>
+       for servers, Mule apps, and APIs
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="custom-dashboard-alerts">
+        Custom dashboard alerts
+       </a>
+       for graphs in custom dashboards in Anypoint Monitoring
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#other-alerts">
+        Other alerts in API Manager or Runtime Manager
+       </a>
+       :
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          Operational alerts for APIs through API Manager
+         </p>
+        </li>
+        <li>
+         <p>
+          Operational alerts for server and app events through Runtime Manager
+         </p>
+        </li>
+       </ul>
+      </div>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     For alerts in Anypoint Monitoring, you can:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Enable or disable alerts configured for graphs in custom dashboards
+      </p>
+     </li>
+     <li>
+      <p>
+       Filter by
+       <a href="#alert_status">
+        alert status
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       Filter by
+       <a href="#alert_severity">
+        alert severity
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="alert-thresholds">
+   <a class="anchor" href="#alert-thresholds">
+   </a>
+   Alert Thresholds
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     For basic and custom dashboard alerts in Anypoint Monitoring, thresholds are checked every five minutes. The evaluated query is the average value of the metric in the last five minutes. For custom dashboard alerts, the evaluated metric is the one referenced in the
+     <strong>
+      General
+     </strong>
+     tab for the graph. If the value of the metric passes the threshold, the alert triggers. The alert triggers only if the alert state changes (from
+     <code>
+      OK
+     </code>
+     state to
+     <code>
+      Alerting
+     </code>
+     state or vice versa). If you change the email address of the alert recipient, the recipient doesn’t receive an email until the alert triggers.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="alert-limits">
+   <a class="anchor" href="#alert-limits">
+   </a>
+   Alert Limits
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The number of active alerts allocated to your organization depends on your organization’s pricing model.
+    </p>
+   </div>
+   <table class="tableblock frame-all grid-all fit-content spread">
+    <colgroup>
+     <col/>
+     <col/>
+     <col/>
+    </colgroup>
+    <thead>
+     <tr>
+      <th class="tableblock halign-left valign-top">
+       Pricing Package
+      </th>
+      <th class="tableblock halign-left valign-top">
+       Active Basic Alerts
+      </th>
+      <th class="tableblock halign-left valign-top">
+       Active Advanced Alerts
+      </th>
+     </tr>
+    </thead>
+    <tbody>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Anypoint Integration Advanced
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        10 per app or API instance
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        10 per app or API instance
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Gold Subscription
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        50 across the organization
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        None
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Platinum Subscription
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        50 across the organization
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        None
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Titanium Subscription
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        50 times the number of vCores in your org, plus 100
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        20 across the organization
+       </p>
+      </td>
+     </tr>
+    </tbody>
+   </table>
+   <div class="sect2">
+    <h3 id="filter-alerts-by-alert-state">
+     <a class="anchor" href="#filter-alerts-by-alert-state">
+     </a>
+     Filter Alerts by Alert State
+    </h3>
+    <div class="paragraph" id="alert_status">
+     <p>
+      Filter alerts based on state using the following filters:
+     </p>
+    </div>
+    <div class="dlist">
+     <dl>
+      <dt class="hdlist1">
+       All states
+      </dt>
+      <dd>
+       <p>
+        Lists all alerts
+       </p>
+      </dd>
+     </dl>
+    </div>
+    <div class="dlist">
+     <dl>
+      <dt class="hdlist1">
+       No data
+      </dt>
+      <dd>
+       <p>
+        No data is available in the series to evaluate the alert threshold.
+       </p>
+      </dd>
+      <dt class="hdlist1">
+       Disabled
+      </dt>
+      <dd>
+       <p>
+        The alert is disabled.
+       </p>
+      </dd>
+      <dt class="hdlist1">
+       Alerting
+      </dt>
+      <dd>
+       <p>
+        The value of the metric passes the specified threshold.
+       </p>
+      </dd>
+      <dt class="hdlist1">
+       OK
+      </dt>
+      <dd>
+       <p>
+        The value of the metric has not passed the threshold.
+       </p>
+      </dd>
+      <dt class="hdlist1">
+       Pending
+      </dt>
+      <dd>
+       <p>
+        The alert is enabled and waiting for evaluation.
+       </p>
+      </dd>
+     </dl>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="filter-alerts-by-alert-severity">
+     <a class="anchor" href="#filter-alerts-by-alert-severity">
+     </a>
+     Filter Alerts by Alert Severity
+    </h3>
+    <div class="paragraph">
+     <p>
+      When you create basic and custom dashboard alerts, you can select the severity for those alerts. The severity indicates how important the alert is for the recipients of the alerts.
+     </p>
+    </div>
+    <div class="paragraph" id="alert_severity">
+     <p>
+      Filter alerts based on severity using the following filters:
+     </p>
+    </div>
+    <div class="dlist">
+     <dl>
+      <dt class="hdlist1">
+       All severities
+      </dt>
+      <dd>
+       <p>
+        Lists all severities
+       </p>
+      </dd>
+      <dt class="hdlist1">
+       Not defined
+      </dt>
+      <dd>
+       <p>
+        Lists alerts that do not have severities assigned
+       </p>
+      </dd>
+     </dl>
+    </div>
+    <div class="dlist">
+     <dl>
+      <dt class="hdlist1">
+       Info
+      </dt>
+      <dd>
+       <p>
+        May be assigned to alerts that do not require immediate attention when triggered. This severity indicates the metric should be passively monitored.
+       </p>
+      </dd>
+      <dt class="hdlist1">
+       Warning
+      </dt>
+      <dd>
+       <p>
+        May be assigned to alerts that require prompt attention when triggered. This severity indicates an alert should be closely monitored.
+       </p>
+      </dd>
+      <dt class="hdlist1">
+       Critical
+      </dt>
+      <dd>
+       <p>
+        May be assigned to alerts that require immediate attention when triggered. This severity indicates an alert should receive an immediate response.
+       </p>
+      </dd>
+     </dl>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="enable-and-disable-alerts">
+     <a class="anchor" href="#enable-and-disable-alerts">
+     </a>
+     Enable and Disable Alerts
+    </h3>
+    <div class="paragraph">
+     <p>
+      You can enable or disable an alert by toggling the
+      <a href="#alerts">
+       switch
+      </a>
+      on the right:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        Enabling a disabled alert causes the alert to transition to
+        <code>
+         Pending
+        </code>
+        until it is time for evaluation.
+       </p>
+       <div class="paragraph">
+        <p>
+         Depending on the value, the alert transitions to
+         <code>
+          OK
+         </code>
+         or
+         <code>
+          Alerting
+         </code>
+         .
+        </p>
+       </div>
+      </li>
+      <li>
+       <p>
+        Disabling an alert causes the alert to transition to
+        <code>
+         Disabled
+        </code>
+        .
+       </p>
+      </li>
+     </ul>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="other-alerts">
+   <a class="anchor" href="#other-alerts">
+   </a>
+   Add API Manager and Runtime Manager Alerts
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In addition to creating basic and custom dashboard alerts in Anypoint Monitoring, you can navigate from Anypoint Monitoring to the alert-creation pages in API Manager and Runtime Manager.
+    </p>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="Alerts menu options to set up basic, custom dashboard, or other types of alerts" src="_images/alerts-menu.png"/>
+    </div>
+   </div>
+   <div class="admonitionblock note">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-note" title="Note">
+       </i>
+      </td>
+      <td class="content">
+       Alerts created in API Manager and Runtime Manager aren’t listed in the Anypoint Monitoring Alerts page.
+      </td>
+     </tr>
+    </table>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       From
+       <strong>
+        Alerts
+       </strong>
+       in Anypoint Monitoring, click
+       <strong>
+        + New alert
+       </strong>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       Select
+       <strong>
+        Other
+       </strong>
+       for API Manager or Runtime Manager to access its alert configuration page.
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          <strong>
+           Create an alert for your API in API Manager
+          </strong>
+         </p>
+        </li>
+        <li>
+         <p>
+          <strong>
+           Create an alert for your API in Runtime Manager
+          </strong>
+         </p>
+        </li>
+       </ul>
+      </div>
+     </li>
+     <li>
+      <p>
+       To create these alerts, proceed to:
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          <a class="xref page" href="../runtime-manager/alerts-on-runtime-manager">
+           Runtime Manager Alerts
+          </a>
+         </p>
+        </li>
+        <li>
+         <p>
+          <a class="xref page" href="../api-manager/latest/using-api-alerts">
+           API Manager Alerts
+          </a>
+         </p>
+        </li>
+       </ul>
+      </div>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="basic-alerts">
+        Basic Alerts
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="custom-dashboard-alerts">
+        Custom Dashboard Alerts
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

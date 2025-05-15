@@ -1,0 +1,875 @@
+<article class="doc">
+ <h1 class="page">
+  JMS Connector - Mule 4
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     JMS Connector v1.7
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Anypoint Connector for JMS (JMS Connector) enables your app to do messaging using the JMS implementation of your choice. Its main features include:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Pub/Sub pattern support on any given destination.
+      </p>
+     </li>
+     <li>
+      <p>
+       Listen/Reply pattern support on any given destination.
+      </p>
+     </li>
+     <li>
+      <p>
+       Publish-Consume pattern support on any given destination, with fixed or temporary reply Queue.
+      </p>
+     </li>
+     <li>
+      <p>
+       Fully compliant with JMS 2.0, 1.1, and 1.0.2 specifications.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     Release Notes:
+     <a class="xref page" href="../../release-notes/connector/connector-jms">
+      JMS Connector Release Notes
+     </a>
+     <br/>
+     Exchange:
+     <a href="https://www.mulesoft.com/exchange/org.mule.connectors/mule-jms-connector/">
+      JMS Connector
+     </a>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The JMS documentation set provides information about multiple versions of the JMS connector.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     For information about each Mule 4 JMS Connector version, see:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="jms-connector-reference">
+        JMS Connector v1.7.x Reference
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="jms-connector-reference">
+        JMS Connector v1.6.x Reference
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../1.5/jms-connector-reference">
+        JMS Connector v1.5.x Reference
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../1.4/jms-connector-reference">
+        JMS Connector v1.4.x Reference
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../1.3/jms-connector-reference">
+        JMS Connector v1.3.x Reference
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../1.2/jms-connector-reference">
+        JMS Connector v1.2.x Reference
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../1.1/jms-connector-reference">
+        JMS Connector v1.1.x Reference
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../1.0/jms-connector-reference">
+        JMS Connector v1.0.x Reference
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="pom-file-information">
+   <a class="anchor" href="#pom-file-information">
+   </a>
+   POM File Information
+  </h2>
+  <div class="sectionbody">
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;dependency&gt;
+  &lt;groupId&gt;org.mule.connectors&lt;/groupId&gt;
+  &lt;artifactId&gt;mule-jms-connector&lt;/artifactId&gt;
+  &lt;version&gt;x.x.x&lt;/version&gt;
+  &lt;classifier&gt;mule-plugin&lt;/classifier&gt;
+&lt;/dependency&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Replace
+     <code>
+      x.x.x
+     </code>
+     with the version that corresponds to the connector you are using. To specify a version, view
+     <a href="https://www.mulesoft.com/exchange/org.mule.connectors/mule-jms-connector/">
+      JMS Connector
+     </a>
+     in
+Anypoint Exchange and click
+     <strong>
+      Dependency Snippets
+     </strong>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="configuration_settings">
+   <a class="anchor" href="#configuration_settings">
+   </a>
+   Configure the Connector
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Out of the box, the JMS connector comes with a fine tuned set of default values, both for publishing and consuming messages. This means that the only requirement is for you to configure which connection should be used.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     This example sets a minimal connection to an in-memory ActiveMQ broker the JMS connector:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;jms:config name="JMS_Config"&gt;
+  &lt;jms:active-mq-connection/&gt;
+&lt;/jms:config&gt;</code></pre>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="define-global-defaults">
+     <a class="anchor" href="#define-global-defaults">
+     </a>
+     Define Global Defaults
+    </h3>
+    <div class="paragraph">
+     <p>
+      The JMS
+      <code>
+       config
+      </code>
+      allows you to define multiple parameters that will be used as a default while consuming or publishing messages. This way, you can define a global default behavior for all the operations associated the config and then override each parameter only in the operations that require a custom behavior.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      For example, we can define a default
+      <code>
+       selector
+      </code>
+      behavior when consuming a Message in any of the operations that are associated to this config, and also a default
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;jms:config name="JMS_Config"&gt;
+  &lt;jms:active-mq-connection/&gt;
+  &lt;jms:consumer-config selector="JMSType = `INVOICE`"/&gt;
+  &lt;jms:producer-config timeToLive="60000"/&gt;
+&lt;/jms:config&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      In this case, every operation
+      <code>
+       consume
+      </code>
+      or
+      <code>
+       listener
+      </code>
+      associated to this config will use this
+      <code>
+       selector
+      </code>
+      by default, while every time we do a
+      <code>
+       publish
+      </code>
+      or
+      <code>
+       publish-consume
+      </code>
+      , the outgoing Message will have a TTL of 60 seconds.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      All of this properties can be overridden at operation level when required. Let’s say we need to
+      <code>
+       publish
+      </code>
+      a Message with a shorter TTL, we can do so using this config and overriding the parameter:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;jms:publish config-ref="JMS_Config" timeToLive="10000"/&gt;</code></pre>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="connection_settings">
+   <a class="anchor" href="#connection_settings">
+   </a>
+   Connecting to a Broker
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     A JMS connection is defined by a set of general parameters that apply for any connection, as well as particular configurations related to the actual broker implementation that’s going to be used.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="select-the-jms-spec">
+     <a class="anchor" href="#select-the-jms-spec">
+     </a>
+     Select the JMS Spec
+    </h3>
+    <div class="admonitionblock tip">
+     <table>
+      <tr>
+       <td class="icon">
+        <i class="fa icon-tip" title="Tip">
+        </i>
+       </td>
+       <td class="content">
+        The main common parameter is the JMS
+        <code>
+         specification
+        </code>
+        used to select between all the supported specs, which are
+        <code>
+         2.0
+        </code>
+        ,
+        <code>
+         1.1
+        </code>
+        , and
+        <code>
+         1.0.2b
+        </code>
+        . This
+        <code>
+         specification
+        </code>
+        must be supported by the broker implementation associated to this connection, otherwise the connection fails.
+       </td>
+      </tr>
+     </table>
+    </div>
+    <div class="admonitionblock warning">
+     <table>
+      <tr>
+       <td class="icon">
+        <i class="fa icon-warning" title="Warning">
+        </i>
+       </td>
+       <td class="content">
+        Features available only in JMS
+        <code>
+         2.0
+        </code>
+        won’t work with any other
+        <code>
+         specification
+        </code>
+        .
+       </td>
+      </tr>
+     </table>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="provide-credentials-for-authentication">
+     <a class="anchor" href="#provide-credentials-for-authentication">
+     </a>
+     Provide Credentials For Authentication
+    </h3>
+    <div class="paragraph">
+     <p>
+      In order to do establish an authenticated connection, you need to configure the
+      <code>
+       username
+      </code>
+      and
+      <code>
+       password
+      </code>
+      in the
+      <code>
+       connection
+      </code>
+      element:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;jms:config name="JMS_Config"&gt;
+  &lt;jms:active-mq-connection username="${env.user}" password="${env.pass}"/&gt;
+&lt;/jms:config&gt;</code></pre>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="configure-connections-caching">
+     <a class="anchor" href="#configure-connections-caching">
+     </a>
+     Configure Connections Caching
+    </h3>
+    <div class="paragraph">
+     <p>
+      In order to connect with a broker and execute the required operations, the JMS Connector creates multiple Sessions, Consumers and Producers that can be cached and reused in order to increase the performance of the application. Because of this capability, the JMS Connector allows you to configure which
+      <code>
+       caching-strategy
+      </code>
+      to use when creating new Connections, caching by default both Consumers and Producers and preserving as many instances as possible in memory at the same time.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      Customizing the cache configuration can be done directly in the connection declaration:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;jms:config name="JMS_Config"&gt;
+  &lt;jms:active-mq-connection&gt;
+    &lt;jms:caching-strategy&gt;
+      &lt;jms:default-caching sessionCacheSize="100" consumersCache="false" producersCache="true"/&gt;
+    &lt;/jms:caching-strategy&gt;
+  &lt;/jms:active-mq-connection&gt;
+&lt;/jms:config&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      In the same way, you can completely disable the caching of Connections using the
+      <code>
+       no-caching
+      </code>
+      option:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;jms:config name="JMS_Config"&gt;
+  &lt;jms:generic-connection connectionFactory="customConnectionFactory"&gt;
+    &lt;jms:caching-strategy&gt;
+        &lt;jms:no-caching/&gt;
+    &lt;/jms:caching-strategy&gt;
+  &lt;/jms:generic-connection&gt;
+&lt;/jms:config&gt;</code></pre>
+     </div>
+    </div>
+    <div class="admonitionblock tip">
+     <table>
+      <tr>
+       <td class="icon">
+        <i class="fa icon-tip" title="Tip">
+        </i>
+       </td>
+       <td class="content">
+        Disabling the sessions cache using the
+        <code>
+         no-caching
+        </code>
+        configuration is greatly discouraged and is meant to be used in cases where a custom ConnectionFactory is used that already handles it`s own cache.
+       </td>
+      </tr>
+     </table>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="identify-the-connection-client">
+     <a class="anchor" href="#identify-the-connection-client">
+     </a>
+     Identify the Connection Client
+    </h3>
+    <div class="paragraph">
+     <p>
+      The purpose of client identifier is to associate a connection and its objects with a state maintained on behalf of the client by a provider, and it is
+      <strong>
+       mandatory
+      </strong>
+      for identifying an unshared durable subscription.
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;jms:config name="JMS_Config"&gt;
+  &lt;jms:active-mq-connection clientId="${env.clientId}"/&gt;
+&lt;/jms:config&gt;</code></pre>
+     </div>
+    </div>
+    <div class="admonitionblock warning">
+     <table>
+      <tr>
+       <td class="icon">
+        <i class="fa icon-warning" title="Warning">
+        </i>
+       </td>
+       <td class="content">
+        By definition, the client state identified by a
+        <code>
+         clientId
+        </code>
+        can be "in use" by only one Connection at a time.
+       </td>
+      </tr>
+     </table>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="connect-to-activemq">
+   <a class="anchor" href="#connect-to-activemq">
+   </a>
+   Connect To ActiveMQ
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Support for ActiveMQ 5 is provided out of the box by the connector using the
+     <code>
+      active-mq-connection
+     </code>
+     . With this connection, you can use both JMS 1.1 (the default) or JMS 1.0.2b specs, and configure all the general connection parameters for JMS, as well as the custom parameters only present in ActiveMQ.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Once we declare the
+     <code>
+      active-mq-connection
+     </code>
+     , all that`s left to do is set up the connection factory with our custom configuration. Every parameter in the connection comes with a default value, meaning that you are required to configure only the parameters relevant for your use case. Also, the ActiveMQ connection exposes parameters that are exclusive of ActiveMQ implementation, like
+     <code>
+      initialRedeliveryDelay
+     </code>
+     .
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     An example of a simple configuration of an ActiveMQ connection would be:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml"> &lt;jms:config name="JMS_Config"&gt;
+  &lt;jms:active-mq-connection &gt;
+   &lt;jms:factory-configuration brokerUrl="tcp://localhost:61616" /&gt;
+  &lt;/jms:active-mq-connection&gt;
+ &lt;/jms:config&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="use-different-brokers">
+   <a class="anchor" href="#use-different-brokers">
+   </a>
+   Use Different Brokers
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In cases where ActiveMQ 5 is not the chosen broker, we can use the
+     <code>
+      generic-connection
+     </code>
+     to declare a connection to any broker implementation. Out of the box, the connector provides a JNDI based connection factory builder that allows to configure the connection using JNDI in the context of the application.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     For example, if we want to connect with Artemis to use the JMS 2.0 spec, we could define our connection factory in this way:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;jms:config name="JMS_Config"&gt;
+    &lt;jms:generic-connection specification="JMS_2_0"&gt;
+        &lt;jms:connection-factory&gt;
+            &lt;jms:jndi-connection-factory connectionFactoryJndiName="ConnectionFactory" lookupDestination="ALWAYS"&gt;
+                &lt;jms:name-resolver-builder
+                        jndiInitialContextFactory="org.apache.activemq.artemis.ActiveMQInitialContextFactory"
+                        jndiProviderUrl="tcp://localhost:61616?broker.persistent=false&amp;amp;broker.useJmx=false"&gt;
+                    &lt;jms:provider-properties&gt;
+                        &lt;jms:provider-property key="queue.jndi-queue-in" value="in.queue"/&gt;
+                        &lt;jms:provider-property key="topic.jndi-topic-in" value="in.topic"/&gt;
+                    &lt;/jms:provider-properties&gt;
+                &lt;/jms:name-resolver-builder&gt;
+            &lt;/jms:jndi-connection-factory&gt;
+        &lt;/jms:connection-factory&gt;
+    &lt;/jms:generic-connection&gt;
+&lt;/jms:config&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     If you have configured a JNDI context on the connector, you can also look up destinations via JNDI using the
+     <code>
+      lookupDestination
+     </code>
+     attribute, which provides three different configurations:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       NEVER: No lookup is done and the destinations are created using the existing JMS session
+      </p>
+     </li>
+     <li>
+      <p>
+       TRY_ALWAYS: First try to find the destination using JNDI, and in case it doesn’t exist, create it using the current JMS Session.
+      </p>
+     </li>
+     <li>
+      <p>
+       ALWAYS: If a queue/topic cannot be found via JNDI, fail with a
+       <code>
+        JMS:DESTINATION_NOT_FOUND
+       </code>
+       error
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     For more information regarding the
+     <code>
+      generic-connection
+     </code>
+     or
+     <code>
+      jndi-connection-factory
+     </code>
+     , see the connector reference docs.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="set-up-the-connection-libraries">
+   <a class="anchor" href="#set-up-the-connection-libraries">
+   </a>
+   Set Up the Connection Libraries
+  </h2>
+  <div class="sectionbody">
+   <div class="admonitionblock note">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-note" title="Note">
+       </i>
+      </td>
+      <td class="content">
+       No matter what type of connection you are using, you always need to configure a library containing the JMS client implementation since the connector is not bound to any particular implementation.
+      </td>
+     </tr>
+    </table>
+   </div>
+   <div class="sect2">
+    <h3 id="activemq-external-libraries">
+     <a class="anchor" href="#activemq-external-libraries">
+     </a>
+     ActiveMQ External Libraries
+    </h3>
+    <div class="paragraph">
+     <p>
+      For an ActiveMQ connection, there are three possible libraries that need to be configured depending on your connection settings:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        ActiveMQ JMS Client Library:
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="paragraph">
+     <p>
+      The
+      <code>
+       activemq-client
+      </code>
+      of your choice that provides a valid
+      <code>
+       org.apache.activemq.ActiveMQConnectionFactory
+      </code>
+      implementation.
+     </p>
+    </div>
+    <div class="admonitionblock warning">
+     <table>
+      <tr>
+       <td class="icon">
+        <i class="fa icon-warning" title="Warning">
+        </i>
+       </td>
+       <td class="content">
+        This dependency is always required.
+       </td>
+      </tr>
+     </table>
+    </div>
+    <div class="paragraph">
+     <p>
+      For example, you can use:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;dependency&gt;
+     &lt;groupId&gt;org.apache.activemq&lt;/groupId&gt;
+     &lt;artifactId&gt;activemq-client&lt;/artifactId&gt;
+     &lt;version&gt;5.14.5&lt;/version&gt;
+ &lt;/dependency&gt;</code></pre>
+     </div>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        ActiveMQ Broker Library:
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="paragraph">
+     <p>
+      The
+      <code>
+       activemq-broker
+      </code>
+      is only required when using an in-memory broker based on the VM transport (which is the one configured by default). This dependency should provide a valid
+      <code>
+       org.apache.activemq.broker.Broker
+      </code>
+      implementation.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      For example, you can use:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.apache.activemq&lt;/groupId&gt;
+    &lt;artifactId&gt;activemq-broker&lt;/artifactId&gt;
+    &lt;version&gt;5.14.5&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+     </div>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        ActiveMQ KahaDB Library:
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="paragraph">
+     <p>
+      The
+      <code>
+       activemq-kahadb-store
+      </code>
+      is only required when using an persistent in-memory broker based on the VM transport (such as,
+      <code>
+       vm://localhost?broker.persistent=true
+      </code>
+      ).  This dependency provides a valid
+      <code>
+       org.apache.activemq.store.kahadb.KahaDBPersistenceAdapter
+      </code>
+      implementation.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      For example, you can use:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.apache.activemq&lt;/groupId&gt;
+    &lt;artifactId&gt;activemq-kahadb-store&lt;/artifactId&gt;
+    &lt;version&gt;5.14.5&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="generic-external-libraries">
+     <a class="anchor" href="#generic-external-libraries">
+     </a>
+     Generic External Libraries
+    </h3>
+    <div class="paragraph">
+     <p>
+      When using a
+      <code>
+       jms:generic-connection
+      </code>
+      , provide all the libraries that your ConnectionFactory and configuration of choice required. This will always depend on what are the implementations you choose, so be careful of adding all the dependencies to the application.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      A common use case for this would be using the JMS 2.0 spec, thus you need a generic connection with a different client library, like Apache Artemis:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.apache.activemq&lt;/groupId&gt;
+    &lt;artifactId&gt;artemis-jms-client-all&lt;/artifactId&gt;
+    &lt;version&gt;2.13.0&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="jms-consume">
+        Consume Messages
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="jms-publish">
+        Publish Messages
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="jms-listener">
+        Listen For New Messages
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="jms-publish-consume">
+        Listen For A Reply
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="jms-ack">
+        Handle Message Acknowledgment
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="jms-transactions">
+        Handle Transactions in JMS
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="jms-performance">
+        JMS Tuning For Performance
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="jms-xml-ref">
+        JMS Connector Reference
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="https://help.mulesoft.com">
+        MuleSoft Help Center
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

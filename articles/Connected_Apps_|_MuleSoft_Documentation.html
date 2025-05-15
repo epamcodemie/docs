@@ -1,0 +1,220 @@
+<article class="doc">
+ <h1 class="page">
+  Connected Apps
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The Connected Apps feature provides a framework that enables an external application to integrate with Anypoint Platform using
+     <a href="https://anypoint.mulesoft.com/exchange/portals/anypoint-platform">
+      APIs
+     </a>
+     through OAuth 2.0 and OpenID Connect. Connected Apps help users delegate their access without sharing sensitive credentials or giving full control of their applications to third parties. Actions taken by connected apps are audited, and users can revoke access at any time. The Connected Apps feature enables you to use secure authentication protocols and control an app’s access to user data.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="authentication-and-authorization">
+   <a class="anchor" href="#authentication-and-authorization">
+   </a>
+   Authentication and Authorization
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Anypoint Platform supports OAuth 2.0 and OpenID Connect to authorize apps to access data within Anypoint Platform.
+OAuth (Open Authorization) is an open protocol that provides secure API authorization from applications in a simple and standardized way.
+OAuth can authorize access to resources without revealing user credentials to apps.
+OpenID Connect identifies the end user and obtains information to pass to OAuth 2.0 connected apps.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     For more information, see
+     <a href="https://oauth.net/2/">
+      OAuth 2.0
+     </a>
+     and
+     <a href="https://openid.net/connect/">
+      OpenID Connect
+     </a>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="access-and-authorization">
+   <a class="anchor" href="#access-and-authorization">
+   </a>
+   Access and Authorization
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You can use the Connected Apps feature to create a seamless authentication experience for end users. Connected apps address use cases for the following types of users:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       An
+       <a class="xref page" href="connected-apps-org-admin">
+        organization administrator
+       </a>
+       can control how their organization’s data is used by allowlisting apps, revoking access, and disabling this feature for the entire organization.
+      </p>
+     </li>
+     <li>
+      <p>
+       An
+       <a class="xref page" href="connected-apps-developers#developers">
+        organization administrator who is developing a connected app
+       </a>
+       can register new (and manage existing) apps at the root organization or business group level.
+      </p>
+     </li>
+     <li>
+      <p>
+       An
+       <a class="xref page" href="connected-apps-end-users#end-users">
+        end user
+       </a>
+       can authorize apps to access particular information, such as viewing assets in Anypoint Exchange.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     There are two types of connected apps supporting different grant types:
+    </p>
+   </div>
+   <table class="tableblock frame-all grid-all stretch">
+    <colgroup>
+     <col style="width: 25%;"/>
+     <col style="width: 25%;"/>
+     <col style="width: 25%;"/>
+     <col style="width: 25%;"/>
+    </colgroup>
+    <thead>
+     <tr>
+      <th class="tableblock halign-left valign-top">
+       Type
+      </th>
+      <th class="tableblock halign-left valign-top">
+       Description
+      </th>
+      <th class="tableblock halign-left valign-top">
+       Supported grant types
+      </th>
+      <th class="tableblock halign-left valign-top">
+       Example use cases
+      </th>
+     </tr>
+    </thead>
+    <tbody>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        App that acts on behalf of a user
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Authorized by a user to act on their behalf
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="ulist">
+         <ul>
+          <li>
+           <p>
+            Authorization Code
+           </p>
+          </li>
+          <li>
+           <p>
+            Password
+           </p>
+          </li>
+          <li>
+           <p>
+            JWT Bearer
+           </p>
+          </li>
+         </ul>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Productizing additional third-party applications on top of Anypoint Platform.
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        App that acts on its own behalf
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Acts on its own behalf without impersonating a user. The app can be used only in the organization where it is created.
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Client Credentials
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Automation scenarios such as building or accessing CI/CD pipelines without user intervention.
+       </p>
+      </td>
+     </tr>
+    </tbody>
+   </table>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="connected-apps-org-admin">
+        Connected Apps for Organization Administrators
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="connected-apps-developers">
+        Connected Apps for Developers
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="connected-apps-end-users">
+        Connected Apps for End Users
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

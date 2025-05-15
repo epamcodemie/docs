@@ -1,0 +1,447 @@
+<article class="doc">
+ <h1 class="page">
+  HTTP Connector 1.6 - Mule 4
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Anypoint Connector for HTTP (HTTP Connector) enables you to declare HTTP servers that listen to
+requests and trigger flows, as well as HTTP clients that can communicate with any HTTP service. Additionally, the connector enables you to both expose and consume HTTP-based APIs. For example, APIkit and RESTConnect both use HTTP Connector internally to work with APIs.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     HTTP Connector also supports HTTPS (TLS) connectivity, which provides easy ways to serve static
+resources and secure servers, and handles client authentication schemes.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     For information about compatibility and fixed issues, see the HTTP Connector Release Notes.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="before-you-begin">
+   <a class="anchor" href="#before-you-begin">
+   </a>
+   Before You Begin
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To use this connector, you must be familiar with:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Anypoint Connectors
+      </p>
+     </li>
+     <li>
+      <p>
+       Mule runtime engine (Mule)
+      </p>
+     </li>
+     <li>
+      <p>
+       Elements and global elements in a Mule flow
+      </p>
+     </li>
+     <li>
+      <p>
+       How to create a Mule app using Anypoint Studio
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     Before creating an app, you must have access to Anypoint Platform and Anypoint Studio
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="http-servers">
+   <a class="anchor" href="#http-servers">
+   </a>
+   HTTP Servers
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     HTTP servers expose services for users or applications to consume. These servers receive data in the form of requests and return corresponding responses. The HTTP
+     <strong>
+      Listener
+     </strong>
+     source triggers flows when a request is received and responds after the flow finishes.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Declare an HTTP server by defining the listener source connection. This connection defines the
+host and port where requests are received.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The following example shows an XML example for an HTTP
+     <strong>
+      Listener
+     </strong>
+     source connection:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;http:listener-config name="serverConfig"&gt;
+  &lt;http:listener-connection host="localhost" port="8081"/&gt;
+&lt;/http:listener-config&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The connection configuration is
+     <code>
+      serverConfig
+     </code>
+     , which listens to a localhost address (IP address
+     <code>
+      127.0.0.1
+     </code>
+     ) on port
+     <code>
+      8081
+     </code>
+     . After you set up a server in Anypoint Studio, you can access this server at the
+     <code>
+      http://localhost:8081
+     </code>
+     URL.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     To fully configure your server, specify resource paths to execute a flow so that when a request matching that path is received, Mule runtime engine (Mule) runs your flow.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The following example shows the XML configuration for two HTTP
+     <strong>
+      Listener
+     </strong>
+     sources in different flows that execute depending on the path triggered:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="hello"&gt;
+    &lt;http:listener path="greet" config-ref="serverConfig"/&gt;
+    &lt;set-payload value="Hello, world!"/&gt;
+&lt;/flow&gt;
+
+&lt;flow name="bye"&gt;
+    &lt;http:listener path="exit" config-ref="serverConfig"/&gt;
+    &lt;set-payload value="Goodbye, world!"/&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Both listener sources use the connection configuration
+     <code>
+      serverConfig
+     </code>
+     declared in the first example. If the HTTP
+     <strong>
+      Listener
+     </strong>
+     source is triggered with
+     <code>
+      http://localhost:8081/greet
+     </code>
+     , the connector returns
+     <code>
+      Hello, world!
+     </code>
+     . If the source is triggered with
+     <code>
+      http://localhost:8081/exit
+     </code>
+     , the connector returns
+     <code>
+      Goodbye, world!
+     </code>
+     .
+The received HTTP request data is shared with the flow when executed. You can customize HTTP responses.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The following example shows an XML configuration for an HTTP
+     <strong>
+      Listener
+     </strong>
+     source that customizes the body of the HTTP responses:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="hello"&gt;
+  &lt;http:listener path="greet" config-ref="serverConfig"&gt;
+    &lt;http:response&gt;
+      &lt;http:body&gt;
+        #[payload ++ ' I am an HTTP server.']
+      &lt;/http:body&gt;
+    &lt;/http:response&gt;
+  &lt;/http:listener&gt;
+  &lt;set-payload value="#['Hello, ' ++ (attributes.queryParams.name default 'world') ++ '!']" /&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     If the HTTP
+     <strong>
+      Listener
+     </strong>
+     source is triggered with
+     <code>
+      http://localhost:8081/greet?name=Ana
+     </code>
+     , the connector
+returns
+     <code>
+      Hello, Ana! I am an HTTP server.
+     </code>
+     .  If the source is triggered with
+     <code>
+      http://localhost:8081/greet
+     </code>
+     , the connector returns
+     <code>
+      Hello, world! I am an HTTP server.
+     </code>
+     .
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     For more information about the HTTP
+     <strong>
+      Listener
+     </strong>
+     source, refer to the
+     <a class="xref page" href="http-listener-ref">
+      Configure an HTTP Listener source
+     </a>
+     documentation.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="http-clients">
+   <a class="anchor" href="#http-clients">
+   </a>
+   HTTP Clients
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     HTTP clients enable you to send requests to HTTP services and manage their responses. The HTTP
+     <strong>
+      Request
+     </strong>
+     operation executes HTTP requests and returns the corresponding answers.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Although you don’t need to declare HTTP clients, declaring them enables you to reuse configurations. If you don’t declare an HTTP client, specify the entire URL each time you want to send a request to that URL. Also, if you make several requests on different API resources, declare the client to which the host connects.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The following example shows an XML configuration for an HTTP
+     <strong>
+      Request
+     </strong>
+     operation:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;http:request-config name="clientConfig"&gt;
+  &lt;http:request-connection host="localhost" port="8081"/&gt;
+&lt;/http:request-config&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The HTTP request configuration is
+     <code>
+      clientConfig
+     </code>
+     , and sends requests to
+     <code>
+      localhost
+     </code>
+     and port
+     <code>
+      8081
+     </code>
+     .
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     To perform requests, each operation must include the path of the request target. The following example shows an XML configuration for two HTTP
+     <strong>
+      Request
+     </strong>
+     operations with different paths:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="helloAndBye"&gt;
+  &lt;http:request method="GET" path="greet" config-ref="clientConfig"/&gt;
+  &lt;logger level="INFO" message="#[payload]"/&gt;
+  &lt;http:request method="GET" path="exit" config-ref="clientConfig"/&gt;
+  &lt;logger level="INFO" message="#[payload]"/&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The service exposed is consumed by sending requests to
+     <code>
+      greet
+     </code>
+     and
+     <code>
+      exit
+     </code>
+     , and when the flow executes, it displays:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">Hello, world! I am an HTTP server.
+Goodbye, world!</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     You can customize HTTP requests to share the response data with the flow. The following example shows an HTTP
+     <strong>
+      Request
+     </strong>
+     operation XML configuration that customizes the request sent with query parameters and uses the received HTTP response status:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="fullHello"&gt;
+  &lt;http:request method="GET" path="greet" config-ref="clientConfig"&gt;
+    &lt;http:query-params&gt;
+      #[{"name" : "HTTP client"}]
+    &lt;/http:query-params&gt;
+  &lt;/http:request&gt;
+  &lt;logger level="INFO"
+   message="#['Received a ' ++ attributes.statusCode ++ ' response with body: {' ++ payload ++ '}']"/&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     When the flow executes, it displays:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">Received a 200 response with body: {Hello, HTTP client! I am an HTTP server.}</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     For further information about the HTTP
+     <strong>
+      Request
+     </strong>
+     operation, refer to
+     <a class="xref page" href="http-request-ref">
+      Configure HTTP Request operation
+     </a>
+     documentation.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="next-step">
+   <a class="anchor" href="#next-step">
+   </a>
+   Next Step
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     After you complete the prerequisites, you are ready to create an app and configure the connector using
+     <a class="xref page" href="http-connector-studio">
+      Anypoint Studio
+     </a>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../connectors/introduction/introduction-to-anypoint-connectors">
+        Introduction to Anypoint Connectors
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../connectors/introduction/intro-use-exchange">
+        Use Exchange to Discover Connectors, Templates, and Examples
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="http-documentation">
+        HTTP Connector Reference
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="https://help.mulesoft.com">
+        MuleSoft Help Center
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

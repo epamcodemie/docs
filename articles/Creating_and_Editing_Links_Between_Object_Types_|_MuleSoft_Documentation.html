@@ -1,0 +1,237 @@
+<article class="doc">
+ <h1 class="page">
+  Creating and Editing Links Between Object Types
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The following tasks explain how to create and undo links between object types.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="link-related-object-types">
+   <a class="anchor" href="#link-related-object-types">
+   </a>
+   Link Related Object Types
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Linking enables you to join fields from two related object types to create more useful query results from the unified schema.
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Before linking object types, be sure to
+       <a class="xref page" href="manage-elements-visibility">
+        set the fields to visible
+       </a>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       You can link only to object types that have
+       <a class="xref page" href="collaboration#enable-collaboration-on-an-object-type">
+        Enable collaboration
+       </a>
+       for any object types you want to link to.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     To link object types:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       In the API schema navigation, select the object type you want to link from (source).
+      </p>
+     </li>
+     <li>
+      <p>
+       Scroll to the
+       <strong>
+        Link to another type
+       </strong>
+       pane, and in
+       <strong>
+        Select the type you want to link to (Target menu)
+       </strong>
+       , select the target object.
+      </p>
+      <div class="paragraph">
+       <p>
+        Anypoint DataGraph detects and displays the primary key or the composite keys of the target type.
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       Use the drop-down menu to select the field that will be the foreign key in the source.
+      </p>
+      <div class="paragraph">
+       <p>
+        The foreign key maps to the primary key on the target type and has the exact same data type.
+       </p>
+      </div>
+      <div class="paragraph">
+       <p>
+        If the target type uses composite keys, you must select two fields.
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       In
+       <strong>
+        New field configurations
+       </strong>
+       , review and edit, if necessary, the name for the linked field.
+      </p>
+      <div class="paragraph">
+       <p>
+        Anypoint DataGraph creates this field in your current type and links it to the target type.
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       (Optional) Hide the foreign key field from the unified schema.
+      </p>
+      <div class="paragraph">
+       <p>
+        The new field returns the type you’re linking to, so it’s safe to hide the foreign key unless it has outstanding queries.
+       </p>
+      </div>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="Link configurations detailing linked target type results" src="_images/link-object-type.png"/>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Click
+       <strong>
+        Save changes
+       </strong>
+       .
+      </p>
+     </li>
+    </ol>
+   </div>
+   <div class="paragraph">
+    <p>
+     If you scroll up to the fields pane, an icon shows the fields are now linked:
+    </p>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="Linked object indicated by link icon" src="_images/linked-type-icon.png"/>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="remove-a-link-between-object-types">
+   <a class="anchor" href="#remove-a-link-between-object-types">
+   </a>
+   Remove a Link Between Object Types
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     A field can be linked to only one other object type at a time. So if you no longer need the link, or want to link the field to another object type, you can remove the original link.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     To remove a linked between object types:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       From the unified schema, click
+       <strong>
+        List of APIs added
+       </strong>
+       and select the API that contains the object type with the linked field.
+      </p>
+     </li>
+     <li>
+      <p>
+       In the API schema navigation, select the object type with the linked field, and scroll to the
+       <strong>
+        Link to another type
+       </strong>
+       pane.
+      </p>
+     </li>
+     <li>
+      <p>
+       Find the link you want to remove and click
+       <strong>
+        &gt;
+       </strong>
+       to open the link details.
+      </p>
+     </li>
+     <li>
+      <p>
+       Click
+       <strong>
+        Remove Link
+       </strong>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       Click
+       <strong>
+        Save
+       </strong>
+       , and then click
+       <strong>
+        Apply Changes
+       </strong>
+       .
+      </p>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="additional-resources">
+   <a class="anchor" href="#additional-resources">
+   </a>
+   Additional Resources
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="linking">
+        How Links Between Object Types Work in Anypoint DataGraph
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

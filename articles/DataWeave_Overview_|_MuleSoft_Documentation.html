@@ -1,0 +1,244 @@
+<article class="doc">
+ <h1 class="page">
+  DataWeave Overview
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     DataWeave is the programming language designed by MuleSoft for data transformation. It is also the expression language Mule runtime engine uses to configure components and connectors.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     DataWeave enables you to build a simple solution for a common use case for integration developers: read and parse data from one format, transform the data, and write it out as a different format. For example, a DataWeave script can receive a CSV file as input and transform it into an array of complex JSON objects, or receive an XML input and write the data out to a flat file format. DataWeave enables developers to focus on the transformation logic instead of thinking about the specifics of reading, parsing, and writing specific data formats in a performant way.
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       To learn more about DataWeave, visit
+       <a class="xref page" href="dataweave-language-guide">
+        the language guide
+       </a>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       To look up reference information about DataWeave operators and functions, visit
+       <a class="xref page" href="dw-functions">
+        the reference guide
+       </a>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       To see sample scripts to solve common transformation scenarios, visit
+       <a class="xref page" href="dataweave-cookbook">
+        DataWeave examples
+       </a>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       To try DataWeave scripts interactively, visit
+       <a href="https://developer.mulesoft.com/learn/dataweave/">
+        DataWeave Playground
+       </a>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       To get started with DataWeave for Mule runtime engine (Mule) version 4.4 and later, visit
+       <a class="xref page" href="dataweave-quickstart">
+        the quickstart
+       </a>
+       .
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="compatibility">
+   <a class="anchor" href="#compatibility">
+   </a>
+   Compatibility
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The following table specifies which version of DataWeave is bundled with each Mule runtime engine release:
+    </p>
+   </div>
+   <table class="tableblock frame-all grid-all fit-content spread">
+    <colgroup>
+     <col/>
+     <col/>
+    </colgroup>
+    <thead>
+     <tr>
+      <th class="tableblock halign-left valign-top">
+       Mule Version
+      </th>
+      <th class="tableblock halign-left valign-top">
+       DataWeave Version
+      </th>
+     </tr>
+    </thead>
+    <tbody>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        4.9
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        2.9
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        4.8
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        2.8
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        4.7
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        2.7
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        4.6
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        2.6
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        4.5
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        2.5
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        4.4
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        2.4
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        4.3
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        2.3
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        4.2
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        2.2
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        4.1
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        2.1
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        3.9
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        1.2
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        3.8
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        1.1
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        3.7
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        1.0
+       </p>
+      </td>
+     </tr>
+    </tbody>
+   </table>
+  </div>
+ </div>
+</article>

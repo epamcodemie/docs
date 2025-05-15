@@ -1,0 +1,480 @@
+<article class="doc">
+ <h1 class="page">
+  Anypoint Platform CLI 4.x Overview
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Anypoint Platform CLI is a scripting and command-line tool for Anypoint Platform and Anypoint Platform Private Cloud Edition (Anypoint Platform PCE).
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Use Anypoint Platform CLI commands to automate a subset of product actions through scripts. Anypoint Platform CLI 4.0 and later can be run only in batch mode. Interactive mode is no longer supported.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     With Anypoint CLI 4.x you can:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Enhance your workflow efficiency:
+       <br/>
+       Streamline your API management and development processes with command-line tools.
+      </p>
+     </li>
+     <li>
+      <p>
+       Ensure consistency across environments and organizations:
+       <br/>
+       Apply consistent configurations and policies across different organizations and environments, ensuring stability and reliability in your operations.
+      </p>
+     </li>
+     <li>
+      <p>
+       Manage your applications effectively:
+       <br/>
+       Perform a wide range of operations on your APIs and applications, from deployment to monitoring, all from the command line.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="admonitionblock warning">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-warning" title="Warning">
+       </i>
+      </td>
+      <td class="content">
+       Anypoint Platform CLI 4.x is not backward compatible. If you are using a version of Anypoint CLI earlier than Anypoint CLI 4.x,
+       <a class="xref page" href="diff-earlier-ver">
+        read this first to find out about the differences.
+       </a>
+      </td>
+     </tr>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="before-you-begin">
+   <a class="anchor" href="#before-you-begin">
+   </a>
+   Before you begin
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Because the Anypoint CLI is built with Node.js, you must:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Install the Node package manager (npm)
+      </p>
+     </li>
+     <li>
+      <p>
+       Install the Anypoint CLI using npm
+      </p>
+      <div class="paragraph">
+       <p>
+        After the Anypoint CLI installation, you can run the commands.
+       </p>
+      </div>
+     </li>
+    </ol>
+   </div>
+   <div class="paragraph">
+    <p>
+     For more information, refer to
+     <a class="xref page" href="install">
+      Install Anypoint CLI
+     </a>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="syntax">
+   <a class="anchor" href="#syntax">
+   </a>
+   Syntax
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The Anypoint Platform CLI command set has the following syntax:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ anypoint-cli-v4 [command]  [parameters] [flags]</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     If you run a command and there is an error, the application exits and returns a description of the issue.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     When using multi-option flags in a command, either put the parameter before the flags:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">anypoint-cli-v4 governance:api:validate param1 param2 --rulesets value1 --rulesets value2 --rulesets value3</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Or use a
+     <code>
+      --
+     </code>
+     (two dashes followed by a space) before the parameter:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">anypoint-cli-v4 governance:api:validate --rulesets value1 --rulesets value2 --rulesets value3 -- param1 param2</code></pre>
+    </div>
+   </div>
+   <div class="admonitionblock note">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-note" title="Note">
+       </i>
+      </td>
+      <td class="content">
+       You can write all commands separated by spaces or colons. For example:
+       <code>
+        runtime-mgr:application:list
+       </code>
+       can also be
+       <code>
+        runtime-mgr application list
+       </code>
+       .
+      </td>
+     </tr>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="default-options">
+   <a class="anchor" href="#default-options">
+   </a>
+   Default Flags
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Anypoint Platform CLI commands have the following default flags:
+    </p>
+   </div>
+   <table class="tableblock frame-all grid-all fit-content spread">
+    <colgroup>
+     <col/>
+     <col/>
+    </colgroup>
+    <thead>
+     <tr>
+      <th class="tableblock halign-left valign-top">
+       Flag
+      </th>
+      <th class="tableblock halign-left valign-top">
+       Description
+      </th>
+     </tr>
+    </thead>
+    <tbody>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           --help
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Displays command usage information
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           --organization
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Your organization within Anypoint Platform
+         </p>
+        </div>
+        <div class="paragraph">
+         <p>
+          You can also pass this value using the environment variable
+          <code>
+           export ANYPOINT_ORG=&lt;name&gt;
+          </code>
+          .
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           --environment
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Your Anypoint Platform environment
+         </p>
+        </div>
+        <div class="paragraph">
+         <p>
+          You can also pass this value using the environment variable
+          <code>
+           export ANYPOINT_ENV=&lt;name&gt;
+          </code>
+          .
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           --host
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          The host of your Anypoint Platform Installation
+          <br/>
+          This value defaults to
+          <code>
+           anypoint.mulesoft.com
+          </code>
+          .
+          <br/>
+         </p>
+        </div>
+        <div class="ulist">
+         <ul>
+          <li>
+           <p>
+            If you are using Anypoint Platform PCE, pass the address where you are hosting the platform.
+           </p>
+          </li>
+          <li>
+           <p>
+            If you are using Anypoint Platform EU Cloud, pass your EU control plane URL.
+           </p>
+          </li>
+         </ul>
+        </div>
+        <div class="paragraph">
+         <p>
+          You can also pass this value using a dedicated environment variable
+          <code>
+           ANYPOINT_HOST=&lt;name&gt;
+          </code>
+          . For example,
+          <code>
+           ANYPOINT_HOST=my.anypoint.mulesoft.com
+          </code>
+          .
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+    </tbody>
+   </table>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="overrides">
+   <a class="anchor" href="#overrides">
+   </a>
+   Override Order
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You can use environment variables to define values in Anypoint CLI. Following is the override order if you mix environment variable settings with explicit command line values:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Environment variables override credentials file parameters.
+      </p>
+     </li>
+     <li>
+      <p>
+       Command-line parameters override environment variables.
+      </p>
+     </li>
+     <li>
+      <p>
+       If you do not pass a command-line flag, the default profile properties are used.
+      </p>
+     </li>
+     <li>
+      <p>
+       If you do not specify an environment, the default is production.
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="session-timeout">
+   <a class="anchor" href="#session-timeout">
+   </a>
+   Session Timeout
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Your Anypoint Platform session expires based on the
+     <strong>
+      Default session timeout
+     </strong>
+     configured in your Organization settings.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     For information about Root Organization settings, see
+     <a class="xref page" href="../../access-management/managing-business-groups#manage-root-organization-settings">
+      Manage Root Organization Settings
+     </a>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="data-collection">
+   <a class="anchor" href="#data-collection">
+   </a>
+   Anonymized Usage Data
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To improve the Anypoint CLI experience, MuleSoft gathers anonymized usage data. You can opt out by setting
+     <code>
+      collectMetrics
+     </code>
+     to false in the
+     <code>
+      credentials
+     </code>
+     file.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See also
+  </h2>
+  <div class="sectionbody">
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       <a class="xref page" href="install">
+        Install
+       </a>
+       Anypoint CLI.
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="auth">
+        Authenticate to Anypoint Platform
+       </a>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="anypoint-platform-cli-commands">
+        View the list of commands
+       </a>
+       available for the Anypoint Platform actions you can execute using Anypoint CLI.
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="proxy">
+        Use a Proxy Server
+       </a>
+       .
+      </p>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+</article>

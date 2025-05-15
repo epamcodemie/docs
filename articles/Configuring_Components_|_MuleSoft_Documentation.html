@@ -1,0 +1,1324 @@
+<article class="doc">
+ <h1 class="page">
+  Configuring Components
+ </h1>
+ <div class="deployment-options-row flex flex-wrap">
+  <p class="deployment-option align-center flex">
+   <img alt="logo cloud IDE" src="../_/img/logos/deployment-cloud-ide.png" title="Cloud IDE"/>
+   Cloud IDE
+  </p>
+  <p class="deployment-option align-center flex">
+   <img alt="logo desktop IDE" src="../_/img/logos/deployment-desktop-ide.png" title="Desktop IDE"/>
+   Desktop IDE
+  </p>
+ </div>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph notice-banner">
+    <p>
+     <strong>
+      Open Beta Release
+     </strong>
+     : The
+     <strong>
+      cloud IDE is in open beta
+     </strong>
+     . Any use of Anypoint Code Builder in its beta state is subject to the applicable beta services terms and conditions, available from the IDE.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Configure connectors and processors within your implementation and integration projects from the canvas or configuration XML.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Common tasks include the following:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="int-work-with-code-snippets">
+        Work with Code Snippets
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#add-components">
+        Add a Component to Your Project
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="int-configure-dw-expressions">
+        Configure Expressions
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#check-connection">
+        Test a Connection Configuration
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#import-connectors-from-exchange">
+        Import a Connector from Exchange
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#open-component-from-xml">
+        Open a Component in the Canvas from the XML Editor
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="before-you-begin">
+   <a class="anchor" href="#before-you-begin">
+   </a>
+   Before You Begin
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Determine which connectors, processors, and snippets you intend to use.
+      </p>
+      <div class="paragraph">
+       <p>
+        When adding components, you can start from
+        <a class="xref page" href="int-work-with-code-snippets">
+         code snippets
+        </a>
+        , the canvas, or the configuration XML for your app.
+You can configure components from their configuration panels in the canvas or from the XML.
+For reference documentation on specific connector and component configurations, see
+        <a class="xref page" href="acb-reference">
+         Reference
+        </a>
+        .
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       Review
+       <a class="xref page" href="..#get-familiar-with-the-basics">
+        Get Familiar with the Basics
+       </a>
+       to ensure that you are familiar with important concepts and features.
+      </p>
+      <div class="paragraph">
+       <p>
+        Understand the basics of Mule flows, the Mule event structure, including the payload, attributes, and Mule variables. To transform data and add expressions to your components, have some familiarity of the DataWeave language.
+       </p>
+      </div>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="add-components">
+   <a class="anchor" href="#add-components">
+   </a>
+   Add a Component to Your Project
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The following example illustrates basic configurations for adding components to your project from the canvas, and the configuration XML. The example assumes you are beginning with an empty integration project.
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       In the Explorer, open the configuration XML file for your project:, such as
+       <code>
+        my-project-name.xml
+       </code>
+       .
+      </p>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="Canvas showing visual representation of Mule flow and the Mule configuration file" src="_images/int-empty-canvas.png"/>
+       </div>
+      </div>
+      <div class="colist calloutlist">
+       <table>
+        <tr>
+         <td>
+          <i class="conum" data-value="1">
+          </i>
+          <b>
+           1
+          </b>
+         </td>
+         <td>
+          The canvas provides space for a visual representation of your Mule flows or subflows.
+         </td>
+        </tr>
+        <tr>
+         <td>
+          <i class="conum" data-value="2">
+          </i>
+          <b>
+           2
+          </b>
+         </td>
+         <td>
+          The configuration XML editor displays the configuration file for your Mule application.
+         </td>
+        </tr>
+       </table>
+      </div>
+     </li>
+     <li>
+      <p>
+       Select
+       <strong>
+        Build a Flow
+       </strong>
+       from the canvas to create an empty flow within a Mule integration application.
+      </p>
+     </li>
+     <li>
+      <p>
+       Change the default name of the flow from the canvas or from the configuration XML.
+      </p>
+      <div class="openblock tabs is-loading" id="tabs-1">
+       <div class="content">
+        <div class="ulist tablist">
+         <ul>
+          <li class="tab" id="tabs-1-from-the-canvas">
+           <p>
+            From the canvas
+           </p>
+          </li>
+          <li class="tab" id="tabs-1-from-the-configuration-xml">
+           <p>
+            From the configuration XML
+           </p>
+          </li>
+         </ul>
+        </div>
+        <div aria-labelledby="tabs-1-from-the-canvas" class="tabpanel" id="tabs-1-from-the-canvas--panel">
+         <div class="paragraph">
+          <p>
+           Click
+           <strong>
+            Flow name1
+           </strong>
+           to open the configuration panel for the Flow component, change the flow name, and click the check mark to set the new name.
+          </p>
+         </div>
+         <div class="imageblock">
+          <div class="content">
+           <img alt="Change name of flow through canvas." src="_images/int-flow-name-ui.png"/>
+          </div>
+         </div>
+        </div>
+        <div aria-labelledby="tabs-1-from-the-configuration-xml" class="tabpanel" id="tabs-1-from-the-configuration-xml--panel">
+         <div class="paragraph">
+          <p>
+           Replace the default name of the flow (
+           <code>
+            name1
+           </code>
+           ) with your flow name, such as
+           <code>
+            getFlights
+           </code>
+           , for example:
+          </p>
+         </div>
+         <div class="listingblock">
+          <div class="content">
+           <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="my-flow" &gt;
+
+&lt;/flow&gt;</code></pre>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Add a component to your project from the canvas.
+      </p>
+      <div class="paragraph">
+       <p>
+        For example, add the HTTP Listener component:
+       </p>
+      </div>
+      <div class="olist loweralpha">
+       <ol class="loweralpha" type="a">
+        <li>
+         <p>
+          In the canvas, click the
+          <span class="image">
+           <img alt="" height="15" src="_images/icon-plus.png" width="15"/>
+          </span>
+          (
+          <strong>
+           Add component
+          </strong>
+          ) icon.
+         </p>
+        </li>
+        <li>
+         <p>
+          In the
+          <strong>
+           Add Component
+          </strong>
+          panel, search for and select
+          <strong>
+           Listener
+          </strong>
+          from the
+          <strong>
+           HTTP
+          </strong>
+          results:
+         </p>
+         <div class="imageblock">
+          <div class="content">
+           <img alt="Listener component highlighted in the Add Component section" src="_images/main-tutorial-add-first-listener.png"/>
+          </div>
+         </div>
+         <div class="paragraph">
+          <p>
+           The configuration XML file now includes the XML for the HTTP Listener within the
+           <code>
+            &lt;flow/&gt;
+           </code>
+           element, for example:
+          </p>
+         </div>
+         <div class="listingblock">
+          <div class="content">
+           <pre class="highlightjs highlight"><code class="language-XML hljs" data-lang="XML">&lt;flow name="getFlights" &gt;
+  &lt;http:listener path="mypath" config-ref="config-ref" doc:name="Listener" doc:id="rrjiqa" /&gt;
+
+&lt;/flow&gt;</code></pre>
+          </div>
+         </div>
+        </li>
+       </ol>
+      </div>
+     </li>
+     <li>
+      <p>
+       Add another component, this time using the XML configuration menu.
+      </p>
+      <div class="paragraph">
+       <p>
+        For example, add the
+        <code>
+         &lt;http:listener-config/&gt;
+        </code>
+        component from a snippet.
+       </p>
+      </div>
+      <div class="paragraph">
+       <p>
+        For more information about snippets, see
+        <a class="xref page" href="int-work-with-code-snippets">
+         Working with Code Snippets
+        </a>
+        .
+       </p>
+      </div>
+      <div class="olist loweralpha">
+       <ol class="loweralpha" type="a">
+        <li>
+         <p>
+          In the configuration XML, place your cursor before the opening
+          <code>
+           &lt;flow&gt;
+          </code>
+          tag, and type
+          <code>
+           http
+          </code>
+          .
+         </p>
+         <div class="paragraph">
+          <p>
+           Ensure that the cursor is not inside the
+           <code>
+            &lt;flow/&gt;
+           </code>
+           element.
+          </p>
+         </div>
+        </li>
+        <li>
+         <p>
+          Type
+          <code>
+           http
+          </code>
+          , and select the
+          <code>
+           http:listener-config
+          </code>
+          snippet:
+         </p>
+         <div class="imageblock">
+          <div class="content">
+           <img alt="http:listener-config snippet highlighted in the configuration XML menu" src="_images/add-http-config-snippet.png"/>
+          </div>
+         </div>
+         <div class="paragraph">
+          <p>
+           The snippet adds the following code:
+          </p>
+         </div>
+         <div class="listingblock">
+          <div class="content">
+           <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;http:listener-config name="HTTP_Listener_config" &gt;
+  &lt;http:listener-connection host="0.0.0.0" port="8081" /&gt;
+&lt;/http:listener-config&gt;</code></pre>
+          </div>
+         </div>
+        </li>
+        <li>
+         <p>
+          Notice that the Listener component in the canvas now displays an error:
+         </p>
+         <div class="imageblock">
+          <div class="content">
+           <img alt="Listener error in the canvas" src="_images/int-canvas-error.png"/>
+          </div>
+         </div>
+        </li>
+        <li>
+         <p>
+          To determine where the error is, select the processor in the canvas.
+         </p>
+         <div class="paragraph">
+          <p>
+           Anypoint Code Builder highlights its location within the configuration XML, and you can mouse over the issue for more information, for example:
+          </p>
+         </div>
+         <div class="imageblock">
+          <div class="content">
+           <img alt="Selecting configuration reference from configuration panel" src="_images/int-select-listener-config.png"/>
+          </div>
+         </div>
+        </li>
+        <li>
+         <p>
+          To fix the error, change the value of the
+          <code>
+           name
+          </code>
+          attribute in
+          <code>
+           http:listener-config
+          </code>
+          to match the name of the
+          <code>
+           config-ref
+          </code>
+          value in your
+          <code>
+           http:listener
+          </code>
+          configuration:
+         </p>
+         <div class="listingblock">
+          <div class="content">
+           <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;http:listener-config name="config-ref" &gt;
+  &lt;http:listener-connection host="0.0.0.0" port="8081" /&gt;
+&lt;/http:listener-config&gt;</code></pre>
+          </div>
+         </div>
+         <div class="paragraph">
+          <p>
+           The HTTP listener within your flow now references the HTTP listener configuration, a global connection configuration that resides outside of the flow. For more information about debugging, see
+           <a class="xref page" href="int-debug-mule-apps">
+            Debugging Mule Applications
+           </a>
+           .
+          </p>
+         </div>
+        </li>
+       </ol>
+      </div>
+     </li>
+     <li>
+      <p>
+       Add another component to your flow.
+      </p>
+      <div class="paragraph">
+       <p>
+        For example, add a Set Payload component to your HTTP Listener operation:
+       </p>
+      </div>
+      <div class="olist loweralpha">
+       <ol class="loweralpha" type="a">
+        <li>
+         <p>
+          In the canvas, click the
+          <span class="image">
+           <img alt="" height="15" src="_images/icon-plus.png" width="15"/>
+          </span>
+          (
+          <strong>
+           Add component
+          </strong>
+          ) icon.
+         </p>
+        </li>
+        <li>
+         <p>
+          In the
+          <strong>
+           Add Component
+          </strong>
+          panel, search for and select
+          <strong>
+           Set payload
+          </strong>
+          from the
+          <strong>
+           Transformer
+          </strong>
+          results.
+         </p>
+        </li>
+        <li>
+         <p>
+          In the canvas, click
+          <strong>
+           Set payload
+          </strong>
+          to open its configuration panel, and add a string value, DataWeave expression, Mule variable, or configuration property.
+         </p>
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             To add a string, type a value such as
+             <code>
+              my value
+             </code>
+             . For example:
+            </p>
+            <div class="imageblock">
+             <div class="content">
+              <img alt="Adding string to Set Payload" src="_images/int-set-payload-config-string.png"/>
+             </div>
+            </div>
+           </li>
+           <li>
+            <p>
+             To add a DataWeave expression or a Mule variable as a value, such as
+             <code>
+              payload
+             </code>
+             , click
+             <strong>
+              fx
+             </strong>
+             (located before the field), and provide the value, for example:
+            </p>
+            <div class="imageblock">
+             <div class="content">
+              <img alt="Adding expression to Set Payload" src="_images/int-set-payload-config-fx.png"/>
+             </div>
+            </div>
+            <div class="paragraph">
+             <p>
+              For more information about configuring DataWeave expressions, see
+              <a class="xref page" href="int-configure-dw-expressions">
+               Configuring DataWeave Expressions
+              </a>
+              .
+             </p>
+            </div>
+           </li>
+           <li>
+            <p>
+             To add a configuration property as a value, type a value such as
+             <code>
+              ${secure::mysensitiveprop}
+             </code>
+             . For example:
+            </p>
+            <div class="imageblock">
+             <div class="content">
+              <img alt="Adding configuration property to Set Payload" src="_images/int-set-payload-config-property.png"/>
+             </div>
+            </div>
+            <div class="paragraph">
+             <p>
+              For more information about configuration properties, see
+              <a class="xref page" href="int-create-secure-configs">
+               Defining and Securing Properties for a Mule Application
+              </a>
+              .
+             </p>
+            </div>
+           </li>
+          </ul>
+         </div>
+        </li>
+       </ol>
+      </div>
+     </li>
+    </ol>
+   </div>
+   <div class="paragraph">
+    <p>
+     Your configuration XML file now looks similar to the following:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;http:listener-config name="config-ref" &gt;
+  &lt;http:listener-connection host="0.0.0.0" port="8081" /&gt;
+&lt;/http:listener-config&gt;
+
+&lt;flow name="getFlights" &gt;
+  &lt;http:listener path="path" config-ref="config-ref" doc:name="Listener" doc:id="rrjiqa" /&gt;
+  &lt;set-payload value="my value" doc:name="Set payload" doc:id="gecykt" /&gt;
+
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="import-connectors-from-exchange">
+   <a class="anchor" href="#import-connectors-from-exchange">
+   </a>
+   Import a Connector from Exchange
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Anypoint Connectors provide operations for retrieving, modifying, and sending data to and from systems.
+In addition to the
+     <a class="xref page" href="acb-reference#builtin-connectors">
+      built-in connectors
+     </a>
+     that Anypoint Code Builder provides,
+you can download many other connectors from Anypoint Exchange.
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a href="#import-canvas">
+        Import a Connector from the Canvas
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#import-command">
+        Import a Connector with a Command
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="import-canvas">
+   <a class="anchor" href="#import-canvas">
+   </a>
+   Import a Connector from the Canvas
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To import a connector from Exchange and add it to your configuration:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       In the Explorer, open the configuration XML file for your project:, such as
+       <code>
+        my-project-name.xml
+       </code>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       Click
+       <span class="image">
+        <img alt="" height="15" src="_images/icon-tree-view.png" width="15"/>
+       </span>
+       (
+       <strong>
+        Show Mule graphical mode
+       </strong>
+       ) in the activity bar to open the UI canvas if it doesn’t open automatically.
+      </p>
+     </li>
+     <li>
+      <p>
+       Add the connector the same way you added other components from the canvas:
+      </p>
+      <div class="olist loweralpha">
+       <ol class="loweralpha" type="a">
+        <li>
+         <p>
+          In the canvas, click the
+          <span class="image">
+           <img alt="" height="15" src="_images/icon-plus.png" width="15"/>
+          </span>
+          (
+          <strong>
+           Add component
+          </strong>
+          ) icon.
+         </p>
+        </li>
+        <li>
+         <p>
+          In the
+          <strong>
+           Add Component
+          </strong>
+          panel, click
+          <strong>
+           Connectors
+          </strong>
+          .
+         </p>
+        </li>
+        <li>
+         <p>
+          Click the connector name and then click the operation to add, such as
+          <strong>
+           Publish
+          </strong>
+          :
+         </p>
+         <div class="imageblock">
+          <div class="content">
+           <img alt="Add Publish operation from the Anypoint MQ Connector" src="_images/int-add-connector-operation.png"/>
+          </div>
+         </div>
+        </li>
+        <li>
+         <p>
+          If the connector is not available locally, click the
+          <span class="image">
+           <img alt="" height="15" src="_images/icon-search-exchange.png" width="15"/>
+          </span>
+          (
+          <strong>
+           Search in Exchange
+          </strong>
+          ) toggle:
+         </p>
+         <div class="imageblock">
+          <div class="content">
+           <img alt="Search in Exchange toggle" src="_images/int-connector-search-exchange.png"/>
+          </div>
+         </div>
+         <div class="openblock">
+          <div class="content">
+           <div class="colist calloutlist">
+            <table>
+             <tr>
+              <td>
+               <i class="conum" data-value="1">
+               </i>
+               <b>
+                1
+               </b>
+              </td>
+              <td>
+               Search locally
+              </td>
+             </tr>
+             <tr>
+              <td>
+               <i class="conum" data-value="2">
+               </i>
+               <b>
+                2
+               </b>
+              </td>
+              <td>
+               Search in Exchange
+              </td>
+             </tr>
+            </table>
+           </div>
+          </div>
+         </div>
+        </li>
+        <li>
+         <p>
+          Select the connector to add to your project.
+         </p>
+        </li>
+        <li>
+         <p>
+          Select the operation from the
+          <strong>
+           Add Component
+          </strong>
+          panel.
+         </p>
+        </li>
+       </ol>
+      </div>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="import-command">
+   <a class="anchor" href="#import-command">
+   </a>
+   Import a Connector with a Command
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To import a connector from Exchange to use later in your project:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       In the Explorer, open the configuration XML file for your project:, such as
+       <code>
+        my-project-name.xml
+       </code>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       Click
+       <span class="image">
+        <img alt="" height="15" src="_images/icon-tree-view.png" width="15"/>
+       </span>
+       (
+       <strong>
+        Show Mule graphical mode
+       </strong>
+       ) in the activity bar to open the canvas if it doesn’t open automatically.
+      </p>
+     </li>
+     <li>
+      <p>
+       Open the Command Palette.
+      </p>
+      <details>
+       <summary class="title">
+        Show me how
+       </summary>
+       <div class="content">
+        <div class="ulist">
+         <ul>
+          <li>
+           <p>
+            Use the keyboard shortcuts:
+           </p>
+           <div class="ulist">
+            <ul>
+             <li>
+              <p>
+               Mac: Cmd+Shift+p
+              </p>
+             </li>
+             <li>
+              <p>
+               Windows: Ctrl+Shift+p
+              </p>
+             </li>
+            </ul>
+           </div>
+          </li>
+          <li>
+           <p>
+            In the desktop IDE, select
+            <strong>
+             View
+            </strong>
+            &gt;
+            <strong>
+             Command Palette
+            </strong>
+            .
+           </p>
+          </li>
+          <li>
+           <p>
+            In the cloud IDE, click the
+            <span class="image">
+             <img alt="" height="18" src="_images/icon-menu.png" width="18"/>
+            </span>
+            (menu) icon, and select
+            <strong>
+             View
+            </strong>
+            &gt;
+            <strong>
+             Command Palette
+            </strong>
+            .
+           </p>
+          </li>
+         </ul>
+        </div>
+       </div>
+      </details>
+     </li>
+     <li>
+      <p>
+       Select the following command:
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-command hljs" data-lang="command">MuleSoft: Import Asset from Exchange</code></pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Select
+       <strong>
+        Connector
+       </strong>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       Search for the connector name to import, such as "MQ," for example:
+      </p>
+      <div class="imageblock">
+       <div class="content">
+        <img alt='"Import Anypoint MQ Connector from Exchange' src="_images/int-import-connect-exchange.png"/>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Select the connector.
+      </p>
+     </li>
+     <li>
+      <p>
+       At the prompt, select the version of the connector to import, such as
+       <code>
+        v4.0.3
+       </code>
+       .
+      </p>
+      <div class="paragraph">
+       <p>
+        Anypoint Code Builder imports the connector and makes it available in the Components list.
+       </p>
+      </div>
+     </li>
+    </ol>
+   </div>
+   <div class="paragraph">
+    <p>
+     For more information about the connectors available on Exchange, see
+     <a class="xref page" href="../connectors/">
+      Connectors
+     </a>
+     .
+For more information about Exchange, see
+     <a href="https://anypoint.mulesoft.com/exchange/" rel="noopener" target="_blank">
+      Exchange (US)
+     </a>
+     or
+     <a href="https://eu1.anypoint.mulesoft.com/exchange/" rel="noopener" target="_blank">
+      Exchange (EU)
+     </a>
+     and
+     <a class="xref page" href="../exchange/">
+      Anypoint Exchange Overview
+     </a>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="check-connection">
+   <a class="anchor" href="#check-connection">
+   </a>
+   Test a Connection Configuration
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Most connectors provide an operation, such as the HTTP Listener operation, that triggers the flow to start. These operations typically include connection configurations that you can test.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="test-connection-from-the-configuration-panel">
+   <a class="anchor" href="#test-connection-from-the-configuration-panel">
+   </a>
+   Test Connection from the Configuration Panel
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You can test the connection from the connectors
+     <strong>
+      Configuration
+     </strong>
+     panel. For example, to test an HTTP Listener connection:
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     <span class="image">
+      <img alt="Configuration panel for connectors" src="_images/acb-configuration-panel-test.png"/>
+     </span>
+    </p>
+   </div>
+   <div class="colist calloutlist">
+    <table>
+     <tr>
+      <td>
+       <i class="conum" data-value="1">
+       </i>
+       <b>
+        1
+       </b>
+      </td>
+      <td>
+       Click the
+       <strong>
+        +
+       </strong>
+       icon on the connector to open the configuration panel.
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="2">
+       </i>
+       <b>
+        2
+       </b>
+      </td>
+      <td>
+       After filling in the required fields, click
+       <strong>
+        Test Connection
+       </strong>
+       .
+      </td>
+     </tr>
+    </table>
+   </div>
+   <div class="paragraph">
+    <p>
+     The status bar shows the progress:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <strong>
+        Verifying connection
+       </strong>
+       indicates that the test is in progress.
+      </p>
+     </li>
+     <li>
+      <p>
+       <strong>
+        Connection is valid
+       </strong>
+       indicates a successful connection.
+      </p>
+     </li>
+     <li>
+      <p>
+       <strong>
+        Invalid Connection Got status code: 500 when trying to resolve a Mule Runtime operation
+       </strong>
+       indicates a connection error.
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="test-connection-from-the-configuration-xml">
+   <a class="anchor" href="#test-connection-from-the-configuration-xml">
+   </a>
+   Test Connection from the Configuration XML
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You can test the connection from the configuration XML. For example, to test an HTTP Listener connection, click
+     <strong>
+      Test Connection
+     </strong>
+     in the configuration XML:
+    </p>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="HTTP Listener Test Connection link in the configuration XML" src="_images/http-listener-test-connection.png"/>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The status bar shows the progress:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <strong>
+        Verifying connection inbound-request
+       </strong>
+       indicates that the test is in progress.
+      </p>
+     </li>
+     <li>
+      <p>
+       <strong>
+        Connection is valid
+       </strong>
+       indicates a successful connection.
+      </p>
+     </li>
+     <li>
+      <p>
+       <strong>
+        Invalid Connection Got status code: 500 when trying to resolve a Mule Runtime operation
+       </strong>
+       indicates a connection error.
+      </p>
+      <div class="paragraph">
+       <p>
+        A common code
+        <code>
+         500
+        </code>
+        error is
+        <code>
+         port 8081: Address already in use
+        </code>
+        . For port conflicts, configure a different port, such as
+        <code>
+         8082
+        </code>
+        , and retest the connection.
+       </p>
+      </div>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     Before publishing, run your application in debug mode.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="open-component-from-xml">
+   <a class="anchor" href="#open-component-from-xml">
+   </a>
+   Open a Component in the Canvas from the XML Editor
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You can open a component and its configuration panel in the canvas from the XML editor. This feature is helpful, for example, if you want to configure the component from the UI, if a component is in another flow than the flow currently displayed in the canvas, or if the canvas is not open.
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       From the configuration XML, place your cursor within the component’s XML.
+      </p>
+     </li>
+     <li>
+      <p>
+       Right-click and select
+       <strong>
+        Configure Component in UI
+       </strong>
+       .
+      </p>
+      <div class="paragraph">
+       <p>
+        This action displays the component in the canvas and opens its configuration panel, for example:
+       </p>
+      </div>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="Opening a component in the canvas from the XML" src="_images/acb-open-component-ui-from-xml.png"/>
+       </div>
+      </div>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="connection-configuration-panel">
+   <a class="anchor" href="#connection-configuration-panel">
+   </a>
+   Connection Configuration Panel
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Use the Connection Management Configuration Panel to easily configure connections to third-party systems directly from the UI.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     In this panel, you can create, edit, delete, and test connections directly within the ACB interface, automatically populate connection fields using metadata provided by the connector, and save and manage connection configurations without switching to the XML view.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     To open the configuration panel:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Click on an existing component, or add a new one.
+      </p>
+     </li>
+     <li>
+      <p>
+       Click the
+       <strong>
+        +
+       </strong>
+       icon.
+      </p>
+      <div class="paragraph">
+       <p>
+        This action displays the configuration panel, for example:
+       </p>
+      </div>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     <span class="image">
+      <img alt="Configuration panel for connectors" src="_images/acb-configuration-panel-general.png"/>
+     </span>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     From here, you can:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Configure a connection for this project.
+      </p>
+      <div class="paragraph">
+       <p>
+        You can select a previously saved connection in the
+        <strong>
+         Connection
+        </strong>
+        field and the form is pre-populated with existing configuration data.
+       </p>
+      </div>
+      <div class="admonitionblock note">
+       <table>
+        <tr>
+         <td class="icon">
+          <i class="fa icon-note" title="Note">
+          </i>
+         </td>
+         <td class="content">
+          Changes impact all components using this connection.
+         </td>
+        </tr>
+       </table>
+      </div>
+     </li>
+     <li>
+      <p>
+       Update connection details without manually editing the XML code.
+      </p>
+     </li>
+     <li>
+      <p>
+       Test the connection directly within the panel to verify it’s correctly configured.
+      </p>
+      <div class="paragraph">
+       <p>
+        The test functionality helps prevent errors by allowing users to confirm that the connection is valid before committing changes.
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       Delete an existing connection if it’s no longer needed.
+      </p>
+      <div class="paragraph">
+       <p>
+        A confirmation message shows any affected components that use the connection.
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       View all components that depend on a connection.
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

@@ -1,0 +1,1647 @@
+<article class="doc">
+ <h1 class="page">
+  Deploy to CloudHub
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You can deploy Mule applications to CloudHub using:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a href="#deploy-an-application-from-runtime-manager">
+        Anypoint Runtime Manager
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#deploy-an-application-from-studio">
+        Anypoint Studio
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../anypoint-code-builder/int-deploy-mule-apps">
+        Anypoint Code Builder
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#deploy-an-application-from-the-command-line">
+        CloudHub CLI
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="https://anypoint.mulesoft.com/exchange/portals/anypoint-platform/f1e97bc6-315a-4490-82a7-23abe036327a.anypoint-platform/cloudhub-api/">
+        CloudHub API
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../mule-runtime/latest/deploy-to-cloudhub">
+        Mule Maven plugin
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     You can also deploy an API proxy directly from API Manager to CloudHub.
+See
+     <a class="xref page" href="../api-manager/latest/getting-started-proxy#configure_and_deploy_to_cloudhub">
+      Configure a Proxy and Deploy to CloudHub
+     </a>
+     .
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     To be notified by email when an error occurs during deployment, set up a
+     <strong>
+      Deployment failed
+     </strong>
+     alert.
+See
+     <a class="xref page" href="../runtime-manager/alerts-on-runtime-manager#create-an-alert">
+      Create an Alert
+     </a>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="deploy-an-application-from-runtime-manager">
+   <a class="anchor" href="#deploy-an-application-from-runtime-manager">
+   </a>
+   Deploy an Application from Runtime Manager
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To deploy from Runtime Manager to CloudHub:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Sign in to Anypoint Platform.
+      </p>
+     </li>
+     <li>
+      <p>
+       Select
+       <strong>
+        Runtime Manager
+       </strong>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       In the
+       <strong>
+        Applications
+       </strong>
+       page, click
+       <strong>
+        Deploy application
+       </strong>
+       .
+      </p>
+      <div class="paragraph">
+       <p>
+        You see the
+        <strong>
+         Deploy Application
+        </strong>
+        page:
+       </p>
+      </div>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="Application Name field" height="and the Deploy Application button" src="_images/cloudhub-deploy-app.png" width="Choose file menu"/>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Provide a name for your application.
+      </p>
+      <div class="paragraph">
+       <p>
+        See
+        <a href="#application-names">
+         Application Names
+        </a>
+        .
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       In the
+       <strong>
+        Deployment Target
+       </strong>
+       menu, select
+       <strong>
+        CloudHub
+       </strong>
+       , if it is not already selected.
+      </p>
+     </li>
+     <li>
+      <p>
+       Specify the application file:
+      </p>
+      <div class="openblock">
+       <div class="content">
+        <div class="ulist">
+         <ul>
+          <li>
+           <p>
+            Import a file from Exchange:
+           </p>
+           <div class="olist loweralpha">
+            <ol class="loweralpha" type="a">
+             <li>
+              <p>
+               Click
+               <strong>
+                Choose file
+               </strong>
+               &gt;
+               <strong>
+                Import file from Exchange
+               </strong>
+               .
+              </p>
+             </li>
+             <li>
+              <p>
+               Select
+               <strong>
+                Application
+               </strong>
+               for the type.
+              </p>
+             </li>
+             <li>
+              <p>
+               Enter the name of your application in the search box.
+              </p>
+             </li>
+             <li>
+              <p>
+               Select the application to deploy, select a version from the
+               <strong>
+                Version
+               </strong>
+               menu, and then click
+               <strong>
+                Select
+               </strong>
+               .
+              </p>
+             </li>
+            </ol>
+           </div>
+          </li>
+          <li>
+           <p>
+            Upload an application archive (ZIP or JAR) file:
+           </p>
+           <div class="olist loweralpha">
+            <ol class="loweralpha" type="a">
+             <li>
+              <p>
+               Select
+               <strong>
+                Choose file
+               </strong>
+               &gt;
+               <strong>
+                Upload file
+               </strong>
+               .
+              </p>
+             </li>
+             <li>
+              <p>
+               Select the file to upload and then click
+               <strong>
+                Open
+               </strong>
+               .
+              </p>
+              <div class="paragraph">
+               <p>
+                The application file size limit is 200 MB.
+               </p>
+              </div>
+             </li>
+            </ol>
+           </div>
+          </li>
+          <li>
+           <p>
+            Copy an application from a nonproduction environment.
+           </p>
+           <div class="paragraph">
+            <p>
+             See
+             <a href="#copy-an-application-from-sandbox-to-production">
+              Copy an Application from Sandbox to Production
+             </a>
+             .
+            </p>
+           </div>
+          </li>
+         </ul>
+        </div>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Click tabs to configure application options.
+      </p>
+      <div class="paragraph">
+       <p>
+        See
+        <a href="#configure-application-settings">
+         Configure Application Settings
+        </a>
+        .
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       Click
+       <strong>
+        Deploy Application
+       </strong>
+       .
+      </p>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="deploy-an-application-from-studio">
+   <a class="anchor" href="#deploy-an-application-from-studio">
+   </a>
+   Deploy an Application from Studio
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You can deploy your applications directly from Studio to CloudHub.
+This option is helpful if you want to test your application while developing it.
+    </p>
+   </div>
+   <div class="admonitionblock note">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-note" title="Note">
+       </i>
+      </td>
+      <td class="content">
+       <div class="paragraph">
+        <p>
+         You can deploy an application from Studio to any environment except
+         <strong>
+          Design
+         </strong>
+         .
+        </p>
+       </div>
+      </td>
+     </tr>
+    </table>
+   </div>
+   <div class="paragraph">
+    <p>
+     To deploy from Studio to CloudHub:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Open your application in Studio.
+      </p>
+     </li>
+     <li>
+      <p>
+       In
+       <strong>
+        Package Explorer
+       </strong>
+       , right-click the project folder and select
+       <strong>
+        Anypoint Platform &gt; Deploy to CloudHub
+       </strong>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       If this is your first time deploying from Studio, provide your Anypoint Platform credentials at the prompt.
+      </p>
+      <div class="paragraph">
+       <p>
+        Studio stores your credentials for future use.
+You can manage these credentials by selecting
+        <strong>
+         Anypoint Studio &gt; Preferences &gt; Anypoint Studio &gt; Authentication
+        </strong>
+        .
+       </p>
+      </div>
+      <div class="paragraph">
+       <p>
+        After you sign in, you see the
+        <strong>
+         Deploying Application
+        </strong>
+        page:
+       </p>
+      </div>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="Application Name field and the Deploy Application button" src="_images/cloudhub-deploy-app-studio.png"/>
+       </div>
+       <div class="title">
+        Figure 1. The screenshot shows (
+        <strong>
+         1
+        </strong>
+        ) the
+        <strong>
+         Application Name
+        </strong>
+        field, (
+        <strong>
+         2
+        </strong>
+        ) the
+        <strong>
+         Deploy Application
+        </strong>
+        button on the
+        <strong>
+         Deploying Application
+        </strong>
+        page.
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Change the application name, if necessary.
+      </p>
+     </li>
+     <li>
+      <p>
+       Click tabs to configure application options.
+      </p>
+      <div class="paragraph">
+       <p>
+        See
+        <a href="#configure-application-settings">
+         Configure Application Settings
+        </a>
+        .
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       Click
+       <strong>
+        Deploy Application
+       </strong>
+       .
+      </p>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="deploy-an-application-from-the-command-line">
+   <a class="anchor" href="#deploy-an-application-from-the-command-line">
+   </a>
+   Deploy an Application from the Command Line
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To deploy a Mule app from the CloudHub command-line interface (CLI):
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       If you do not already have access to the Anypoint command-line tool, install it.
+      </p>
+      <div class="paragraph">
+       <p>
+        See
+        <a class="xref page" href="../anypoint-cli/latest/">
+         Anypoint Platform CLI
+        </a>
+        .
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       Log into your Anypoint Platform account from the command line:
+      </p>
+      <div class="openblock">
+       <div class="content">
+        <div class="olist loweralpha">
+         <ol class="loweralpha" type="a">
+          <li>
+           <p>
+            Enter your username:
+           </p>
+           <div class="paragraph">
+            <p>
+             <code>
+              anypoint-cli --username="user"
+             </code>
+            </p>
+           </div>
+          </li>
+          <li>
+           <p>
+            At the prompt, enter your password.
+           </p>
+          </li>
+         </ol>
+        </div>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Run the following command, replacing
+       <code>
+        myMuleApp
+       </code>
+       with the deployment name of your app and
+       <code>
+        /Users/exported-app-folder/my-mule-app.jar
+       </code>
+       with the path to the deployable archive (JAR or ZIP) file on your file system:
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre>runtime-mgr cloudhub-application deploy myMuleApp /Users/exported-app-folder/my-mule-app.zip</pre>
+       </div>
+      </div>
+      <div class="paragraph">
+       <p>
+        The command-line utility displays a table of deployment information:
+       </p>
+      </div>
+      <div class="listingblock">
+       <div class="content">
+        <pre>Deploying myMuleApp ...
+┌──────────────────────────────┬────────────────────────────────────────┐
+│ Domain                       │ mymuleapp.cloudhub.io                  │
+├──────────────────────────────┼────────────────────────────────────────┤
+│ Status                       │ UNDEPLOYED                             │
+├──────────────────────────────┼────────────────────────────────────────┤
+│ Updated                      │ a few seconds ago                      │
+├──────────────────────────────┼────────────────────────────────────────┤
+│ Runtime                      │ 4.1.0                                  │
+├──────────────────────────────┼────────────────────────────────────────┤
+│ File name                    │ my-mule-app.zip                        │
+├──────────────────────────────┼────────────────────────────────────────┤
+│ Persistent queues            │ false                                  │
+├──────────────────────────────┼────────────────────────────────────────┤
+│ Persistent queues encrypted  │ false                                  │
+├──────────────────────────────┼────────────────────────────────────────┤
+│ Static IPs enabled           │ false                                  │
+├──────────────────────────────┼────────────────────────────────────────┤
+│ Monitoring                   │ Enabled. Auto-restart if not responding│
+├──────────────────────────────┼────────────────────────────────────────┤
+│ Workers                      │ 1 vCore * 1                            │</pre>
+       </div>
+      </div>
+      <div class="paragraph">
+       <p>
+        After you deploy the app on CloudHub, you can view and manage it on Runtime Manager.
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       If you want to stop the app from the command line, run the following command, replacing
+       <code>
+        app-name
+       </code>
+       with the deployment name of your app:
+      </p>
+      <div class="paragraph">
+       <p>
+        <code>
+         runtime-mgr cloudhub-application stop app-name
+        </code>
+       </p>
+      </div>
+     </li>
+    </ol>
+   </div>
+   <div class="paragraph">
+    <p>
+     To exit the command-line tool, press Ctrl+c twice.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     For a complete list of the commands, see
+     <a class="xref page" href="../anypoint-cli/latest/">
+      Anypoint Platform CLI
+     </a>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="copy-an-application-from-sandbox-to-production">
+   <a class="anchor" href="#copy-an-application-from-sandbox-to-production">
+   </a>
+   Copy an Application from Sandbox to Production
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     If you create and test an application in a sandbox environment, you must move it to the
+production environment before deploying it.
+You must have the CloudHub Admin role to move applications between environments.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     To avoid name conflicts, rename the application before you deploy it to another environment.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Runtime Manager prevents you from duplicating applications in a single environment,
+so you cannot move an application into the environment it’s already in.
+If you want to duplicate an application in a single environment, rename the filename of one application
+before you deploy it.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     To move an application from sandbox to production:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Sign in to Anypoint Platform.
+      </p>
+     </li>
+     <li>
+      <p>
+       Select
+       <strong>
+        Runtime Manager
+       </strong>
+       and switch to your production environment.
+      </p>
+      <div class="paragraph">
+       <p>
+        See
+        <a class="xref page" href="../runtime-manager/runtime-manager-switch-env#switch-environments-using-runtime-manager">
+         Switch Environments Using Runtime Manager
+        </a>
+        .
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       In the
+       <strong>
+        Applications
+       </strong>
+       page, click
+       <strong>
+        Deploy application
+       </strong>
+       .
+      </p>
+      <div class="paragraph">
+       <p>
+        You see the
+        <strong>
+         Deploy Application
+        </strong>
+        page:
+       </p>
+      </div>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="Application Name field and Get from sandbox and Deploy Application buttons" src="_images/cloudhub-deploy-app-sandbox.png"/>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Provide a unique name for your application in production and click
+       <strong>
+        Get from sandbox
+       </strong>
+       .
+      </p>
+      <div class="paragraph">
+       <p>
+        This button is unavailable if no nonproduction environment exists.
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       Select your sandbox environment and then the application that you want to move to production.
+      </p>
+      <div class="paragraph">
+       <p>
+        Only applications that are deployed to CloudHub appear in the list because you can move only apps
+that are currently deployed to CloudHub to other CloudHub workers.
+For example, you can’t move an app that is currently deployed on a local server to CloudHub.
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       If you want to copy the environment variables and Mule version from the source application, select
+       <strong>
+        Merge environment variables and mule version
+       </strong>
+       .
+      </p>
+      <div class="paragraph">
+       <p>
+        If your source application contains safely hidden application properties, you must redefine them in the
+        <strong>
+         Properties
+        </strong>
+        tab.
+For information about safely hidden application properties, see
+        <a class="xref page" href="secure-application-properties">
+         Safely Hide Application Properties
+        </a>
+        .
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       Click
+       <strong>
+        Apply
+       </strong>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       Click tabs to configure application options.
+      </p>
+      <div class="paragraph">
+       <p>
+        See
+        <a href="#configure-application-settings">
+         Configure Application Settings
+        </a>
+        .
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       Click
+       <strong>
+        Deploy Application
+       </strong>
+       .
+      </p>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="application-names">
+   <a class="anchor" href="#application-names">
+   </a>
+   Application Names
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The application name can contain between 3 and 42 alphanumeric characters (a-z, A-Z, 0-9) and dashes (-).
+They cannot contain spaces or other characters.
+    </p>
+   </div>
+   <div class="admonitionblock important">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-important" title="Important">
+       </i>
+      </td>
+      <td class="content">
+       You cannot change the name of an app after you deploy it. To change the name, you must delete and redeploy the app using the new name.
+      </td>
+     </tr>
+    </table>
+   </div>
+   <div class="paragraph">
+    <p>
+     The application name identifies your application not only in Runtime Manager but also in the public
+     <code>
+      cloudhub.io
+     </code>
+     domain.
+For example, an application named
+     <code>
+      myapplication
+     </code>
+     is accessible at
+     <code>
+      http://myapplication.cloudhub.io
+     </code>
+     .
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     To avoid domain conflicts, the application name must be globally unique across CloudHub.
+For this reason, create a naming convention to ensure unique application names.
+For example, you could prepend your company name and department to all application names,
+such as
+     <code>
+      mycompany-mydept-myapplication
+     </code>
+     .
+You can then add DNS records to hide the complex application name.
+For example, you might route requests to
+     <code>
+      myapplication.mycompany.com
+     </code>
+     to
+     <code>
+      mycompany-mydept-myapplication.cloudhub.io
+     </code>
+     .
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Using the CloudHub dedicated load balancer, you can also implement mapping rules to set your application’s public URL to any other path, as long as you own the domain.
+See
+     <a class="xref page" href="lb-mapping-rules">
+      Mapping Rules
+     </a>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="configure-application-settings">
+   <a class="anchor" href="#configure-application-settings">
+   </a>
+   Configure Application Settings
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You can configure the application deployment by clicking the tabs on the
+     <strong>
+      Deploy Application
+     </strong>
+     page:
+    </p>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="Configuration tabs on the Deploy Application page" src="_images/cloudhub-deploy-app-config-tabs.png"/>
+    </div>
+    <div class="title">
+     Figure 2. The arrow shows the configuration tabs on the
+     <strong>
+      Deploy Application
+     </strong>
+     page.
+    </div>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a href="#runtime-tab-settings">
+        Runtime
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#autoscaling-tab-settings">
+        Autoscaling
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#properties-tab-settings">
+        Properties
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#insight-tab-settings">
+        Insight
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#logging-tab-settings">
+        Logging
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#static-ips-tab-settings">
+        Static IPs
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="sect2">
+    <h3 id="runtime-tab-settings">
+     <a class="anchor" href="#runtime-tab-settings">
+     </a>
+     Runtime Tab Settings
+    </h3>
+    <div class="paragraph">
+     <p>
+      The
+      <strong>
+       Runtime
+      </strong>
+      tab includes the following settings:
+     </p>
+    </div>
+    <div class="dlist">
+     <dl>
+      <dt class="hdlist1">
+       Release Channel
+      </dt>
+      <dd>
+       <p>
+        Starting with Mule 4.5, MuleSoft introduces two new release channels,
+        <a class="xref page" href="../release-notes/mule-runtime/lts-edge-release-cadence">
+         Edge and Long-term Support (LTS)
+        </a>
+        .
+       </p>
+       <div class="paragraph">
+        <p>
+         For new applications, the Edge channel is selected by default in the
+         <strong>
+          Release Channel
+         </strong>
+         drop-down menu.
+        </p>
+       </div>
+       <div class="paragraph">
+        <p>
+         For existing applications using a legacy version, the
+         <strong>
+          Release Channel
+         </strong>
+         drop-down list is selected as
+         <code>
+          None
+         </code>
+         by default. Use the
+         <strong>
+          Release Channel
+         </strong>
+         drop-down list to select the desired release channel.
+        </p>
+       </div>
+       <div class="paragraph">
+        <p>
+         For existing applications using an Edge version, the
+         <strong>
+          Release Channel
+         </strong>
+         drop-down list is selected as
+         <code>
+          Edge
+         </code>
+         . The
+         <strong>
+          Runtime Version
+         </strong>
+         dropdown list indicates if there is an update available, as well as the previous, latest and recommended version of the application. Use the
+         <strong>
+          Release Channel
+         </strong>
+         drop-down list to change to a legacy version.
+        </p>
+       </div>
+       <div class="paragraph">
+        <p>
+         For existing applications using an Edge or an LTS version on extended support, a warning message appears indicating the version’s EOL.
+        </p>
+       </div>
+      </dd>
+      <dt class="hdlist1">
+       Runtime version
+      </dt>
+      <dd>
+       <p>
+        The runtime version must be the same Mule version used to develop your application.
+       </p>
+       <div class="paragraph">
+        <p>
+         After you deploy the app, CloudHub automatically alerts you when updates for the selected runtime version are available.
+See
+         <a class="xref page" href="cloudhub-app-runtime-version-updates">
+          CloudHub Runtime Continuous Updates
+         </a>
+         .
+        </p>
+       </div>
+       <div class="admonitionblock note">
+        <table>
+         <tr>
+          <td class="icon">
+           <i class="fa icon-note" title="Note">
+           </i>
+          </td>
+          <td class="content">
+           After End of Extended Support for Mule runtime 4.3 and 4.4, Mule applications deployed to CloudHub or CloudHub 2.0 environments are stopped.
+          </td>
+         </tr>
+        </table>
+       </div>
+      </dd>
+      <dt class="hdlist1">
+       Java Version
+      </dt>
+      <dd>
+       <p>
+        Select the Java version for your application. For more information, visit
+        <a class="xref page" href="../general/java-support">
+         Java Support
+        </a>
+        .
+       </p>
+      </dd>
+      <dt class="hdlist1">
+       Worker size
+      </dt>
+      <dd>
+       <p>
+        See
+        <a href="#worker-size-and-vcores">
+         Worker Size and vCores
+        </a>
+        .
+       </p>
+      </dd>
+      <dt class="hdlist1">
+       Workers
+      </dt>
+      <dd>
+       <p>
+        When you deploy an application with more than one worker, CloudHub automatically balances any incoming traffic load across your allocated workers.
+See
+        <a class="xref page" href="cloudhub-fabric">
+         Clustering
+        </a>
+        .
+       </p>
+      </dd>
+      <dt class="hdlist1">
+       Region
+      </dt>
+      <dd>
+       <p>
+        If you have global deployment enabled on your account, you can change the deployment region.
+       </p>
+       <div class="paragraph">
+        <p>
+         When you change the region, the domain is automatically updated.
+        </p>
+       </div>
+       <div class="paragraph">
+        <p>
+         See
+         <a class="xref page" href="cloudhub-networking-guide#regional-services">
+          Regional Services
+         </a>
+         .
+        </p>
+       </div>
+      </dd>
+      <dt class="hdlist1">
+       Automatically restart application when not responding
+      </dt>
+      <dd>
+       <p>
+        CloudHub automatically restarts your application when the monitoring system discovers an issue.
+       </p>
+       <div class="paragraph">
+        <p>
+         See
+         <a class="xref page" href="worker-monitoring">
+          Application Monitoring and Automatic Restarts
+         </a>
+         .
+        </p>
+       </div>
+      </dd>
+      <dt class="hdlist1">
+       Persistent queues
+      </dt>
+      <dd>
+       <div class="paragraph">
+        <p>
+         You can use persistent queues on your application to store data in an input queue to disk.
+Persistent queues protect against message loss and enable you to distribute workloads across a set of workers.
+        </p>
+       </div>
+       <div class="paragraph">
+        <p>
+         See
+         <a class="xref page" href="managing-queues">
+          Manage Queues
+         </a>
+         .
+        </p>
+       </div>
+       <div class="paragraph">
+        <p>
+         Before you can take advantage of persistent queueing, you must set up your application to use queues.
+        </p>
+       </div>
+       <div class="paragraph">
+        <p>
+         See
+         <a class="xref page" href="cloudhub-fabric">
+          Clustering
+         </a>
+         .
+        </p>
+       </div>
+      </dd>
+      <dt class="hdlist1">
+       Encrypt persistent queues
+      </dt>
+      <dd>
+       <p>
+        If you enable persistent queues, you can optionally encrypt the data stored in the input queue on disk.
+       </p>
+      </dd>
+      <dt class="hdlist1">
+       Use Object Store v2
+      </dt>
+      <dd>
+       <p>
+        Object Store v2 is enabled by default in Mule 4.
+In Mule 3, select this option to access Object Store v2.
+       </p>
+       <div class="paragraph">
+        <p>
+         See
+         <a class="xref page" href="../object-store/">
+          Object Store V2
+         </a>
+         .
+        </p>
+       </div>
+      </dd>
+      <dt class="hdlist1">
+       Enable Monitoring and Visualizer
+      </dt>
+      <dd>
+       <p>
+        Use Anypoint Monitoring and Visualizer for Mule applications running on supported versions of Mule.
+       </p>
+       <div class="paragraph">
+        <p>
+         This feature is available only if your organization has the Anypoint Integration Advanced package or a Titanium subscription to Anypoint Platform. For more information, see the
+         <a class="xref page" href="../general/pricing">
+          Pricing and Packaging
+         </a>
+         documentation.
+        </p>
+       </div>
+       <div class="paragraph">
+        <p>
+         See
+         <a class="xref page" href="../monitoring/">
+          Anypoint Monitoring
+         </a>
+         and
+         <a class="xref page" href="../visualizer/">
+          Anypoint Visualizer
+         </a>
+         .
+        </p>
+       </div>
+      </dd>
+     </dl>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="autoscaling-tab-settings">
+     <a class="anchor" href="#autoscaling-tab-settings">
+     </a>
+     Autoscaling Tab Settings
+    </h3>
+    <div class="paragraph">
+     <p>
+      Autoscaling enables you to define policies that respond to CPU or memory usage thresholds by scaling up or down the processing resources used by an application.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      This tab doesn’t appear by default.
+See
+      <a class="xref page" href="autoscaling-in-cloudhub">
+       Autoscaling in CloudHub
+      </a>
+      for information.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="properties-tab-settings">
+     <a class="anchor" href="#properties-tab-settings">
+     </a>
+     Properties Tab Settings
+    </h3>
+    <div class="paragraph">
+     <p>
+      On the
+      <strong>
+       Properties
+      </strong>
+      tab, you can specify properties (key-value pairs) that the application uses during deployment and while running.
+     </p>
+    </div>
+    <div class="admonitionblock note">
+     <table>
+      <tr>
+       <td class="icon">
+        <i class="fa icon-note" title="Note">
+        </i>
+       </td>
+       <td class="content">
+        When you deploy an application from a nonproduction environment (
+        <strong>
+         Get from sandbox
+        </strong>
+        ), the new application inherits any properties defined in the original application.
+You can update these properties as required on the
+        <strong>
+         Properties
+        </strong>
+        tab before deploying the application.
+       </td>
+      </tr>
+     </table>
+    </div>
+    <div class="paragraph">
+     <p>
+      For more information about specifying properties, including hiding them in Runtime Manager,
+see
+      <a class="xref page" href="cloudhub-manage-props">
+       Manage Properties for Applications on CloudHub
+      </a>
+      and
+      <a class="xref page" href="secure-application-properties">
+       Safely Hide Application Properties
+      </a>
+      .
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="insight-tab-settings">
+     <a class="anchor" href="#insight-tab-settings">
+     </a>
+     Insight Tab Settings
+    </h3>
+    <div class="paragraph">
+     <p>
+      You can enable the Insight analytics feature and specify metadata options on the
+      <strong>
+       Insight
+      </strong>
+      tab.
+For information about using this tool, see
+      <a class="xref page" href="../runtime-manager/insight">
+       Insight
+      </a>
+      .
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="logging-tab-settings">
+     <a class="anchor" href="#logging-tab-settings">
+     </a>
+     Logging Tab Settings
+    </h3>
+    <div class="paragraph">
+     <p>
+      CloudHub stores activity logs, which you can view or download from Runtime Manager.
+See
+      <a class="xref page" href="viewing-log-data">
+       View Log Data
+      </a>
+      .
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      You can configure the logging level (
+      <code>
+       DEBUG
+      </code>
+      ,
+      <code>
+       WARN
+      </code>
+      ,
+      <code>
+       ERROR
+      </code>
+      , or
+      <code>
+       INFO
+      </code>
+      ) for the application on the
+      <strong>
+       Logging
+      </strong>
+      tab.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      Alternatively, you can configure logging by modifying the
+      <code>
+       level
+      </code>
+      value in the
+      <code>
+       log4j2.xml
+      </code>
+      file.
+See
+      <a class="xref page" href="../mule-runtime/latest/logging-in-mule#configuring-custom-logging-settings">
+       Configuring Custom Logging Settings
+      </a>
+      and
+      <a href="https://logging.apache.org/log4j/2.x/manual/configuration.html">
+       Apache Logging Services
+      </a>
+      .
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="static-ips-tab-settings">
+     <a class="anchor" href="#static-ips-tab-settings">
+     </a>
+     Static IPs Tab Settings
+    </h3>
+    <div class="paragraph">
+     <p>
+      Use the
+      <strong>
+       Static IPs
+      </strong>
+      tab to allocate a static IP address to your application deployed in a specific region.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      You can also preconfigure static IP addresses for multiple regions for disaster recovery (DR) scenarios.
+If an application has static IP addresses allocated in multiple regions,
+the static IP address is assigned when the application is deployed to a new region.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      If your application is already running, applying the static IP address change restarts it using the newly applied static IP address.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      By default, the number of static IP addresses allocated to your organization is equal
+to twice the number of production vCores in your subscription and appears under the
+      <strong>
+       Use Static IP
+      </strong>
+      checkbox.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      If you need to free some of your static IP allocations, you can release unused IP addresses from an application.
+To increase your allocation of static IP addresses, contact your Customer Success Manager.
+For more information about adding more static IPs, see
+      <a href="https://help.salesforce.com/s/articleView?id=001121221&amp;type=1">
+       How to Request Additional Static IPs for your Anypoint Organization
+      </a>
+      .
+     </p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="worker-size-and-vcores">
+   <a class="anchor" href="#worker-size-and-vcores">
+   </a>
+   Worker Size and vCores
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     On each application, workers are responsible for executing the application logic.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Worker sizes have different compute, memory, and storage capacities.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     For information about worker size and vCores, see
+     <a class="xref page" href="cloudhub-architecture#cloudhub-workers">
+      CloudHub Workers
+     </a>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="change-settings-of-a-deployed-application">
+   <a class="anchor" href="#change-settings-of-a-deployed-application">
+   </a>
+   Change Settings of a Deployed Application
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You can change most application settings after deploying an application to CloudHub.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     To edit the settings of a deployed application:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       On the
+       <strong>
+        Applications
+       </strong>
+       tab, select the application name.
+      </p>
+     </li>
+     <li>
+      <p>
+       Click the
+       <strong>
+        Settings
+       </strong>
+       tab.
+      </p>
+     </li>
+     <li>
+      <p>
+       Make your changes and click
+       <strong>
+        Apply Changes
+       </strong>
+      </p>
+     </li>
+    </ol>
+   </div>
+   <div class="paragraph">
+    <p>
+     CloudHub redeploys the application with zero downtime.
+    </p>
+   </div>
+   <div class="admonitionblock note">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-note" title="Note">
+       </i>
+      </td>
+      <td class="content">
+       Cancelling a deployment and starting a new one for the same application before the cancellation is complete can lead to a one-to-three-minute downtime.
+      </td>
+     </tr>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="deployment-progress">
+   <a class="anchor" href="#deployment-progress">
+   </a>
+   Deployment Progress
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     When CloudHub uploads your application and begins deploying it, CloudHub switches its user interface
+to the
+     <strong>
+      Logs
+     </strong>
+     view so that you can monitor deployment progress.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The application status changes to
+     <code>
+      Deploying
+     </code>
+     to indicate the deployment is in progress.
+When the deployment is complete, the application status changes to
+     <code>
+      Started
+     </code>
+     and a message
+appears in the status area and in the logs to indicate that the application is successfully deployed.
+    </p>
+   </div>
+   <div class="admonitionblock note">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-note" title="Note">
+       </i>
+      </td>
+      <td class="content">
+       While you deploy an application on Mule runtime engine version 4.1.x and later, the
+       <a class="xref page" href="../mule-gateway/mule-gateway-gatekeeper#how-gatekeeper-works">
+        Gatekeeper
+       </a>
+       mechanism works with
+       <a class="xref page" href="../mule-gateway/mule-gateway-autodiscovery-overview">
+        API Autodiscovery
+       </a>
+       to help determine the readiness of a deployment.
+If Gatekeeper considers the application not ready within five minutes of deployment initiation,
+the application status is
+       <code>
+        Deploy failed
+       </code>
+       .
+      </td>
+     </tr>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="deployment-failure">
+   <a class="anchor" href="#deployment-failure">
+   </a>
+   Deployment Failure
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     If an error occurs and the application cannot be deployed, the application status
+changes to
+     <code>
+      Deploy failed
+     </code>
+     .
+The
+     <strong>
+      Logs
+     </strong>
+     tab includes details on the application deployment errors.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="managing-cloudhub-specific-settings">
+        Manage CloudHub-Specific Settings
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="managing-applications-on-cloudhub">
+        Manage Applications on CloudHub
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../runtime-manager/managing-deployed-applications#application_status_states">
+        Application Status States
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../runtime-manager/monitoring">
+        Monitor Applications
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="developing-applications-for-cloudhub">
+        Develop Applications for CloudHub
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../anypoint-cli/latest/">
+        Anypoint Platform Command-Line Interface
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="cloudhub-api">
+        CloudHub REST API
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

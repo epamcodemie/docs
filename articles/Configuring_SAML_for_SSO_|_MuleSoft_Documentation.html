@@ -1,0 +1,1099 @@
+<article class="doc">
+ <h1 class="page">
+  Configuring SAML for SSO
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Configure SAML to provide external authentication of users and Single Sign-on (SSO) capability so users don’t need to provide additional credentials when they access Anypoint Platform.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Configuring SAML for SSO involves:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Beginning with a configured SAML identity provider (IdP)
+      </p>
+     </li>
+     <li>
+      <p>
+       Navigating to and completing the
+       <strong>
+        External Identity - Identity Management SAML 2.0
+       </strong>
+       form in Anypoint Platform, and optionally configuring some advanced settings
+      </p>
+     </li>
+     <li>
+      <p>
+       Saving and testing your new configuration
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="before-you-begin">
+   <a class="anchor" href="#before-you-begin">
+   </a>
+   Before You Begin
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Your Anypoint Platform organization must be set up as your audience.
+      </p>
+     </li>
+     <li>
+      <p>
+       The assertion consumer service must be set to send a
+       <code>
+        POST
+       </code>
+       request to
+       <code>
+        https://anypoint.mulesoft.com/accounts/login/:org-domain/providers/:providerId/receive-id
+       </code>
+       .
+       <br/>
+       Note that
+       <code>
+        :providerId
+       </code>
+       is available only after you create the provider configuration.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="admonitionblock note">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-note" title="Note">
+       </i>
+      </td>
+      <td class="content">
+       <div class="ulist">
+        <ul>
+         <li>
+          <p>
+           If you are using the Anypoint Platform EU Control Plane, the endpoint is
+           <code>
+            https://eu1.anypoint.mulesoft.com/accounts/login/:org-domain/providers/:providerId/receive-id
+           </code>
+           .
+           <br/>
+          </p>
+         </li>
+         <li>
+          <p>
+           If you are using the Anypoint Platform Gov Cloud, the endpoint is
+           <code>
+            https://gov.anypoint.mulesoft.com/accounts/login/:org-domain/providers/:providerId/receive-id
+           </code>
+           .
+          </p>
+         </li>
+        </ul>
+       </div>
+      </td>
+     </tr>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="configure-saml">
+   <a class="anchor" href="#configure-saml">
+   </a>
+   Configure SAML in Identity Management
+  </h2>
+  <div class="sectionbody">
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Sign in to Anypoint Platform using an account that has the root Organization Administrator permission.
+      </p>
+     </li>
+     <li>
+      <p>
+       In the navigation bar or the main Anypoint Platform page, click
+       <strong>
+        Access Management
+       </strong>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       In the Access Management navigation menu, click
+       <strong>
+        Identity Providers
+       </strong>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       Select
+       <strong>
+        Identity Providers
+       </strong>
+       &gt;
+       <strong>
+        SAML 2.0
+       </strong>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       In the
+       <strong>
+        Configurations
+       </strong>
+       tab, complete the required fields of the
+       <strong>
+        Identity Management SAML 2.0
+       </strong>
+       form:
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          <strong>
+           Sign On URL
+          </strong>
+         </p>
+         <div class="paragraph">
+          <p>
+           Redirect URL provided by the IdP for signin, for example:
+           <code>
+            https://example.com/sso/saml
+           </code>
+           .
+          </p>
+         </div>
+        </li>
+        <li>
+         <p>
+          <strong>
+           Sign Off URL
+          </strong>
+         </p>
+         <div class="paragraph">
+          <p>
+           URL to redirect signout requests, so users both sign out of the Anypoint Platform and have their SAML user’s status set to signed out.
+          </p>
+         </div>
+        </li>
+        <li>
+         <p>
+          <strong>
+           Issuer
+          </strong>
+         </p>
+         <div class="paragraph">
+          <p>
+           ID of the identity provider instance that sends SAML assertions.
+          </p>
+         </div>
+        </li>
+        <li>
+         <p>
+          <strong>
+           Public Key
+          </strong>
+         </p>
+         <div class="paragraph">
+          <p>
+           Public key provided by the identity provider, which is used to sign the SAML assertion. It is the "X509Certificate" value in the SAML Response.
+          </p>
+         </div>
+        </li>
+        <li>
+         <p>
+          <strong>
+           Audience
+          </strong>
+         </p>
+         <div class="paragraph">
+          <p>
+           An arbitrary string value that identifies your Anypoint Platform organization. The typical value for this string is
+           <code>
+            &lt;organizationDomain&gt;.anypoint.mulesoft.com
+           </code>
+           .
+          </p>
+         </div>
+        </li>
+        <li>
+         <p>
+          <strong>
+           Single Sign-On Initiation
+          </strong>
+         </p>
+         <div class="paragraph">
+          <p>
+           Specify whether SSO can be initiated by the Anypoint Platform, your identity provider (for example, Okta), or both.
+          </p>
+         </div>
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             The
+             <strong>
+              Service Provider Only
+             </strong>
+             option allows only the Anypoint Platform to initiate SSO.
+            </p>
+           </li>
+           <li>
+            <p>
+             The
+             <strong>
+              Identity Provider Only
+             </strong>
+             option allows only your external identity provider to initiate SSO.
+            </p>
+           </li>
+           <li>
+            <p>
+             The
+             <strong>
+              Both
+             </strong>
+             option allows either Anypoint Platform or your external identity provider to initiate SSO.
+            </p>
+            <div class="paragraph">
+             <p>
+              The default value for this setting for newly configured identity provider configurations is
+              <strong>
+               Both
+              </strong>
+              .
+             </p>
+            </div>
+           </li>
+          </ul>
+         </div>
+        </li>
+       </ul>
+      </div>
+     </li>
+     <li>
+      <p>
+       Optionally, expand
+       <strong>
+        Advanced settings
+       </strong>
+       , and provide the following values:
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          <strong>
+           Username Attribute
+          </strong>
+         </p>
+         <div class="paragraph">
+          <p>
+           Field name in the SAML
+           <code>
+            AttributeStatements
+           </code>
+           that maps to username. If no value is configured, the
+           <code>
+            NameID
+           </code>
+           attribute of the SAML
+           <code>
+            Subject
+           </code>
+           is used (Note: this is outside the SAML
+           <code>
+            AttributeStatements
+           </code>
+           ).
+          </p>
+         </div>
+        </li>
+        <li>
+         <p>
+          <strong>
+           First Name Attribute
+          </strong>
+         </p>
+         <div class="paragraph">
+          <p>
+           Field name in the SAML
+           <code>
+            AttributeStatements
+           </code>
+           that maps to
+           <code>
+            First Name
+           </code>
+           .
+          </p>
+         </div>
+        </li>
+        <li>
+         <p>
+          <strong>
+           Last Name Attribute
+          </strong>
+         </p>
+         <div class="paragraph">
+          <p>
+           Field name in the SAML
+           <code>
+            AttributeStatements
+           </code>
+           that maps to
+           <code>
+            Last Name
+           </code>
+           .
+          </p>
+         </div>
+        </li>
+        <li>
+         <p>
+          <strong>
+           Email Attribute
+          </strong>
+         </p>
+         <div class="paragraph">
+          <p>
+           Field name in the SAML
+           <code>
+            AttributeStatements
+           </code>
+           that maps to
+           <code>
+            Email
+           </code>
+           .
+          </p>
+         </div>
+        </li>
+        <li>
+         <p>
+          <strong>
+           Group Attribute
+          </strong>
+         </p>
+         <div class="paragraph">
+          <p>
+           Field name in the SAML
+           <code>
+            AttributeStatements
+           </code>
+           that maps to
+           <code>
+            Group
+           </code>
+           .
+          </p>
+         </div>
+        </li>
+        <li>
+         <p>
+          <strong>
+           Require encrypted SAML assertions
+          </strong>
+         </p>
+         <div class="paragraph">
+          <p>
+           If enabled, the SAML assertions sent from the IdP must be encrypted and follow the guidelines mentioned in the
+           <a class="xref page" href="sso-prerequisites-about">
+            Prerequisites
+           </a>
+           .
+          </p>
+         </div>
+        </li>
+       </ul>
+      </div>
+     </li>
+     <li>
+      <p>
+       Click
+       <strong>
+        Create
+       </strong>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       Sign out of Anypoint Platform, navigate to the sign-on URL you entered in the
+       <strong>
+        Identity Management SAML 2.0
+       </strong>
+       form, and then sign in through your identity provider to test the configuration.
+      </p>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="rotate-saml-key">
+   <a class="anchor" href="#rotate-saml-key">
+   </a>
+   Rotate a SAML Key
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     As a security best practice, many organizations rotate the key used to encrypt SAML 2.0 assertions. With the Key Rotation feature, Anypoint Platform can generate a new key, or you can upload a public and private key pair (up to three keys). When you want to rotate a key, you can designate a new
+     <em>
+      primary key
+     </em>
+     in Anypoint Platform and your IdP, and you can revoke the obsolete key to remove it from the rotation.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The keys that you create or upload to Anypoint Platform must also exist in your IdP. All keys present in Anypoint Platform can decrypt SAML 2.0 assertions sent by your IdP. However, only the primary key is used by Anypoint Platform to sign SAML 2.0 AuthnRequests and SLO requests; the primary key must be configured in your IdP to validate the signatures.
+    </p>
+   </div>
+   <div class="admonitionblock note">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-note" title="Note">
+       </i>
+      </td>
+      <td class="content">
+       If you are migrating from the default Anypoint Platform SSO certificate to a new certificate, you must update the Assertion Consumer Service (ACS) URL in your IdP. Only the new ACS URL supports the keys generated by the key rotation feature. If your ACS URL already follows the pattern of
+       <code>
+        …​/accounts/login/:org-domain/providers/:providerId/receive-id
+       </code>
+       , you do not need to change the ACS URL.
+      </td>
+     </tr>
+    </table>
+   </div>
+   <div class="sect2">
+    <h3 id="add-keys-for-key-rotation">
+     <a class="anchor" href="#add-keys-for-key-rotation">
+     </a>
+     Add Keys for Key Rotation
+    </h3>
+    <div class="paragraph">
+     <p>
+      When you use the key rotation feature, you must have keys available in Anypoint Platform for your IdP to use. Anypoint Platform enables you to generate new keys or upload existing public/private key pairs.
+     </p>
+    </div>
+    <div class="sect3">
+     <h4 id="generate-a-new-key">
+      <a class="anchor" href="#generate-a-new-key">
+      </a>
+      Generate a New Key
+     </h4>
+     <div class="olist arabic">
+      <ol class="arabic">
+       <li>
+        <p>
+         Sign in to Anypoint Platform using an account that has the root Organization Administrator permission.
+        </p>
+       </li>
+       <li>
+        <p>
+         In the navigation bar or the main Anypoint Platform page, click
+         <strong>
+          Access Management
+         </strong>
+         .
+        </p>
+       </li>
+       <li>
+        <p>
+         In the Access Management navigation menu, click
+         <strong>
+          Identity Providers
+         </strong>
+         .
+        </p>
+       </li>
+       <li>
+        <p>
+         Next to a SAML 2.0 IdP, click
+         <strong>
+          Edit
+         </strong>
+         .
+        </p>
+       </li>
+       <li>
+        <p>
+         Click the
+         <strong>
+          Anypoint Keys
+         </strong>
+         tab.
+        </p>
+       </li>
+       <li>
+        <p>
+         Click
+         <strong>
+          + New key
+         </strong>
+         and select
+         <strong>
+          Generate
+         </strong>
+         .
+         <br/>
+         A newly generated key appears in the list of keys.
+        </p>
+       </li>
+      </ol>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="upload-an-existing-private-and-public-key-pair">
+      <a class="anchor" href="#upload-an-existing-private-and-public-key-pair">
+      </a>
+      Upload an Existing Private and Public Key Pair
+     </h4>
+     <div class="olist arabic">
+      <ol class="arabic">
+       <li>
+        <p>
+         Sign in to Anypoint Platform using an account that has the root Organization Administrator permission.
+        </p>
+       </li>
+       <li>
+        <p>
+         In the navigation bar or the main Anypoint Platform page, click
+         <strong>
+          Access Management
+         </strong>
+         .
+        </p>
+       </li>
+       <li>
+        <p>
+         In the Access Management navigation menu, click
+         <strong>
+          Identity Providers
+         </strong>
+         .
+        </p>
+       </li>
+       <li>
+        <p>
+         Next to a SAML 2.0 IdP, click
+         <strong>
+          Edit
+         </strong>
+         .
+        </p>
+       </li>
+       <li>
+        <p>
+         Click the
+         <strong>
+          Anypoint Keys
+         </strong>
+         tab.
+        </p>
+       </li>
+       <li>
+        <p>
+         Click
+         <strong>
+          + New key
+         </strong>
+         , and select
+         <strong>
+          Upload
+         </strong>
+         .
+        </p>
+       </li>
+       <li>
+        <p>
+         In the
+         <strong>
+          Private key
+         </strong>
+         field, paste your private key.
+        </p>
+       </li>
+       <li>
+        <p>
+         In the
+         <strong>
+          Public key
+         </strong>
+         field, paste your certificate.
+        </p>
+       </li>
+       <li>
+        <p>
+         Click
+         <strong>
+          Upload
+         </strong>
+         .
+         <br/>
+         The key you uploaded appears in the list of keys.
+        </p>
+       </li>
+      </ol>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="rotate-the-primary-key">
+     <a class="anchor" href="#rotate-the-primary-key">
+     </a>
+     Rotate the Primary Key
+    </h3>
+    <div class="paragraph">
+     <p>
+      Because you can store up to three keys, you must designate a
+      <em>
+       primary key
+      </em>
+      to be used for signing requests from Anypoint Platform.
+Before reassigning the primary key, ensure your IdP can access the key that you intend to use.
+     </p>
+    </div>
+    <div class="olist arabic">
+     <ol class="arabic">
+      <li>
+       <p>
+        Sign in to Anypoint Platform using an account that has the root Organization Administrator permission.
+       </p>
+      </li>
+      <li>
+       <p>
+        In the navigation bar or the main Anypoint Platform page, click
+        <strong>
+         Access Management
+        </strong>
+        .
+       </p>
+      </li>
+      <li>
+       <p>
+        In the Access Management navigation menu, click
+        <strong>
+         Identity Providers
+        </strong>
+        .
+       </p>
+      </li>
+      <li>
+       <p>
+        Next to a SAML 2.0 IdP, click
+        <strong>
+         Edit
+        </strong>
+        .
+       </p>
+      </li>
+      <li>
+       <p>
+        Click the
+        <strong>
+         Anypoint Keys
+        </strong>
+        tab.
+       </p>
+      </li>
+      <li>
+       <p>
+        Next to the key that you want to make primary, click
+        <strong>
+         …​
+        </strong>
+        and select
+        <strong>
+         Use as primary key…​
+        </strong>
+        .
+       </p>
+      </li>
+      <li>
+       <p>
+        Click
+        <strong>
+         Apply
+        </strong>
+        .
+       </p>
+      </li>
+     </ol>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="revoke-a-key">
+     <a class="anchor" href="#revoke-a-key">
+     </a>
+     Revoke a Key
+    </h3>
+    <div class="paragraph">
+     <p>
+      To help ensure security, revoke a key that you have already used as the primary key.
+Before you revoke a key, ensure your IdP is not using the key.
+Note that when you revoke a public key, Anypoint Platform also revokes the corresponding private key. For security purposes, you cannot retrieve a key that has been revoked.
+     </p>
+    </div>
+    <div class="olist arabic">
+     <ol class="arabic">
+      <li>
+       <p>
+        Sign in to Anypoint Platform using an account that has the root Organization Administrator permission.
+       </p>
+      </li>
+      <li>
+       <p>
+        In the navigation bar or the main Anypoint Platform page, click
+        <strong>
+         Access Management
+        </strong>
+        .
+       </p>
+      </li>
+      <li>
+       <p>
+        In the Access Management navigation menu, click
+        <strong>
+         Identity Providers
+        </strong>
+        .
+       </p>
+      </li>
+      <li>
+       <p>
+        Next to a SAML 2.0 IdP, click
+        <strong>
+         Edit
+        </strong>
+        .
+       </p>
+      </li>
+      <li>
+       <p>
+        Click the
+        <strong>
+         Anypoint Keys
+        </strong>
+        tab.
+       </p>
+      </li>
+      <li>
+       <p>
+        Next to the key that you want to revoke, click
+        <strong>
+         …​
+        </strong>
+        and select
+        <strong>
+         Revoke
+        </strong>
+        .
+       </p>
+      </li>
+      <li>
+       <p>
+        Click
+        <strong>
+         Revoke
+        </strong>
+        .
+       </p>
+      </li>
+     </ol>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="import-saml-metadata">
+   <a class="anchor" href="#import-saml-metadata">
+   </a>
+   Import SAML Metadata
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     When creating a new SAML 2.0 configuration, you can upload an XML file containing your identity provider’s SAML 2.0 metadata to Anypoint Platform using the
+     <strong>
+      Import IdP Metadata
+     </strong>
+     link. Once uploaded, the XML file’s values automatically populate the
+     <strong>
+      Identity Management SAML 2.0
+     </strong>
+     form.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     When you upload an XML file to import your metadata:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       The file must be smaller than 16 KB.
+      </p>
+     </li>
+     <li>
+      <p>
+       If you upload an XML file that contains more than one entry, Anypoint Platform uses the first identity provider configuration.
+      </p>
+     </li>
+     <li>
+      <p>
+       Anypoint Platform does not check the validity of the values in the XML that you upload.
+       <br/>
+       Verify that your identity configuration is correct before creating the identity provider configuration.
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="export-saml-metadata">
+   <a class="anchor" href="#export-saml-metadata">
+   </a>
+   Export SAML Metadata
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     If your identity provider supports uploading service-provider metadata, you can click the
+     <strong>
+      Anypoint service provider metadata
+     </strong>
+     link to download your SAML configuration settings in an XML file. You can then upload this file to your identity provider to configure Anypoint Platform. Note that you must have a SAML 2.0 identity configuration to export this data.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="sso-redirect-using-cookies">
+   <a class="anchor" href="#sso-redirect-using-cookies">
+   </a>
+   SSO Redirect Process Using Cookies
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Anypoint Platform uses cookies to ensure that SSO users are redirected to the same location from which they initiated their signin.
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       When a user signs in to Anypoint Platform, a cookie is created for the signin session:
+       <code>
+        mulesoft.sess=xxxxx
+       </code>
+       .
+      </p>
+      <div class="paragraph">
+       <p>
+        The cookie contains the location, such as a public portal, where the user initiated the signin.
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       The cookie is passed to the user’s browser.
+      </p>
+     </li>
+     <li>
+      <p>
+       The user is directed to their SSO provider for authentication.
+      </p>
+     </li>
+     <li>
+      <p>
+       After the user is authenticated using SSO, the provider directs the user back to Anypoint Platform with the authorization decision SAML response.
+      </p>
+     </li>
+     <li>
+      <p>
+       The session cookie,
+       <code>
+        mulesoft.sess=xxxxx
+       </code>
+       , is passed from the browser, which redirects the user back to the location where they initiated the signin process.
+      </p>
+     </li>
+     <li>
+      <p>
+       After the user successfully signs in to Anypoint Platform, the
+       <code>
+        mulesoft.sess
+       </code>
+       cookie returns to its default value, based on the OWASP standard.
+      </p>
+     </li>
+    </ol>
+   </div>
+   <div class="paragraph">
+    <p>
+     Users can also be redirected based on their permissions. This occurs when:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       The browser does not pass a cookie.
+      </p>
+     </li>
+     <li>
+      <p>
+       The cookie has expired.
+      </p>
+     </li>
+     <li>
+      <p>
+       The cookie is set to the default value.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     In these cases, a user with the Organization Administrator permission is redirected to the Anypoint Platform landing page.
+Users who do not have the Organization Administrator permission are directed to Anypoint Exchange.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="updating-saml-identity-provider">
+   <a class="anchor" href="#updating-saml-identity-provider">
+   </a>
+   Updating a SAML Identity Provider
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Organization administrators can update existing SAML providers. However, when you update
+     <code>
+      Issuer
+     </code>
+     or
+     <code>
+      Audience
+     </code>
+     , you will effectively switch to a different IdP, which can cause issues such as unwanted user duplication. For more information, see
+     <a href="https://help.mulesoft.com/s/article/External-identity-migration-How-to-prevent-duplicate-users-being-created">
+      the Help article on preventing user duplication
+     </a>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="view-limits-saml-identity-provider">
+   <a class="anchor" href="#view-limits-saml-identity-provider">
+   </a>
+   View Limits for a SAML Identity Provider
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Each configured SAML IdP has a
+     <strong>
+      Limits
+     </strong>
+     section that shows how close it is to hitting limits imposed by Anypoint Platform.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     To view limits:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       In the Access Management navigation menu, click
+       <strong>
+        Identity Providers
+       </strong>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       Click the SAML IdP for which you want to view limits.
+      </p>
+     </li>
+     <li>
+      <p>
+       Click the
+       <strong>
+        Limits
+       </strong>
+       tab.
+      </p>
+     </li>
+    </ol>
+   </div>
+   <div class="paragraph">
+    <p>
+     For more information on limits in Access Management, see
+     <a class="xref page" href="troubleshooting-anypoint-platform-access#access-management-limits">
+      Limits
+     </a>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="single-log-out-task">
+        Configuring Single Signout
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>
