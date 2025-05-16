@@ -1,0 +1,1452 @@
+<article class="doc">
+ <h1 class="page">
+  Migrating Core Components
+ </h1>
+ <div class="paragraph">
+  <p>
+   The table below maps Mule 3.x components to their Mule 4 equivalents.
+  </p>
+ </div>
+ <table class="tableblock frame-all grid-all stretch">
+  <colgroup>
+   <col style="width: 30%;"/>
+   <col style="width: 70%;"/>
+  </colgroup>
+  <thead>
+   <tr>
+    <th class="tableblock halign-left valign-top">
+     Mule 3.x Component
+    </th>
+    <th class="tableblock halign-left valign-top">
+     Mule 4.0 Replacement
+    </th>
+   </tr>
+  </thead>
+  <tbody>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      All router
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use
+      <a class="xref page" href="scatter-gather-concept">
+       Scatter Gather
+      </a>
+      instead or execute the operations one after the other with different target attributes and then use DW to merge results.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      async[
+      <code>
+       processingStrategy
+      </code>
+      ]
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Async processing strategies are no longer needed with the non-blocking execution engine; remove all processing strategies from your scope when you migrate to Mule 4. Use an
+      <a class="xref page" href="async-scope-reference">
+       Async
+      </a>
+      scope wrapping all the components that you want to execute asynchronously.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      asynchronous-processing-strategy
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Async processing strategies are no longer needed with the non-blocking execution engine; remove all processing strategies from your scope when you migrate to Mule 4. Use an
+      <a class="xref page" href="async-scope-reference">
+       Async
+      </a>
+      scope wrapping all the components that you want to execute asynchronously.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      bridge
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Build an equivalent flow
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      catch-exception-strategy
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use
+      <a class="xref page" href="on-error-scope-concept">
+       error-handler
+      </a>
+      with an
+      <code>
+       on-error-continue
+      </code>
+      strategy.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      choice-exception-strategy
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use
+      <a class="xref page" href="on-error-scope-concept">
+       error-handler
+      </a>
+      with different strategies inside using error type selection or when attribute.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      combine-collections-transformer
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      No longer needed with the simplified message model. MuleMessageCollections are replaced with arrays of Mule Messages, which can be merged or iterated through using any Mule component, such as DataWeave or foreach.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      component
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use the
+      <a class="xref page" href="../../java-module/latest/">
+       Java module
+      </a>
+      .
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      composite-source
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Create one flow per each source and invoke a private flow using flow-ref for the common functionality.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      configuration[
+      <code>
+       defaultExceptionStrategy-ref
+      </code>
+      ]
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      New name is
+      <code>
+       defaultErrorHandler-ref
+      </code>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      configuration[
+      <code>
+       flowEndingWithOneWayEndpointReturnsNull
+      </code>
+      ]
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      No longer needed with new execution engine.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      configuration[
+      <code>
+       useExtendedTransformations
+      </code>
+      ]
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Removed.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      configuration[
+      <code>
+       enricherPropagatesSessionVariableChanges
+      </code>
+      ]
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Removed.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      copy-attachments
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Per the new
+      <a class="xref page" href="about-mule-message">
+       Message Structure
+      </a>
+      , attachments will now be part of the message Attributes. You can manipulate them at will using DataWeave
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      copy-properties
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Per the new
+      <a class="xref page" href="about-mule-message">
+       Message Structure
+      </a>
+      , properties will now be part of the message Attributes. You can manipulate them at will using DataWeave
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      custom-agent
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      No longer supported.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      custom-aggregator
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use the
+      <a class="xref page" href="../../mule-sdk/latest/">
+       Mule SDK
+      </a>
+      to build the custom aggregator.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      custom-connector
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use the
+      <a class="xref page" href="../../mule-sdk/latest/">
+       Mule SDK
+      </a>
+      to build your own connector.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      custom-exception-strategy
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      No longer needed. Use
+      <a class="xref page" href="on-error-scope-concept">
+       error-handler
+      </a>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      custom-lifecycle-adapter-factory
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      No longer supported.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      custom-object-store
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use
+      <a class="xref page" href="migration-connectors-objectstore">
+       Object Store connector
+      </a>
+      to create custom stores.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      custom-processor
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use the
+      <a class="xref page" href="../../mule-sdk/latest/">
+       Mule SDK
+      </a>
+      or the
+      <a class="xref page" href="migration-module-scripting">
+       Scripting module
+      </a>
+      instead
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      custom-queue-store
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use the new
+      <a class="xref page" href="migration-module-vm">
+       VM Connector
+      </a>
+      .
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      custom-router-resolver
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use the
+      <a class="xref page" href="../../mule-sdk/latest/">
+       Mule SDK
+      </a>
+      to build a custom router.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      custom-router
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use the
+      <a class="xref page" href="../../mule-sdk/latest/">
+       Mule SDK
+      </a>
+      to build a custom router.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      custom-service
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use flows.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      custom-source
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use the
+      <a class="xref page" href="../../mule-sdk/latest/">
+       Mule SDK
+      </a>
+      to write a new event source.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      custom-splitter
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use DataWeave or the
+      <a class="xref page" href="../../mule-sdk/latest/">
+       Mule SDK
+      </a>
+      .
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      custom-transaction-manager
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use the
+      <code>
+       &lt;bti:transaction-manager/&gt;
+      </code>
+      .
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      custom-transaction
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      No longer supported.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      default-exception-strategy
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use
+      <a class="xref page" href="on-error-scope-concept">
+       error-handler
+      </a>
+      with an
+      <code>
+       on-error-propagate
+      </code>
+      strategy.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      default-in-memory-queue-store
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use the new
+      <a class="xref page" href="migration-module-vm">
+       VM Connector
+      </a>
+      .
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      default-persistent-queue-store
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use the new
+      <a class="xref page" href="migration-module-vm">
+       VM Connector
+      </a>
+      .
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      default-service-exception-strategy
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use
+      <a class="xref page" href="on-error-scope-concept">
+       error-handler
+      </a>
+      with an on-error-propagate strategy.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      endpoint
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use connectors.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      exception-strategy
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use
+      <a class="xref page" href="on-error-scope-concept">
+       error-handler
+      </a>
+      .
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      expression-component
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Depending on the nature of your expression, you can either use DataWeave (for data access expressions),
+      <a class="xref page" href="migration-module-scripting">
+       Scripting module
+      </a>
+      or the
+      <a class="xref page" href="../../mule-sdk/latest/">
+       Mule SDK
+      </a>
+      for algorithmic expressions, or the
+      <a class="xref page" href="../../java-module/latest/">
+       Java module
+      </a>
+      for expressions which simply access Java.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      file-queue-store
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use the new
+      <a class="xref page" href="migration-module-vm">
+       VM Connector
+      </a>
+      .
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      flow[
+      <code>
+       processingStrategy
+      </code>
+      ]
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Removed. Non-blocking execution engine ensures that users do not need to tune this.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      idempotent-message-filter
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Replaced by
+      <a class="xref page" href="idempotent-message-validator">
+       idempotent-message-validator
+      </a>
+      .
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      idempotent-redelivery-policy
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      New name is
+      <code>
+       redelivery-policy
+      </code>
+      .
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      idempotent-secure-hash-message-filter
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Replaced by
+      <a class="xref page" href="idempotent-message-validator">
+       idempotent-message-validator
+      </a>
+      .
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      in-memory-store
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use
+      <a class="xref page" href="migration-connectors-objectstore">
+       Object Store connector
+      </a>
+      to create
+      <a class="xref page" href="../../object-store-connector/latest/object-store-to-define-a-new-os">
+       custom stores
+      </a>
+      .
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      inbound-endpoint
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use the event sources or triggers defined on each connector or module.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      include-entry-point
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use the
+      <a class="xref page" href="../../java-module/latest/">
+       Java module
+      </a>
+      .
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      interceptor-stack
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Removed. Use custom policies.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      invoke
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use the
+      <a class="xref page" href="../../java-module/latest/">
+       Java module
+      </a>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      jndi-transaction-manager
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use the
+      <code>
+       &lt;bti:transaction-manager/&gt;
+      </code>
+      .
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      jrun-transaction-manager
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use the
+      <code>
+       &lt;bti:transaction-manager/&gt;
+      </code>
+      .
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      legacy-abstract-exception-strategy
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use the new
+      <a class="xref page" href="on-error-scope-concept">
+       error-handler
+      </a>
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      managed-store
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use
+      <a class="xref page" href="migration-connectors-objectstore">
+       Object Store connector
+      </a>
+      to create
+      <a class="xref page" href="../../object-store-connector/latest/object-store-to-define-a-new-os">
+       custom stores
+      </a>
+      .
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      message-properties-transformer
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use Transform component and DataWeave.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      model
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Removed. Use flows instead.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      mule[
+      <code>
+       version
+      </code>
+      ]
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      outbound-endpoint
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Element moved from the core namespace to the new transports namespace.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      poll → watermark
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      This capability has been built inside event sources from many connectors, like Salesforce, Database, SFTP, File, etc. You can also use the object-store connector to
+      <a class="xref page" href="migration-patterns-watermark">
+       manually set the watermark values
+      </a>
+      .
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      poll
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Replaced with
+      <a class="xref page" href="migration-core-poll">
+       scheduler component
+      </a>
+      .
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      processor
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Depending on the nature of your expression, you can either use DataWeave (for data access expressions),
+      <a class="xref page" href="migration-module-scripting">
+       Scripting module
+      </a>
+      or the
+      <a class="xref page" href="../../mule-sdk/latest/">
+       Mule SDK
+      </a>
+      for algorithmic expressions, or the
+      <a class="xref page" href="../../java-module/latest/">
+       Java module
+      </a>
+      for expressions which simply access Java.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      prototype-object
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use Java module or Spring module.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      queue-profile
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use the
+      <a class="xref page" href="migration-module-vm">
+       VM Connector
+      </a>
+      .
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      queue-store
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      <a class="xref page" href="migration-module-vm">
+       VM Connector
+      </a>
+      .
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      recipient-list
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Removed.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      reconnect-custom-notifier
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Removed.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      reconnect-custom-strategy
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Removed.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      reconnect-notifier
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Removed.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      remove-attachment
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      No longer needed per the new
+      <a class="xref page" href="about-mule-message">
+       Message Structure
+      </a>
+      , attachments
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      remove-property
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      PNo longer needed per the new
+      <a class="xref page" href="about-mule-message">
+       Message Structure
+      </a>
+      , attachments
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      response
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      No longer needed.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      request-reply
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Mule 4 will not longer support request-reply for all connectors. Connectors that had a “request-reply” behavior will provide a “request-reply” operation built in, such as the JMS
+      <code>
+       publish-consume
+      </code>
+      operation.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      resin-transaction-manager
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Removed.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      rollback-exception-strategy
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use error-handler with an on-error-propagate strategy.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      scatter-gather[
+      <code>
+       threading-profile
+      </code>
+      ]
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      No longer needed now that Mule 4 is non blocking.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      seda-model
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      No more SEDA queues in Mule 4. The execution engine in Mule 4 is non-blocking.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      service
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use flows.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      set-attachment
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      No longer needed. Attachments can be stored as variables.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      set-property
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Properties no longer exist in the new message model. You can store attributes from the Mule message in a variable.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      set-session-variable
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Session variables have been removed. Users must explicitly pass headers across transport boundaries.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      simple-in-memory-queue-store
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use the new VM Connector.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      simple-service
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use flows.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      simple-text-file-store
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use object store module extension to create custom stores.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      singleton-object
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use Java module or Spring module.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      spring-object
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use Java module or Spring module.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      synchronous-processing-strategy
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      The behavior related to flow components execution is the same as flows in 4.x but it doesn’t always execute in the same thread as in 3.x.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      transactional scope
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Replaced with “try” scope.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      username-password-filter
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Removed.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      validator
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Removed.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      weblogic-transaction-manager
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use the
+      <code>
+       &lt;bti:transaction-manager/&gt;
+      </code>
+      .
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      websphere-transaction-manager
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use the
+      <code>
+       &lt;bti:transaction-manager/&gt;
+      </code>
+      .
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      all-strategy
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Removed.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      entry-point-resolver
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use the
+      <a class="xref page" href="../../java-module/latest/">
+       Java module
+      </a>
+      .
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      filter
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Filters are replaced by the
+      <a class="xref page" href="migration-filters">
+       Validation module
+      </a>
+      .
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      interceptor
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Interceptors are replaced with custom policies.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      message-info-mapping
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      No longer needed
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      point-resolver-set
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Use the Use the
+      <a class="xref page" href="../../java-module/latest/">
+       Java module
+      </a>
+      .
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      router
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Removed.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      threading-profile
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      No longer needed. The Runtime now tunes itself.
+     </p>
+    </td>
+   </tr>
+   <tr>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      transformer
+     </p>
+    </td>
+    <td class="tableblock halign-left valign-top">
+     <p class="tableblock">
+      Removed. Most explicit transformations are no longer needed. Use DataWeave for the corner cases.
+     </p>
+    </td>
+   </tr>
+  </tbody>
+ </table>
+</article>

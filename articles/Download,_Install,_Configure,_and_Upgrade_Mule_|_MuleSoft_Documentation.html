@@ -1,0 +1,458 @@
+<article class="doc">
+ <h1 class="page">
+  Download, Install, Configure, and Upgrade Mule
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Before downloading and installing Mule, verify that you have a supported JDK installed.
+This example uses
+     <a href="https://adoptium.net/temurin/releases/?version=8" rel="noopener" target="_blank">
+      Eclipse Temurin 8
+     </a>
+     , which is recommended for Mule 4.4.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ java -version
+openjdk version "1.8.0_352"
+OpenJDK Runtime Environment (Temurin)(build 1.8.0_352-b08)
+OpenJDK 64-Bit Server VM (Temurin)(build 25.352-b08, mixed mode)</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     AdoptOpenJDK moved to the Eclipse Foundation and changed its name to the Eclipse Adoptium project. The name of the JDK changed to Temurin.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="download-mule">
+   <a class="anchor" href="#download-mule">
+   </a>
+   Download Mule
+  </h2>
+  <div class="sectionbody">
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Download the Mule 4 binary file from the following link and unzip it:
+      </p>
+      <div class="paragraph">
+       <p>
+        <a href="https://www.mulesoft.com/lp/dl/mule-esb-enterprise">
+         https://www.mulesoft.com/lp/dl/mule-esb-enterprise
+        </a>
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       Set an environment variable called
+       <code>
+        MULE_HOME
+       </code>
+       for the
+       <code>
+        mule
+       </code>
+       directory inside your extracted folder.
+      </p>
+      <div class="paragraph">
+       <p>
+        Example for version 4.4.0 in the
+        <code>
+         Downloads
+        </code>
+        directory:
+       </p>
+      </div>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          In Windows environments:
+         </p>
+         <div class="listingblock">
+          <div class="content">
+           <pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ env:MULE_HOME="C:\Downloads\mule-enterprise-standalone-4.4.0"</code></pre>
+          </div>
+         </div>
+        </li>
+        <li>
+         <p>
+          In Linux or Unix environments:
+         </p>
+         <div class="listingblock">
+          <div class="content">
+           <pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ export MULE_HOME=~/Downloads/mule-enterprise-standalone-4.4.0</code></pre>
+          </div>
+         </div>
+        </li>
+       </ul>
+      </div>
+     </li>
+    </ol>
+   </div>
+   <div class="paragraph">
+    <p>
+     The procedure for making the
+     <code>
+      MULE_HOME
+     </code>
+     setting permanent depends on your operating system.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="test-your-mule-instance">
+     <a class="anchor" href="#test-your-mule-instance">
+     </a>
+     Test Your Mule Instance
+    </h3>
+    <div class="paragraph">
+     <p>
+      After downloading Mule, test to confirm that it runs in your system without errors by executing the following commands:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        In Windows environments:
+       </p>
+       <div class="listingblock">
+        <div class="content">
+         <pre class="highlightjs highlight"><code class="language-powershell hljs" data-lang="powershell">%MULE_HOME%\bin\mule.bat</code></pre>
+        </div>
+       </div>
+      </li>
+      <li>
+       <p>
+        In Linux or Unix environments:
+       </p>
+       <div class="listingblock">
+        <div class="content">
+         <pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ $MULE_HOME/bin/mule</code></pre>
+        </div>
+       </div>
+      </li>
+     </ul>
+    </div>
+    <div class="paragraph">
+     <p>
+      These commands run Mule in foreground mode, and the startup script displays information on the terminal’s standard output. You can’t issue further commands on the terminal as long as Mule is running.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      To stop Mule, press
+      <code>
+       CTRL-C
+      </code>
+      in the terminal in which the script is running.
+     </p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="install-mule">
+   <a class="anchor" href="#install-mule">
+   </a>
+   Install Mule
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You can install Mule as a Windows service or as a Linux or Unix daemon by executing the corresponding command:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       In Windows environments:
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-powershell hljs" data-lang="powershell">$ $MULE_HOME\bin\mule.bat install</code></pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       In Linux or Unix environments:
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ $MULE_HOME/bin/mule install</code></pre>
+       </div>
+      </div>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="configure-properties-in-the-wrapper-conf-file">
+   <a class="anchor" href="#configure-properties-in-the-wrapper-conf-file">
+   </a>
+   Configure Properties in the wrapper.conf File
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     After installing Mule as a service or as a daemon, you can modify the properties defined in the
+     <code>
+      wrapper.conf
+     </code>
+     file.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     For details about what you can do with the configuration file, see
+     <a href="https://wrapper.tanukisoftware.com/doc/english/properties.html">
+      Configuration Property Overview
+     </a>
+     .
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     After modifying the
+     <code>
+      wrapper.conf
+     </code>
+     file, restart your Mule instance to enable the changes.
+    </p>
+   </div>
+   <div class="admonitionblock note">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-note" title="Note">
+       </i>
+      </td>
+      <td class="content">
+       <div class="paragraph">
+        <p>
+         When you add new properties, ensure that no other properties already use the same sequence number (don’t worry about the ones in
+         <code>
+          wrapper-additional.conf
+         </code>
+         , as Mule adjusts those upon restart).
+        </p>
+       </div>
+       <div class="paragraph">
+        <p>
+         Don’t modify the
+         <code>
+          wrapper-additional.conf
+         </code>
+         file, as Mule automatically generates this file.
+        </p>
+       </div>
+      </td>
+     </tr>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="configure-cpu-affinity">
+   <a class="anchor" href="#configure-cpu-affinity">
+   </a>
+   Configure CPU Affinity
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Many operating systems provide a mechanism to bind a process to one or more central processing units (CPUs) so that the process executes only on the assigned CPUs. You can configure CPU affinity in your environment to run Mule in a nonvirtualized multicore server and comply with the number of cores included in your subscription.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="considerations-when-using-cpu-affinity">
+     <a class="anchor" href="#considerations-when-using-cpu-affinity">
+     </a>
+     Considerations When Using CPU Affinity
+    </h3>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        CPUs have groups of cores that share a cache to improve thread communication and migration performance. To avoid such performance issues, check with your infrastructure team to identify which cores share this cache before setting up this feature.
+       </p>
+      </li>
+      <li>
+       <p>
+        Check with your infrastructure team to ensure that no existing resource allocation policy that can interfere with your CPU affinity configuration.
+       </p>
+      </li>
+      <li>
+       <p>
+        Ensure that the number of cores you plan to configure through CPU affinity does not exceed the number of cores included in your MuleSoft subscription plan.
+       </p>
+      </li>
+     </ul>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="remove-the-mule-service-or-daemon">
+   <a class="anchor" href="#remove-the-mule-service-or-daemon">
+   </a>
+   Remove the Mule Service or Daemon
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You can remove Mule as a Windows service or as a Unix daemon by executing the corresponding command:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       In Windows environments:
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-powershell hljs" data-lang="powershell">$ $MULE_HOME\bin\mule.bat remove</code></pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       In Linux or Unix environments:
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ $MULE_HOME/bin/mule remove
+MULE_HOME is set to /Applications/mule-enterprise-standalone-4.3.0
+MULE_BASE is set to /Applications/mule-enterprise-standalone-4.3.0
+Detected Mac OSX:
+Mule Enterprise Edition is not running.
+Removing Mule Enterprise Edition daemon...</code></pre>
+       </div>
+      </div>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="install-anypoint-monitoring">
+   <a class="anchor" href="#install-anypoint-monitoring">
+   </a>
+   Install Anypoint Monitoring
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You can
+     <a class="xref page" href="../../monitoring/am-installing">
+      install Anypoint Monitoring
+     </a>
+     for cloud-managed supported versions of on-premises runtime instances to monitor applications running on that server.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="update-upgrade-or-migrate-mule-versions">
+   <a class="anchor" href="#update-upgrade-or-migrate-mule-versions">
+   </a>
+   Update, Upgrade, or Migrate Mule Versions
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     MuleSoft releases new major, minor, and patch release versions of Mule, as well as monthly updates to patch releases of Mule that incorporate the latest bug fixes and security enhancements.
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       To update a patch version of Mule, see
+       <a class="xref page" href="../../release-notes/mule-runtime/patching-mule-versions">
+        Update Patches to Mule Runtime Engine
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       To upgrade to a later version of Mule 4, see
+       <a class="xref page" href="../../release-notes/mule-runtime/updating-mule-4-versions">
+        Upgrading Mule Runtime Engine (Versions 4.x to 4.n)
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       For upgrades to a later version of Mule 3, see
+       <a class="xref page" href="../../release-notes/mule-runtime/updating-mule-versions">
+        Upgrading Mule Runtime Engine (Versions 3.x to 3.n)
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       To migrate from Mule 3 to Mule 4, see
+       <a class="xref page" href="migration-intro">
+        Migration to Mule 4
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="starting-and-stopping-mule-esb">
+        Starting and Stopping Mule
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="deploying">
+        Deploy Mule Applications
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../studio/latest/to-download-and-install-studio">
+        Install Anypoint Studio 7.0
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="mule-runtime-updates">
+        What’s New in Mule 4
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

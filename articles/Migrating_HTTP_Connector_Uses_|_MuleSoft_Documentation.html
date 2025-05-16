@@ -1,0 +1,1604 @@
+<article class="doc">
+ <h1 class="page">
+  Migrating HTTP Connector Uses
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     For the most part, the HTTP connector has just been adapted to the Mule 4 model:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Configuration properties have been moved to a connection component when applicable.
+      </p>
+     </li>
+     <li>
+      <p>
+       Message processors have been refactored into proper operations.
+      </p>
+     </li>
+     <li>
+      <p>
+       Outbound properties such as
+       <code>
+        http.status
+       </code>
+       have been removed in favor of explicit properties.
+      </p>
+     </li>
+     <li>
+      <p>
+       Inbound properties such as
+       <code>
+        http.queryParams
+       </code>
+       have been removed in favor of HTTP specific message attributes.
+      </p>
+     </li>
+     <li>
+      <p>
+       Threading configuration has been removed since it’s now all handled at the Mule Runtime level.
+      </p>
+     </li>
+     <li>
+      <p>
+       Special handling for
+       <code>
+        application/x-www-form-urlencoded
+       </code>
+       and
+       <code>
+        multipart/*
+       </code>
+       media types has been removed in favor of DataWeave.
+      </p>
+     </li>
+     <li>
+      <p>
+       RAML metadata support has been removed from the HTTP request operation in favor of REST Connect.
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="whats-covered-here">
+   <a class="anchor" href="#whats-covered-here">
+   </a>
+   What’s Covered Here?
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a href="#http_listener">
+        HTTP Listener
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#http-request">
+        HTTP Request
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#http-static-resource">
+        HTTP Static Resource Handler
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#http-basic-authentication">
+        HTTP Basic Security Filter
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#http-mime-types">
+        HTTP MIME Type Parsing
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="http_listener">
+   <a class="anchor" href="#http_listener">
+   </a>
+   HTTP Listener
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The HTTP Listener has only seen major changes in the configuration of its response
+builders, as well as the encapsulation of its configuration properties into a specific
+connection component.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="configuration">
+     <a class="anchor" href="#configuration">
+     </a>
+     Configuration
+    </h3>
+    <div class="paragraph">
+     <p>
+      The following properties and components must now be defined within an inner
+      <code>
+       http:listener-connection
+      </code>
+      component:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        <code>
+         host
+        </code>
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         port
+        </code>
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         protocol
+        </code>
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         usePersistentConnections
+        </code>
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         connectionIdleTimeout
+        </code>
+       </p>
+      </li>
+      <li>
+       <p>
+        TLS Context
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 3 example
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;http:listener-config name="listenerConfig" host="localhost" port="8081" basePath="api/v2" protocol="HTTPS"&gt;
+  &lt;tls:context&gt;
+    &lt;tls:trust-store path="cacerts.jks" password="changeit"/&gt;
+    &lt;tls:key-store path="keystore.jks" keyPassword="changeit" password="changeit"/&gt;
+  &lt;/tls:context&gt;
+&lt;/http:listener-config&gt;</code></pre>
+     </div>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 4 example
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;http:listener-config name="listenerConfig" basePath="api/v2"&gt;
+  &lt;http:listener-connection host="localhost" port="8081" protocol="HTTPS"&gt;
+    &lt;tls:context&gt;
+        &lt;tls:trust-store path="cacerts.jks" password="changeit"/&gt;
+        &lt;tls:key-store path="keystore.jks" keyPassword="changeit" password="changeit"/&gt;
+    &lt;/tls:context&gt;
+  &lt;/http:listener-connection&gt;
+&lt;/http:listener-config&gt;</code></pre>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="listener">
+     <a class="anchor" href="#listener">
+     </a>
+     Listener
+    </h3>
+    <div class="paragraph">
+     <p>
+      All HTTP Listener properties remain the same except for the
+      <code>
+       http:response-builder
+      </code>
+      and
+      <code>
+       http:error-response-builder
+      </code>
+      . These have been renamed to simply
+      <code>
+       http:response
+      </code>
+      and
+      <code>
+       http:error-response
+      </code>
+      , and now require the headers to be defined through a single
+expression while removing support for implicit outbound properties handling. Additionally,
+they support a new
+      <code>
+       http:body
+      </code>
+      component where an expression can be used to define the
+outgoing HTTP message body.
+     </p>
+    </div>
+    <div class="paragraph">
+     <div class="title">
+      Mule 3 example
+     </div>
+     <p>
+      In the following example, a number of
+      <code>
+       User-Agent
+      </code>
+      headers are sent in a response
+set up through an implicit outbound property (
+      <code>
+       Mule 3.6.0
+      </code>
+      ), a single header reference
+(
+      <code>
+       Mule 3.7.0
+      </code>
+      ) and an expression reference (
+      <code>
+       Mule 3.8.0
+      </code>
+      and
+      <code>
+       Mule 3.9.0
+      </code>
+      ). An error
+response, on the other hand, will feature a
+      <code>
+       Date
+      </code>
+      header as well as the outbound
+property for
+      <code>
+       User-Agent
+      </code>
+      .
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="listener"&gt;
+  &lt;http:listener config-ref="listenerConfig" path="/"&gt;
+    &lt;http:response-builder statusCode="201" reasonPhrase="everything works!"&gt;
+      &lt;http:header headerName="User-Agent" value="Mule 3.7.0"/&gt;
+      &lt;http:headers expression="['User-Agent': ['Mule 3.8.0', 'Mule 3.9.0']]"/&gt;
+    &lt;/http:response-builder&gt;
+    &lt;http:error-response-builder statusCode="500" reasonPhrase="something went wrong"&gt;
+      &lt;http:header headerName="Date" value="#[server.dateTime]"/&gt;
+    &lt;/http:error-response-builder&gt;
+  &lt;/http:listener&gt;
+  ...
+  &lt;set-property propertyName="User-Agent" value="Mule 3.6.0"/&gt;
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <div class="title">
+      Mule 4 example
+     </div>
+     <p>
+      Notice that while
+      <code>
+       statusCode
+      </code>
+      and
+      <code>
+       reasonPhrase
+      </code>
+      properties remain the same, all
+headers should now be explicitly added using a DataWeave expression. It’s important
+to note that explicit
+      <code>
+       statusCode
+      </code>
+      and
+      <code>
+       reasonPhrase
+      </code>
+      must be provided as well to
+replace usages of outbound properties
+      <code>
+       http.status
+      </code>
+      and
+      <code>
+       http.reason
+      </code>
+      .
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="listener"&gt;
+  &lt;http:listener config-ref="listenerConfig" path="/"&gt;
+    &lt;http:response statusCode="201" reasonPhrase="everything works!"&gt;
+      &lt;http:headers&gt;
+        #[{
+          'User-Agent' : 'Mule 3.6.0',
+          'User-Agent' : 'Mule 3.7.0',
+          'User-Agent' : 'Mule 3.8.0',
+          'User-Agent' : 'Mule 3.9.0'
+          }]
+      &lt;/http:headers&gt;
+    &lt;/http:response&gt;
+    &lt;http:error-response statusCode="500" reasonPhrase="something went wrong"&gt;
+      &lt;http:headers&gt;
+        #[{
+          'User-Agent': 'Mule 3.6.0',
+          'Date': now()
+        }]
+      &lt;/http:headers&gt;
+    &lt;/http:error-response&gt;
+  &lt;/http:listener&gt;
+  ...
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="attributes">
+      <a class="anchor" href="#attributes">
+      </a>
+      Attributes
+     </h4>
+     <div class="paragraph">
+      <p>
+       Following the new Mule Message structure, the HTTP listener now provides all request
+metadata through specific HTTP Request Attributes. Below you can find the new ways
+of accessing that metadata compared to Mule 3.
+      </p>
+     </div>
+     <table class="tableblock frame-all grid-all stretch">
+      <colgroup>
+       <col style="width: 33.3333%;"/>
+       <col style="width: 33.3333%;"/>
+       <col style="width: 33.3334%;"/>
+      </colgroup>
+      <thead>
+       <tr>
+        <th class="tableblock halign-left valign-top">
+         Metadata
+        </th>
+        <th class="tableblock halign-left valign-top">
+         Mule 3
+        </th>
+        <th class="tableblock halign-left valign-top">
+         Mule 4
+        </th>
+       </tr>
+      </thead>
+      <tbody>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          Method
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          #[inboundProperties.'http.method']
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          #[attributes.method]
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          Path
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          #[inboundProperties.'http.listener.path']
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          #[attributes.listenerPath]
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          Relative Path
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          #[inboundProperties.'http.relative.path']
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          #[attributes.relativePath]
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          Request URI
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          #[inboundProperties.'http.request.uri']
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          #[attributes.requestUri]
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          Query String
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          #[inboundProperties.'http.query.string']
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          #[attributes.queryString]
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          Query Parameters
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          #[inboundProperties.'http.query.params']
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          #[attributes.queryParams]
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          URI Parameters
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          #[inboundProperties.'http.uri.params']
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          #[attributes.uriParams]
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          Version
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          #[inboundProperties.'http.version']
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          #[attributes.version]
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          Scheme
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          #[inboundProperties.'http.scheme']
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          #[attributes.scheme]
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          Headers
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          #[inboundProperties]
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          #[attributes.headers]
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          Remote Address
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          #[inboundProperties.'http.remote.address']
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          #[attributes.remoteAddress]
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          Client Certificate
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          #[inboundProperties.'http.client.cert']
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          #[attributes.clientCertificate]
+         </p>
+        </td>
+       </tr>
+      </tbody>
+     </table>
+     <div class="paragraph">
+      <p>
+       Notice that while the HTTP headers were mapped directly into inbound properties,
+now they have an exclusive object. Below you can find an example of how to obtain
+a header:
+      </p>
+     </div>
+     <div class="ulist">
+      <ul>
+       <li>
+        <p>
+         Mule 3:
+         <code>
+          #[inboundProperties.'host']
+         </code>
+        </p>
+       </li>
+       <li>
+        <p>
+         Mule 4:
+         <code>
+          #[attributes.headers.'host']
+         </code>
+        </p>
+       </li>
+      </ul>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="encode-characters-for-http-requests">
+      <a class="anchor" href="#encode-characters-for-http-requests">
+      </a>
+      Encode Characters for HTTP Requests
+     </h4>
+     <div class="paragraph">
+      <p>
+       In Mule 4 to avoid a malformed URI when you make an HTTP request to the HTTP Listener, encode characters such as
+       <code>
+        {
+       </code>
+       and
+       <code>
+        }
+       </code>
+       that you set in the HTTP request as recommended in
+       <a href="https://tools.ietf.org/html/rfc1738#page-3" rel="noopener" target="_blank">
+        RFC
+       </a>
+       .
+      </p>
+     </div>
+     <div class="paragraph">
+      <p>
+       Encode these characters both when you configure the request URL in the
+       <strong>
+        Path
+       </strong>
+       field of the HTTP Listener in Studio, and when you send the curl request command. In the following example, you encode the characters
+       <code>
+        {
+       </code>
+       to
+       <code>
+        %7B
+       </code>
+       and
+       <code>
+        }
+       </code>
+       to
+       <code>
+        %7D
+       </code>
+       of the URL
+       <code>
+        path=/profiles/{profileid}/credit
+       </code>
+       :
+      </p>
+     </div>
+     <div class="olist arabic">
+      <ol class="arabic">
+       <li>
+        <p>
+         In Studio, select the HTTP
+         <strong>
+          Listener
+         </strong>
+         source from your flow.
+        </p>
+       </li>
+       <li>
+        <p>
+         In the
+         <strong>
+          Path
+         </strong>
+         field, set the relative path URL with the encoded characters, for example,
+         <code>
+          /profiles/%7Bprofileid%7D/credit
+         </code>
+        </p>
+       </li>
+       <li>
+        <p>
+         Save all your application changes in Studio.
+        </p>
+       </li>
+       <li>
+        <p>
+         Run the curl command
+         <code>
+          http://localhost:8084/test?path=/profiles/%7Bprofileid%7D/credit
+         </code>
+        </p>
+       </li>
+      </ol>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="http-request">
+   <a class="anchor" href="#http-request">
+   </a>
+   HTTP Request
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Like the HTTP listener, most changes in the HTTP request operation regard the encapsulation of configuration
+properties within a connection component and the request building process.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="configuration-2">
+     <a class="anchor" href="#configuration-2">
+     </a>
+     Configuration
+    </h3>
+    <div class="paragraph">
+     <p>
+      The following properties and components must now be defined within an inner
+      <code>
+       http:request-connection
+      </code>
+      component:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        <code>
+         host
+        </code>
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         port
+        </code>
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         protocol
+        </code>
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         usePersistentConnections
+        </code>
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         maxConnections
+        </code>
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         connectionIdleTimeout
+        </code>
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         streamResponse
+        </code>
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         responseBufferSize
+        </code>
+       </p>
+      </li>
+      <li>
+       <p>
+        HTTP Authentication
+       </p>
+      </li>
+      <li>
+       <p>
+        HTTP Proxy
+       </p>
+      </li>
+      <li>
+       <p>
+        TLS Context
+       </p>
+      </li>
+      <li>
+       <p>
+        TCP Client Socket Properties
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 3 example
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;http:request-config name="requestConfig" host="localhost" port="8081" protocol="HTTPS" enableCookies="false"&gt;
+  &lt;tls:context&gt;
+    &lt;tls:trust-store path="trustStore" password="changeit"/&gt;
+    &lt;tls:key-store path="clientKeystore" keyPassword="changeit" password="changeit"/&gt;
+  &lt;/tls:context&gt;
+&lt;/http:request-config&gt;</code></pre>
+     </div>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 4 example
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;http:request-config name="requestConfig" enableCookies="false"&gt;
+  &lt;http:request-connection host="localhost" port="8081" protocol="HTTPS"&gt;
+    &lt;tls:context&gt;
+      &lt;tls:trust-store path="trustStore" password="changeit"/&gt;
+      &lt;tls:key-store path="clientKeystore" keyPassword="changeit" password="changeit"/&gt;
+    &lt;/tls:context&gt;
+  &lt;/http:request-connection&gt;
+&lt;/http:request-config&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      Note that RAML metadata support has been removed because REST Connect can now generate
+a specific connector for a given RAML, which can then be reused.
+     </p>
+    </div>
+    <div class="sect3">
+     <h4 id="http-authentication">
+      <a class="anchor" href="#http-authentication">
+      </a>
+      HTTP Authentication
+     </h4>
+     <div class="paragraph">
+      <p>
+       In addition to now belonging in the
+       <code>
+        http:request-connection
+       </code>
+       component, the HTTP
+authentication configuration must be placed within an
+       <code>
+        http:authentication
+       </code>
+       component.
+This applies to all authentication types supported: basic, digest, NTLM and OAuth2.
+      </p>
+     </div>
+     <div class="listingblock">
+      <div class="title">
+       Mule 3 example
+      </div>
+      <div class="content">
+       <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;http:request-config name="basicConfig" host="localhost" port="8081"&gt;
+  &lt;http:basic-authentication username="#[flowVars.user]" password="#[flowVars.password]" preemptive="#[flowVars.preemptive]" /&gt;
+&lt;/http:request-config&gt;</code></pre>
+      </div>
+     </div>
+     <div class="listingblock">
+      <div class="title">
+       Mule 4 example
+      </div>
+      <div class="content">
+       <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;http:request-config name="basicConfig"&gt;
+  &lt;http:request-connection host="localhost" port="8081"&gt;
+    &lt;http:authentication&gt;
+      &lt;http:basic-authentication username="#[vars.user]" password="#[vars.password]" preemptive="#[vars.preemptive]" /&gt;
+    &lt;/http:authentication&gt;
+  &lt;/http:request-connection&gt;
+&lt;/http:request-config&gt;</code></pre>
+      </div>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="http-proxy">
+      <a class="anchor" href="#http-proxy">
+      </a>
+      HTTP Proxy
+     </h4>
+     <div class="paragraph">
+      <p>
+       Just like the HTTP Authentication component, configuring an HTTP proxy now requires
+a wrapping
+       <code>
+        http:proxy-config
+       </code>
+       component, for all kinds of proxies.
+      </p>
+     </div>
+     <div class="listingblock">
+      <div class="title">
+       Mule 3 example
+      </div>
+      <div class="content">
+       <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;http:request-config name="proxyConfig" host="localhost" port="8081" basePath="basePath"&gt;
+  &lt;http:proxy host="localhost" port="8082" username="cniehaus" password="324B21" /&gt;
+&lt;/http:request-config&gt;</code></pre>
+      </div>
+     </div>
+     <div class="listingblock">
+      <div class="title">
+       Mule 4 example
+      </div>
+      <div class="content">
+       <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;http:request-config name="proxyConfig" basePath="basePath"&gt;
+  &lt;http:request-connection host="localhost" port="8081"&gt;
+    &lt;http:proxy-config&gt;
+      &lt;http:proxy host="localhost" port="8082" username="cniehaus" password="324B21" /&gt;
+    &lt;/http:proxy-config&gt;
+  &lt;/http:request-connection&gt;
+&lt;/http:request-config&gt;</code></pre>
+      </div>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="tcp-client-socket-properties">
+      <a class="anchor" href="#tcp-client-socket-properties">
+      </a>
+      TCP Client Socket Properties
+     </h4>
+     <div class="paragraph">
+      <p>
+       In Mule 3, TCP client socket properties were defined based in the TCP transport
+which has been replaced in Mule 4 by the Sockets Connector, so now that is required
+to configure the properties. Additionally, the properties must be wrapped in an
+       <code>
+        http:client-socket-properties
+       </code>
+       component.
+      </p>
+     </div>
+     <div class="listingblock">
+      <div class="title">
+       Mule 3 example
+      </div>
+      <div class="content">
+       <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;http:request-config name="tcpConfig" host="localhost" port="8081" &gt;
+    &lt;tcp:client-socket-properties connectionTimeout="1000" keepAlive="true"
+                                  receiveBufferSize="1024" sendBufferSize="1024"
+                                  sendTcpNoDelay="true" timeout="1000" linger="1000" /&gt;
+&lt;/http:request-config&gt;</code></pre>
+      </div>
+     </div>
+     <div class="listingblock">
+      <div class="title">
+       Mule 4 example
+      </div>
+      <div class="content">
+       <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;http:request-config name="tcpConfig"&gt;
+  &lt;http:request-connection host="localhost" port="8081"&gt;
+    &lt;http:client-socket-properties&gt;
+        &lt;sockets:tcp-client-socket-properties connectionTimeout="1000" keepAlive="true"
+                                              receiveBufferSize="1024" sendBufferSize="1024"
+                                              sendTcpNoDelay="true" clientTimeout="1000" linger="1000" /&gt;
+    &lt;/http:client-socket-properties&gt;
+  &lt;/http:request-connection&gt;
+&lt;/http:request-config&gt;</code></pre>
+      </div>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="request">
+     <a class="anchor" href="#request">
+     </a>
+     Request
+    </h3>
+    <div class="paragraph">
+     <p>
+      All HTTP request properties remain the same except for the
+      <code>
+       source
+      </code>
+      which has between
+replaced by an
+      <code>
+       http:body
+      </code>
+      component supporting expressions and transformations and
+the
+      <code>
+       http:request-builder
+      </code>
+      which has been removed. Headers, query and URI parameters
+should now be defined explicitly through DataWeave expressions.
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 3 example
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="request"&gt;
+  ...
+  &lt;set-property propertyName="Host" value="www.example.com"/&gt;
+  &lt;http:request config-ref="requestConfig" path="song/{id}" method="GET" source="#[flowVars.customSource]"&gt;
+    &lt;http:request-builder&gt;
+      &lt;http:header headerName="Transfer-Encoding" value="chunked" /&gt;
+      &lt;http:uri-param paramName="id" value="#[flowVars.songId]" /&gt;
+      &lt;http:query-params expression="#[flowVars.params]" /&gt;
+    &lt;/http:request-builder&gt;
+  &lt;/http:request&gt;
+  ...
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 4 example
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="request"&gt;
+  ...
+  &lt;http:request config-ref="requestConfig" path="song/{id}" method="GET"&gt;
+    &lt;http:body&gt;
+      #[vars.customSource]
+    &lt;/http:body&gt;
+    &lt;http:headers&gt;
+      #[{
+        'Host': 'www.example.com'
+        'Transfer-Encoding' : 'chunked'
+      }]
+    &lt;/http:headers&gt;
+    &lt;http:uri-params&gt;
+      #[{ 'id' : vars.songId }]
+    &lt;/http:uri-params&gt;
+    &lt;http:query-params&gt;
+      #[vars.params]
+    &lt;/http:query-params&gt;
+  &lt;/http:request&gt;
+  ...
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="attributes-2">
+      <a class="anchor" href="#attributes-2">
+      </a>
+      Attributes
+     </h4>
+     <div class="paragraph">
+      <p>
+       Like the HTTP Listener , the HTTP request now provides all response metadata through
+specific HTTP Response Attributes. Below you can find the new ways of accessing that
+metadata compared to Mule 3.
+      </p>
+     </div>
+     <table class="tableblock frame-all grid-all stretch">
+      <colgroup>
+       <col style="width: 33.3333%;"/>
+       <col style="width: 33.3333%;"/>
+       <col style="width: 33.3334%;"/>
+      </colgroup>
+      <thead>
+       <tr>
+        <th class="tableblock halign-left valign-top">
+         Metadata
+        </th>
+        <th class="tableblock halign-left valign-top">
+         Mule 3
+        </th>
+        <th class="tableblock halign-left valign-top">
+         Mule 4
+        </th>
+       </tr>
+      </thead>
+      <tbody>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          Status Code
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          #[inboundProperties.'http.status']
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          #[attributes.statusCode]
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          Reason Phrase
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          #[inboundProperties.'http.reason']
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          #[attributes.reasonPhrase]
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          Headers
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          #[inboundProperties]
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          #[attributes.headers]
+         </p>
+        </td>
+       </tr>
+      </tbody>
+     </table>
+     <div class="paragraph">
+      <p>
+       Notice that headers are treated just like in the HTTP Listener.
+      </p>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="http-static-resource">
+   <a class="anchor" href="#http-static-resource">
+   </a>
+   HTTP Static Resource Handler
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The HTTP Static Resource Handler has been adapted to Mule 4’s operation model and
+renamed to
+     <code>
+      http:load-static-resource
+     </code>
+     . The
+     <code>
+      resourceBase
+     </code>
+     property has also been
+renamed to
+     <code>
+      resourceBasePath
+     </code>
+     .
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 example
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="main-http-root"&gt;
+  &lt;http:listener config-ref="listenerConfig" path="*"/&gt;
+  &lt;http:static-resource-handler resourceBase="site" defaultFile="index.html"/&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 example
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="main-http-root"&gt;
+  &lt;http:listener config-ref="listenerConfig" path="*"/&gt;
+  &lt;http:load-static-resource resourceBasePath="site" defaultFile="index.html" /&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Though this operation is only meant to be used with an HTTP Listener source, we’ve
+also introduced an
+     <code>
+      attributes
+     </code>
+     property where you can reference the HTTP request
+attributes of the listener and thus use the operation in any point of the flow.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="http-basic-authentication">
+   <a class="anchor" href="#http-basic-authentication">
+   </a>
+   HTTP Basic Security Filter
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The HTTP Basic Security Filter has not been changed except to support DataWeave as
+a source for the
+     <code>
+      securityProviders
+     </code>
+     property and the introduction of an
+     <code>
+      attributes
+     </code>
+     property where you can reference the HTTP request attributes of the listener and
+thus use the operation in any point of the flow, just like the HTTP load static
+resource operation.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 example
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="listenerBasicAuth"&gt;
+  &lt;http:listener config-ref="listenerConfigBasicAuth" path="/basic" /&gt;
+  &lt;http:basic-security-filter realm="mule-realm" securityProviders="provider1,provider2"/&gt;
+  &lt;set-payload value="Ok"/&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 example
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="listenerBasicAuth"&gt;
+  &lt;http:listener config-ref="listenerConfigBasicAuth" path="/basic"/&gt;
+  &lt;http:basic-security-filter realm="mule-realm" securityProviders="#['provider1', 'provider2']"/&gt;
+  &lt;set-payload value="Ok"/&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     See
+     <a class="xref page" href="setting-up-ldap-provider-for-spring-security">
+      Configure LDAP Provider for Spring Security
+     </a>
+     for a complete configuration example.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="http-mime-types">
+   <a class="anchor" href="#http-mime-types">
+   </a>
+   HTTP MIME Type Parsing
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The HTTP connector in Mule 3 featured options to parse requests and responses when
+bodies of type
+     <code>
+      application/x-www-form-urlencoded
+     </code>
+     or
+     <code>
+      multipart/form-data
+     </code>
+     (and
+other subtypes) were received. When the parsed objects where encountered on outbound
+requests and responses, they were transformed back into those types of bodies for
+consistency.
+However, since DataWeave 2.0 now handles those MIME types, in Mule 4 HTTP parsing
+has been removed and HTTP components always provide and require binary data streams.
+Below you can find details on how to migrate uses of the formerly parsed types.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="applicationx-www-form-urlencoded">
+     <a class="anchor" href="#applicationx-www-form-urlencoded">
+     </a>
+     application/x-www-form-urlencoded
+    </h3>
+    <div class="paragraph">
+     <p>
+      In Mule 3, a
+      <code>
+       Map
+      </code>
+      payload was used as a counterpart of
+      <code>
+       application/x-www-form-urlencoded
+      </code>
+      content. For outbound traffic, that meant that if a
+      <code>
+       Map
+      </code>
+      payload was present, then
+each key-value pair would be used to generate an
+      <code>
+       application/x-www-form-urlencoded
+      </code>
+      body. For inbound traffic, it meant that each key-value pair of that body would be
+put in a
+      <code>
+       Map
+      </code>
+      .
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      Now, DataWeave can read and write
+      <code>
+       application/x-www-form-urlencoded
+      </code>
+      content,
+making it easier and more consistent to work with different MIME types in HTTP.
+     </p>
+    </div>
+    <div class="paragraph">
+     <div class="title">
+      Mule 3 example
+     </div>
+     <p>
+      In this example, a payload of
+      <code>
+       song=Snow+Poems&amp;artist=TQP
+      </code>
+      is sent and returned
+featuring an ID with which it was saved:
+      <code>
+       song=Snow+Poems&amp;artist=TQP&amp;id=49
+      </code>
+      .
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="urlForm"&gt;
+  &lt;set-payload value="#[{'song': 'Snow Poems', 'artist' : 'TQP'}]"/&gt;
+  &lt;http:request config-ref="config" path="song" method="POST" /&gt;
+  &lt;set-payload value="#[payload.id]"/&gt;
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <div class="title">
+      Mule 4 example
+     </div>
+     <p>
+      Notice that the syntax for reading the content remains the same except that now
+we must indicate an output type since we are actually transforming data.
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="urlForm"&gt;
+  ...
+  &lt;http:request config-ref="config" path="song" method="POST"&gt;
+    &lt;http:body&gt;
+      #[
+      %dw 2.0
+      output application/x-www-form-urlencoded
+      ---
+      {
+        song: "Snow Poems",
+        artist: "TQP"
+      }]
+    &lt;/http:body&gt;
+  &lt;/http:request&gt;
+  &lt;set-payload value="#[output text/plain --- payload.id]"/&gt;
+  ...
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      Several values for a key can be added, just keep in mind accessing that data requires
+using the star selector to get the collection of all associated values:
+      <code>
+       #[payload.*artist]
+      </code>
+      would return a list with
+      <code>
+       David Bowie
+      </code>
+      and
+      <code>
+       Queen
+      </code>
+      for the song
+      <code>
+       Under Pressure
+      </code>
+      ,
+for example.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="http_multipart">
+     <a class="anchor" href="#http_multipart">
+     </a>
+     multipart/*
+    </h3>
+    <div class="paragraph">
+     <p>
+      Mule Message attachments were used in Mule 3 as a counterpart of multipart content.
+For outbound traffic that meant that if attachments were present then those would
+be use as parts of a
+      <code>
+       multipart/form-data
+      </code>
+      body. For inbound traffic it meant that
+each part of that body would be mapped to a Mule Message attachment.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      In Mule 4, Mule Message attachments no longer exist. Instead, you can read and write
+multipart content through DataWeave as you would with JSON or XML content.
+     </p>
+    </div>
+    <div class="paragraph">
+     <div class="title">
+      Mule 3 example
+     </div>
+     <p>
+      In this example, a
+      <code>
+       multipart/form-data
+      </code>
+      body is received featuring 2 JSON parts,
+an order and a partner who has generated it. After logging the partner name, the order
+ID is saved to generate a
+      <code>
+       multipart/form-data
+      </code>
+      response featuring a simple message
+acknowledging the order and a PDF receipt generated for it.
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="parts"&gt;
+  &lt;http:listener config-ref="listenerConfig" path="orders"/&gt;
+  &lt;set-variable variableName="partner" value="#[message.inboundAttachments.partner.dataSource.inputStream]" mimeType="application/json"/&gt;
+  &lt;dw:transform-message&gt;
+    &lt;dw:set-variable variableName="partnerName"&gt;&lt;![CDATA[
+      %dw 1.0
+      %output application/java
+      ---
+      flowVars.partner.name
+    ]]&gt;&lt;/dw:set-variable&gt;
+  &lt;/dw:transform-message&gt;
+  &lt;logger message="Received order from #[flowVars.partnerName]." level="INFO"/&gt;
+  &lt;set-payload value="#[message.inboundAttachments.order.dataSource.inputStream]" mimeType="application/json"/&gt;
+  &lt;dw:transform-message&gt;
+    &lt;dw:set-variable variableName="orderId"&gt;&lt;![CDATA[
+      %dw 1.0
+      %output application/java
+      ---
+      payload.id
+    ]]&gt;&lt;/dw:set-variable&gt;
+  &lt;/dw:transform-message&gt;
+  &lt;!-- Generate PDF receipt --&gt;
+  &lt;set-attachment attachmentName="order" value="#['Order ' + flowVars.orderId +' received. Receipt available.']" contentType="text/plain"/&gt;
+  &lt;set-attachment attachmentName="receipt" value="#[payload]" contentType="application/pdf"/&gt;
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <div class="title">
+      Mule 4 example
+     </div>
+     <p>
+      All the complexity of handling the attachments is now gone, and we just access the
+parts by name using the
+      <code>
+       content
+      </code>
+      keyword. The multipart response is generated
+in the HTTP response body using DataWeave, where you can easily customize headers.
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="parts"&gt;
+  &lt;http:listener config-ref="listenerConfig" path="orders"&gt;
+    &lt;http:response&gt;
+      &lt;http:body&gt;&lt;![CDATA[
+      #[
+      %dw 2.0
+      output multipart/form-data
+      ---
+      {
+        parts : {
+          order : {
+            headers : {
+              "Content-Type": "text/plain"
+            },
+            content : "Order " ++ vars.orderId ++ " received. Receipt available."
+          },
+          receipt : {
+            headers : {
+              "Content-Disposition" : {
+                "name" : "receipt",
+                "filename": "receipt.pdf"
+              },
+              "Content-Type" : payload.^mimeType
+            },
+            content : payload
+          }
+        }
+      }]
+    ]]&gt;&lt;/http:body&gt;
+    &lt;/http:response&gt;
+  &lt;/http:listener&gt;
+  &lt;logger message="#[output text/plain --- 'Received order from ' ++ payload.parts.partner.content.name]"/&gt;
+  &lt;set-variable variableName="orderId" value="#[output text/plain --- payload.parts.order.content.id]"/&gt;
+  &lt;!-- Generate PDF receipt --&gt;
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      It’s important to notice that while we are taking advantage of the
+      <code>
+       http:body
+      </code>
+      feature,
+the same result could be achieved using a final transform component.
+Note that the boundary is autogenerated, which results in a correct content-type header. For details, see
+      <a class="xref page" href="../../dataweave/latest/dataweave-formats-multipart">
+       Multipart Format (Form-Data)
+      </a>
+      .
+== See Also
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      <a class="xref page" href="migration-core">
+       Core Components Migration
+      </a>
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      <a class="xref page" href="../../exchange/to-deploy-using-rest-connect">
+       REST Connect
+      </a>
+     </p>
+    </div>
+   </div>
+  </div>
+ </div>
+</article>

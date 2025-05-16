@@ -1,0 +1,878 @@
+<article class="doc">
+ <h1 class="page">
+  OpenTelemetry Support in Mule Runtime
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     OpenTelemetry is an observability standard consisting of specifications, APIs, and SDKs. It helps you instrument, generate, collect, and export telemetry data, such as metrics, logs, and traces, to analyze software behavior.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     OpenTelemetry enables Mule runtime engine to provide observability into the behavior of Mule apps. With distributed tracing, Mule also brings observability to interactions between Mule apps and non-Mule components that leverage this standard.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Mule supports generating and exporting OpenTelemetry distributed traces. However, metrics and logs aren’t yet supported through OpenTelemetry.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="before-you-begin">
+   <a class="anchor" href="#before-you-begin">
+   </a>
+   Before You Begin
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To use the OpenTelemetry Mule features, you must be familiar with:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Distributed tracing concepts, including traces and spans.
+      </p>
+      <div class="paragraph">
+       <p>
+        If you’re new to distributed tracing and OpenTelemetry, we recommend starting with
+        <a href="https://opentelemetry.io/docs/concepts/what-is-opentelemetry/">
+         What is OpenTelemetry
+        </a>
+        and
+        <a href="https://opentelemetry.io/docs/concepts/observability-primer/#understanding-distributed-tracing">
+         Understanding distributed tracing
+        </a>
+        .
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../monitoring/telemetry-exporter">
+        How to export telemetry data to third-party monitoring systems
+       </a>
+       .
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     Before starting with the observability standard, you must have:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       For flow tracing, Mule runtime 4.6.0 or later.
+      </p>
+     </li>
+     <li>
+      <p>
+       For distributed tracing, Anypoint Connector for HTTP (HTTP Connector) 1.8.
+      </p>
+     </li>
+     <li>
+      <p>
+       Telemetry exporter configured.
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="tracing-a-mule-app">
+   <a class="anchor" href="#tracing-a-mule-app">
+   </a>
+   Tracing a Mule App
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Mule leverages OpenTelemetry to provide:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       App execution observability
+      </p>
+      <div class="paragraph">
+       <p>
+        Observability includes how each component of the app behaves. The main span involved in a Mule app is the flow span. Each Mule component execution involved in the message processing is represented as a child span of the corresponding flow.
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       Distributed tracing
+      </p>
+      <div class="paragraph">
+       <p>
+        Tracing enables you to track Mule app interactions. When multiple systems and services are involved, distributed tracing tracks app requests as they flow through distributed environments, providing a comprehensive view of the app’s execution.
+       </p>
+      </div>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     For example, if an HTTP Listener receives
+     <a href="https://www.w3.org/TR/trace-context/">
+      W3C Trace Context
+     </a>
+     headers, the flow span in Mule acquires the client’s remote parent span, the span where the HTTP call originated. Mule automatically propagates the current span to the server endpoints when using the HTTP Requester component.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The span context format supported for receiving and propagating the context is the
+     <a href="https://www.w3.org/TR/trace-context/">
+      W3C Trace Context
+     </a>
+     format.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="mule-span-data">
+     <a class="anchor" href="#mule-span-data">
+     </a>
+     Mule Span Data
+    </h3>
+    <div class="paragraph">
+     <p>
+      A trace is a sequence of spans representing a complete operation in a distributed system. Spans can be nested and represent a unit of work or operation. Each span includes:
+     </p>
+    </div>
+    <table class="tableblock frame-all grid-all fit-content spread">
+     <colgroup>
+      <col/>
+      <col/>
+      <col/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-top">
+        Categories
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Description
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Example Values
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Name
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Name of the span
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <code>
+            mule:set-variable
+           </code>
+          </p>
+         </div>
+        </div>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Parent Span ID
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Span ID of current span’s parent
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <code>
+            86838830d494d679
+           </code>
+          </p>
+         </div>
+        </div>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Start and End Timestamps
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Earliest and latest timestamp for a span
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <code>
+            2021-10-22 16:04:01.209458162 +0000 UTC
+           </code>
+          </p>
+         </div>
+        </div>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Span Context
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Data that uniquely identifies the span: trace ID, span ID, trace flags, and trace state
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+        </div>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Attributes
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Key-value pairs containing metadata used to annotate a span to carry information about the operation it’s tracking.
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           {
+“location”: “flow/processors/2”,
+“correlation.id”:  “1234abcd”
+}
+          </p>
+         </div>
+        </div>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Span Events
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           A structured log message or annotation on a span, used to denote a meaningful, unique point in time during the span’s duration.
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           {
+      "name": "",
+      "message": "OK",
+      "timestamp": "2021-10-22 16:04:01.209512872 +0000 UTC"
+    }
+          </p>
+         </div>
+        </div>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Span Links
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Links that associate one span with one or more spans, indicating a causal relationship.
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+        </div>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Span Status
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Status attached to a span. You can set a span status when a known error, such as an exception, occurs in the app code.
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <code>
+            ERROR
+           </code>
+           ,
+           <code>
+            OK
+           </code>
+           ,
+           <code>
+            UNSET
+           </code>
+          </p>
+         </div>
+        </div>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Span Kind
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Information about how the trace is assembled.
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <code>
+            CLIENT
+           </code>
+           ,
+           <code>
+            INTERNAL
+           </code>
+           ,
+           <code>
+            PRODUCER
+           </code>
+          </p>
+         </div>
+        </div>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+   <div class="sect2">
+    <h3 id="example-of-flow-tracing-feature">
+     <a class="anchor" href="#example-of-flow-tracing-feature">
+     </a>
+     Example of Flow Tracing Feature
+    </h3>
+    <div class="paragraph">
+     <p>
+      When tracing a flow execution, each Mule component execution involved in processing the message is represented as a span. The component spans describe the relevant aspects of the execution. They can range from a single span for a simple component, such as the Set Payload, to more complex structures, such as a Batch Job.
+     </p>
+    </div>
+    <div class="paragraph">
+     <div class="title">
+      Batch Instance
+     </div>
+     <p>
+      The Mule runtime traces complex components, such as Batch Jobs.
+     </p>
+    </div>
+    <div class="imageblock">
+     <div class="content">
+      <img alt="A batch flow including Listener and Set Payload components, and a more complex structure" src="_images/otel-batch-instance.png"/>
+     </div>
+    </div>
+    <div class="paragraph">
+     <div class="title">
+      Spans Generated
+     </div>
+     <p>
+      The trace shows how the first step of the Batch Job processes each batch record, with each record span containing a child span that represents the unit of work the Logger component performs.
+Next, it displays the Batch Aggregator span, along with the For Each component and the processors within it, such as Transform Message and Logger.
+Then, the trace displays the other two batch steps and their respective components.
+Finally, it shows the Batch On Complete span, along with the Logger component that appears after the Batch Job in the flow.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="example-of-distributed-tracing-feature">
+     <a class="anchor" href="#example-of-distributed-tracing-feature">
+     </a>
+     Example of Distributed Tracing Feature
+    </h3>
+    <div class="paragraph">
+     <p>
+      In this example, one Mule app sends a request to another Mule app:
+     </p>
+    </div>
+    <div class="imageblock">
+     <div class="content">
+      <img alt="A flow including a Listener, Logger, and Request components of an HTTP app" src="_images/otel-mule-app1.png"/>
+     </div>
+    </div>
+    <div class="imageblock">
+     <div class="content">
+      <img alt="A flow showing the process flow for an asynchronous application" src="_images/otel-mule-app2.png"/>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      Distributed tracing captures both flows as part of the same trace because OpenTelemetry is instrumented in Mule and HTTP Connector.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="errors-in-tracing">
+     <a class="anchor" href="#errors-in-tracing">
+     </a>
+     Errors in Tracing
+    </h3>
+    <div class="paragraph">
+     <p>
+      If the execution of the unit of work represented by a span produces an error, the span’s status is set to
+      <code>
+       Error
+      </code>
+      . MuleSoft follows the semantic convention defined by OpenTelemetry that adds one or more
+      <code>
+       exception
+      </code>
+      events to the span:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        <code>
+         exception.type
+        </code>
+        : Mule error type
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         exception.message
+        </code>
+        : Mule error message
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         exception.stacktrace
+        </code>
+        : Mule flow stack string representation
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="paragraph">
+     <p>
+      In this example, when an error is produced, the span corresponding to the Raise Error component shows an error status in the Lightstep platform:
+     </p>
+    </div>
+    <div class="imageblock">
+     <div class="content">
+      <img alt="A flow of a telemetry flow with error handling" src="_images/otel-errors-in-tracing.png"/>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      This status propagates to the parent span, for example, the flow span. A detailed view of the span shows the error status and the exception events.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="http-conventions">
+     <a class="anchor" href="#http-conventions">
+     </a>
+     HTTP Conventions
+    </h3>
+    <div class="paragraph">
+     <p>
+      The HTTP Listener and HTTP Request operations contribute additional attributes to the spans, providing more context for tracing the HTTP interactions.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      For flows with an HTTP Listener:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        Span name: Combination of HTTP Method and path. For example,
+        <code>
+         POST /api
+        </code>
+        .
+       </p>
+      </li>
+      <li>
+       <p>
+        Span kind:
+        <code>
+         SERVER
+        </code>
+        .
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="paragraph">
+     <p>
+      Additional attributes for an HTTP Listener associated flow span:
+     </p>
+    </div>
+    <table class="tableblock frame-all grid-all fit-content spread">
+     <colgroup>
+      <col/>
+      <col/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-top">
+        Attribute
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Description
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          net.host.name
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Host address of the HTTP Listener
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          net.host.port
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Port of the HTTP Listener
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          http.user_agent
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         User agent of the received request
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          http.route
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Path of the HTTP Listener
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          http.method
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         HTTP method
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          http.flavor
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         HTTP version
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+    <div class="paragraph">
+     <p>
+      For flows with an HTTP Request:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        Span name: HTTP Method. For example,
+        <code>
+         GET
+        </code>
+        .
+       </p>
+      </li>
+      <li>
+       <p>
+        Span kind:
+        <code>
+         CLIENT
+        </code>
+        .
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="paragraph">
+     <p>
+      Additional attributes for an HTTP Request associated flow span:
+     </p>
+    </div>
+    <table class="tableblock frame-all grid-all fit-content spread">
+     <colgroup>
+      <col/>
+      <col/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-top">
+        Attribute
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Description
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          http.url
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Target URL
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          net.host.port
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Port of the HTTP Request
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          net.peer.name
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Target IP address
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          http.route
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Path of the HTTP Request
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          http.flavor
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         HTTP version
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../monitoring/telemetry-exporter">
+        Exporting Telemetry Data to Third-Party Monitoring Systems
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

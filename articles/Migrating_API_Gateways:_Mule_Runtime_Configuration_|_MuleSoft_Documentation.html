@@ -1,0 +1,80 @@
+<article class="doc">
+ <h1 class="page">
+  Migrating API Gateways: Mule Runtime Configuration
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Configuration properties for API Gateway Runtime changed in Mule 4.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     These properties have to be defined in the
+     <code>
+      wrapper.conf
+     </code>
+     for Mule 3 to work as API Gateway:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">-M-Danypoint.platform.client_id=clientId
+-M-Danypoint.platform.client_secret=clientSecret
+-M-Danypoint.platform.platform_base_uri=https://anypoint.mulesoft.com/apiplatform
+-M-Danypoint.platform.coreservice_base_uri=https://anypoint.mulesoft.com/accounts
+-M-Danypoint.platform.contracts_base_uri=https://anypoint.mulesoft.com/apigateway/ccs
+-M-Danypoint.platform.analytics_base_uri=https://analytics-ingest.anypoint.mulesoft.com</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Starting from Mule 4, these properties have to be defined in the
+     <code>
+      wrapper.conf
+     </code>
+     in order to work as an API Gateway:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">-M-Danypoint.platform.client_id=clientId
+-M-Danypoint.platform.client_secret=clientSecret
+-M-Danypoint.platform.base_uri=https://anypoint.mulesoft.com
+-M-Danypoint.platform.analytics_base_uri=https://analytics-ingest.anypoint.mulesoft.com</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     <a class="xref page" href="migration-api-gateways">
+      Migrating API Gateways
+     </a>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     <a class="xref page" href="migration-api-gateways-autodiscovery">
+      Migrating API Gateways: Autodiscovery
+     </a>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     <a class="xref page" href="migration-api-gateways-policies">
+      Migrating API Gateways: Policies
+     </a>
+    </p>
+   </div>
+  </div>
+ </div>
+</article>

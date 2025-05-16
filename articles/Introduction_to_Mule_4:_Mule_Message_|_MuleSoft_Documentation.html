@@ -1,0 +1,472 @@
+<article class="doc">
+ <h1 class="page">
+  Introduction to Mule 4: Mule Message
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Mule 4 includes a simplified Mule message model in which each Mule event has a message and associated variables.
+     <br/>
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       A Mule message is composed of a payload and its attributes (metadata, such as file size).
+      </p>
+     </li>
+     <li>
+      <p>
+       Variables (
+       <code>
+        vars
+       </code>
+       ) which hold arbitrary user information such as operation results, auxiliary values, and so on. In general, operations do not automatically propagate variables to other components, like a listener. Though, if you use the Flow Reference component it does propagate variables within flows.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     This simplified message model makes it easier to work with data in a consistent way across connectors without overwriting information.
+    </p>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="A Mule message including attributes, payload, and variables" src="_images/mruntime-message-diagram.png"/>
+    </div>
+    <div class="title">
+     Figure 1. Mule Event and Message.
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="inbound-properties-are-now-attributes">
+   <a class="anchor" href="#inbound-properties-are-now-attributes">
+   </a>
+   Inbound Properties Are Now Attributes
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In Mule 3, inbound properties stored additional information about a payload obtained through a Mule event source, such as the query parameters coming through an HTTP listener.
+     <strong>
+      Attributes
+     </strong>
+     in Mule 4 replace inbound properties and have these advantages:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       They are strongly typed, so you can easily see what data is available.
+      </p>
+     </li>
+     <li>
+      <p>
+       They can easily be stored in variables that you can access throughout your flow. Here’s an HTTP listener example of a typical Mule Message in Mule 4:
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="A Mule message showing types of attributes and payload" src="_images/mule-message.png"/>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Attributes can be easily accessed through expressions, just as inbound properties were in Mule 3, for example:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">#[attributes.requestPath]
+#[attributes.queryParams.searchCriteria]</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     When any Source or Operation produces a new Message as a result of its execution,
+     <strong>
+      both parts of the Message (the payload and attributes) are replaced with the new values
+     </strong>
+     , and the previous attributes are lost. If you need to preserve any information from the attributes across operation invocations, you can either store the previous attributes in a variable or
+     <a class="xref page" href="target-variables">
+      set the
+      <code>
+       target
+      </code>
+      parameter in the invoked operation
+     </a>
+     .
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Here is an example of how the Message is updated during the execution of a flow:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="messageExample"&gt;
+  &lt;http:listener config-ref="HTTP_Listener_config" path="/invoices"/&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+  &lt;logger level="INFO" message="#['New invoice from customer' ++ attributes.queryParams.customer_id]"&gt; <i class="conum" data-value="2"></i><b>(2)</b>
+  &lt;set-variable name="requestAttributes" value="#[attributes]"&gt; <i class="conum" data-value="3"></i><b>(3)</b>
+  &lt;jms:publish-consume config-ref="JMS_Config" destination="invoiceProcessor"&gt;
+    &lt;jms:message&gt;
+      &lt;jms:body&gt;#[output application/xml --- {
+        data: payload,
+        customer: attributes.queryParams.customer_id <i class="conum" data-value="4"></i><b>(4)</b>
+      }]&lt;/jms:body&gt;
+    &lt;/jms:message&gt;
+  &lt;/jms:publish-consume&gt; <i class="conum" data-value="5"></i><b>(5)</b>
+  &lt;jms:publish config-ref="JMS_Config" destination="eventTracker"&gt;
+    &lt;jms:message&gt;
+      &lt;jms:body&gt;#[output application/json --- {
+        customer: requestAttributes.queryParams.customer_id, <i class="conum" data-value="6"></i><b>(6)</b>
+        invoiceTrackingNumber: attributes.properties.userProperties.invoiceTrackingNumber
+      }]&lt;/jms:body&gt;
+    &lt;/jms:message&gt;
+  &lt;/jms:publish&gt;<i class="conum" data-value="7"></i><b>(7)</b>
+  &lt;logger level="INFO" message="#['Invoice accepted ' ++ attributes.properties.userProperties.invoiceTrackingNumber]"&gt; <i class="conum" data-value="8"></i><b>(8)</b>
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="colist arabic">
+    <table>
+     <tr>
+      <td>
+       <i class="conum" data-value="1">
+       </i>
+       <b>
+        1
+       </b>
+      </td>
+      <td>
+       A request is received, and the
+       <code>
+        http:listener
+       </code>
+       produces a Message with the request payload and the HTTP Attributes.
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="2">
+       </i>
+       <b>
+        2
+       </b>
+      </td>
+      <td>
+       Because the
+       <code>
+        logger
+       </code>
+       is a void operation and does not produce any output, the Message remains the same after its execution.
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="3">
+       </i>
+       <b>
+        3
+       </b>
+      </td>
+      <td>
+       The example stores the current HTTP Attributes in a variable to make use of them later in the flow because the next operation will replace the current Message.
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="4">
+       </i>
+       <b>
+        4
+       </b>
+      </td>
+      <td>
+       HTTP Attributes are still available to configure the
+       <code>
+        jms:publish-consume
+       </code>
+       operation input.
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="5">
+       </i>
+       <b>
+        5
+       </b>
+      </td>
+      <td>
+       Once the
+       <code>
+        jms:publish-consume
+       </code>
+       is invoked, the output of the operation is a Message with a different payload and the JMS Attributes.
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="6">
+       </i>
+       <b>
+        6
+       </b>
+      </td>
+      <td>
+       Since the HTTP Attributes are stored in a variable, it is possible to use both the current JMS Attributes (as
+       <code>
+        attributes
+       </code>
+       ) and the previously stored HTTP information.
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="7">
+       </i>
+       <b>
+        7
+       </b>
+      </td>
+      <td>
+       The
+       <code>
+        jms:publish
+       </code>
+       operation is also void. Because no output is produced, the Message remains unmodified.
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="8">
+       </i>
+       <b>
+        8
+       </b>
+      </td>
+      <td>
+       At this point, JMS Attributes from the
+       <code>
+        jms:publish-consume
+       </code>
+       invocation still exist.
+      </td>
+     </tr>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="outbound-properties">
+   <a class="anchor" href="#outbound-properties">
+   </a>
+   Outbound Properties
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In Mule 3, Mule connectors and transports that need to send additional data, such as headers, must explicitly specify Outbound properties. For example, with the HTTP listener, you might want to specify the outgoing status code response or headers. In Mule 4, you can set each of those separately using an individual DataWeave expression for each one of them, without introducing any side effects in the main flow:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;http:request path="issues" config-ref="http" method="GET"&gt;
+    &lt;http:headers&gt;#[{'path':'input/issues-list.json'}]&lt;/http:headers&gt;
+    &lt;http:query-params&gt;#[{'provider':'memory-provider'}]&lt;/http:query-params&gt;
+&lt;/http:request&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The previous example performs an HTTP request in which individual DataWeave scripts generate headers and query parameters without the need to set message properties and without generating any side effects on the message.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The same concept can be applied for Mule event sources that emit responses, such an HTTP listener:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;http:listener config-ref="api-httpListenerConfig" path="/api/*" doc:name="Listener"&gt;
+    &lt;http:response statusCode="#[vars.httpStatus default 200]"&gt;
+        &lt;http:headers&gt;#[vars.outboundHeaders default {}]&lt;/http:headers&gt;
+    &lt;/http:response&gt;
+    &lt;http:error-response statusCode="#[vars.httpStatus default 500]"&gt;
+        &lt;http:body&gt;#[payload]&lt;/http:body&gt;
+        &lt;http:headers&gt;#[vars.outboundHeaders default {}]&lt;/http:headers&gt;
+    &lt;/http:error-response&gt;
+&lt;/http:listener&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     In the previous example,
+     <code>
+      http:headers
+     </code>
+     settings like
+     <code>
+      vars.httpStatus default 200
+     </code>
+     set a
+default value for a variable if the actual value resolves to
+     <code>
+      null
+     </code>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="session-properties">
+   <a class="anchor" href="#session-properties">
+   </a>
+   Session Properties
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Session properties are no longer needed and have been removed in Mule 4.
+Instead, store data in target variables using the Target (
+     <code>
+      target
+     </code>
+     ) parameter.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     These properties are not needed because Mule 3 transports and their associated
+transport barriers do not exist in Mule 4. Mule 3 transport barriers determine
+how to handle Mule message data that moves through Mule 3 flows. Transports are
+replaced by corresponding Mule connectors (such as the FTP connector) in Mule 4,
+which handle networking transport protocols differently.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     For examples, see
+     <a class="xref page" href="migration-core-enricher">
+      Migrating the Enricher to a Target Variable
+     </a>
+     and
+     <a class="xref page" href="target-variables">
+      Enrich Data with Target Variables
+     </a>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="attachments">
+   <a class="anchor" href="#attachments">
+   </a>
+   Attachments
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Inbound and outbound attachments have been removed. The affected connectors now
+handle the attachment concept on their own:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       HTTP now relies on DataWeave’s multipart format support.
+      </p>
+     </li>
+     <li>
+      <p>
+       Email and Web Service Consumer allow attachments to be explicitly added using DataWeave.
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="message-collections">
+   <a class="anchor" href="#message-collections">
+   </a>
+   Message Collections
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     One of the benefits of the new Mule Message structure is when dealing with collections. In Mule 3, components that returned multiple payloads, used a special structure called the
+     <code>
+      MuleMessageCollection
+     </code>
+     . In Mule 4, any component
+that needs to deal with multiple messages can simply set the payload of the message to a List of Mule Messages. You can then iterate over these messages using DataWeave, For Each, or other components.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     For example, the
+     <code>
+      &lt;file:list&gt;
+     </code>
+     operation retrieves a List of Messages. Each message has attributes for each file, which makes it easy to make decisions based on file size, whether it’s a directory, and so on.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="migration-connectors-http">
+        Migrating HTTP Connector Uses
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../dataweave/latest/dataweave-formats">
+        Supported Data Formats
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../dataweave/latest/dataweave-variables">
+        DataWeave Variables
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="migration-core-enricher">
+        Migrating the Enricher to a Target Variable
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

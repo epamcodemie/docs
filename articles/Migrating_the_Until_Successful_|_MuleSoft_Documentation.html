@@ -1,0 +1,519 @@
+<article class="doc">
+ <h1 class="page">
+  Migrating the Until Successful
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The Until Successful component for Mule 4 handles some processes differently
+than the Mule 3 version. Some elements and attributes associated with these
+changes are no longer present in Mule 4. In Mule 4, you can either achieve the
+same functionality through different attributes or components, or you no longer
+need to configure the functionality in Mule 4.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     A manual migration of the Until Successful component involves these
+modifications:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Removal of any
+       <code>
+        &lt;processor-chain/&gt;
+       </code>
+       elements.
+      </p>
+     </li>
+     <li>
+      <p>
+       Replacement of the
+       <code>
+        secondsBetweenRetries
+       </code>
+       attribute with
+       <code>
+        millisBetweenRetries
+       </code>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       Removal of the
+       <code>
+        failureExpression
+       </code>
+       and use of a Validation processor for Mule 4,
+instead.
+      </p>
+     </li>
+     <li>
+      <p>
+       Replacement of the
+       <code>
+        deadLetterQueue-ref
+       </code>
+       attribute with an Error Handler for Mule 4.
+      </p>
+     </li>
+     <li>
+      <p>
+       Removal of any
+       <code>
+        &lt;threading-profile/&gt;
+       </code>
+       elements.
+      </p>
+     </li>
+     <li>
+      <p>
+       Removal of the
+       <code>
+        ackExpression
+       </code>
+       attribute and use of a Set Payload component, instead.
+      </p>
+     </li>
+     <li>
+      <p>
+       Removal of any
+       <code>
+        synchronous
+       </code>
+       attributes.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     These changes are detailed in the next sections.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="processor-chains-not-used-in-mule-4">
+   <a class="anchor" href="#processor-chains-not-used-in-mule-4">
+   </a>
+   Processor Chains Not Used in Mule 4
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In Mule 3, executing more than one processor inside the Until Successful scope
+requires you to wrap the processors inside a processor chain
+(
+     <code>
+      &lt;processor-chain/&gt;
+     </code>
+     ). In Mule 4, Until Successful supports multiple processors
+without the need for a processor chain.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3:
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="untilFlow"&gt;
+  &lt;until-successful&gt;
+    &lt;processor-chain&gt;
+      &lt;logger message="#[1]"/&gt;
+      &lt;logger message="#[2]"/&gt;
+    &lt;/processor-chain&gt;
+  &lt;/until-successful&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Notice that in the Mule 4 example, the
+     <code>
+      &lt;processor-chain/&gt;
+     </code>
+     element is not
+present.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4:
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="untilFlow"&gt;
+  &lt;until-successful&gt;
+    &lt;logger message="#[1]"/&gt;
+    &lt;logger message="#[2]"/&gt;
+  &lt;/until-successful&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="retry-attributes-revised-in-mule-4">
+   <a class="anchor" href="#retry-attributes-revised-in-mule-4">
+   </a>
+   Retry Attributes Revised in Mule 4
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The Mule 3
+     <code>
+      secondsBetweenRetries
+     </code>
+     attribute has been removed from Mule 4. You
+can use the
+     <code>
+      millisBetweenRetries
+     </code>
+     attribute in Mule 4.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3:
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="untilFlow"&gt;
+  &lt;until-successful secondsBetweenRetries="10"&gt;
+    &lt;logger message="#[1]"/&gt;
+  &lt;/until-successful&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The Mule 4 example replaces
+     <code>
+      secondsBetweenRetries="10"
+     </code>
+     with
+     <code>
+      millisBetweenRetries="10000"
+     </code>
+     .
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4:
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="untilFlow"&gt;
+  &lt;until-successful millisBetweenRetries="10000"&gt;
+    &lt;logger message="#[1]"/&gt;
+    &lt;logger message="#[2]"/&gt;
+  &lt;/until-successful&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="failure-expressions-require-modifications">
+   <a class="anchor" href="#failure-expressions-require-modifications">
+   </a>
+   Failure Expressions Require Modifications
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The
+     <code>
+      failureExpression
+     </code>
+     attribute has been removed. You can replace it with
+a Validation processor that sets your verification expression.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3:
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="untilFlow"&gt;
+  &lt;until-successful failureExpression="#[regex:(?i).*error]"&gt;
+    &lt;logger message="#[1]"/&gt;
+  &lt;/until-successful&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The
+     <code>
+      failureExpression
+     </code>
+     setting in the Mule 3 example is replaced by a
+     <code>
+      &lt;validation:is-false/&gt;
+     </code>
+     configuration in Mule 4.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4:
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="untilFlow"&gt;
+  &lt;until-successful&gt;
+    &lt;logger message="#[1]"/&gt;
+    &lt;validation:is-false expression="#[regex:(?i).*error]"/&gt;
+  &lt;/until-successful&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="dead-letter-queue-reference-through-mule-4-error-handler">
+   <a class="anchor" href="#dead-letter-queue-reference-through-mule-4-error-handler">
+   </a>
+   Dead Letter Queue Reference through Mule 4 Error Handler
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The Mule 3
+     <code>
+      deadLetterQueue-ref
+     </code>
+     attribute enables you to send undeliverable
+messages to an endpoint or processor once all retries result in failure. In
+Mule 4, you can instead use an error handler to catch all the
+     <code>
+      RETRY_EXHAUSTED
+     </code>
+     exceptions and send the message to that endpoint or processor.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3:
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;vm:endpoint name="dlqChannel" path="dlq" /&gt;
+
+&lt;flow name="untilFlow"&gt;
+  &lt;until-successful deadLetterQueue-ref="dlqChannel"&gt;
+    &lt;logger message="#[1]"/&gt;
+  &lt;/until-successful&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The Mule 4 example references the
+     <code>
+      dlqChannel
+     </code>
+     through the On Error Propagate
+     <code>
+      &lt;on-error-propagate/&gt;
+     </code>
+     element within an Error Handler
+     <code>
+      &lt;error-handler/&gt;
+     </code>
+     .
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Mule 4:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;vm:endpoint name="dlqChannel" path="dlq" /&gt;
+
+&lt;flow name="untilFlow"&gt;
+  &lt;until-successful&gt;
+    &lt;logger message="#[1]"/&gt;
+  &lt;/until-successful&gt;
+  &lt;error-handler&gt;
+    &lt;on-error-propagate type="RETRY_EXHAUSTED"&gt;
+      &lt;outbound-endpoint ref="dlqChannel"/&gt;
+    &lt;/on-error-propagate&gt;
+  &lt;/error-handler&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="threading-profile-removed-not-needed-in-mule-4">
+   <a class="anchor" href="#threading-profile-removed-not-needed-in-mule-4">
+   </a>
+   Threading Profile Removed, Not Needed in Mule 4
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In Mule 3, you can tune execution threads using the
+     <code>
+      &lt;threading-profile/&gt;
+     </code>
+     child element. Mule 4 introduces several changes to the execution engine.
+Because of the associated non-blocking architecture in Mule 4, you no longer
+need to tune threads manually.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3:
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="untilFlow"&gt;
+  &lt;until-successful&gt;
+    &lt;threading-profile maxThreadsActive="45" maxThreadsIdle="5" threadTTL="52"  threadWaitTimeout="60"/&gt;
+    &lt;logger message="#[1]"/&gt;
+  &lt;/until-successful&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The Mule 4 example removes the
+     <code>
+      &lt;threading-profile/&gt;
+     </code>
+     element.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4:
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="untilFlow"&gt;
+  &lt;until-successful&gt;
+    &lt;logger message="#[1]"/&gt;
+  &lt;/until-successful&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="ackexpression-attribute-removed-use-set-payload">
+   <a class="anchor" href="#ackexpression-attribute-removed-use-set-payload">
+   </a>
+   ackExpression Attribute Removed, Use Set Payload
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The Mule 3
+     <code>
+      ackExpression
+     </code>
+     attribute configures synchronous production of a response payload. This attribute no longer exists in Mule 4. To achieve this behavior in your app, you can configure a Set Payload component after Until Successful.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3:
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="untilFlow"&gt;
+  &lt;until-successful ackExpression="#[message:correlationId]"&gt;
+    &lt;logger message="#[1]"/&gt;
+  &lt;/until-successful&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The Mule 4 example sets the
+     <code>
+      #[message:correlationId]
+     </code>
+     value through the
+Set Payload
+     <code>
+      &lt;set-payload/&gt;
+     </code>
+     component.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4:
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="untilFlow"&gt;
+  &lt;until-successful&gt;
+    &lt;logger message="#[1]"/&gt;
+  &lt;/until-successful&gt;
+  &lt;set-payload value="#[message:correlationId]"/&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="synchronous-attribute-removed-not-needed">
+   <a class="anchor" href="#synchronous-attribute-removed-not-needed">
+   </a>
+   Synchronous Attribute Removed, Not Needed
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The
+     <code>
+      synchronous
+     </code>
+     attribute has been removed because it is no longer needed. In
+Mule 4, several changes were introduced to the execution engine. With the non-blocking architecture, you no longer need it.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="intro-engine">
+        Introduction to Mule 4: Execution Engine Threads and Concurrency
+       </a>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="execution-engine">
+        Execution Engine
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="until-successful-scope">
+        Until Successful Scope
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

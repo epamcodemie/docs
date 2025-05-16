@@ -1,0 +1,247 @@
+<article class="doc">
+ <h1 class="page">
+  Migrating the Spring Module
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Mule 3 allowed to define Spring beans as part of the Mule application using the Spring DSL directly. This approach requires Mule applications to be exposed to the Spring versions and components that the runtime uses internally. This causes two problems:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Users were limited to the Spring version and modules available in the Mule runtime.
+      </p>
+     </li>
+     <li>
+      <p>
+       Any changes or upgrades in the runtime can potentially affect applications defining
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     To fix this problem in Mule 4, we decided to package our Spring support as a separate module. So, instead of defining your Spring beans directly on your application, you now have to define them in their own file and reference them through the Spring module.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 example:
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;mule&gt;
+    &lt;spring:beans&gt;
+        &lt;spring:bean name="xaConnectionFactory" class="org.apache.activemq.ActiveMQXAConnectionFactory"&gt;
+            &lt;spring:property name="brokerURL" value="vm://localhost?broker.persistent=false&amp;amp;broker.useJmx=false" /&gt;
+        &lt;/spring:bean&gt;
+    &lt;/spring:beans&gt;
+
+    &lt;flow&gt;
+        ...
+    &lt;/flow&gt;
+&lt;/mule&gt;</code></pre>
+    </div>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 example:
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;mule&gt;
+    &lt;spring:config name="springConfig" files="config/connection-factory-beans.xml"/&gt;
+
+    &lt;flow&gt;
+        ...
+    &lt;/flow&gt;
+&lt;/mule&gt;</code></pre>
+    </div>
+   </div>
+   <div class="admonitionblock tip">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-tip" title="Tip">
+       </i>
+      </td>
+      <td class="content">
+       See
+       <a class="xref page" href="../../spring-module/latest/">
+        Spring Module
+       </a>
+       to find an example XML file and also further configuration instructions.
+      </td>
+     </tr>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="configure-spring-module-dependencies-in-mule-4">
+   <a class="anchor" href="#configure-spring-module-dependencies-in-mule-4">
+   </a>
+   Configure Spring Module Dependencies in Mule 4
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The Spring Module does not include any Spring dependency, you need to configure the dependencies you want to use.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Because Mule connector dependencies are isolated from each other and from the Mule application dependencies, after configuring Spring dependencies you also have to declare them as shared libraries to make these dependencies available for the Spring Module.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     To configure Spring dependencies and also declare them as shared libraries, add the following to your application’s
+     <code>
+      pom.xml
+     </code>
+     :
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;!-- These Properties define the plugin versions to use --&gt;
+&lt;properties&gt;
+  &lt;springVersion&gt;4.3.17.RELEASE&lt;/springVersion&gt;
+  &lt;springSecurityVersion&gt;4.2.6.RELEASE&lt;/springSecurityVersion&gt;
+  &lt;mule.maven.plugin.version&gt;3.4.0&lt;/mule.maven.plugin.version&gt;
+&lt;/properties&gt;
+
+&lt;build&gt;
+  &lt;plugins&gt;
+  &lt;!-- Only used to declare the shared libraries--&gt;
+    &lt;plugin&gt;
+      &lt;groupId&gt;org.mule.tools.maven&lt;/groupId&gt;
+      &lt;artifactId&gt;mule-maven-plugin&lt;/artifactId&gt;
+      &lt;version&gt;${mule.maven.plugin.version}&lt;/version&gt;
+      &lt;configuration&gt;
+        &lt;!-- Configure the Spring dependencies as Shared Libraries --&gt;
+        &lt;sharedLibraries&gt;
+          &lt;sharedLibrary&gt;
+            &lt;groupId&gt;org.springframework.security&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-security-core&lt;/artifactId&gt;
+          &lt;/sharedLibrary&gt;
+          &lt;sharedLibrary&gt;
+            &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-beans&lt;/artifactId&gt;
+          &lt;/sharedLibrary&gt;
+          &lt;sharedLibrary&gt;
+            &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-context&lt;/artifactId&gt;
+          &lt;/sharedLibrary&gt;
+          &lt;sharedLibrary&gt;
+            &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-core&lt;/artifactId&gt;
+          &lt;/sharedLibrary&gt;
+          &lt;sharedLibrary&gt;
+            &lt;groupId&gt;org.springframework.security&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-security-config&lt;/artifactId&gt;
+          &lt;/sharedLibrary&gt;
+        &lt;/sharedLibraries&gt;
+      &lt;/configuration&gt;
+    &lt;/plugin&gt;
+  &lt;/plugins&gt;
+&lt;/build&gt;
+
+&lt;!-- These are the Spring dependencies to configure --&gt;
+&lt;dependencies&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.security&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-security-core&lt;/artifactId&gt;
+    &lt;version&gt;${springSecurityVersion}&lt;/version&gt;
+  &lt;/dependency&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-beans&lt;/artifactId&gt;
+    &lt;version&gt;${springVersion}&lt;/version&gt;
+  &lt;/dependency&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-context&lt;/artifactId&gt;
+    &lt;version&gt;${springVersion}&lt;/version&gt;
+  &lt;/dependency&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-core&lt;/artifactId&gt;
+    &lt;version&gt;${springVersion}&lt;/version&gt;
+  &lt;/dependency&gt;
+  &lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.security&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-security-config&lt;/artifactId&gt;
+    &lt;version&gt;${springSecurityVersion}&lt;/version&gt;
+  &lt;/dependency&gt;
+&lt;/dependencies&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="add-the-spring-module-to-your-mule-4-project">
+   <a class="anchor" href="#add-the-spring-module-to-your-mule-4-project">
+   </a>
+   Add the Spring Module to your Mule 4 Project
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To use the Spring module, add it to your application using the Studio palette or add the following dependency in your
+     <code>
+      pom.xml
+     </code>
+     file:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;dependency&gt;
+  &lt;groupId&gt;org.mule.modules&lt;/groupId&gt;
+  &lt;artifactId&gt;mule-spring-module&lt;/artifactId&gt;
+  &lt;version&gt;1.2.0&lt;/version&gt;
+  &lt;classifier&gt;mule-plugin&lt;/classifier&gt;
+&lt;/dependency&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../spring-module/latest/">
+        Spring Module in Mule 4
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="mmp-concept#configure-shared-libraries">
+        Configure Shared Libraries in Mule 4
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="about-classloading-isolation">
+        Class-loading Isolation in Mule 4
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

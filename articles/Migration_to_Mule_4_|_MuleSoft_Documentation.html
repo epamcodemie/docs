@@ -1,0 +1,143 @@
+<article class="doc">
+ <h1 class="page">
+  Migration to Mule 4
+ </h1>
+ <div class="paragraph">
+  <p>
+   For your Mule 3 apps to take advantage of Mule 4, migrate them to Mule 4 through one of the following processes:
+  </p>
+ </div>
+ <div class="ulist">
+  <ul>
+   <li>
+    <p>
+     A fully manual migration of connectors, modules, transports, expressions, and API gateways to their Mule 4 counterparts.
+    </p>
+    <div class="paragraph">
+     <p>
+      For guidance with a fully manual migration, see
+      <a class="xref page" href="migration-prep">
+       Prepare to Migrate
+      </a>
+      and review
+      <a class="xref page" href="migration-process">
+       Manual Migration Process
+      </a>
+      .
+     </p>
+    </div>
+   </li>
+   <li>
+    <p>
+     A partially automated migration with the Mule Migration Assistant (MMA), which is available as an open source project on GitHub.
+    </p>
+    <div class="paragraph">
+     <p>
+      For guidance using MMA to assist in a migration, see the
+      <a href="https://github.com/mulesoft/mule-migration-assistant/blob/master/docs/migration-intro.adoc#understand-the-mma-migration-process" rel="noopener" target="_blank">
+       user documentation (on GitHub)
+      </a>
+      . MuleSoft suggests that you try MMA to determine whether you prefer it to a fully manual migration. Note that you can run MMA on a sample application by following steps in the
+      <a href="https://github.com/mulesoft/mule-migration-assistant/blob/master/docs/user-docs/migration-tutorial.adoc" rel="noopener" target="_blank">
+       Migration Tutorial (on GitHub)
+      </a>
+      .
+     </p>
+    </div>
+   </li>
+  </ul>
+ </div>
+ <div class="dlist">
+  <dl>
+   <dt class="hdlist1">
+    Important
+   </dt>
+   <dd>
+    <p>
+     <strong>
+      Mule Migration Assistant (MMA) is subject to the terms and conditions described for
+      <a href="https://www.mulesoft.com/legal/versioning-back-support-policy#community" rel="noopener" target="_blank">
+       Community
+      </a>
+      connectors. Additionally, Mule Migration Assistant is distributed under the terms of the
+      <a href="https://github.com/mulesoft/mule-migration-assistant/blob/master/LICENSE.txt" rel="noopener" target="_blank">
+       3-Clause BSD License
+      </a>
+      .
+     </strong>
+    </p>
+   </dd>
+  </dl>
+ </div>
+ <div class="paragraph">
+  <p>
+   A benefit of using MMA is that it automates part of the migration of Mule 3 apps to Mule 4. Though the MMA does not migrate the app entirely, it provides significant help with the following tasks:
+  </p>
+ </div>
+ <div class="ulist">
+  <ul>
+   <li>
+    <p>
+     Migrating the project structure.
+    </p>
+   </li>
+   <li>
+    <p>
+     Automatically creating descriptor files, such as
+     <code>
+      pom.xml
+     </code>
+     or
+     <code>
+      mule-artifact.json
+     </code>
+     .
+    </p>
+   </li>
+   <li>
+    <p>
+     Automatically performing many adaptations of the app’s code.
+    </p>
+   </li>
+   <li>
+    <p>
+     Providing guidance on how to manually migrate components and patterns that cannot be migrated automatically.
+    </p>
+   </li>
+  </ul>
+ </div>
+ <div class="paragraph">
+  <p>
+   MMA helps with such tasks, but it does not deliver a fully functional app. Some additional steps are required. Those steps include testing and can also include:
+  </p>
+ </div>
+ <div class="ulist">
+  <ul>
+   <li>
+    <p>
+     Manual migration of unsupported components.
+    </p>
+   </li>
+   <li>
+    <p>
+     Manual migration of complex MEL expressions to DataWeave that cannot be automatically converted by MMA.
+    </p>
+   </li>
+   <li>
+    <p>
+     Manual migration of complex DataWeave transformations that cannot be automatically converted by MMA.
+    </p>
+   </li>
+   <li>
+    <p>
+     Prior migration of the DataMapper with the DataWeave Migration tool, before running the MMA.
+    </p>
+   </li>
+  </ul>
+ </div>
+ <div class="paragraph">
+  <p>
+   It is also important to note that the MMA does not support incremental migrations.
+  </p>
+ </div>
+</article>

@@ -1,0 +1,173 @@
+<article class="doc">
+ <h1 class="page">
+  Introduction to Mule 4: Transformations and Streaming
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The way to think about data in Mule 4 is fundamentally different in Mule 3. In Mule 3, you
+often need to know about the underlying Java types, how to manage InputStreams, whether
+a payload is larger-than-memory, and how to convert data into Java objects so they can be accessed by MEL.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     For Mule 4, these best practices are recommended:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Avoid unnecessary conversions to Java data types, and work with data directly.
+      </p>
+     </li>
+     <li>
+      <p>
+       Let the runtime handle streaming for you.
+      </p>
+     </li>
+     <li>
+      <p>
+       Do not convert binary data types to
+       <code>
+        String
+       </code>
+       ,
+       <code>
+        byte[]
+       </code>
+       , or
+       <code>
+        InputStream
+       </code>
+       unless you are performing a direct integration with custom Java code.
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="transparent-streaming">
+   <a class="anchor" href="#transparent-streaming">
+   </a>
+   Transparent Streaming
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     <a class="xref page" href="intro-expressions">
+      Introduction to Mule 4: DataWeave Expression Language
+     </a>
+     showed how to work with data directly using DataWeave. This ability to access different data formats, combined with Mule 4 streaming capabilities, means that you no longer need to convert your data to Java objects first. This improvement greatly simplifies working with data in the runtime because:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Data can be read multiple times or accessed randomly using the DataWeave expression language, without side effects.
+      </p>
+     </li>
+     <li>
+      <p>
+       Data can be sent to multiple places without the need to cache that data in memory first.
+      </p>
+     </li>
+     <li>
+      <p>
+       You can transparently access larger-than-memory data.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     For more information on how streaming works in Mule 4, please see
+     <a class="xref page" href="streaming-about">
+      About Streaming in Mule 4.0
+     </a>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="data-types-and-object-to-stringbyteinputstream-transformers">
+   <a class="anchor" href="#data-types-and-object-to-stringbyteinputstream-transformers">
+   </a>
+   Data Types and Object to String/Byte/InputStream Transformers
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Because Mule now manages the data streams for you, data access becomes simpler. You do not need to be concerned with the underlying Java representation of that type whether it is a
+     <code>
+      byte[]
+     </code>
+     ,
+     <code>
+      InputStream
+     </code>
+     ,
+     <code>
+      String
+     </code>
+     , or some other format.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     A common pattern observed in Mule 3 applications is that users would convert things to strings in order to log them or send them through some transport. This was necessary because streams cannot be consumed twice, so a Transformer was needed:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;http:listener ... /&gt; &lt;!-- Obtains an InputStream payload --&gt;
+&lt;object-to-string/&gt; &lt;!-- consume the stream and convert it to a String --&gt;
+&lt;logger message="#[payload]"/&gt; &lt;!-- log the String --&gt;
+&lt;http:request .../&gt; &lt;!-- send the String somewhere else--&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     In Mule 4, you can simply log or send the data without worrying about the underlying type or how many times the stream is consumed. Instead of thinking about the
+     <code>
+      InputStream
+     </code>
+     , you should just think about the payload as binary data. Or, if you know the content type, you can think about it directly as JSON, XML,
+or whatever data type corresponds to the content type.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;http:listener ... /&gt; &lt;!-- payload is JSON document --&gt;
+&lt;logger message="#[payload]"/&gt; &lt;!-- log the JSON document --&gt;
+&lt;http:request .../&gt; &lt;!-- send the JSON document somewhere else--&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="streaming-about">
+        Streaming in Mule Apps
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

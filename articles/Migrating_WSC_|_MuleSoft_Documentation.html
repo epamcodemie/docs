@@ -1,0 +1,426 @@
+<article class="doc">
+ <h1 class="page">
+  Migrating WSC
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Here we are going to cover a couple of common cases using the Web Service Consumer how they were done in Mule 3 and how are they made now in
+the new Mule 4 release.
+    </p>
+   </div>
+   <div class="admonitionblock note">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-note" title="Note">
+       </i>
+      </td>
+      <td class="content">
+       The Web Service Consumer Connector in Mule 4 does not support the JMS transport feature.
+      </td>
+     </tr>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="connecting-with-a-web-service">
+   <a class="anchor" href="#connecting-with-a-web-service">
+   </a>
+   Connecting with a web service
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Mule 4 introduces the concept of connection parameters, separating them from the other config parameters, that’s why you now are going to see a new &lt;wsc:connection&gt;
+tag in the configuration. Since all the parameters required for the web service consumer are used to create the connection all of them were moved to the &lt;wsc:connection&gt; group.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="a-simple-web-service-configuration">
+     <a class="anchor" href="#a-simple-web-service-configuration">
+     </a>
+     A Simple web service configuration
+    </h3>
+    <div class="paragraph">
+     <p>
+      The parameters are the same ones, the only difference is that we added a new parameter
+      <code>
+       mtomEnabled
+      </code>
+      to the configuration that used to
+live in the operation.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      In mule 3.x we defined all the elements in the configuration like this.
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;ws:consumer-config name="config" serviceAddress="http://company.com/Service" wsdlLocation="http://company.com/Service?wsdl" service="Service" port="Port"/&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      Now all of the parameters are defined in the connection.
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;wsc:config name="config"&gt;
+    &lt;wsc:connection wsdlLocation="http://company.com/Service?wsdl" service="Service" port="Port" soapVersion="SOAP_11" address="http://company.com/Service/endpoint"/&gt;
+&lt;/wsc:config&gt;</code></pre>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="defining-a-custom-http-configuration-to-send-the-messages">
+      <a class="anchor" href="#defining-a-custom-http-configuration-to-send-the-messages">
+      </a>
+      Defining a custom http configuration to send the messages
+     </h4>
+     <div class="paragraph">
+      <p>
+       It was very common in Mule 3 to define a custom &lt;http:requester&gt; configuration that the web service consumer can use to send the messages through the HTTP protocol
+with a custom configuration (TLS, different HTTP Authentications types, etc), of course you can still do this in Mule 4.
+      </p>
+     </div>
+     <div class="paragraph">
+      <p>
+       The
+       <code>
+        connector-ref
+       </code>
+       configuration parameter was used before to set the connector configuration we wanted to send the messages (this only worked for HTTP and JMS).
+      </p>
+     </div>
+     <div class="listingblock">
+      <div class="content">
+       <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">  &lt;!-- this is the http configuration used to send the messages --&gt;
+  &lt;http:connector name="http-config"/&gt;
+
+  &lt;ws:consumer-config name="config" wsdlLocation="local.wsdl" service="Service" port="Port" connector-ref="http-config"/&gt;</code></pre>
+      </div>
+     </div>
+     <div class="paragraph">
+      <p>
+       To do the same in the new WSC you will need to add a
+       <code>
+        &lt;wsc:custom-transport-configuration&gt;
+       </code>
+       parameter the connection and specify the http configuration desired.
+This will
+       <strong>
+        only
+       </strong>
+       work with HTTP requester configurations and will fail at runtime if not configured properly.
+      </p>
+     </div>
+     <div class="listingblock">
+      <div class="content">
+       <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;wsc:config name="config"&gt;
+   &lt;wsc:connection wsdlLocation="local.wsdl" service="Service" port="Port"&gt;
+     &lt;wsc:custom-transport-configuration&gt;
+       &lt;wsc:http-transport-configuration requesterConfig="http-config"/&gt;
+     &lt;/wsc:custom-transport-configuration&gt;
+   &lt;/wsc:connection&gt;
+ &lt;/wsc:config&gt;
+
+ &lt;!-- this is the http configuration used to send the messages --&gt;
+ &lt;http:request-config name="http-config"&gt;</code></pre>
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="consuming-a-web-service">
+   <a class="anchor" href="#consuming-a-web-service">
+   </a>
+   Consuming a Web Service
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In Mule 3 the WSC expected that the payload was an already created XML body, so in most of the cases
+the WSC component was used after a Transform component.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="Mule3"&gt;
+  ...
+  &lt;ee:transform&gt;
+    &lt;set-payload&gt;
+      #[
+        %dw 1.0
+        output application/xml
+        ns con http://service.soap.service.mule.org/
+        ---
+        con#echo: {
+           text: "Hello!"
+        }
+      ]
+    &lt;/set-payload&gt;
+  &lt;/ee:transform&gt;
+  &lt;ws:consumer operation="echo" /&gt;
+  ...
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Now you don’t need that extra component the consume operation enables you to build
+the body XML directly as an operation parameter using DataWeave, take a look
+at the example below.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="Mule4"&gt;
+  ...
+  &lt;wsc:consume config-ref="config" operation="echo"&gt;
+    &lt;wsc:message&gt;
+        &lt;wsc:body&gt;
+        #[
+          %dw 2.0
+          output application/xml
+          ns con http://service.soap.service.mule.org/
+          ---
+          con#echo: {
+             text: "Hello!"
+          }
+        ]
+        &lt;/wsc:body&gt;
+    &lt;/wsc:message&gt;
+  &lt;/wsc:consume&gt;
+...
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="sending-headers">
+     <a class="anchor" href="#sending-headers">
+     </a>
+     Sending Headers
+    </h3>
+    <div class="paragraph">
+     <p>
+      The way the WSC works with attachments in Mule 3 is by collecting all the outboundProperties
+that starts with the
+      <code>
+       soap.
+      </code>
+      prefix, for example: if we added a variable
+      <code>
+       soap.CrazyHeader
+      </code>
+      when the WSC executes it will get the content of the variable and put the variable content
+in the SoapHeaders element of the envelope. That’s not a pretty behavior, that’s why in Mule 4, the Headers
+are just another parameter (and of course you have metadata for those also).
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      Let’s look a sample XML of Mule 3
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="Mule3"&gt;
+  ...
+  &lt;set-property propertyName="soap.aHeader" value="#[vars.headerContent]"/&gt;
+  &lt;ws:consumer operation="withHeaders" mtomEnabled="true"/&gt;
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      And now, in Mule 4
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="Mule4"&gt;
+  &lt;wsc:consume config-ref="config" operation="echoWithHeaders"&gt;
+    &lt;wsc:message&gt;
+      &lt;!-- here we assume there is not required body parameters --&gt;
+      &lt;wsc:headers&gt;
+        #[
+        %dw 2.0
+        output application/xml
+        ns con http://service.soap.service.mule.org/
+        ---
+        "headers": {
+            con#aHeader: {
+              text: "Hello!"
+            },
+            con#anotherHeader: "Hello! says another header"
+        }]
+      &lt;/wsc:headers&gt;
+    &lt;/wsc:message&gt;
+  &lt;/wsc:consume&gt;
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      The headers can be constructed directly inside the operation with a DataWeave script, and since
+you have metadata for this, is super easy to do.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="adding-attachments">
+     <a class="anchor" href="#adding-attachments">
+     </a>
+     Adding Attachments
+    </h3>
+    <div class="paragraph">
+     <p>
+      Adding attachments is much more easier now, in Mule 3 when working with
+      <strong>
+       MTOM attachments
+      </strong>
+      the
+      <code>
+       set-attachment
+      </code>
+      component was used to create a new outbound attachment and
+the envelope body should be constructed adding a reference an XOP reference to that
+added attachment.
+     </p>
+    </div>
+    <div class="admonitionblock note">
+     <table>
+      <tr>
+       <td class="icon">
+        <i class="fa icon-note" title="Note">
+        </i>
+       </td>
+       <td class="content">
+        the mtomEnabled parameter was moved from the operation to the connection.
+       </td>
+      </tr>
+     </table>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="Mule3"&gt;
+  ...
+  &lt;set-attachment attachmentName="attach" value="Hello!" contentType="text/plain"/&gt;
+  &lt;ee:transform&gt;
+    &lt;set-payload&gt;
+      #[
+        %dw 1.0
+        output application/xml
+        ns con http://service.soap.service.mule.org/
+        ns xop http://www.w3.org/2004/08/xop/include
+        ---
+        con#echo: {
+           attachment: {
+            xop: "cid:attach"
+           }
+        }
+      ]
+    &lt;/set-payload&gt;
+  &lt;/ee:transform&gt;
+  &lt;ws:consumer operation="uploadAttachment" mtomEnabled="true"/&gt;
+  ...
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      If working with
+      <strong>
+       Soap With Attachments
+      </strong>
+      instead of MTOM, it was responsibility of
+the mule developer to build the body with the inner attachment encoded in Base64
+(DataWeave provided a function to do this)
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="Mule3"&gt;
+  ...
+  &lt;set-attachment attachmentName="attach" value="Hello!" contentType="text/plain"/&gt;
+  &lt;ee:transform&gt;
+    &lt;set-payload&gt;
+      #[
+        %dw 1.0
+        output application/xml
+        ns con http://service.soap.service.mule.org/
+        ns xop http://www.w3.org/2004/08/xop/include
+        ---
+        con#echo: {
+           attachment: {
+            xop: "cid:attach"
+           }
+        }
+      ]
+    &lt;/set-payload&gt;
+  &lt;/ee:transform&gt;
+  &lt;ws:consumer operation="uploadAttachment" mtomEnabled="true"/&gt;
+  ...
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      In Mule 4 it doesn’t matter if it’s MTOM or SWA, the dev always works the same way
+with attachments, he just creates a new attachment and assigns the content to it
+(the mimetype used is the one that is associated to content).
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      For example, here we read a JSON file using the file connector and then create a new
+attachment passing the content returned by the file:read operation in the payload.
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="Mule4"&gt;
+  ...
+  &lt;file:read config-ref="file" path="#[vars.pathToAJsonFile]"/&gt;
+  &lt;wsc:consume config-ref="config" operation="uploadAttachment"&gt;
+    &lt;wsc:message&gt;
+      &lt;!-- here we assume there is not required body parameters --&gt;
+      &lt;wsc:attachments&gt;
+        #[{ attach: payload } ]
+      &lt;/wsc:attachments&gt;
+    &lt;/wsc:message&gt;
+  &lt;/wsc:consume&gt;
+  ...
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      To use the Web Service Consumer, simply add it to your application using the Studio palette or add the following dependency in your
+      <code>
+       pom.xml
+      </code>
+      file:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;dependency&gt;
+  &lt;groupId&gt;org.mule.connectors&lt;/groupId&gt;
+  &lt;artifactId&gt;mule-wsc-connector&lt;/artifactId&gt;
+  &lt;version&gt;1.1.0&lt;/version&gt; &lt;!-- or newer --&gt;
+  &lt;classifier&gt;mule-plugin&lt;/classifier&gt;
+&lt;/dependency&gt;</code></pre>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+</article>

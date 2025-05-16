@@ -1,0 +1,258 @@
+<article class="doc">
+ <h1 class="page">
+  Migrating Transports
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Mule 3 transports have been replaced by connectors, which follow an
+operation model in Mule 4. Most Mule transports are replaceable by a
+corresponding connector in Mule 4.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Some migration issues are common to all transports. For transport-specific
+migration documentation, refer to
+     <a class="xref page" href="migration-connectors">
+      Migrating Connectors and Modules to Mule 4
+     </a>
+     and
+its child pages, instead.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="address">
+   <a class="anchor" href="#address">
+   </a>
+   Endpoint Addresses
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In Mule 3, an endpoint could be configured with either transport-specific attributes (for example, an HTTP endpoint could use
+     <code>
+      host
+     </code>
+     ,
+     <code>
+      port
+     </code>
+     , and
+     <code>
+      path
+     </code>
+     ) or with the generic
+     <code>
+      address
+     </code>
+     attribute.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Whenever the generic
+     <code>
+      address
+     </code>
+     attribute was used, it was possible to reference a property,
+for example:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;http:inbound-endpoint address="${External.URL}"/&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The properties configuration for
+     <code>
+      External.URL
+     </code>
+     looks something like this:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">External.URL=http://0.0.0.0:8080/rootPath</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     In Mule 4, the connectors define the connection attributes separately, so any full address property has to be split into its components.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;http:listener-config name="listenerConfig"&gt;
+    &lt;http:listener-connection host="${External.URL.host}" port="${External.URL.port}"/&gt;
+&lt;/http:listener-config&gt;
+
+&lt;flow&gt;
+    &lt;http:listener config-ref="listenerConfig" path="${External.URL.path}"/&gt;
+
+    ...
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The configuration for the properties becomes:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">External.URL.host=0.0.0.0
+External.URL.port=8080
+External.URL.path=/rootPath</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Connector-specific documentation (such as for the HTTP or Email connector)
+provides detail on the exact properties that the connector requires.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="service_overrides">
+   <a class="anchor" href="#service_overrides">
+   </a>
+   Service Overrides
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In Mule 4, service override customizations through custom Java code are not
+supported in Mule 4.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     In Mule 3, it is possible to customize the behavior of a transport through a
+connector’s
+     <code>
+      service-overrides
+     </code>
+     element. This element provides a way to
+reference  Java classes with custom code that provides the new functionality.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Example: Connector with
+     <code>
+      service-overrides
+     </code>
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;imap:connector name="imapConnector" moveToFolder="processed" deleteReadMessages="false" checkFrequency="200"&gt;
+    &lt;service-overrides messageReceiver="org.mule.transport.email.functional.RetrieveMessageReceiverPollCounter"/&gt;
+&lt;/imap:connector&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The way to migrate such customizations to Mule 4 depends on what the custom
+code does, so you might:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Provide the functionality through another Mule feature or component, such as
+a
+       <a class="xref page" href="dataweave">
+        DataWeave
+       </a>
+       transformation,
+a
+       <a class="xref page" href="../../java-module/latest/">
+        Java Module
+       </a>
+       ,
+or a
+       <a class="xref page" href="../../scripting-module/latest/">
+        Scripting Module
+       </a>
+       ).
+      </p>
+     </li>
+     <li>
+      <p>
+       Use the
+       <a class="xref page" href="../../mule-sdk/latest/">
+        Mule SDK
+       </a>
+       to create a connector
+that provides your customized transport functionality. As a starting point,
+you can use open-source connectors as dependencies (for example,
+       <a class="bare" href="https://github.com/mulesoft/mule-http-connector">
+        https://github.com/mulesoft/mule-http-connector
+       </a>
+       ).
+      </p>
+     </li>
+     <li>
+      <p>
+       Similar to the previous approach, you can fork an open-source connector
+repository and add your custom code to the fork. MuleSoft welcome Pull Requests
+for your changes.
+      </p>
+     </li>
+     <li>
+      <p>
+       Provide a feature request to MuleSoft. You can request that MuleSoft add the
+functionality that your custom code provided through
+       <code>
+        service-overrides
+       </code>
+       . Visit
+       <a href="https://help.mulesoft.com/s/ideas">
+        MuleSoft Support Ideas
+       </a>
+       to submit such
+requests.
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     <a class="xref page" href="migration-connectors">
+      Migrating Connectors and Modules to Mule 4
+     </a>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     <a class="xref page" href="intro-java-integration">
+      Java Integration
+     </a>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     <a class="xref page" href="../../mule-sdk/latest/">
+      Mule SDK
+     </a>
+    </p>
+   </div>
+  </div>
+ </div>
+</article>

@@ -1,0 +1,268 @@
+<article class="doc">
+ <h1 class="page">
+  Migrating the Poll Component
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In Mule 3, the
+     <code>
+      &lt;poll&gt;
+     </code>
+     element was used to trigger a certain flow at a fixed frequency of time. This element was also a scope which required one (and only one) message processor to live inside of it. The output of that processor would be the message that the flow receives.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Example: Poll
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="poll&gt;
+    &lt;poll frequency="1000"&gt;
+        &lt;db:select config-ref="MySQL_Configuration"&gt;
+            &lt;db:parameterized-query&gt;SELECT * FROM PERSON&gt;&lt;/db:parameterized-query&gt;
+        &lt;db:select&gt;
+    &lt;/poll&gt;
+
+    &lt;flow-ref name="doProcess" /&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     In Mule 4, the
+     <code>
+      &lt;poll&gt;
+     </code>
+     element was replaced with the
+     <code>
+      &lt;scheduler&gt;
+     </code>
+     element. Main differences are:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       It just triggers the flow. It’s no longer a scope
+      </p>
+     </li>
+     <li>
+      <p>
+       It supports both fixed frequency and cron expressions
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Example: Scheduler
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="poll&gt;
+    &lt;scheduler&gt;
+        &lt;scheduling-strategy&gt;
+            &lt;fixed-frequency frequency="1000"/&gt;
+        &lt;/scheduling-strategy&gt;
+    &lt;/scheduler&gt;
+
+    &lt;db:select config-ref="MySQL_Configuration"&gt;
+        &lt;db:sql&gt;SELECT * FROM PERSON&gt;&lt;/db:sql&gt;
+    &lt;db:select&gt;
+
+    &lt;flow-ref name="doProcess" /&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     For more information on the
+     <code>
+      &lt;scheduler&gt;
+     </code>
+     element, please read the
+     <a class="xref page" href="scheduler-concept">
+      Scheduler documentation
+     </a>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="migrating-a-watermark">
+   <a class="anchor" href="#migrating-a-watermark">
+   </a>
+   Migrating a Watermark
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The
+     <code>
+      &lt;poll&gt;
+     </code>
+     element also supported a
+     <code>
+      &lt;watermark&gt;
+     </code>
+     element which was used to aid and scheduled synchronizations. That element doesn’t exist anymore. Instead, please read
+the
+     <a class="xref page" href="migration-patterns-watermark">
+      Migrating Watermarks
+     </a>
+     page.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="qz">
+   <a class="anchor" href="#qz">
+   </a>
+   Quartz Transport
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In Mule 3, a
+     <code>
+      quartz
+     </code>
+     transport existed that was deprecated in favor of the
+     <code>
+      poll
+     </code>
+     , so most of its uses may also be replaced by the
+     <code>
+      scheduler
+     </code>
+     in Mule 4.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Some features of the
+     <code>
+      quartz
+     </code>
+     transport do not exist in Mule 4, so a different approach is necessary to migrate those use cases.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="qz_repeat_count">
+     <a class="anchor" href="#qz_repeat_count">
+     </a>
+     repeatCount
+    </h3>
+    <div class="paragraph">
+     <p>
+      <code>
+       repeatCount
+      </code>
+      is not supported in Mule 4 by the
+      <code>
+       scheduler
+      </code>
+      .
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      If you really need to fetch it, compare and store a counter in an
+      <a class="xref page" href="../../object-store-connector/latest/">
+       Object Store
+      </a>
+      .
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="qz_outbound_endpoint">
+     <a class="anchor" href="#qz_outbound_endpoint">
+     </a>
+     quartz:outbound-endpoint
+    </h3>
+    <div class="paragraph">
+     <p>
+      This endpoint is not supported in Mule 4.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      An alternative approach is to write the events to a queue (JMS or VM, for instance) and have another flow with a Scheduler that consumes all the messages from the queue and processes them.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="qz_job_endpoint">
+     <a class="anchor" href="#qz_job_endpoint">
+     </a>
+     Unsupported job-endpoint
+    </h3>
+    <div class="paragraph">
+     <p>
+      The transport used in a
+      <code>
+       job-endpoint
+      </code>
+      , when migrated to a Mule 4, can be migrated to a connector that has a polling source (such as File). In that case, you can put the Scheduler configuration directly into the polling source.
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 3 Example: Polling source
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="poll&gt;
+    &lt;quartz:inbound-endpoint name="quartzInboundEndpoint"
+        cronExpression="0/3 * * * * ?" jobName="cronJob"&gt;
+        &lt;quartz:endpoint-polling-job&gt;
+            &lt;quartz:job-endpoint address="sftp://.../~/data" /&gt;
+        &lt;/quartz:endpoint-polling-job&gt;
+    &lt;/quartz:inbound-endpoint&gt;
+    &lt;flow-ref name="doProcess" /&gt;
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 4 Example: Polling source
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="poll&gt;
+    &lt;sftp:listener config-ref="inboundEndpointConfig" directory="data"&gt;
+        &lt;scheduling-strategy&gt;
+            &lt;cron expression="0/3 * * * * ?"/&gt;
+        &lt;/scheduling-strategy&gt;
+    &lt;/sftp:listener&gt;
+    &lt;flow-ref name="doProcess" /&gt;
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="scheduler-concept">
+        Scheduler Endpoint (Trigger)
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

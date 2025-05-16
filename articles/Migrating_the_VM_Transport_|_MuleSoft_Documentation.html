@@ -1,0 +1,410 @@
+<article class="doc">
+ <h1 class="page">
+  Migrating the VM Transport
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The VM transport was completely rewritten. It evolved away from the Mule 3 transport model into an operation-based connector. This enables many new capabilities:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       The ability to consume messages from a queue on demand, unlike the old transport, which only provided a polling inbound endpoint.
+      </p>
+     </li>
+     <li>
+      <p>
+       Enhanced
+       <a class="xref page" href="../../studio/latest/datasense-explorer">
+        DataSense
+       </a>
+       .
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="whats_covered_here">
+   <a class="anchor" href="#whats_covered_here">
+   </a>
+   What’s Covered Here?
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a href="#file_configs">
+        Migrating VM Transport Configurations
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#vm_listener">
+        Migrating an Inbound Endpoint
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#vm_outbound">
+        Migrating an Outbound Endpoint
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="file_configs">
+   <a class="anchor" href="#file_configs">
+   </a>
+   Migrating VM Transport Configurations
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In Mule 3, all transport configurations are set under a top-level element called
+     <code>
+      &lt;vm:connector /&gt;
+     </code>
+     . Each configuration could handle multiple queues, but with the limitation that all of them had to be either transient or persistent. Two separate transport configs were needed in order to combine transient and persistent.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Example: Defining a Persistent VM Transport
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;vm:connector name="persistentVmConnector" queueTimeout="1000"&gt;
+    &lt;vm:queue-profile&gt;
+        &lt;default-persistent-queue-store/&gt;
+    &lt;/vm:queue-profile&gt;
+&lt;/vm:connector&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     In Mule 4, each connector configuration defines the queues that it is going to handle in advance. Each of these queues can have their own settings, allowing for clarity and flexibility. However, each config can ONLY access the queues it has defined. This is a restriction put in place to avoid publishing to a queue in which nobody is listening, which is a common mistake.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Example: Defining a VM connector config
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;vm:config name="vm"&gt;
+    &lt;vm:queues&gt;
+        &lt;vm:queue queueName="transientQueue" queueType="TRANSIENT" /&gt;
+        &lt;vm:queue queueName="persistentQueue" queueType="PERSISTENT" /&gt;
+    &lt;/vm:queues&gt;
+&lt;/vm:config&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="vm_listener">
+   <a class="anchor" href="#vm_listener">
+   </a>
+   Migrating an Inbound Endpoint
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In Mule 3, a
+     <code>
+      &lt;vm:inbound-endpoint&gt;
+     </code>
+     message source was used to listen on a specific queue for messages. For each element in the queue, a new message was triggered.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Example: VM Inbound Endpoint
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="persistentVM"&gt;
+    &lt;vm:inbound-endpoint path="persistentQueue" exchange-pattern="request-response"&gt;
+        &lt;vm:transaction action="ALWAYS_BEGIN"/&gt;
+    &lt;/vm:inbound-endpoint&gt;
+
+    ...
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     This configuration defines a transactional inbound endpoint which listens to a queue called
+     <code>
+      persistentQueue
+     </code>
+     . Also, the
+     <code>
+      exchange-pattern
+     </code>
+     parameter was used to determine if the flow was to send a response or not. If configured to
+     <code>
+      request-response
+     </code>
+     , the endpoint responds with whatever message was obtained at the end of the flow (more on this on the
+     <a href="#vm_outbound">
+      Migrating an Outbound Endpoint
+     </a>
+     section).
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     In Mule 4, the
+     <code>
+      &lt;vm:listener&gt;
+     </code>
+     event source is used instead:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Example: VM listener
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="persistentVM"&gt;
+    &lt;vm:listener queueName="persistentQueue" transactionalAction="ALWAYS_BEGIN" config-ref="vm"&gt;
+        &lt;vm:response&gt;
+            &lt;vm:content&gt;
+                #[lower(payload.salute)]
+            &lt;/vm:content&gt;
+        &lt;/vm:response&gt;
+    &lt;/vm:listener&gt;
+
+    ...
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Main differences are:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       The listener points to a config and can only listen to a queue defined in that config.
+      </p>
+     </li>
+     <li>
+      <p>
+       Now, you can use the
+       <code>
+        &lt;vm:response&gt;
+       </code>
+       element to control the response. If not provided, the message payload that results at the end of the flow will be settings.
+      </p>
+     </li>
+     <li>
+      <p>
+       You no longer need to use an
+       <code>
+        exchange-pattern
+       </code>
+       to control whether or not a response is sent. The connector automatically knows when to send it depending on the message being generated through the
+       <code>
+        &lt;vm:publish&gt;
+       </code>
+       or
+       <code>
+        &lt;vm:publish-response&gt;
+       </code>
+       operations.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="sect2">
+    <h3 id="listening-for-messages-in-order">
+     <a class="anchor" href="#listening-for-messages-in-order">
+     </a>
+     Listening for Messages In Order
+    </h3>
+    <div class="paragraph">
+     <p>
+      Another inbound endpoint use case was listening for messages in order. In Mule 3, this had to be configured at the connector level using the
+      <code>
+       numberOfConcurrentTransactedReceivers
+      </code>
+      parameters.
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 3 Example: Listening for Messages In Order
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">    &lt;vm:connector name="vmConnector" numberOfConcurrentTransactedReceivers="1"/&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      In Mule 4, you can now do it at the listener level:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 4 Example: Listening for Messages In Order
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="synchronousQueue" maxConcurrency="1"&gt;
+    &lt;vm:listener queueName="synchronousQueue" numberOfConsumers="1" config-ref="vm" transactionalAction="ALWAYS_BEGIN"/&gt;
+    ...
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      By setting both, the flow’s
+      <code>
+       maxConcurrency
+      </code>
+      and the listener’s
+      <code>
+       numberOfConsumers
+      </code>
+      to 1, you can process the messages in order.
+     </p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="vm_outbound">
+   <a class="anchor" href="#vm_outbound">
+   </a>
+   Migrating an Outbound Endpoint
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The Mule 3 transport uses the
+     <code>
+      &lt;vm:outbound-endpoint&gt;
+     </code>
+     component to publish a message into a queue:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Example: Posting a Message to a Queue
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;vm:outbound-endpoint path="sendAsync" exchange-pattern="one-way"/&gt;
+&lt;vm:outbound-endpoint path="sendAndWait" exchange-pattern="request-response"/&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The
+     <code>
+      exchange-pattern
+     </code>
+     parameters play a key role in the behavior of the example above. If the pattern is
+     <code>
+      one-way
+     </code>
+     , then the message will be sent and the execution continues with the same message payload. If
+     <code>
+      request-response
+     </code>
+     is used, then the execution waits for a response coming from a flow with a
+     <code>
+      &lt;vm:inbound-endpoint&gt;
+     </code>
+     listening on the same queue, and the obtained response is then propagated to the next message processor.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Mule 4 achieves this through two different operations:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Example: Posting a Message to a Queue
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;vm:publish queueName="sendAsync" config-ref="vm"&gt;
+    &lt;vm:content&gt;#[upper(payload)]&lt;/vm:content&gt;
+&lt;/vm:publish&gt;
+
+&lt;vm:publish-consume queueName="sendAndWait" config-ref="vm"&gt;
+    &lt;vm:content&gt;#[upper(payload)]&lt;/vm:content&gt;
+&lt;/vm:publish-consume&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Both operation are configured similarly and allow you to use DataWeave to build the content of the message being sent. However, while the
+     <code>
+      &lt;vm:publish&gt;
+     </code>
+     operation publishes the content and continues with the same message, the
+     <code>
+      &lt;vm:publish-consume&gt;
+     </code>
+     operation will wait for the response emitted by the
+     <code>
+      &lt;vm:listener&gt;
+     </code>
+     of the referenced queue.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     To use the VM connector, simply add it to your application using the Studio palette, or add the following dependency in your
+     <code>
+      pom.xml
+     </code>
+     file:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.mule.connectors&lt;/groupId&gt;
+    &lt;artifactId&gt;mule-vm-connector&lt;/artifactId&gt;
+    &lt;version&gt;1.1.0&lt;/version&gt; &lt;!-- or newer --&gt;
+    &lt;classifier&gt;mule-plugin&lt;/classifier&gt;
+&lt;/dependency&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../file-connector/latest/">
+        About the File Connector
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

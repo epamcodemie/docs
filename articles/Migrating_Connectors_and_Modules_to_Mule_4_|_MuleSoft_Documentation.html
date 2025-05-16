@@ -1,0 +1,286 @@
+<article class="doc">
+ <h1 class="page">
+  Migrating Connectors and Modules to Mule 4
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     This section covers the migration of connector-specific features and lists connectors that are deprecated or removed from Mule 4.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="deprecated-or-removed-connectors">
+   <a class="anchor" href="#deprecated-or-removed-connectors">
+   </a>
+   Deprecated or Removed Connectors
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The following table shows deprecated/removed Mule 3.x modules and how to replace them in Mule 4.0.
+    </p>
+   </div>
+   <table class="tableblock frame-all grid-all stretch">
+    <colgroup>
+     <col style="width: 30%;"/>
+     <col style="width: 70%;"/>
+    </colgroup>
+    <thead>
+     <tr>
+      <th class="tableblock halign-left valign-top">
+       Mule 3.x Module
+      </th>
+      <th class="tableblock halign-left valign-top">
+       Mule 4.0 Replacement
+      </th>
+     </tr>
+    </thead>
+    <tbody>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Ajax
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Use APIkit + standard REST.
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Atom
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Replaced with HTTP + DataWeave.
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Axis
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Use Web Service Consumer / APIkit for SOAP.
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        BPM
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        MuleSoft now provides connectivity to Pega or Appian for BPM.
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        CXF
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Use Web Service Consumer.
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Drools
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Removed.
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        EJB
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Removed.
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Guice
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Removed.
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        jBPM
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        MuleSoft now provides connectivity to Pega or Appian for BPM.
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Jetty
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Use new HTTP module.
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        OGNL
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Replaced DataWeave expression language, or MEL in compatibility module.
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Patterns
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Removed. Use flows instead.
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Quartz
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Use new Scheduler component.
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        RSS
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Use HTTP + DataWeave.
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Servlet
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        New embedded mode in development.
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Stdio
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Removed.
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        SXC
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Use DataWeave.
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Tomcat
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        New embedded mode in development.
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        UDP
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Use Sockets connector.
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        XMPP
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Removed.
+       </p>
+      </td>
+     </tr>
+    </tbody>
+   </table>
+  </div>
+ </div>
+</article>

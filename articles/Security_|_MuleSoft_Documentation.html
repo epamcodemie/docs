@@ -1,0 +1,295 @@
+<article class="doc">
+ <h1 class="page">
+  Security
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     It is critical to ensure that the valuable information that a business stores and makes available through software applications and web services is secure, protected from unauthorized users and malicious attackers. But it is also critical that these protected resources, such as credit card information or Social Security numbers, be immediately accessible to authorized, legitimate users and systems to conduct business transactions.
+     <br/>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     To provide secure access to information, applications and services can apply a variety of security measures. Mule runtime engine (Mule) provides several tools and methods that enables you to protect applications:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Securing application configuration properties
+      </p>
+     </li>
+     <li>
+      <p>
+       Using the Cryptography module
+      </p>
+     </li>
+     <li>
+      <p>
+       Configuring a FIPS 140-2 certified environment
+      </p>
+     </li>
+     <li>
+      <p>
+       Securing flows with Spring security
+      </p>
+     </li>
+     <li>
+      <p>
+       Configuring TLS cryptographic protocol
+      </p>
+     </li>
+     <li>
+      <p>
+       Obtaining access to protected resource using Oath Authorization Grant Types
+      </p>
+     </li>
+     <li>
+      <p>
+       Configuring the Mule Secure Token Service
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="secure-configuration-properties">
+   <a class="anchor" href="#secure-configuration-properties">
+   </a>
+   Secure Configuration Properties
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Encrypting configuration properties for your applications involves creating a secure configuration properties file, defining the secure properties in the file, and configuring the file in your project with the Mule Secure Configuration Properties Extension module.
+     <br/>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     See details in
+     <a class="xref page" href="secure-configuration-properties">
+      Secure Configuration Properties
+     </a>
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="cryptography-module">
+   <a class="anchor" href="#cryptography-module">
+   </a>
+   Cryptography Module
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The Cryptography module provides the following main cryptography capabilities to a Mule application:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Symmetric and asymmetric encryption and decryption of messages
+      </p>
+     </li>
+     <li>
+      <p>
+       Message signing and signature validation of signed messages
+       <br/>
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     This module supports three different strategies to encrypt and sign your messages:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="cryptography-pgp">
+        PGP
+       </a>
+       <br/>
+       Provides basic signing and encryption.
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="cryptography-xml">
+        XML
+       </a>
+       <br/>
+       Provides signing and encryption of XML documents or elements.
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="cryptography-jce">
+        JCE
+       </a>
+       <br/>
+       Provides the wide range of cryptography capabilities available through the Java Cryptography Extension.
+       <br/>
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     See details in
+     <a class="xref page" href="cryptography">
+      Cryptography Module
+     </a>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="fips-140-2-compliance-support">
+   <a class="anchor" href="#fips-140-2-compliance-support">
+   </a>
+   FIPS 140-2 Compliance Support
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You can configure Mule 4 to run in a FIPS 140-2 certified environment if you meet the following two requirements:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       A certified cryptography module installed in your Java environment
+      </p>
+     </li>
+     <li>
+      <p>
+       Mule settings adjusted to run in FIPS security mode
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     See details in
+     <a class="xref page" href="fips-140-2-compliance-support">
+      FIPS 140-2 Compliance Support
+     </a>
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="spring-security">
+   <a class="anchor" href="#spring-security">
+   </a>
+   Spring Security
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Spring Security provides authentication and authorization via JAAS, LDAP, CAS (Yale Central Authentication service), and DAO. The following topics help get you started securing your flows using Spring Security:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="setting-up-ldap-provider-for-spring-security">
+        Configure LDAP Provider for Spring Security
+       </a>
+       <br/>
+       Perform component authorization, or use it as a Mule security provider.
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="component-authorization-using-spring-security">
+        Component Authorization Using Spring Security
+       </a>
+       <br/>
+       Configure authorization using Spring Security features on your Mule components, so that users with different roles can only invoke certain methods.
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="tls-configuration">
+   <a class="anchor" href="#tls-configuration">
+   </a>
+   TLS Configuration
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     TLS is a cryptographic protocol that provides communications security for your Mule app. Mule 4.x supports Transport Layer Security (TLS) 1.1 and 1.2.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     See details in
+     <a class="xref page" href="tls-configuration">
+      TLS Configuration
+     </a>
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="oauth-authorization-grant-types">
+   <a class="anchor" href="#oauth-authorization-grant-types">
+   </a>
+   OAuth Authorization Grant Types
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     There are four types of authorization grants that an OAuth consumer (a client app) can use to obtain access to a protected resource from an OAuth service provider: Authorization Code, Implicit, Resource Owner Password Credentials, and Client Credentials.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     See details in
+     <a class="xref page" href="authorization-grant-types">
+      OAuth Authorization Grant Types
+     </a>
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="mule-secure-token-service">
+   <a class="anchor" href="#mule-secure-token-service">
+   </a>
+   Mule Secure Token Service
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Mule supports the OAuth 2.0 protocol. How you configure OAuth 2.0 authorization depends on your OAuth role and objective.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     See details in
+     <a class="xref page" href="mule-secure-token-service">
+      Mule Secure Token Service
+     </a>
+    </p>
+   </div>
+  </div>
+ </div>
+</article>

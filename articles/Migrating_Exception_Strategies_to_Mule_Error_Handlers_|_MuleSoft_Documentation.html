@@ -1,0 +1,349 @@
+<article class="doc">
+ <h1 class="page">
+  Migrating Exception Strategies to Mule Error Handlers
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The following examples will guide you through the migration of the different exception
+strategies of Mule 3 considering the new error handling components in Mule 4.
+    </p>
+   </div>
+   <div class="admonitionblock important">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-important" title="Important">
+       </i>
+      </td>
+      <td class="content">
+       The examples do not cover the migration of expressions used within the
+       <code>
+        when
+       </code>
+       attribute.
+See
+       <a class="xref page" href="migration-mel">
+        Migrating MEL to DataWeave
+       </a>
+       for guidance with migrating expressions,
+and see
+       <a class="xref page" href="../../java-module/latest/java-throwable">
+        Working With Throwables
+       </a>
+       to use the Java module
+to analyze exceptions.
+      </td>
+     </tr>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="catch-exception-strategy">
+   <a class="anchor" href="#catch-exception-strategy">
+   </a>
+   Catch Exception Strategy
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     A Catch Exception Strategy is equivalent to an Error Handler with a single
+     <code>
+      on-error-continue
+     </code>
+     component that accepts all errors, which is the default configuration:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Example
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="catch"&gt;
+  &lt;!-- flow logic --&gt;
+  &lt;catch-exception-strategy&gt;
+    &lt;!-- error handling logic --&gt;
+  &lt;/catch-exception-strategy&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Example
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="catch"&gt;
+  &lt;!-- flow logic --&gt;
+  &lt;error-handler&gt;
+    &lt;on-error-continue&gt;
+      &lt;!-- error handling logic --&gt;
+    &lt;/on-error-continue&gt;
+  &lt;/error-handler&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="rollback-exception-strategy">
+   <a class="anchor" href="#rollback-exception-strategy">
+   </a>
+   Rollback Exception Strategy
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     A simple (no redelivery) rollback exception strategy is equivalent to an error
+handler with a single
+     <code>
+      on-error-propagate
+     </code>
+     component that accepts all errors,
+which is the default configuration:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Example
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="rollback"&gt;
+  &lt;!-- flow logic --&gt;
+  &lt;rollback-exception-strategy&gt;
+    &lt;!-- error handling logic --&gt;
+  &lt;/rollback-exception-strategy&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Example
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="rollback"&gt;
+  &lt;!-- flow logic --&gt;
+  &lt;error-handler&gt;
+    &lt;on-error-propagate&gt;
+      &lt;!-- error handling logic --&gt;
+    &lt;/on-error-propagate&gt;
+  &lt;/error-handler&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="with-redelivery">
+   <a class="anchor" href="#with-redelivery">
+   </a>
+   With Redelivery
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <code>
+        idempotent-redelivery-policy
+       </code>
+       gets renamed to
+       <code>
+        redelivery-policy
+       </code>
+      </p>
+     </li>
+     <li>
+      <p>
+       <code>
+        org.mule.runtime.core.api.exception.MessageRedeliveredException
+       </code>
+       has been replaced by the
+       <code>
+        REDELIVERY_EXHAUSTED
+       </code>
+       error type.
+      </p>
+     </li>
+     <li>
+      <p>
+       <code>
+        dead-letter-queue
+       </code>
+       is removed. Any outbound operation performed to publish to a DLQ must be done as part of the handling of the
+       <code>
+        REDELIVERY_EXHAUSTED
+       </code>
+       error, for example:
+      </p>
+      <div class="listingblock">
+       <div class="title">
+        Mule 3 Example
+       </div>
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;idempotent-redelivery-policy maxRedeliveryCount="${maxRedeliveryAttempts}"&gt;
+    &lt;dead-letter-queue&gt;
+        &lt;http:request ... /&gt;
+    &lt;/dead-letter-queue&gt;
+&lt;/idempotent-redelivery-policy&gt;</code></pre>
+       </div>
+      </div>
+      <div class="listingblock">
+       <div class="title">
+        Mule 4 Example
+       </div>
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;redelivery-policy maxRedeliveryCount="${maxRedeliveryAttempts}"/&gt;
+
+...
+
+&lt;error-handler&gt;
+    &lt;on-error-propagate type="REDELIVERY_EXHAUSTED"&gt;
+        &lt;http:request ... /&gt;
+    &lt;/on-error-propagate&gt;
+&lt;/error-handler&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       <code>
+        maxRedelivery
+       </code>
+       in
+       <code>
+        rollback-exception-strategy
+       </code>
+       is not supported anymore. A
+       <code>
+        &lt;redelivery-policy&gt;
+       </code>
+       element with
+       <code>
+        maxRedelivery
+       </code>
+       must be created inside the
+       <code>
+        message-source
+       </code>
+       .
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="choice-exception-strategy">
+   <a class="anchor" href="#choice-exception-strategy">
+   </a>
+   Choice Exception Strategy
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     A Choice exception strategy with inner catch/rollback exception strategies is
+equivalent to an error handler with on-error components continue/propagate according
+to the exception strategy kind, as explained above:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Example
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="choice"&gt;
+  &lt;!-- flow logic --&gt;
+  &lt;choice-exception-strategy&gt;
+      &lt;rollback-exception-strategy when="#[some_expression_here]"&gt;
+          &lt;!-- error handling logic --&gt;
+      &lt;/rollback-exception-strategy&gt;
+      &lt;catch-exception-strategy/&gt;
+    &lt;/choice-exception-strategy&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Example
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="choice"&gt;
+  &lt;!-- flow logic --&gt;
+  &lt;error-handler&gt;
+    &lt;on-error-propagate when="#[some_expression_here]"&gt;
+      &lt;!-- error handling logic --&gt;
+    &lt;/on-error-propagate&gt;
+    &lt;on-error-continue/&gt;
+  &lt;/error-handler&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="reference-exception-strategy">
+   <a class="anchor" href="#reference-exception-strategy">
+   </a>
+   Reference Exception Strategy
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Considering that the referenced exception strategy has already been migrated according
+to the above guidelines, migrating the actual reference is just adding a reference
+     <code>
+      error-handler
+     </code>
+     .
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Example
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="reference"&gt;
+  &lt;!-- flow logic --&gt;
+  &lt;exception-strategy ref="referencedHandler"/&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Example
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="reference"&gt;
+  &lt;!-- flow logic --&gt;
+  &lt;error-handler ref="referencedHandler"/&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     <a class="xref page" href="error-handling">
+      Error Handlers
+     </a>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     <a href="https://blogs.mulesoft.com/dev/mule-dev/how-to-error-handling-mule-4-beta/">
+      Blog: A Look into Error Handling in Mule 4 Beta
+     </a>
+    </p>
+   </div>
+  </div>
+ </div>
+</article>

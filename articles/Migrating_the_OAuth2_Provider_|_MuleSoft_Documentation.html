@@ -1,0 +1,1314 @@
+<article class="doc">
+ <h1 class="page">
+  Migrating the OAuth2 Provider
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The new OAuth2 Provider Module from Mule 4 comes to replace the previous provider from the Anypoint Enterprise Security.
+However, there are some configuration changes that need to be taken into account when migrating the applications.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="global-configuration-migration">
+   <a class="anchor" href="#global-configuration-migration">
+   </a>
+   Global Configuration Migration
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The following are the changes made in the Providers global configuration and the differences that they have between versions.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="changed-attributes">
+     <a class="anchor" href="#changed-attributes">
+     </a>
+     Changed Attributes
+    </h3>
+    <div class="paragraph">
+     <p>
+      Attribute status:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        Kept: Has same name, type and location.
+       </p>
+      </li>
+      <li>
+       <p>
+        Moved: The attribute has the same type and name but the location where it should be configured changed.
+       </p>
+      </li>
+      <li>
+       <p>
+        Changed: The type or name changed but the location is the same.
+       </p>
+      </li>
+      <li>
+       <p>
+        Removed: The attribute no longer exists.
+       </p>
+      </li>
+     </ul>
+    </div>
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col style="width: 33.3333%;"/>
+      <col style="width: 33.3333%;"/>
+      <col style="width: 33.3334%;"/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-top">
+        Mule 3 Attribute
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Status
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Mule 4 Config
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Name
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Kept
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Name
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Provider Name
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Kept
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Provider Name
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Host
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Removed
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         The host is taken from the Http Configuration in
+         <strong>
+          Listener Config
+         </strong>
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Port
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Removed
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         The port is taken from the Http Configuration in
+         <strong>
+          Listener Config
+         </strong>
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Client Store Ref
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Changed
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         The attribute is now an Object Store. Needs to be a ref or an Private Object Store definition
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Authorization Code Store Ref
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Moved, Changed
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         The authorization code store should now be configured as an attribute of
+         <strong>
+          Authorization Config
+         </strong>
+         and it should be an Object Store
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Token Generator Strategy
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Kept
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Token Generator Strategy
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Token Store Ref
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Moved, Changed
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         The token store should now be configured as an attribute of
+         <strong>
+          Token Config
+         </strong>
+         and it should be an Object Store
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Login Page
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Moved
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         The login page is configured as an attribute of
+         <strong>
+          Authorization Config
+         </strong>
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Scopes
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Kept
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Should now be comma separated
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Default Scopes
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Kept
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Should now be comma separated
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Supported Grant Types
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Kept
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Should now be comma separated
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Authorization Endpoint Path
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Changed, Moved
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Configurable in the attribute
+         <em>
+          path
+         </em>
+         of
+         <strong>
+          Authorization Config
+         </strong>
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Access Token Endpoint Path
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Changed, Moved
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Configurable in the attribute
+         <em>
+          path
+         </em>
+         of
+         <strong>
+          Token Config
+         </strong>
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Authorization Ttl Seconds
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Removed
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         The authorization code Ttl will be taken from the entry Ttl configured in the
+         <strong>
+          Authorization Code Store
+         </strong>
+         object store.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Token Ttl Seconds
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Moved, Changed
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         The token Ttl will be taken from the
+         <strong>
+          Token Store
+         </strong>
+         object store. Due to a limitation in the code, it is asked that the field is also configured in the attributes
+         <em>
+          tokenTtl
+         </em>
+         and
+         <em>
+          tokenTtlTimeUnit
+         </em>
+         of
+         <strong>
+          TokenConfig
+         </strong>
+         . The
+         <strong>
+          Token Store
+         </strong>
+         <em>
+          entryTtl
+         </em>
+         and
+         <strong>
+          Token Config
+         </strong>
+         <em>
+          tokenTtl
+         </em>
+         (and
+         <em>
+          tokenTtlTimeUnit
+         </em>
+         ) must be the same.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Refresh Token Ttl Seconds
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Removed
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         The refresh token Ttl will be taken from the entry Ttl of the Object Store configured in the
+         <strong>
+          Refresh Token Strategy
+         </strong>
+         in case there is one.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Connector
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Removed
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Transports were removed from Mule 4 so this field has no meaning anymore.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         HttpListenerConfig
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Changed
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Now it’s called
+         <strong>
+          Listener Config
+         </strong>
+         and it’s mandatory
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Resource Owner Security Provider Ref
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Changed
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <strong>
+          Ref
+         </strong>
+         has been removed from the attribute’s name. The Spring Module should be used if a Spring Security Provider is configured.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Client Security Provider Ref
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Changed
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <strong>
+          Ref
+         </strong>
+         has been removed from the attribute’s name. The Spring Module should be used if a Spring Security Provider is configured.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Enable Refresh Token
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Removed
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Configurable with a different
+         <strong>
+          Refresh Token Strategy
+         </strong>
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Issue New Refresh Token
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Removed
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Configurable with a different
+         <strong>
+          Refresh Token Strategy
+         </strong>
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Rate Limiter
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Changed
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         You can no longer add a custom implementation from a spring bean. Only Period Rate Limiter is implemented for now.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Clients
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Kept
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Each client definition changed
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Pre Flow
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Removed
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Pre flow functionality will not be supported in this version
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="stores">
+   <a class="anchor" href="#stores">
+   </a>
+   Stores
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Authentication Code, Token or Refresh token stores no longer exist and there is no attribute that lets you reference a custom implementation of any of those.
+Any storage configuration is now done with an Object Store.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     If a custom behavior is needed, then a custom implementation of an Object Store should be used to configure any of those attributes
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="security-providers">
+   <a class="anchor" href="#security-providers">
+   </a>
+   Security Providers
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In Mule 4 we decoupled the applications configuration completely from Spring, so for some of the attributes that were configured by referencing a Spring Bean, the way of configuring them has changed.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Spring security providers can still be used but, in that case, the Spring Module is needed in order for the application to work.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="refresh-token-attributes">
+   <a class="anchor" href="#refresh-token-attributes">
+   </a>
+   Refresh Token Attributes
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In Mule 3, there were 2 attributes that allowed the refresh token behavior configuration. As now we have different Refresh Token Strategies, the configuration should be done the following way.
+    </p>
+   </div>
+   <table class="tableblock frame-all grid-all stretch">
+    <colgroup>
+     <col style="width: 33.3333%;"/>
+     <col style="width: 33.3333%;"/>
+     <col style="width: 33.3334%;"/>
+    </colgroup>
+    <tbody>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        <strong>
+         Enable Refresh Token
+        </strong>
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        <strong>
+         Issue New Refresh Token
+        </strong>
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        <strong>
+         Refresh Token Strategy
+        </strong>
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        False
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        -
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        No Refresh Token Strategy
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        True
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        False
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Single Refresh Token Strategy
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        True
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        True
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Multiple Refresh Token Strategy
+       </p>
+      </td>
+     </tr>
+    </tbody>
+   </table>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="clients">
+   <a class="anchor" href="#clients">
+   </a>
+   Clients
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In both Mule versions you have the possibility to define a list of clients that will be authorized to make requests to the Authentication Server.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The way to add the clients remains the same except for some attribute names. Due to a limitation in the new version, the names of the child elements had to be changed by adding the
+     <em>
+      clients
+     </em>
+     and
+     <em>
+      client
+     </em>
+     prefixes.
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Redirect Uri(s) → Client Redirect Uris(s)
+      </p>
+     </li>
+     <li>
+      <p>
+       Authorized Grant Type(s) → Client Authorized Grant Type(s)
+      </p>
+     </li>
+     <li>
+      <p>
+       Scope(s) → Client Scope(s)
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="operations">
+   <a class="anchor" href="#operations">
+   </a>
+   Operations
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The following are the operations available in the module for Mule 3 and the changes they have for Mule 4
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="validate-client">
+     <a class="anchor" href="#validate-client">
+     </a>
+     Validate Client
+    </h3>
+    <div class="paragraph">
+     <p>
+      The operation was removed in Mule 4.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="validate">
+     <a class="anchor" href="#validate">
+     </a>
+     Validate
+    </h3>
+    <div class="paragraph">
+     <p>
+      Now the operation is called
+      <strong>
+       Validate Token
+      </strong>
+      .
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      Since the OAuth2 Provider operations are no longer linked to HTTP, an expression to resolve the token to validate is required.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      In Mule 3, after token validation, if there was a resource owner authentication involved, a new security context was created with that resource owner authentication. Also, the token holder with the token information was saved in a flow variable called:
+      <em>
+       mule.oauth2.access_token_store_holder
+      </em>
+      .
+      <br/>
+      Now, in Mule 4, that same information is saved a little bit differently. After token validation, the security context will be created with a token authentication accessible by
+      <code>
+       #[authentication]
+      </code>
+      . The token holder that was in a variable is saved as an attribute of that token authentication :
+      <code>
+       #[authentication.tokenHolder]
+      </code>
+      . At the same time, if there was a resource owner involved, it information can be reached by evaluating
+      <code>
+       #[authentication.tokenHolder.resourceOwnerAuthentication]
+      </code>
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="create-client">
+     <a class="anchor" href="#create-client">
+     </a>
+     Create Client
+    </h3>
+    <div class="paragraph">
+     <p>
+      The operation remains the same except for a new attribute that was added:
+      <strong>
+       Fail If Present
+      </strong>
+      .
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      <strong>
+       Fail If Present
+      </strong>
+      lets you decide what to do if a client with the same id of the one to be added already exists.
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        If true, the operation will fail
+       </p>
+      </li>
+      <li>
+       <p>
+        If false, the client information will be updated
+       </p>
+      </li>
+     </ul>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="delete-client">
+     <a class="anchor" href="#delete-client">
+     </a>
+     Delete Client
+    </h3>
+    <div class="paragraph">
+     <p>
+      The operation remains the same.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="revoke-token">
+     <a class="anchor" href="#revoke-token">
+     </a>
+     Revoke Token
+    </h3>
+    <div class="paragraph">
+     <p>
+      The operation remains the same.
+     </p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="example">
+   <a class="anchor" href="#example">
+   </a>
+   Example
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Here is an example of the same application configured in Mule 3 And Mule 4.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The application has an OAuth2 Provider that grants tokens and a flow that listens to HTTP requests and has a token validation before processing some logic.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Keep in mind that the Mule 4 configuration is using the Spring Module and the Object Store Connector.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     In both cases the application has been split into multiple files.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     For Mule 3 there are 2: One for common configuration and another one for the actual OAuth2 Provider configuration.
+     <br/>
+     For Mule 4 there are 3 files: One for bean definition, one for common configuration and one for the actual OAuth2 Provider configuration.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="mule-3">
+     <a class="anchor" href="#mule-3">
+     </a>
+     Mule 3
+    </h3>
+    <div class="sect3">
+     <h4 id="common-configuration">
+      <a class="anchor" href="#common-configuration">
+      </a>
+      Common configuration
+     </h4>
+     <div class="listingblock">
+      <div class="content">
+       <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:mule-ss="http://www.mulesoft.org/schema/mule/spring-security"
+    xmlns:ss="http://www.springframework.org/schema/security"
+    xmlns:spring="http://www.springframework.org/schema/beans"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xsi:schemaLocation="
+        http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/spring-security http://www.mulesoft.org/schema/mule/spring-security/current/mule-spring-security.xsd
+        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"&gt;
+
+    &lt;global-property name="allSupportedGrantTypes"
+                     value="AUTHORIZATION_CODE IMPLICIT RESOURCE_OWNER_PASSWORD_CREDENTIALS CLIENT_CREDENTIALS" /&gt;
+
+    &lt;spring:beans&gt;
+        &lt;spring:bean name="rateLimiter"
+                     class="org.mule.modules.oauth2.provider.ratelimit.SimpleInMemoryRateLimiter" /&gt;
+
+        &lt;spring:bean name="clientObjectStore"
+                     class="org.mule.util.store.InMemoryObjectStore" /&gt;
+        &lt;spring:bean name="authorizationCodeObjectStore"
+                     class="org.mule.util.store.InMemoryObjectStore" /&gt;
+        &lt;spring:bean name="tokenObjectStore"
+                     class="org.mule.util.store.InMemoryObjectStore" /&gt;
+        &lt;spring:bean name="refreshTokenObjectStore"
+                     class="org.mule.util.store.InMemoryObjectStore" /&gt;
+
+        &lt;spring:bean name="clientStore"
+                     class="org.mule.modules.oauth2.provider.client.ObjectStoreClientStore"
+                     p:objectStore-ref="clientObjectStore" /&gt;
+
+        &lt;spring:bean name="tokenStore"
+                     class="org.mule.modules.oauth2.provider.token.ObjectStoreTokenStore"
+                     p:refreshTokenObjectStore-ref="refreshTokenObjectStore"
+                     p:accessTokenObjectStore-ref="tokenObjectStore"/&gt;
+
+        &lt;spring:bean name="authorizationCodeStore"
+                     class="org.mule.modules.oauth2.provider.code.ObjectStoreAuthorizationCode"
+                     p:objectStore-ref="authorizationCodeObjectStore" /&gt;
+
+        &lt;ss:authentication-manager id="resourceOwnerAuthenticationManager"&gt;
+            &lt;ss:authentication-provider&gt;
+                &lt;ss:user-service id="resourceOwnerUserService"&gt;
+                    &lt;ss:user name="rousr"
+                             password="ropwd+%"
+                             authorities="RESOURCE_OWNER" /&gt;
+                &lt;/ss:user-service&gt;
+            &lt;/ss:authentication-provider&gt;
+        &lt;/ss:authentication-manager&gt;
+
+        &lt;ss:authentication-manager id="clientAuthenticationManager"&gt;
+            &lt;ss:authentication-provider&gt;
+                &lt;ss:user-service id="clientUserService"&gt;
+                    &lt;ss:user name="clusr"
+                             password="clpwd+%"
+                             authorities="CLIENT" /&gt;
+                &lt;/ss:user-service&gt;
+            &lt;/ss:authentication-provider&gt;
+        &lt;/ss:authentication-manager&gt;
+    &lt;/spring:beans&gt;
+
+    &lt;mule-ss:security-manager&gt;
+        &lt;mule-ss:delegate-security-provider
+            name="resourceOwnerSecurityProvider"
+            delegate-ref="resourceOwnerAuthenticationManager" /&gt;
+        &lt;mule-ss:delegate-security-provider
+            name="clientSecurityProvider"
+            delegate-ref="clientAuthenticationManager" /&gt;
+    &lt;/mule-ss:security-manager&gt;
+&lt;/mule&gt;</code></pre>
+      </div>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="application-configuration">
+      <a class="anchor" href="#application-configuration">
+      </a>
+      Application configuration
+     </h4>
+     <div class="listingblock">
+      <div class="content">
+       <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:oauth2-provider="http://www.mulesoft.org/schema/mule/oauth2-provider"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xsi:schemaLocation=
+        "http://www.mulesoft.org/schema/mule/oauth2-provider http://www.mulesoft.org/schema/mule/oauth2-provider/current/mule-oauth2-provider.xsd
+        http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd"&gt;
+
+    &lt;oauth2-provider:config name="OAuth2Provider"
+                            providerName="Test OAuth2Provider"
+                            loginPage="static/auth.html"
+                            authorizationEndpointPath="authorize"
+                            accessTokenEndpointPath="token"
+                            host="localhost"
+                            port="8081"
+                            resourceOwnerSecurityProvider-ref="resourceOwnerSecurityProvider"
+                            clientSecurityProvider-ref="clientSecurityProvider"
+                            clientStore-ref="clientStore"
+                            tokenStore-ref="tokenStore"
+                            authorizationCodeStore-ref="authorizationCodeStore"
+                            rateLimiter-ref="rateLimiter"
+                            scopes="GUEST USER ADMIN"
+                            defaultScopes="USER"
+                            supportedGrantTypes="${allSupportedGrantTypes}"
+                            authorizationTtlSeconds="600"
+                            tokenTtlSeconds="86400"
+                            refreshTokenTtlSeconds="-1"
+                            enableRefreshToken="true"
+                            issueNewRefreshToken="true"&gt;
+
+        &lt;oauth2-provider:clients&gt;
+            &lt;oauth2-provider:client clientId="clientId1"
+                                    secret="clientSecret1"
+                                    principal="clusr"
+                                    type="CONFIDENTIAL"&gt;
+                &lt;oauth2-provider:redirect-uris&gt;
+                    &lt;oauth2-provider:redirect-uri&gt;
+                        http://fake/redirect
+                    &lt;/oauth2-provider:redirect-uri&gt;
+                &lt;/oauth2-provider:redirect-uris&gt;
+                &lt;oauth2-provider:authorized-grant-types&gt;
+                    &lt;oauth2-provider:authorized-grant-type&gt;
+                        AUTHORIZATION_CODE
+                    &lt;/oauth2-provider:authorized-grant-type&gt;
+                &lt;/oauth2-provider:authorized-grant-types&gt;
+            &lt;/oauth2-provider:client&gt;
+        &lt;/oauth2-provider:clients&gt;
+    &lt;/oauth2-provider:config&gt;
+
+    &lt;flow name="protected-resource-flow"&gt;
+        &lt;http:inbound-endpoint host="localhost"
+                               port="8081"
+                               path="protected"/&gt;
+        &lt;oauth2-provider:validate /&gt;
+        &lt;flow-ref name="additionalLogic"/&gt;
+    &lt;/flow&gt;
+
+&lt;/mule&gt;</code></pre>
+      </div>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="mule-4">
+     <a class="anchor" href="#mule-4">
+     </a>
+     Mule 4
+    </h3>
+    <div class="sect3">
+     <h4 id="bean-configuration">
+      <a class="anchor" href="#bean-configuration">
+      </a>
+      Bean Configuration
+     </h4>
+     <div class="listingblock">
+      <div class="content">
+       <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:ss="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-{version}.xsd
+       http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-{version}.xsd"&gt;
+
+        &lt;ss:authentication-manager id="resourceOwnerAuthenticationManager"&gt;
+            &lt;ss:authentication-provider&gt;
+                &lt;ss:user-service id="resourceOwnerUserService"&gt;
+                    &lt;ss:user name="rousr"
+                             password="ropwd+%"
+                             authorities="RESOURCE_OWNER" /&gt;
+                &lt;/ss:user-service&gt;
+            &lt;/ss:authentication-provider&gt;
+        &lt;/ss:authentication-manager&gt;
+
+        &lt;ss:authentication-manager id="clientAuthenticationManager"&gt;
+            &lt;ss:authentication-provider&gt;
+                &lt;ss:user-service id="clientUserService"&gt;
+                    &lt;ss:user name="clusr"
+                             password="clpwd+%"
+                             authorities="CLIENT" /&gt;
+                &lt;/ss:user-service&gt;
+            &lt;/ss:authentication-provider&gt;
+        &lt;/ss:authentication-manager&gt;
+&lt;/beans&gt;</code></pre>
+      </div>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="common-configuration-2">
+      <a class="anchor" href="#common-configuration-2">
+      </a>
+      Common Configuration
+     </h4>
+     <div class="listingblock">
+      <div class="content">
+       <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:spring="http://www.mulesoft.org/schema/mule/spring"
+      xmlns:os="http://www.mulesoft.org/schema/mule/os"
+
+      xsi:schemaLocation="
+        http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/spring http://www.mulesoft.org/schema/mule/spring/current/mule-spring.xsd
+        http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd"&gt;
+
+    &lt;spring:config name="springConfig" files="common-config-beans.xml"/&gt;
+
+    &lt;global-property name="allSupportedGrantTypes" value="AUTHORIZATION_CODE,IMPLICIT,RESOURCE_OWNER_PASSWORD_CREDENTIALS,CLIENT_CREDENTIALS"/&gt;
+
+    &lt;os:object-store name="clientObjectStore"
+                     persistent="true"/&gt;
+    &lt;os:object-store name="authorizationCodeObjectStore"
+                     entryTtl="600"
+                     entryTtlUnit="SECONDS"
+                     persistent="true"/&gt;
+    &lt;os:object-store name="tokenObjectStore"
+                     entryTtl="86400"
+                     entryTtlUnit="SECONDS"
+                     persistent="true"/&gt;
+
+    &lt;spring:security-manager&gt;
+        &lt;spring:delegate-security-provider name="clientSecurityProvider"
+                                           delegate-ref="clientAuthenticationManager"/&gt;
+        &lt;spring:delegate-security-provider name="resourceOwnerSecurityProvider"
+                                           delegate-ref="resourceOwnerAuthenticationManager"/&gt;
+    &lt;/spring:security-manager&gt;
+
+&lt;/mule&gt;</code></pre>
+      </div>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="application-configuration-2">
+      <a class="anchor" href="#application-configuration-2">
+      </a>
+      Application Configuration
+     </h4>
+     <div class="listingblock">
+      <div class="content">
+       <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:oauth2-provider="http://www.mulesoft.org/schema/mule/oauth2-provider"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xsi:schemaLocation="
+        http://www.mulesoft.org/schema/mule/oauth2-provider http://www.mulesoft.org/schema/mule/oauth2-provider/current/mule-oauth2-provider.xsd
+        http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd"&gt;
+
+    &lt;http:listener-config name="listenerConfig"&gt;
+        &lt;http:listener-connection host="localhost"
+                                  port="8081"/&gt;
+    &lt;/http:listener-config&gt;
+
+    &lt;oauth2-provider:config name="OAuth2Provider"
+                            providerName="Test OAuth2Provider"
+                            resourceOwnerSecurityProvider="resourceOwnerSecurityProvider"
+                            clientSecurityProvider="clientSecurityProvider"
+                            supportedGrantTypes="${allSupportedGrantTypes}"
+                            listenerConfig="listenerConfig"
+                            clientStore="clientObjectStore"
+                            scopes="GUEST,USER,ADMIN"
+                            defaultScopes="USER"
+                            supportedGrantTypes="${allSupportedGrantTypes}"&gt;
+        &lt;oauth2-provider:client-validation-rate-limiter&gt;
+            &lt;oauth2-provider:period-rate-limiter/&gt;
+        &lt;/oauth2-provider:client-validation-rate-limiter&gt;
+        &lt;oauth2-provider:token-config path="/token"
+                                      tokenStore="tokenObjectStore"
+                                      tokenTtl="86400"
+                                      tokenTtlTimeUnit="SECONDS"&gt;
+            &lt;oauth2-provider:refresh-token-strategy&gt;
+                &lt;oauth2-provider:multiple-refresh-tokens/&gt;
+            &lt;/oauth2-provider:refresh-token-strategy&gt;
+        &lt;/oauth2-provider:token-config&gt;
+        &lt;oauth2-provider:authorization-config loginPage="static/auth.html"
+                                              path="/authorize"
+                                              authorizationCodeStore="authorizationCodeObjectStore"/&gt;
+        &lt;oauth2-provider:clients&gt;
+            &lt;oauth2-provider:client clientId="clientId1"
+                                    secret="clientSecret1"
+                                    principal="clusr"
+                                    type="CONFIDENTIAL"&gt;
+                &lt;oauth2-provider:client-redirect-uris&gt;
+                    &lt;oauth2-provider:client-redirect-uri&gt;
+                        http://fake/redirect
+                    &lt;/oauth2-provider:client-redirect-uri&gt;
+                &lt;/oauth2-provider:client-redirect-uris&gt;
+                &lt;oauth2-provider:client-authorized-grant-types&gt;
+                    &lt;oauth2-provider:client-authorized-grant-type&gt;
+                        AUTHORIZATION_CODE
+                    &lt;/oauth2-provider:client-authorized-grant-type&gt;
+                &lt;/oauth2-provider:client-authorized-grant-types&gt;
+            &lt;/oauth2-provider:client&gt;
+        &lt;/oauth2-provider:clients&gt;
+    &lt;/oauth2-provider:config&gt;
+
+
+    &lt;flow name="protected-resource-flow"&gt;
+        &lt;http:listener path="/protected" config-ref="listenerConfig"/&gt;
+        &lt;oauth2-provider:validate-token config-ref="OAuth2Provider"/&gt;
+        &lt;flow-ref name="additionalLogic"/&gt;
+    &lt;/flow&gt;
+
+&lt;/mule&gt;</code></pre>
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../oauth2-provider-module/latest/oauth2-provider-module-reference">
+        OAuth2 Provider Documentation Reference
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

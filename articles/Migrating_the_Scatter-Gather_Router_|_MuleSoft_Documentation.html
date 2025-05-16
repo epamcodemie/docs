@@ -1,0 +1,165 @@
+<article class="doc">
+ <h1 class="page">
+  Migrating the Scatter-Gather Router
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The most important change in Scatter-Gather router between Mule 3 and Mule 4
+is in the
+     <code>
+      AggregationStrategy
+     </code>
+     used to consolidate the results of the
+different routes. Instead of providing a Java class with the aggregation
+logic, you can perform the aggregation with a DataWeave transformation.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The payload Scatter-Gather returns is a collection of messages,
+where each the result of each route. Those messages are accessible with
+DataWeave.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="example">
+   <a class="anchor" href="#example">
+   </a>
+   Example
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     This is a Mule 3 Scatter-Gather with a
+     <code>
+      custom-aggregation-strategy
+     </code>
+     element referencing the Java class with the aggregation strategy:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre>&lt;scatter-gather doc:name="Scatter-Gather"&gt;
+    &lt;custom-aggregation-strategy class="com.example.poc.CustomSGAggregationStrategy"/&gt;
+    &lt;processor-chain&gt;
+        ...
+    &lt;/processor-chain&gt;
+    &lt;processor-chain&gt;
+        ...
+    &lt;/processor-chain&gt;
+&lt;/scatter-gather&gt;
+&lt;logger message="#[payload]" level="INFO" doc:name="Logger"/&gt;</pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     And the aggregation strategy implementation is:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre>package com.example.poc;
+
+import ...
+
+public class CustomSGAggregationStrategy implements AggregationStrategy {
+    @Override
+    public MuleEvent aggregate(AggregationContext context) throws MuleException {
+        StringBuilder responseBuilder = new StringBuilder();
+        MuleEvent result = null;
+        ArrayList &lt; MarketRate &gt; marketRates = new ArrayList &lt; &gt; ();
+        for (MuleEvent event: context.collectEventsWithoutExceptions()) {
+           String response = (String) event.getMessage().getPayload();
+           String[] spiltResponse = StringUtils.split(response, ",");
+           MarketRate marketRate = new MarketRate();
+           marketRate.setEvent(event);
+           marketRate.setMarketName(spiltResponse[0]);
+           marketRate.setMarketRate(new Integer(spiltResponse[1]));
+           marketRates.add(marketRate);
+           System.out.println(marketRate);
+        }
+        Collections.sort(marketRates);
+        result = DefaultMuleEvent.copy(marketRates.get(0).getEvent());
+        result.getMessage().setPayload(marketRates.get(0).toString());
+        return result;
+     }
+    }</pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     For Mule 4, the Java class is removed, and the flow elements become:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre>&lt;scatter-gather doc:name="Scatter-Gather"&gt;
+    &lt;route&gt;
+        ...
+    &lt;/route&gt;
+    &lt;route&gt;
+        ...
+    &lt;/route&gt;
+&lt;/scatter-gather&gt;
+&lt;ee:transform&gt;
+    &lt;ee:message &gt;
+    	&lt;ee:set-payload &gt;&lt;![CDATA[%dw 2.0
+output text/plain
+---
+(payload map ((response, index) -&gt; (response.payload splitBy(','))[1]) orderBy ((rate, index) -&gt; rate))[0]
+]]]&gt;&lt;/ee:set-payload&gt;
+    &lt;/ee:message&gt;
+&lt;/ee:transform&gt;
+&lt;logger message="#[payload]" level="INFO" doc:name="Logger"/&gt;</pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Notice the
+     <code>
+      ee:transform
+     </code>
+     element that replicates the logic of the
+     <code>
+      CustomSGAggregationStrategy
+     </code>
+     , in DataWeave rather than Java.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     <a class="xref page" href="scatter-gather-concept">
+      About Scatter-Gather
+     </a>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     <a class="xref page" href="transform-component-about">
+      About the Transform Component
+     </a>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     <a class="xref page" href="../../dataweave/latest/dataweave-language-introduction">
+      DataWeave Scripts
+     </a>
+    </p>
+   </div>
+  </div>
+ </div>
+</article>

@@ -1,0 +1,230 @@
+<article class="doc">
+ <h1 class="page">
+  Hardware and Software Requirements
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     If you plan to install Mule and run it on premises, review these minimum hardware and software requirements before you install.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="minimum-hardware-requirements">
+   <a class="anchor" href="#minimum-hardware-requirements">
+   </a>
+   Minimum Hardware Requirements
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       2 GHz CPU or 1 virtual CPU in virtualized environments.
+      </p>
+     </li>
+     <li>
+      <p>
+       1 GB of RAM.
+      </p>
+     </li>
+     <li>
+      <p>
+       4 GB of storage.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     Adjust RAM to match your latency requirements and the size and number of simultaneous messages that applications process.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Mule supports the x86 and x64 architectures.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="required-software">
+   <a class="anchor" href="#required-software">
+   </a>
+   Required Software
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Verify that you use a supported version of Java before you install Mule.
+    </p>
+   </div>
+   <table class="tableblock frame-all grid-all stretch">
+    <colgroup>
+     <col style="width: 15%;"/>
+     <col style="width: 85%;"/>
+    </colgroup>
+    <thead>
+     <tr>
+      <th class="tableblock halign-left valign-top">
+       Software
+      </th>
+      <th class="tableblock halign-left valign-top">
+       Version
+      </th>
+     </tr>
+    </thead>
+    <tbody>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          JDK
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          JDK 17
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+    </tbody>
+   </table>
+   <div class="admonitionblock note">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-note" title="Note">
+       </i>
+      </td>
+      <td class="content">
+       Though you can run a different JDK of choice, MuleSoft doesn’t support or take action to fix issues if they are traced back to the JDK.
+      </td>
+     </tr>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="supported-software">
+   <a class="anchor" href="#supported-software">
+   </a>
+   Supported Software
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Mule is supported on any operating system that runs a Java Runtime Environment (JRE) from a supported JDK.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="tested-software">
+     <a class="anchor" href="#tested-software">
+     </a>
+     Tested Software
+    </h3>
+    <div class="paragraph">
+     <p>
+      The Mule runtime engine passed functional testing against the following software and operating systems:
+     </p>
+    </div>
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col style="width: 15%;"/>
+      <col style="width: 85%;"/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-top">
+        Software
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Version
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           OS
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           MacOS 10.15, HP-UX 11i V3, AIX 7.2, Windows Server 2019, Windows 10, Solaris 11.3, Red Hat Enterprise Linux 9.4, Ubuntu Server 20.04
+          </p>
+         </div>
+        </div>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           JDK
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Adoptium OpenJDK distribution
+          </p>
+         </div>
+        </div>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+    <div class="paragraph">
+     <p>
+      This version of Mule runtime engine is bundled with the Runtime Manager agent plugin version 2.4.21. For Runtime Manager Agent compatibility, see
+      <a class="xref page" href="../../release-notes/runtime-manager-agent/runtime-manager-agent-release-notes">
+       Runtime Manager Agent Release Notes
+      </a>
+      .
+     </p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../private-cloud/latest/install-checklist">
+        Anypoint Platform PCE Prerequisites
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

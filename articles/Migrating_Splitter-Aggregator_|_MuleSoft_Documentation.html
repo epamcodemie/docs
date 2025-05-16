@@ -1,0 +1,766 @@
+<article class="doc">
+ <h1 class="page">
+  Migrating Splitter/Aggregator
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Splitters are not longer available in Mule 4. To process a collection of elements sequentially, use the
+     <a class="xref page" href="for-each-scope-concept">
+      For Each component
+     </a>
+     .
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     <a class="xref page" href="../../aggregators-module/latest/">
+      Aggregators
+     </a>
+     remain in Mule 4 but as a separate module with very different behavior.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="splitters">
+   <a class="anchor" href="#splitters">
+   </a>
+   Splitters
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The main difference between Mule 3 splitters and the Mule 4 For Each component is that the
+     <code>
+      foreach
+     </code>
+     element is a scope, meaning that the components used to process the iterated elements must be defined within
+     <code>
+      foreach
+     </code>
+     .
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Example
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="flow"&gt;
+    ...
+    &lt;collection-splitter/&gt;
+    &lt;component-1/&gt;
+    &lt;component-2/&gt;
+    ...
+    &lt;component-n&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Example
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="flow"&gt;
+    ...
+    &lt;foreach&gt;
+        &lt;component-1/&gt;
+        &lt;component-2/&gt;
+        ...
+        &lt;component-n&gt;
+    &lt;/foreach&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Also, the
+     <code>
+      foreach
+     </code>
+     element does not return a collection with the results of all the processed values. Instead, it returns the same collection received as input. So, the behavior of previous examples is not the same.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     It does not matter if a Mule 3 aggregator is present. To store the results of the processed values, you need to use a Mule 4 aggregator.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="simple-migration">
+     <a class="anchor" href="#simple-migration">
+     </a>
+     Simple Migration
+    </h3>
+    <div class="paragraph">
+     <p>
+      The default format of the migration should be:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 3 Example
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="flow"&gt;
+    ...
+    &lt;collection-splitter/&gt;
+    &lt;component-1/&gt;
+    &lt;component-2/&gt;
+    ...
+    &lt;component-n&gt;
+    &lt;collection-aggregator/&gt;
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 4 Example
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="flow"&gt;
+    ...
+    &lt;set-variable variableName="collection-splitter0-group-size" value="#[sizeOf(payload)]"/&gt;
+    &lt;foreach&gt;
+        &lt;component-1/&gt;
+        &lt;component-2/&gt;
+        ...
+        &lt;component-n&gt;
+        &lt;aggregators:group-based-aggregator name="collection-splitter0-aggregator"
+                                            groupSize="#[vars.collection-splitter0-group-size]"
+                                            evictionTime="0"&gt;
+            &lt;aggregators:aggregation-complete&gt;
+                &lt;set-variable variableName="aggregation0" value="#[payload]"/&gt;
+            &lt;/aggregators:aggregation-complete&gt;
+        &lt;/aggregators:group-based-aggregator&gt;
+    &lt;/foreach&gt;
+    &lt;set-payload value="#[vars.aggregation0]"/&gt;
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      In the example:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        A variable
+        <code>
+         collection-splitter0-group-size
+        </code>
+        should be created to store the size of the collection. This is needed because inside the
+        <code>
+         foreach
+        </code>
+        scope, the payload will correspond to the element from the collection being processed.
+       </p>
+      </li>
+      <li>
+       <p>
+        Every component between the
+        <code>
+         collection-splitter
+        </code>
+        and
+        <code>
+         collection-aggregator
+        </code>
+        is wrapped inside a
+        <code>
+         foreach
+        </code>
+        scope.
+       </p>
+      </li>
+      <li>
+       <p>
+        A
+        <code>
+         group-based-aggregator
+        </code>
+        is added at the end of the
+        <code>
+         foreach
+        </code>
+        scope to store all the results. The size of the aggregation expected will correspond to the value stored in the
+        <code>
+         collection-splitter0-group-size
+        </code>
+        variable.
+        <code>
+         set-variable
+        </code>
+        is added inside the
+        <code>
+         aggregation-complete
+        </code>
+        to store the result of the aggregation once it is complete.
+       </p>
+      </li>
+      <li>
+       <p>
+        Since the payload after the
+        <code>
+         foreach
+        </code>
+        element will be the same as the input received,
+        <code>
+         set-payload
+        </code>
+        should be used to set it as the stored value in the variable defined insider the
+        <code>
+         aggregation-complete
+        </code>
+        route.
+       </p>
+      </li>
+     </ul>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="complex_migration">
+     <a class="anchor" href="#complex_migration">
+     </a>
+     Complex Migration
+    </h3>
+    <div class="paragraph">
+     <p>
+      In some cases, the Mule 3 configuration with splitters and aggregators might set more parameters, so the migration will be a bit more complicated to achieve the Mule 3 behavior in Mule 4.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      Mule 3 aggregators allowed for 2 attributes to be configured:
+      <code>
+       timeout
+      </code>
+      and
+      <code>
+       failOnTimeout
+      </code>
+      . If the
+      <code>
+       timeout
+      </code>
+      attribute is present (with a value greater than 0), the migration should be as follows in the examples.
+     </p>
+    </div>
+    <div class="admonitionblock important">
+     <table>
+      <tr>
+       <td class="icon">
+        <i class="fa icon-important" title="Important">
+        </i>
+       </td>
+       <td class="content">
+        Even when there is a way of adding extra logic when there is a timed-out aggregation and
+        <code>
+         failOnTimeout
+        </code>
+        is set to
+        <code>
+         true
+        </code>
+        , the behavior will not be the same as in Mule 3. Aggregators in Mule 4 do not raise any errors or dispatch any notifications where there is a timed-out aggregation.
+       </td>
+      </tr>
+     </table>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 3 Example
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="flow"&gt;
+    ...
+    &lt;collection-splitter/&gt;
+    &lt;component-1/&gt;
+    &lt;component-2/&gt;
+    ...
+    &lt;component-n&gt;
+    &lt;collection-aggregator timeout="1000" failOnTimeout="false"/&gt;
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 4 example
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;vm:config name="splitter-aggregator-vm-config"&gt;
+    &lt;vm:queues&gt;
+        &lt;vm:queue queueName="collection-splitter0-vm-queue"/&gt;
+    &lt;/vm:queues&gt;
+&lt;/vm:config&gt;
+...
+&lt;flow name="flow"&gt;
+    ...
+    &lt;set-variable variableName="collection-splitter0-group-size" value="#[sizeOf(payload)]"/&gt;
+    &lt;set-variable variableName="collection-splitter0-aggregator-complete-aggregation" value="#[false]"/&gt;
+    &lt;foreach&gt;
+        &lt;component-1/&gt;
+        &lt;component-2/&gt;
+        ...
+        &lt;component-n&gt;
+        &lt;aggregators:group-based-aggregator name="collection-splitter0-aggregator"
+                                            groupSize="#[vars.collection-splitter0-group-size]"
+                                            timeout="1000"
+                                            timeoutUni="MILLISECONDS"
+                                            evictionTime="0"&gt;
+            &lt;aggregators:aggregation-complete&gt;
+                &lt;set-variable variableName="collection-splitter0-aggregator-complete-aggregation" value="#[true]"/&gt;
+            &lt;/aggregators:aggregation-complete&gt;
+        &lt;/aggregators:group-based-aggregator&gt;
+    &lt;/foreach&gt;
+    &lt;vm:consume queueName="collection-splitter0-vm-queue" config-ref="splitter-aggregator-vm-config"/&gt;
+    &lt;choice&gt;
+        &lt;when expression="#[vars.collection-splitter0-aggregator-complete-aggregation == false]"&gt;
+            &lt;!--place to add logic for when an aggregation timed out and the failOnTimeout flag was true--&gt;
+        &lt;/when&gt;
+    &lt;/choice&gt;
+&lt;/flow&gt;
+
+&lt;flow name="collection-splitter0-aggregator-listener-flow"&gt;
+    &lt;aggregators:aggregator-listener aggregatorName="collection-splitter0-aggregator" includeTimedOutGroups="true"/&gt;
+    &lt;vm:publish config-ref="splitter-aggregator-vm-config" queueName="collection-splitter0-vm-queue"/&gt;
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      In the example:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        A variable
+        <code>
+         collection-splitter0-group-size
+        </code>
+        should be created to store the size of the collection. This is needed because inside the
+        <code>
+         foreach
+        </code>
+        scope, the payload will correspond to the element from the collection being processed.
+       </p>
+      </li>
+      <li>
+       <p>
+        Another variable
+        <code>
+         collection-splitter0-aggregator-complete-aggregation
+        </code>
+        should be created if there is a need for storing an indication of whether or not the aggregation terminated due to a timeout or a complete processing.
+       </p>
+      </li>
+      <li>
+       <p>
+        Every component between the
+        <code>
+         collection-splitter
+        </code>
+        and
+        <code>
+         collection-aggregator
+        </code>
+        is wrapped inside a
+        <code>
+         foreach
+        </code>
+        scope.
+       </p>
+      </li>
+      <li>
+       <p>
+        A
+        <code>
+         group-based-aggregator
+        </code>
+        is added at the end of the
+        <code>
+         foreach
+        </code>
+        scope to store all the results.
+The expected size of the aggregation will correspond to the value stored in the
+        <code>
+         collection-splitter0-group-size
+        </code>
+        variable.
+The timeout for the aggregation should be set to the timeout that the Mule 3 aggregator contained.
+        <code>
+         set-variable
+        </code>
+        is added inside the
+        <code>
+         aggregation-complete
+        </code>
+        to set that the aggregation was complete. (That route is only executed with a complete aggregation).
+       </p>
+       <div class="paragraph">
+        <p>
+         Another flow should be created and an
+         <code>
+          aggregator:aggregator-listener
+         </code>
+         should be added as source. All aggregations (complete or not) will trigger that listener. Then, they will be sent to the main flow via a
+         <code>
+          vm:publish
+         </code>
+         operation.
+        </p>
+       </div>
+      </li>
+      <li>
+       <p>
+        A
+        <code>
+         vm:consume
+        </code>
+        operation is added after the
+        <code>
+         foreach
+        </code>
+        element to wait for the aggregation. Once a value is read, the flow will continue with its execution.
+       </p>
+      </li>
+      <li>
+       <p>
+        Because the
+        <code>
+         collection-splitter0-aggregator-complete-aggregation
+        </code>
+        will only be set to true if the aggregation completes, additional logic can be added to check the value of that variable (with
+        <code>
+         choice
+        </code>
+        and
+        <code>
+         when
+        </code>
+        ). This can simulate logic that was previously added in a Mule 3 error handler for when a timeout error was received.
+       </p>
+      </li>
+     </ul>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="additional-attributes">
+     <a class="anchor" href="#additional-attributes">
+     </a>
+     Additional Attributes
+    </h3>
+    <div class="paragraph">
+     <p>
+      All splitters allowed for the configuration of the
+      <code>
+       enableCorrelation
+      </code>
+      attribute.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      There is no way to migrate an
+      <code>
+       enableCorrelation="NEVER"
+      </code>
+      configuration. A correlation ID will always be set to the events processed from the collection by the
+      <code>
+       foreach
+      </code>
+      element.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      Expression splitters (
+      <code>
+       &lt;splitter/&gt;
+      </code>
+      ) allowed for the configuration of two attributes:
+      <code>
+       evaluator
+      </code>
+      and
+      <code>
+       custom-evaluator
+      </code>
+      . Expression evaluators can’t be configured anymore; only DataWeave can be used.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="available-splitters-migration">
+     <a class="anchor" href="#available-splitters-migration">
+     </a>
+     Available Splitters Migration
+    </h3>
+    <div class="paragraph">
+     <p>
+      Mule 3 had the following splitters, some of which require some extra logic to be migrated or cannot be migrated at all.
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        <code>
+         collection-splitter
+        </code>
+        : As defined in the main example.
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         custom-splitter
+        </code>
+        : The use of custom classes is not allowed in Mule 4 anymore so this splitter can’t be migrated.
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         splitter
+        </code>
+        (expression splitter) : The expression used should be set as the
+        <code>
+         collection
+        </code>
+        attribute for the
+        <code>
+         foreach
+        </code>
+        element.
+       </p>
+       <div class="ulist">
+        <ul>
+         <li>
+          <p>
+           Mule 3:
+           <code>
+            &lt;splitter expression="#[payload.someKey]"/&gt;
+           </code>
+          </p>
+         </li>
+         <li>
+          <p>
+           Mule 4:
+           <code>
+            &lt;foreach collection="#[payload.someKey]"&gt;
+           </code>
+          </p>
+         </li>
+        </ul>
+       </div>
+      </li>
+      <li>
+       <p>
+        <code>
+         map-splitter
+        </code>
+        : The DataWeave expression
+        <code>
+         #[dw::core::Objects::entrySet(payload)]
+        </code>
+        should be used as the
+        <code>
+         collection
+        </code>
+        attribute in the
+        <code>
+         foreach
+        </code>
+        element.
+       </p>
+       <div class="ulist">
+        <ul>
+         <li>
+          <p>
+           Mule 3:
+           <code>
+            &lt;map-splitter/&gt;
+           </code>
+          </p>
+         </li>
+         <li>
+          <p>
+           Mule 4:
+           <code>
+            &lt;foreach collection="#[dw::core::Objects::entrySet(payload)]"&gt;
+           </code>
+          </p>
+         </li>
+        </ul>
+       </div>
+      </li>
+      <li>
+       <p>
+        <code>
+         message-chunk-splitter
+        </code>
+        : There is no similar behavior in Mule 4. It cannot be migrated.
+       </p>
+      </li>
+     </ul>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="aggregators">
+     <a class="anchor" href="#aggregators">
+     </a>
+     Aggregators
+    </h3>
+    <div class="paragraph">
+     <p>
+      Most parameters allowed by Mule 3 aggregators are not allowed in Mule 4:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        <code>
+         timeout
+        </code>
+        : Though the timeout parameter can be set in any new aggregator, there are some differences. First,
+        <code>
+         timeoutUnit
+        </code>
+        should also be set to specify the unit of time. Also, the behavior of aggregation timeouts is very different in a Mule 4 aggregator. This is explained in
+        <a class="xref page" href="../../aggregators-module/latest/aggregators-module-reference">
+         Aggregators Module Reference
+        </a>
+        .
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         failOnTimeout
+        </code>
+        : No longer available. However similar behavior can be achieved, as explained in the
+        <a href="#complex_migration">
+         Complex Migration
+        </a>
+        .
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         processed-groups-object-store-ref
+        </code>
+        : Processed groups are no longer stored in a separate object store. This paremeter is not allowed anymore.
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         event-groups-object-store-ref
+        </code>
+        : You can set this object store using the
+        <code>
+         objectStore
+        </code>
+        attribute in Mule 4 aggregators.
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         persistentStores
+        </code>
+        : Not allowed anymore. If a persistent object store is needed, the
+        <code>
+         objectStore
+        </code>
+        attribute should be the name of a persistent object store.
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         storePrefix
+        </code>
+        : Not allowed anymore.
+       </p>
+      </li>
+     </ul>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="available-aggregators-migration">
+     <a class="anchor" href="#available-aggregators-migration">
+     </a>
+     Available Aggregators Migration
+    </h3>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        <code>
+         collection-aggregator
+        </code>
+        : Should be migrated as defined in the main example.
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         custom-aggregator
+        </code>
+        : Cannot be migrated. There is no way in Mule 4 to add custom implementations for an interface.
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         message-chunk-aggregator
+        </code>
+        : There is no similar behavior in Mule 4. It cannot be migrated.
+       </p>
+      </li>
+     </ul>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     <a class="xref page" href="../../aggregators-module/latest/">
+      Aggregators Module
+     </a>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     <a class="xref page" href="for-each-scope-concept">
+      For Each Scope
+     </a>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     <a class="xref page" href="for-each-scope-concept">
+      For Each Scope Reference
+     </a>
+    </p>
+   </div>
+  </div>
+ </div>
+</article>

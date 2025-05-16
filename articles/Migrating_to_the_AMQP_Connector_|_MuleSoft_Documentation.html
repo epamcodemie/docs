@@ -1,0 +1,790 @@
+<article class="doc">
+ <h1 class="page">
+  Migrating to the AMQP Connector
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     As in other cases the AMQP connector was completely reshaped and evolved away from the Mule 3 transport model into an operation based connector with a simplified UX and fully DataSense enabled Message information.
+This means not only that using AMQP now provides the same experience regarding connection and configuration that any other connector, but also that publishing and consuming messages is simpler based on the structured Message information.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="ConfiguringTheConnector">
+   <a class="anchor" href="#ConfiguringTheConnector">
+   </a>
+   Configuring The Connector
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Moving from a 3.x transport configuration to a AMQP Connector configuration in Mule 4 implies basically using most of the same  parameters, but declaring them in a more cohesive way. Some parameters changed in Mule 4 AMQP Connector.
+This means for example that parameters that are used for consuming Messages are declared in a 'consumer-config' group, while general authentication parameters are configured in the General group. Also, a separation has been made between the parameters that affect the behavior of the connector (present in the config) from those that affect only how the connection is established (present at connection level):
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Example: Configuring The Connector
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;amqp:connector name="AMQP_Config"
+     fallbackAddresses="192.168.0.1,192.168.0.2"
+     virtualHost="/"
+     username="guest"
+     password="guest"
+	 deliveryMode="TRANSIENT"
+	 priority="1"
+	 ackMode="AUTO"
+	 activeDeclarationsOnly="false"
+	 mandatory="false"
+	 immediate="false"
+	 prefetchSize="16"
+	 prefetchCount="16"
+	 noLocal="false"
+	 exclusiveConsumers="false"
+	 requestBrokerConfirms="false"
+	 numberOfChannels="10"
+	  /&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     This same configuration is achieved in Mule 4 setting the same parameters in the context where they actually apply:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Example: Configuring The Connector
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;amqp:config name="AMQP_Config"&gt;
+	&lt;amqp:connection host="localhost" port="5672"
+		virtualHost="/" username="guest" password="guest" /&gt;
+	&lt;amqp:consumer-config numberOfConsumers="10" exclusiveConsumers="false" noLocal="false" ackMode="AUTO"/&gt;
+	&lt;amqp:publisher-config requestBrokerConfirms="false" mandatory="false" immediate="false" priority="1" deliveryMode="TRANSIENT"/&gt;
+	&lt;amqp:quality-of-service prefetchSize="16" prefetchCount="16" /&gt;
+&lt;/amqp:config&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Notice that
+     <code>
+      fallbackAddresses
+     </code>
+     is not supported anymore.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="SendingMessages">
+   <a class="anchor" href="#SendingMessages">
+   </a>
+   Sending Messages
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     With the new Mule 4 approach, the AMQP 'publish' operation relies only on its input parameters to completely build the AMQP Message to be published.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     For example, if we wanted to send a high priority AMQP Message with only a part of the payload in the body, and associate that Message to a group, we’ll need to:
+&lt;1&gt;) Use
+     <code>
+      transform
+     </code>
+     to set the payload to what the Message body is expected to be.
+&lt;2&gt;) Convert the resulting stream into a String to send it as a text message.
+&lt;3&gt;) Set an AMQP property with
+     <code>
+      priority
+     </code>
+     as key to set the AMQP Message Priority.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Example: Sending a prioritized Message as part of a Group
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="AmqpTransportOutbound"&gt;
+    &lt;http:listener config-ref="HTTP_Listener_Configuration" path="/orders"/&gt;
+    &lt;dw:transform-message&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+        &lt;dw:set-payload&gt;&lt;![CDATA[%dw 1.0
+%output application/json
+---
+{
+order_id: payload.id,
+supplier: payload.warehouse
+}]]&gt;&lt;/dw:set-payload&gt;
+    &lt;/dw:transform-message&gt;
+    &lt;object-to-string-transformer/&gt; <i class="conum" data-value="2"></i><b>(2)</b>
+    &lt;amqp:outbound-endpoint exchangeName="testExchange" connector-ref="AMQP_Connector" &gt;
+      &lt;message-properties-transformer scope="outbound"&gt;
+          &lt;add-message-property key="priority" value="9"/&gt; <i class="conum" data-value="3"></i><b>(3)</b>
+      &lt;/message-properties-transformer&gt;
+    &lt;/amqp:outbound-endpoint&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The same results can be achieved in Mule 4 using the AMQP Connector with the following configuration:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Example: Sending a prioritized Message as part of a Group
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="AMQPConnectorPublish"&gt;
+		&lt;http:listener config-ref="HTTP_Listener_config" path="/orders"/&gt;
+		<i class="conum" data-value="2"></i><b>(2)</b>
+		&lt;amqp:publish config-ref="AMQP_Config" exchangeName="targetExchange"&gt;
+			&lt;amqp:message&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+				&lt;amqp:body&gt;#[output application/json ---
+        {
+          order_id: payload.id,
+          supplier: payload.warehouse
+        }]&lt;/amqp:body&gt;
+        			&lt;amqp:properties priority="3"/&gt; <i class="conum" data-value="3"></i><b>(3)</b>
+			&lt;/amqp:message&gt;
+		&lt;/amqp:publish&gt;
+	&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Differences to be noted:
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     1) There’s no need of the
+     <code>
+      transform
+     </code>
+     component, since the
+     <code>
+      body
+     </code>
+     of the Message is created inline, thus the payload remains unmodified.
+2) The
+     <code>
+      object-to-string
+     </code>
+     transformer was also removed, since the Connector can automatically handle the transformation output.
+3) Priority is set as a property in the AmqpMessage operation and does not rely on the user knowing the exact key.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     As a summary, when publishing a Message in 3.x with the AMQP transport, we relied on the AmqpMessage payload, and outbound properties to configure the creation of the AMQP Message, which meant a deeper knowledge of how the transport worked. In 4.x, the AMQP Connector exposes every configurable element as a parameter in the scope were it belongs, thus exposing all the AMQP functionality in a clearer way.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="ListeningForNewMessages">
+   <a class="anchor" href="#ListeningForNewMessages">
+   </a>
+   Listening For New Messages
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The AMQP transport
+     <code>
+      inbound-endpoint
+     </code>
+     allows you to wait for new AMQP Messages on a given queue. The output of this listener will contain the body of the message in the payload, and all the AMQP headers and properties encompassed in the
+     <code>
+      AMQP Attributes
+     </code>
+     .
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Example: Listening For Messages
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="AMQPTransportInbound"&gt;
+  &lt;amqp:inbound-endpoint connector-ref="AMQP_Connector" queueName="in" /&gt;
+  &lt;dw:transform-message&gt; <i class="conum" data-value="2"></i><b>(2)</b>
+      &lt;dw:set-payload&gt;&lt;![CDATA[%dw 1.0
+        %output application/json
+        ---
+        {
+        items: payload,
+        costumer: message.inboundProperties.'costumer_id'
+        }]]&gt;&lt;/dw:set-payload&gt;
+  &lt;/dw:transform-message&gt;
+  &lt;object-to-string-transformer/&gt;  <i class="conum" data-value="3"></i><b>(3)</b>
+  &lt;amqp:outbound-endpoint exchangeName="v2/prime/orders" connector-ref="AMQP_Connector"/&gt;  <i class="conum" data-value="4"></i><b>(4)</b>
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     In this case, we are listening for Messages and then adapting them to the new format required:
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     1) Transform the MuleMessage using the metadata contained in the inboundProperties so the payload matches the new JSON format we need for the new API.
+2) Convert the transformed payload to a JSON String.
+3) Publish the payload to the defined exchange.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Implementing the same in Mule 4 looks like this:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Example: Listening For Messages
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="AMQPConnectorPublish"&gt;
+  &lt;amqp:listener config-ref="AMQP_Config" queueName="in" /&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+  &lt;amqp:publish config-ref="AMQP_Config" exchangeName="ordersExchange"&gt; <i class="conum" data-value="2"></i><b>(2)</b>
+    &lt;amqp:message&gt;
+      &lt;amqp:body&gt;#[output application/json ---
+      {
+        items: payload,
+        costumer: attributes.properties.userProperties.costumer_id, <i class="conum" data-value="3"></i><b>(3)</b>
+        type: attributes.headers.type
+      }]&lt;/amqp:body&gt;
+    &lt;/amqp:message&gt;
+  &lt;/amqp:publish&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Now, the flow has fewer components and is not required to modify the Message payload to publish with a different format:
+    </p>
+   </div>
+   <div class="colist arabic">
+    <table>
+     <tr>
+      <td>
+       <i class="conum" data-value="1">
+       </i>
+       <b>
+        1
+       </b>
+      </td>
+      <td>
+       Definition of the new message is done inline, so it only creates the JSON for the new Message body.
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="2">
+       </i>
+       <b>
+        2
+       </b>
+      </td>
+      <td>
+       We use the message 'attributes' POJO instead of the 'inboundProperties', which now differentiate the 'headers' of the AMQP Messsage from the 'properties'.
+      </td>
+     </tr>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="ConsumingMessages">
+   <a class="anchor" href="#ConsumingMessages">
+   </a>
+   Consuming Messages
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Consuming Messages mid-flow from a given destination was not supported by Mule’s 3 AMQP transport, and the way to go was also adding the 'Mule Requester Module' to your application, which would then handle the mid-flow message consume.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     So, for example, if you wanted to expose your AMQP Queue, your application would be similar to this:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Example: Consuming Messages Mid-Flow
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="ordersFromAMQP"&gt;
+  &lt;http:inbound-endpoint exchange-pattern="request-response" path="orders" host="localhost" port="8081"/&gt;
+  &lt;scripting:transformer doc:name="AMQP Message Listening"&gt;
+    &lt;scripting:script engine="Groovy"&gt;&lt;![CDATA[
+org.mule.api.MuleMessage message = new org.mule.module.client.MuleClient(muleContext).request('amqp://recordsyntactic_exchange/amqp-queue?connector=AMQP_0_9_Connector&amp;exchangeType=direct&amp;queueDurable=true&amp;exchangeDurable=true&amp;queueAutoDelete=true', 10000L);
+]]&gt;&lt;/scripting:script&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Some things to notice here are:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       All metadata regarding AMQP Message is completely lost, so logging the CorrelationId relies on you knowing the syntax to obtain the header.
+      </p>
+     </li>
+     <li>
+      <p>
+       We need both the AMQP and the configuration for the queue in the request.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     Mule 4 comes out of the box with the capability of consuming messages mid-flow by using 'consume' operation. This operation is very similar to the listener we saw before, with the difference that it can be used anywhere in the flow:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Example:  Consuming Messages Mid-Flow
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="ordersFromAMQP"&gt;
+  &lt;http:listener config-ref="HTTP_Listener_config" path="/orders"/&gt;
+  &lt;amqp:consume config-ref="config"  queueName="Orders" /&gt;
+  &lt;logger level="INFO" message="#['CorrelationId: ' ++ attributes.properties.correlationId]"/&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="doing-request-reply">
+   <a class="anchor" href="#doing-request-reply">
+   </a>
+   Doing Request-Reply
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     AMQP allows you to use the
+     <code>
+      reply_to
+     </code>
+     property to perform a implement the RPC pattern. This can be done either with a temporary exclusive reply queue that is created on the fly by the client, or using an already existing queue.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="request-reply-with-temporary-auto-delete-private-reply-queue">
+     <a class="anchor" href="#request-reply-with-temporary-auto-delete-private-reply-queue">
+     </a>
+     Request Reply With Temporary Auto-delete Private Reply Queue
+    </h3>
+    <div class="paragraph">
+     <p>
+      In Mule 3, for the first case where the reply queue is a temporary exclusive queue that will be discarded once the message arrives, we have the "request-response" exchange-pattern in the outbound endpoint:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 3 Example: Doing Request-Reply With Temporary Reply Destination
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="amqpRequestReplyTemporaryDestination"&gt;
+  &lt;http:inbound-endpoint exchange-pattern="request-response" host="localhost" port="8080" path="invoices"/&gt;
+  &lt;dw:transform-message&gt;
+      &lt;dw:set-payload&gt;&lt;![CDATA[%dw 1.0
+        %output application/xml
+        ---
+        {
+        data: payload,
+        costumer: message.inboundProperties."http.query.params".costumer_id
+        }]]&gt;&lt;/dw:set-payload&gt;
+  &lt;/dw:transform-message&gt;
+  &lt;object-to-string-transformer/&gt;
+  &lt;amqp:outbound-endpoint exchange-pattern="request-response" queueName="invoiceProcessor" connector-ref="AMQP_Connector"/&gt;
+  &lt;logger level="INFO" message="Status: #[payload]"&gt;
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      Instead, in Mule 4 you have a brand new operation called
+      <code>
+       publish-consume
+      </code>
+      which aims to solve this specific use case:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 4 Example: Doing Request-Reply With Temporary Reply Destination
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="amqpRequestReplyTemporaryDestination"&gt;
+  &lt;http:listener config-ref="HTTP_Listener_config" path="/invoices"/&gt;
+  &lt;amqp:publish-consume config-ref="AMQP_Config" exchangeName="invoiceProcessor"&gt;
+    &lt;amqp:message&gt;
+      &lt;amqp:body&gt;#[output application/xml ---
+      {
+        data: payload,
+        costumer: attributes.queryParams.costumer_id
+      }]&lt;/amqp:body&gt;
+    &lt;/amqp:message&gt;
+  &lt;/amqp:publish-consume&gt;
+  &lt;logger level="INFO" message="#['Status: ' ++ payload]"&gt;
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      You may see that, again, the building of the Message is done inline of the operation, in the
+      <code>
+       message
+      </code>
+      element, and any transformation or configuration that affects the outgoing Message will be done as part of that element.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="request-reply-with-explicit-reply-to-queue">
+     <a class="anchor" href="#request-reply-with-explicit-reply-to-queue">
+     </a>
+     Request Reply With Explicit Reply To Queue
+    </h3>
+    <div class="paragraph">
+     <p>
+      Doing a request-reply with an explicit
+      <code>
+       reply-to
+      </code>
+      queue was can be done in Mule 4 through the replyTo property:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 4 Example: Doing Request-Reply With Explicit Reply To
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="amqpRequestReplyTemporaryDestination"&gt;
+  &lt;http:listener config-ref="HTTP_Listener_config" path="/invoices"/&gt;
+  &lt;amqp:publish-consume config-ref="AMQP_Config" exchangeName="targetExchange"&gt;
+    &lt;amqp:message&gt;
+      &lt;amqp:body&gt;#[output application/xml ---
+      {
+        data: payload,
+        costumer: attributes.queryParams.costumer_id
+      }]&lt;/amqp:body&gt;
+      &lt;amqp:properties replyTo="replyToQueue" /&gt;
+    &lt;/amqp:message&gt;
+  &lt;/amqp:publish-consume&gt;
+  &lt;logger level="INFO" message="#['Status: ' ++ payload]"&gt;
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="UsingTransactions">
+   <a class="anchor" href="#UsingTransactions">
+   </a>
+   Using Transactions
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Transactions support is quite similar in its configuration when moving from 3.x to 4.x, with the expected change from it being configured in the
+     <code>
+      inbound-endpoint
+     </code>
+     and
+     <code>
+      outbound-endpoint
+     </code>
+     to the normalized Mule 4 approach for operations and sources:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Example: Using Transactions
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="transactedAmqpFlow"&gt;
+    &lt;amqp:inbound-endpoint queue=Name"${in}"&gt;
+        &lt;amqp:transaction action="ALWAYS_BEGIN" /&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+    &lt;/amqp:inbound-endpoint&gt;
+    &lt;set-variable variableName="originalPayload" value="#[payload]"/&gt; <i class="conum" data-value="2"></i><b>(2)</b>
+    &lt;dw:transform-message&gt; <i class="conum" data-value="3"></i><b>(3)</b>
+        &lt;dw:set-payload&gt;&lt;![CDATA[%dw 1.0
+          %output application/xml
+          ---
+          payload
+          ]]&gt;&lt;/dw:set-payload&gt;
+    &lt;/dw:transform-message&gt;
+    &lt;object-to-string-transformer/&gt;
+    &lt;amqp:outbound-endpoint exchangeName="${out}"&gt; <i class="conum" data-value="4"></i><b>(4)</b>
+        &lt;amqp:transaction action="ALWAYS_JOIN"/&gt;
+    &lt;/amqp:outbound-endpoint&gt;
+    &lt;default-exception-strategy&gt;
+        &lt;commit-transaction exception-pattern="*"/&gt; <i class="conum" data-value="5"></i><b>(5)</b>
+        &lt;set-payload value="#[flowVars.originalPayload]"/&gt; <i class="conum" data-value="6"></i><b>(6)</b>
+        &lt;amqp:outbound-endpoint queue="dead.letter"&gt; <i class="conum" data-value="7"></i><b>(7)</b>
+            &lt;amqp:transaction action="JOIN_IF_POSSIBLE"/&gt;
+        &lt;/amqp:outbound-endpoint&gt;
+    &lt;/default-exception-strategy&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Things to note are:
+    </p>
+   </div>
+   <div class="colist arabic">
+    <table>
+     <tr>
+      <td>
+       <i class="conum" data-value="1">
+       </i>
+       <b>
+        1
+       </b>
+      </td>
+      <td>
+       Transaction is initiated by the inbound endpoint with
+       <code>
+        ALWAYS_BEGIN
+       </code>
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="2">
+       </i>
+       <b>
+        2
+       </b>
+      </td>
+      <td>
+       We make sure not to loose the original payload
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="3">
+       </i>
+       <b>
+        3
+       </b>
+      </td>
+      <td>
+       Payload is transformed so it can be sent through the outbound endpoint
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="4">
+       </i>
+       <b>
+        4
+       </b>
+      </td>
+      <td>
+       The outbound endpoint is configured to
+       <code>
+        ALWAYS_JOIN
+       </code>
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="5">
+       </i>
+       <b>
+        5
+       </b>
+      </td>
+      <td>
+       We set up the exception strategy to catch all exceptions
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="6">
+       </i>
+       <b>
+        6
+       </b>
+      </td>
+      <td>
+       Original payload is restored so the original message is published to the dead.letter
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="7">
+       </i>
+       <b>
+        7
+       </b>
+      </td>
+      <td>
+       Finally we send the original message to the dead.letter attempting to join to the current transaction.
+      </td>
+     </tr>
+    </table>
+   </div>
+   <div class="paragraph">
+    <p>
+     Same scenario can be implemented in Mule 4 with the following approach:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Example: Using Transactions
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="transactedAmqpFlow"&gt;
+    &lt;amqp:listener config-ref="AMQP_Config" queueName="${in}" transactionalAction="ALWAYS_BEGIN"/&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+    &lt;amqp:publish config-ref="AMQP_Config" destination="${out}" transactionalAction="ALWAYS_JOIN"&gt; <i class="conum" data-value="2"></i><b>(2)</b>
+        &lt;amqp:message&gt;
+            &lt;amqp:body&gt;#[output application/xml --- payload&lt;/amqp:body&gt;
+        &lt;/amqp:message&gt;
+    &lt;/amqp:publish&gt;
+    &lt;error-handler&gt;
+        &lt;on-error-continue type="ANY"&gt; <i class="conum" data-value="3"></i><b>(3)</b>
+          &lt;amqp:publish config-ref="AMQP_Config" exchangeName="dead.letter" transactionalAction="JOIN_IF_POSSIBLE"&gt; <i class="conum" data-value="4"></i><b>(4)</b>
+          	&lt;amqp:routing-keys&gt;
+				&lt;amqp:routing-key value="dead.letter" /&gt;
+			&lt;/amqp:routing-keys&gt;
+          &lt;/amqp:publish&gt;
+        &lt;/on-error-continue&gt;
+    &lt;/error-handler&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="colist arabic">
+    <table>
+     <tr>
+      <td>
+       <i class="conum" data-value="1">
+       </i>
+       <b>
+        1
+       </b>
+      </td>
+      <td>
+       Transaction is initiated by the
+       <code>
+        listener
+       </code>
+       with
+       <code>
+        ALWAYS_BEGIN
+       </code>
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="2">
+       </i>
+       <b>
+        2
+       </b>
+      </td>
+      <td>
+       Publishing of the payload in XML format is done by the
+       <code>
+        publish
+       </code>
+       operation without modifying the current payload, also joining the transaction with
+       <code>
+        ALWAYS_JOIN
+       </code>
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="3">
+       </i>
+       <b>
+        3
+       </b>
+      </td>
+      <td>
+       An error handler that catches any error occurred is used to make sure the Message is not lost
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="4">
+       </i>
+       <b>
+        4
+       </b>
+      </td>
+      <td>
+       Since the current payload is still the original Message received, we just publish it to the dead.letter using the
+       <code>
+        JOIN_IF_POSSIBLE
+       </code>
+       transactional action
+      </td>
+     </tr>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="EnforcingExistenceQueueExchanges">
+   <a class="anchor" href="#EnforcingExistenceQueueExchanges">
+   </a>
+   Enforcing the Existence of Queue and Exchanges
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In Mule 3, if you set
+     <code>
+      activeDeclarationsOnly
+     </code>
+     to false and the declared queue or exchange does not exist, the AMQP connector throws a
+     <code>
+      ShutdownSignalException
+     </code>
+     involving a 404 error. You can enforce the existence of a queue or exchange in Mule 4 using the
+     <code>
+      createFallbackQueue
+     </code>
+     and
+     <code>
+      createFallbackExchange
+     </code>
+     parameters.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;amqp:config name="Amqp_Config" createFallbackQueue="false" createFallbackQueue="false"&gt;
+    &lt;amqp:connection host="localhost" username="guest" password="guest" /&gt;
+&lt;/amqp:config&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+</article>

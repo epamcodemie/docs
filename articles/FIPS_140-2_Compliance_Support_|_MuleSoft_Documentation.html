@@ -1,0 +1,785 @@
+<article class="doc">
+ <h1 class="page">
+  FIPS 140-2 Compliance Support
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The Mule 4 Runtime can be configured to run in a Federal Information Processing Standard (FIPS) 140-2 certified environment. This includes all Runtime connectors, such as HTTP connector. Note that Mule doesn’t run in FIPS security mode by default. There are two requirements:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Have a certified cryptography module installed in your Java environment
+      </p>
+     </li>
+     <li>
+      <p>
+       Adjust Mule Runtime settings to run in FIPS security mode
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="admonitionblock note">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-note" title="Note">
+       </i>
+      </td>
+      <td class="content">
+       <div class="paragraph">
+        <p>
+         By default, Government Cloud is configured for FIPS 140-2, so you don’t need to perform the following steps if you are using Government Cloud.
+        </p>
+       </div>
+       <div class="paragraph">
+        <p>
+         If you are using Runtime Fabric, see
+         <a class="xref page" href="../../runtime-fabric/latest/enable-fips-140-2-compliance">
+          Enabling FIPS 140-2 Compliance Mode for Runtime Fabric
+         </a>
+         instead of performing these steps.
+        </p>
+       </div>
+      </td>
+     </tr>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="assumptions">
+   <a class="anchor" href="#assumptions">
+   </a>
+   Assumptions
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     This document assumes that you are familiar with
+     <a href="http://csrc.nist.gov/publications/fips/fips140-2/fips1402.pdf">
+      FIPS 140-2
+     </a>
+     , the US government security standard that requires that compliant parties use only cryptographic algorithms and techniques that have been certified by NIST. This document also assumes that you have selected and obtained a
+     <a href="https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules">
+      certified security provider
+     </a>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="set_up_environment">
+   <a class="anchor" href="#set_up_environment">
+   </a>
+   Setting Up a FIPS 140-2 Java Environment
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Mule relies on the Java runtime to provide a FIPS-compliant security module, which is why the first requirement is to have a FIPS 140-2 Java environment properly set up. If you are setting up your system for FIPS compliance for the first time and you haven’t already configured a certified security provider, you must first
+     <a href="https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules">
+      select and obtain one
+     </a>
+     , then set up your Java environment following the instructions specific to your selected provider.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Details for this process vary according to your selected security provider. Please refer to the documentation for your security provider for complete instructions.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="setup-instructions-using-bouncy-castle-security-provider">
+     <a class="anchor" href="#setup-instructions-using-bouncy-castle-security-provider">
+     </a>
+     Setup Instructions Using Bouncy Castle Security Provider
+    </h3>
+    <div class="paragraph">
+     <p>
+      The following instructions demonstrate how to set up a FIPS 140-2 Java environment.
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        <a href="#setupjava8">
+         Setup Instructions in Java 8
+        </a>
+       </p>
+      </li>
+      <li>
+       <p>
+        <a href="#setupjava11">
+         Setup Instructions in Java 11 and Later
+        </a>
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="sect3">
+     <h4 id="setupjava8">
+      <a class="anchor" href="#setupjava8">
+      </a>
+      Setup Instructions in Java 8
+     </h4>
+     <div class="paragraph">
+      <p>
+       The following shows how to install and configure Bouncy Castle security provider in Java 8.
+      </p>
+     </div>
+     <div class="olist arabic">
+      <ol class="arabic">
+       <li>
+        <p>
+         Download the provider files from
+         <a href="https://www.bouncycastle.org/fips-java/">
+          the BouncyCastle web page
+         </a>
+         .
+        </p>
+       </li>
+       <li>
+        <p>
+         Install the required JAR file into the
+         <code>
+          $JAVA_HOME/lib/ext
+         </code>
+         folder:
+        </p>
+        <div class="imageblock">
+         <div class="content">
+          <img alt="A command line for installing a FIPS JAR file into the Java home directory" src="_images/fips-install-jars.png"/>
+         </div>
+        </div>
+       </li>
+       <li>
+        <p>
+         Register the security provider in the security properties file in the
+         <code>
+          $JAVA_HOME/lib/security
+         </code>
+         folder:
+        </p>
+        <div class="olist loweralpha">
+         <ol class="loweralpha" type="a">
+          <li>
+           <p>
+            Open the
+            <code>
+             java.security
+            </code>
+            file to add your provider’s class (for example,
+            <code>
+             org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider
+            </code>
+            ) as the first item in the list of providers.
+           </p>
+          </li>
+          <li>
+           <p>
+            Modify the line with SSL provider to use the Bouncy Castle provider (
+            <code>
+             security.provider.4=com.sun.net.ssl.internal.ssl.Provider BCFIPS
+            </code>
+            ):
+           </p>
+           <div class="imageblock">
+            <div class="content">
+             <img alt="A list of security providers where to modify the provider" src="_images/fips-register-jar.png"/>
+            </div>
+           </div>
+          </li>
+         </ol>
+        </div>
+       </li>
+       <li>
+        <p>
+         Adjust the numbering of the other security providers in the file so that they remain sequential.
+        </p>
+        <div class="imageblock">
+         <div class="content">
+          <img alt="A list of security providers in sequential order" src="_images/fips-register-jar-renumber.png"/>
+         </div>
+        </div>
+       </li>
+       <li>
+        <p>
+         Save your changes.
+        </p>
+       </li>
+      </ol>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="setupjava11">
+      <a class="anchor" href="#setupjava11">
+      </a>
+      Setup Instructions in Java 11 and Later
+     </h4>
+     <div class="paragraph">
+      <p>
+       The following shows how to install and configure Bouncy Castle security provider in Java 11 and later.
+      </p>
+     </div>
+     <div class="olist arabic">
+      <ol class="arabic">
+       <li>
+        <p>
+         Verify that you are using Java 11 or later and
+         <code>
+          JAVA_HOME
+         </code>
+         is set.
+        </p>
+       </li>
+       <li>
+        <p>
+         Download the provider files from
+         <a href="https://www.bouncycastle.org/fips-java/">
+          the BouncyCastle web page
+         </a>
+         .
+        </p>
+        <div class="listingblock">
+         <div class="content">
+          <pre>Provider:bc-fips-1.0.2.4  TLS: bctls-fips-1.0.17.jar  PKIX: bcpkix-fips-1.0.7.jar</pre>
+         </div>
+        </div>
+       </li>
+       <li>
+        <p>
+         Copy the 3 files downloaded to
+         <code>
+          /lib/boot
+         </code>
+         (needed for Mule runtime) and
+         <code>
+          /mule-agent-plugin/lib
+         </code>
+         (needed for Mule agent) folders in Mule runtime.
+        </p>
+       </li>
+       <li>
+        <p>
+         Run
+         <code>
+          amc_setup
+         </code>
+         and register Mule runtime. For example, in
+         <strong>
+          Add Server
+         </strong>
+         , you find the registration token
+         <code>
+          /amc_setup -H d32c4bde-7184-444a-bd87-7a274623e14f---704247 node10  --fips
+         </code>
+         , where
+         <code>
+          d32c4bde-7184-444a-bd87-7a274623e14f---704247
+         </code>
+         is the key from Anypoint Runtime Manager.
+        </p>
+       </li>
+       <li>
+        <p>
+         To enable FIPS, update
+         <code>
+          $MULE_HOME/conf/wrapper.conf
+         </code>
+         . Add the properties
+         <code>
+          wrapper.java.additional.&lt;n&gt;=-Dmule.security.model=fips140-2
+         </code>
+         and
+         <code>
+          wrapper.java.additional.&lt;n&gt;=-Dmule.cluster.network.encryption.key={someKey}
+         </code>
+         , where
+         <code>
+          someKey
+         </code>
+         is the key from your cluster that needs to be defined if you are using a clustered environment.
+        </p>
+       </li>
+       <li>
+        <p>
+         Get the latest Mule runtime distribution
+         <code>
+          4.5.x
+         </code>
+         , which enables providers
+         <code>
+          BouncyCastleFipsProvider
+         </code>
+         and
+         <code>
+          BouncyCastleJsseProvider
+         </code>
+         and set the algorithms to PKIX.
+        </p>
+       </li>
+       <li>
+        <p>
+         Start Mule runtime.
+        </p>
+       </li>
+      </ol>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="running-mule-in-fips-security-mode">
+   <a class="anchor" href="#running-mule-in-fips-security-mode">
+   </a>
+   Running Mule in FIPS Security Mode
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     After following the steps in
+     <a href="#set_up_environment">
+      Setting Up a FIPS 140-2 Java Environment
+     </a>
+     , set up your Mule instances to work in a FIPS 140-2-compliant environment by updating the configuration of the wrapper that launches the Mule app server.
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Open your
+       <code>
+        wrapper.conf
+       </code>
+       file (located in
+       <code>
+        $MULE_HOME/conf
+       </code>
+       folder).
+      </p>
+     </li>
+     <li>
+      <p>
+       Uncomment the line that configures Mule to work in FIPS security mode (as shown). Be sure to replace the
+       <code>
+        &lt;n&gt;
+       </code>
+       with the next sequential number in your
+       <code>
+        wrapper.conf
+       </code>
+       file.
+      </p>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="A file with configuration settings for enabling FIPS 140-2 mode" src="_images/fips-wrapper-conf-edit.png"/>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Save your changes.
+      </p>
+     </li>
+    </ol>
+   </div>
+   <div class="paragraph">
+    <p>
+     When Mule launches again, the startup readout will indicate that FIPS security mode is enabled.
+    </p>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="A console output showing startup logs for a Mule server with FIPS 140-2 security model enabled" src="_images/fips-startup.png"/>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     With FIPS security mode enabled, Mule automatically restricts protocol negotiations to use only the subset of approved cryptographic cipher suites. Any HTTPS connectors and any other connectors that use a TLS security layer will be affected automatically by this restriction.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="cluster-environment-in-fips-mode">
+     <a class="anchor" href="#cluster-environment-in-fips-mode">
+     </a>
+     Cluster Environment in FIPS mode
+    </h3>
+    <div class="paragraph">
+     <p>
+      If you are running in FIPS mode with a Mule Runtime in a clustered environment, you should define an encryption key for the cluster. See
+      <a class="xref page" href="mule-high-availability-ha-clusters#cluster_fips">
+       Cluster reference
+      </a>
+      for more insight.
+     </p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="fips-140-2-compliant-cipher-suites">
+   <a class="anchor" href="#fips-140-2-compliant-cipher-suites">
+   </a>
+   FIPS 140-2 Compliant Cipher Suites
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The following list contains supported FIPS 140-2 compliant cipher suites.
+To configure the cipher suite used by on-prem Mule installations, see
+     <a href="#fine-tuning-ssl-connectors">
+      Fine-Tuning SSL Connectors
+     </a>
+     .
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+      </p>
+     </li>
+     <li>
+      <p>
+       TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+      </p>
+     </li>
+     <li>
+      <p>
+       TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+      </p>
+     </li>
+     <li>
+      <p>
+       TLS_DHE_RSA_WITH_AES_256_GCM_SHA384
+      </p>
+     </li>
+     <li>
+      <p>
+       TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+      </p>
+     </li>
+     <li>
+      <p>
+       TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384
+      </p>
+     </li>
+     <li>
+      <p>
+       TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384
+      </p>
+     </li>
+     <li>
+      <p>
+       TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA
+      </p>
+     </li>
+     <li>
+      <p>
+       TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA
+      </p>
+     </li>
+     <li>
+      <p>
+       TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA
+      </p>
+     </li>
+     <li>
+      <p>
+       TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="fips-140-2-compliant-keystore-formats">
+   <a class="anchor" href="#fips-140-2-compliant-keystore-formats">
+   </a>
+   FIPS 140-2 Compliant Keystore Formats
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Keystores or truststores in Mule apps are typically formatted as
+     <code>
+      PKCS12
+     </code>
+     or
+     <code>
+      JKS
+     </code>
+     .
+These formats aren’t FIPS compliant. For compliance, convert them to
+     <code>
+      BCFKS
+     </code>
+     format.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     To convert a
+     <code>
+      JKS
+     </code>
+     keystore to
+     <code>
+      BCFKS
+     </code>
+     format, make sure that you:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Use Java 8 or later and make sure that
+       <code>
+        JAVA_HOME
+       </code>
+       is set.
+      </p>
+     </li>
+     <li>
+      <p>
+       Download the
+       <code>
+        bc-fips.jar
+       </code>
+       file from the
+       <a href="https://www.bouncycastle.org/download/bouncy-castle-java-fips/">
+        Bouncy Castle website
+       </a>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       Use this example command to convert a keystore to
+       <code>
+        BCFKS
+       </code>
+       format:
+      </p>
+     </li>
+    </ol>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre>BC_FIPS_JAR=${BC_PATH}/bc-fips-*.jar  # Replace with a correct path
+OLD_KEYSTORE="keystore.jks"           # Replace with the keystore to convert
+OLD_PASSWD="changeit"                 # Replace with the keystore password
+NEW_KEYSTORE="keystore.bcfks"         # Replace with the new keystore
+NEW_PASSWD="changeit"                 # Replace with the new keystore password
+
+keytool -importkeystore \
+ -providerclass org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider \
+ -providerpath ${BC_FIPS_JAR} \
+ -srckeystore  ${OLD_KEYSTORE}   -srcstoretype JKS       -srcstorepass ${OLD_PASSWD} \
+ -destkeystore ${NEW_KEYSTORE}   -deststoretype BCFKS    -deststorepass ${NEW_PASSWD}</pre>
+    </div>
+   </div>
+   <div class="admonitionblock important">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-important" title="Important">
+       </i>
+      </td>
+      <td class="content">
+       If you’re using Java 17 or later, add the
+       <code>
+        -J—​add-exports=java.base/sun.security.provider=ALL-UNNAMED
+       </code>
+       parameter to the keytool command before the
+       <code>
+        -importkeystore
+       </code>
+       parameter.
+      </td>
+     </tr>
+    </table>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic" start="4">
+     <li>
+      <p>
+       To use the new keystore or truststore, update the
+       <a class="xref page" href="tls-configuration">
+        TLS configuration
+       </a>
+       in the Mule configuration file:
+      </p>
+     </li>
+    </ol>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre>&lt;tls:context&gt;
+	&lt;tls:key-store   type="bcfks" path="server.bcfks" password="changeit" keyPassword="changeit" alias="default" /&gt;
+	&lt;tls:trust-store type="bcfks" path="client.bcfks" password="changeit" /&gt;
+&lt;/tls:context&gt;</pre>
+    </div>
+   </div>
+   <div class="admonitionblock note">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-note" title="Note">
+       </i>
+      </td>
+      <td class="content">
+       If the source keystore is
+       <code>
+        PKCS12
+       </code>
+       , set the parameter
+       <code>
+        -srcstoretype
+       </code>
+       to
+       <code>
+        PKCS12
+       </code>
+       in the
+       <code>
+        keytool
+       </code>
+       command.
+      </td>
+     </tr>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="fine-tuning-ssl-connectors">
+   <a class="anchor" href="#fine-tuning-ssl-connectors">
+   </a>
+   Fine-Tuning SSL Connectors
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The Mule conf folder includes two files that allow you to fine-tune the configuration of SSL connectors by manually setting which cipher suites Mule can use and which SSL protocols are allowed:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <code>
+        tls-default.conf
+       </code>
+       (Allows fine-tuning when Mule isn’t configured to run in FIPS security mode)
+      </p>
+     </li>
+     <li>
+      <p>
+       <code>
+        tls-fips140-2.conf
+       </code>
+       (Allows fine-tuning when Mule is running in FIPS security mode)
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     Open the relevant file and comment or uncomment items in the lists to manually configure the allowed cipher suites and SSL protocols. If you make no changes to these files, Mule allows the configured security manager to select cipher suites and protocols.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="tips-and-limitations">
+   <a class="anchor" href="#tips-and-limitations">
+   </a>
+   Tips and Limitations
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       The Bouncy Castle security provider bundled with the Mule Runtime distribution isn’t FIPS certified. When Mule starts in FIPS security mode, the Bouncy Castle provider isn’t registered or used.
+      </p>
+     </li>
+     <li>
+      <p>
+       Not all encryption schemes and signatures included in
+       <a class="xref page" href="cryptography">
+        Mule Cryptography Module
+       </a>
+       and
+       <a class="xref page" href="secure-configuration-properties">
+        Mule Secure Properties
+       </a>
+       configuration options are FIPS compliant. If your application is using an algorithm that isn’t approved for FIPS use, you will get an error at runtime that reads:
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="literalblock">
+    <div class="content">
+     <pre>	Could not find encryption algorithm '&lt;algorithm-name&gt;'.
+	You are running in FIPS mode, so please verify that
+	the algorithm is compliant with FIPS.</pre>
+    </div>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Keep in mind that your different environments might have different security configurations, including different encryption schemes and algorithm selections. So you might see this error in certain environments (but not others), depending on how they are set up.
+      </p>
+     </li>
+     <li>
+      <p>
+       Similarly, enabling FIPS at the OS level, such as on Red Hat, isn’t supported as it causes cipher suite errors during license validation.
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a href="https://csrc.nist.gov/projects/cryptographic-module-validation-program/validated-modules">
+        Validated FIPS-2 Cryptographic Modules
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="http://csrc.nist.gov/publications/fips/fips140-2/fips1402annexa.pdf">
+        Approved Cryptographic Algorithms
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

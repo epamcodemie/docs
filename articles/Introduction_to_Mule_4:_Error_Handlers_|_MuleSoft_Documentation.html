@@ -1,0 +1,470 @@
+<article class="doc">
+ <h1 class="page">
+  Introduction to Mule 4: Error Handlers
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In Mule 4, error handling is no longer limited to a Java exception handling process that requires you to check the source code or force an error in order to understand what happened. Though Java
+     <code>
+      Throwable
+     </code>
+     errors and exceptions are still available, Mule 4 introduces a formal Error concept that’s easier to use. Now, each component declares the type of errors it can throw, so you can identify potential errors at design time.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="mule-errors">
+   <a class="anchor" href="#mule-errors">
+   </a>
+   Mule Errors
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Execution failures are represented with Mule errors that have the following components:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       A description of the problem.
+      </p>
+     </li>
+     <li>
+      <p>
+       A type that is used to characterize the problem.
+      </p>
+     </li>
+     <li>
+      <p>
+       A cause, the underlying Java
+       <code>
+        Throwable
+       </code>
+       that resulted in the failure.
+      </p>
+     </li>
+     <li>
+      <p>
+       An optional error message, which is used to include a proper Mule Message regarding the problem.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     For example, when an HTTP request fails with a 401 status code, a Mule error provides the following information:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre>Description: HTTP GET on resource ‘http://localhost:36682/testPath’ failed: unauthorized (401)
+Type: HTTP:UNAUTHORIZED
+Cause: a ResponseValidatorTypedException instance
+Error Message:  { "message" : "Could not authorize the user." }</pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="error-types">
+   <a class="anchor" href="#error-types">
+   </a>
+   Error Types
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In the example above, the error type is
+     <code>
+      HTTP:UNAUTHORIZED
+     </code>
+     , not simply
+     <code>
+      UNAUTHORIZED
+     </code>
+     . Error types consist of both a namespace and an identifier, allowing you to distinguish the types according to their domain (for example,
+     <code>
+      HTTP:NOT_FOUND
+     </code>
+     and
+     <code>
+      FILE:NOT_FOUND
+     </code>
+     ). While connectors define their own namespace, core runtime errors have an implicit one:
+     <code>
+      MULE:EXPRESSION
+     </code>
+     and
+     <code>
+      EXPRESSION
+     </code>
+     are interpreted as one.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Another important characteristic of error types is that they might have a parent type. For example,
+     <code>
+      HTTP:UNAUTHORIZED
+     </code>
+     has
+     <code>
+      MULE:CLIENT_SECURITY
+     </code>
+     as the parent, which, in turn, has
+     <code>
+      MULE:SECURITY
+     </code>
+     as the parent. This establishes error types as specifications of more global ones: an HTTP unauthorized error is a kind of client security error, which is a type of a more broad security issue.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     These hierarchies mean routing can be more general, since, for example, a handler for
+     <code>
+      MULE:SECURITY
+     </code>
+     catches HTTP unauthorized errors as well as OAuth errors. Below you can see what the core runtime hierarchy looks like:
+    </p>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="A hierarchy of error types showing categories including ANY and CRITICAL" src="_images/error-hierarchy.png"/>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     All errors are either general or
+     <code>
+      CRITICAL
+     </code>
+     , the latter being so severe that they cannot be handled. At the top of the general hierarchy is
+     <code>
+      ANY
+     </code>
+     , which allows matching all types under it.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     It’s important to note the
+     <code>
+      UNKNOWN
+     </code>
+     type, which is used when no clear reason for the failure is found. This error can only be handled through the
+     <code>
+      ANY
+     </code>
+     type to allow specifying the unclear errors in the future, without changing the existing app’s behavior.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     When it comes to connectors, each connector defines its error type hierarchy considering the core runtime one, though
+     <code>
+      CONNECTIVITY
+     </code>
+     and
+     <code>
+      RETRY_EXHAUSTED
+     </code>
+     types are always present because they are common to all connectors.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="error_handlers">
+   <a class="anchor" href="#error_handlers">
+   </a>
+   Error Handlers
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Mule 4 has redesigned error handling by introducing the
+     <code>
+      error-handler
+     </code>
+     component, which can contain any number of internal handlers and can route an error to the first one matching it. Such handlers are
+     <code>
+      on-error-continue
+     </code>
+     and
+     <code>
+      on-error-propagate
+     </code>
+     , which both support matching through an error type (or group of error types) or through an expression (for advanced use cases). These are quite similar to the Mule 3 choice (
+     <code>
+      choice-exception-strategy
+     </code>
+     ), catch (
+     <code>
+      catch-exception-strategy
+     </code>
+     ), and rollback (
+     <code>
+      rollback-exception-strategy
+     </code>
+     ) exceptions strategies However, they are much simpler and more consistent.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     If an error is raised in Mule 4, an error handler is executed and the error is routed to the first matching handler. At this point, the error is available for inspection, so the handlers can execute and act accordingly, relative to the component where they are used (a Flow or Try scope):
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       An
+       <code>
+        on-error-continue
+       </code>
+       executes and uses the result of the execution as the
+result of its owner (as though the owner completed the execution successfully).
+Any transactions at this point are committed, as well.
+      </p>
+     </li>
+     <li>
+      <p>
+       An
+       <code>
+        on-error-propagate
+       </code>
+       rolls back any transactions, executes, and uses that
+result to re-throw the existing error, meaning its owner is considered to be
+“failing.”
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     Consider the following application where an HTTP listener triggers a Flow Reference component to another flow that performs an HTTP request. If everything goes right when a message is received (1 below), the reference is triggered (2), and the request performed (3), which results in a successful response (HTTP status code 200) (4).
+    </p>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="A flow showing error handling configurations for HTTP errors including NOT_FOUND" src="_images/error-handling-example-1.png"/>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     If the HTTP request fails with an
+     <code>
+      HTTP:NOT_FOUND
+     </code>
+     error (see 3 below) because of
+the error handler configuration in
+     <code>
+      inner-flow
+     </code>
+     , the error is propagated (4), and the
+Flow Reference component fails (2). However, because
+     <code>
+      primary-flow
+     </code>
+     handles the
+error with
+     <code>
+      on-error-continue
+     </code>
+     , the Logger it contains (5) executes, and a
+successful response (HTTP status code 200) is returned (6).
+    </p>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="A flow showing error handling configurations for HTTP errors in the inner-flow including NOT_FOUND" src="_images/error-handling-example-2.png"/>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     If the request fails with an unauthorized error instead (3), then
+     <code>
+      inner-flow
+     </code>
+     handles it with an
+     <code>
+      on-error-continue
+     </code>
+     by retrieving static content from a file (4). Then the Flow Reference component is successful as well (2), and a successful response (HTTP status code 200) is returned (5).
+    </p>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="A flow showing error handling configurations for HTTP in the inner-flow including UNAUTHORIZED" src="_images/error-handling-example-3.png"/>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     But what if another error occurred in the HTTP request? Although there are only handlers for
+     <code>
+      NOT_FOUND
+     </code>
+     and
+     <code>
+      UNAUTHORIZED
+     </code>
+     errors in the flow, errors are still propagated by default. This means that if no handler matches the error that is raised, then it is re-thrown. For example, if the request fails with a method not allowed error (3), then it is propagated, causing the Flow Reference component to fail (2), and that propagation results in a failure response (4).
+    </p>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="A flow showing error handling configurations for HTTP resulting in a failure response" src="_images/error-handling-example-4.png"/>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The scenario above can be avoided by making the last handler match
+     <code>
+      ANY
+     </code>
+     , instead of just
+     <code>
+      HTTP:UNAUTHORIZED
+     </code>
+     . Notice how, below, all the possible errors of an
+     <code>
+      HTTP
+     </code>
+     request are suggested:
+    </p>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="An On Error Continue general files with types including ANY" src="_images/error-handling-any.png"/>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Or should it be fields?
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     You can also match errors using an expression. For example, since the Mule Error is available during error handling, we can use it to match all errors with the HTTP namespace:
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     image::error-handling-expression.png["An On Error Continue general fields showing an expression to handle HTTP
+errors"]
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="try-scope">
+   <a class="anchor" href="#try-scope">
+   </a>
+   Try Scope
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     For the most part, Mule 3 only allows error handling at the flow level, forcing you to extract logic to a flow in order to address errors. In Mule 4, we’ve introduced a Try scope that you can use within a flow to do error handling of just inner components. The scope also supports transactions, which replaces the old Transactional scope.
+    </p>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="A flow showing a Try scope with components for error propagation and continuation" src="_images/error-handling-try.png"/>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     In the previous example, On Error Propagate component is configured to propagate database connection errors, causing the
+     <code>
+      try
+     </code>
+     to fail and the flow’s error handler to execute.
+On Error Continue component is configured to handle any other error. The Try scope’s execution is successful for that case, which means that the flow’s execution continues with the next processor, an HTTP Request operation.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="error-mapping">
+   <a class="anchor" href="#error-mapping">
+   </a>
+   Error Mapping
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Mule 4 now also allows for mapping default errors to custom ones. The Try scope is useful, but if you have several equal components and want to distinguish the errors of each one, using a Try on them can clutter your app. Instead, you can add error mappings to each component, meaning that all or certain kind of errors streaming from the component are mapped to another error of your choosing. If, for example, you are aggregating results from 2 APIs using an HTTP request component for each, you might want to distinguish between the errors of API 1 and API 2, since by default, their errors are the same.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Mapping enables you to customize error handling by routing errors to the appropriate error handler. The following example routes errors from the first Request operation to the error handler
+     <code>
+      APP:API_1
+     </code>
+     and routes errors from the second Request operation to
+     <code>
+      APP:API_2
+     </code>
+     . To apply different handling policies if the APIs go down, the example maps
+     <code>
+      HTTP:INTERNAL_SERVER_ERROR
+     </code>
+     to each error handler. One mapping propagates the error if it comes from the first API. The other handles the error if it comes from the second API.
+    </p>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="A configuration panel showing error mapping settings for HTTP internal server error" src="_images/error-handling-mappings.png"/>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="error-handling">
+        Error Handlers
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="mule-error-concept">
+        Mule Errors
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="on-error-scope-concept">
+        On-Error Components
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="try-scope-concept">
+        Try Scope
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

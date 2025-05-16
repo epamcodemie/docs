@@ -1,0 +1,721 @@
+<article class="doc">
+ <h1 class="page">
+  Package a Mule Application
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="admonitionblock warning">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-warning" title="Warning">
+       </i>
+      </td>
+      <td class="content">
+       Mule Maven plugin versions 3.0.0, 3.1.0, 3.1.1, 3.1.2, 3.1.3, 3.1.4, 3.1.5, 3.1.6, 3.1.7, and 3.8.3 are deprecated.
+      </td>
+     </tr>
+    </table>
+   </div>
+   <div class="paragraph">
+    <p>
+     You can package your Mule applications using Mule Maven Plugin(command line) or Anypoint Studio. See
+     <a class="xref page" href="../../studio/latest/import-export-packages#export-project-studio">
+      Exporting Projects from Studio
+     </a>
+     for details about this procedure.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Mule applications are packaged into a deployable JAR file that you can later deploy to a running Mule runtime engine. The package contains the application and all its dependencies whether those be JAR files required by the application or by its plugins.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Every Mule application has two descriptors. These descriptors define your Mule application’s dependencies:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       A
+       <code>
+        mule-artifact.json
+       </code>
+       file.
+       <br/>
+       This file describes how your application is composed.
+       <br/>
+      </p>
+     </li>
+     <li>
+      <p>
+       A
+       <code>
+        pom.xml
+       </code>
+       file.
+       <br/>
+       This file describes all the dependencies required by the package to work properly.
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="compatibility">
+   <a class="anchor" href="#compatibility">
+   </a>
+   Compatibility
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Mule 4 applications are compatible with the following Anypoint Studio and Mule Maven Plugin versions:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Anypoint Studio 7.x
+      </p>
+     </li>
+     <li>
+      <p>
+       Mule Maven Plugin 3.x
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="prerequisites">
+   <a class="anchor" href="#prerequisites">
+   </a>
+   Prerequisites
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Add the Mule Maven Plugin to your project
+      </p>
+      <div class="paragraph">
+       <p>
+        See
+        <a class="xref page" href="mmp-concept#add-mmp">
+         Add the Mule Maven Plugin to a Mule Project
+        </a>
+        for instructions.
+       </p>
+      </div>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="mule-application-structure-reference">
+   <a class="anchor" href="#mule-application-structure-reference">
+   </a>
+   Mule Application Structure Reference
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     At design time, your Mule application must have at least these three basic components:
+    </p>
+   </div>
+   <table class="tableblock frame-all grid-all fit-content spread">
+    <colgroup>
+     <col/>
+     <col/>
+     <col/>
+    </colgroup>
+    <thead>
+     <tr>
+      <th class="tableblock halign-left valign-top">
+       Component
+      </th>
+      <th class="tableblock halign-left valign-top">
+       Type
+      </th>
+      <th class="tableblock halign-left valign-top">
+       Description
+      </th>
+     </tr>
+    </thead>
+    <tbody>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        <code>
+         src
+        </code>
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Folder
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        The source directory for your application’s productive source code and tests.
+        <br/>
+        See a reference for this folder below.
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        <code>
+         pom.xml
+        </code>
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Descriptor
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        The POM file of your Mule application.
+        <br/>
+        This file describes all of your application’s required dependencies.
+       </p>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        <code>
+         mule-artifact.json
+        </code>
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        Descriptor
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        The mule-artifact file of your Mule application.
+        <br/>
+        This file describes how your Mule application is composed.
+       </p>
+      </td>
+     </tr>
+    </tbody>
+   </table>
+   <div class="paragraph">
+    <p>
+     These three components are mandatory. If one of them is missing, the project cannot be packaged into a deployable JAR file.
+     <br/>
+     Additionally, the packaging process does not consider any other directory or file in the root folder of your Mule application.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="source-directory-reference">
+   <a class="anchor" href="#source-directory-reference">
+   </a>
+   Source Directory Reference
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The
+     <code>
+      src
+     </code>
+     directory has two main folders:
+     <code>
+      main
+     </code>
+     and
+     <code>
+      test
+     </code>
+     .
+     <br/>
+     The plugin does not consider any other directory inside
+     <code>
+      src
+     </code>
+     when packaging the application.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="srcmain">
+     <a class="anchor" href="#srcmain">
+     </a>
+     src/main
+    </h3>
+    <div class="paragraph">
+     <p>
+      src/main is the root folder for all the productive source code of the application.
+     </p>
+    </div>
+    <table class="tableblock frame-all grid-all fit-content spread">
+     <colgroup>
+      <col/>
+      <col/>
+      <col/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-top">
+        Folder
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Folder Type
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Description
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          src/main/mule
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         source
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         The root folder of the Mule configuration files.
+         <br/>
+         It can contain nested folders, in the way of Java packages.
+        </p>
+        <p class="tableblock">
+         This folder is mandatory.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          src/main/resources
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         resource
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         It contains the application resources, such as XML, JSON, and properties files.
+         <br/>
+         Jar files located here are loaded by the application classloader but as plain file resources.
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+    <div class="paragraph">
+     <p>
+      The packaging process sends all files inside
+      <code>
+       src/main/mule
+      </code>
+      and
+      <code>
+       src/main/resources
+      </code>
+      to the root directory of your binary package.
+      <br/>
+      Nested folders within
+      <code>
+       src/main/mule
+      </code>
+      are preserved as directories within the root directory of the binary package.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="srctest">
+     <a class="anchor" href="#srctest">
+     </a>
+     src/test
+    </h3>
+    <div class="paragraph">
+     <p>
+      src/test is the root folder for all the test source code of the application.
+     </p>
+    </div>
+    <table class="tableblock frame-all grid-all fit-content spread">
+     <colgroup>
+      <col/>
+      <col/>
+      <col/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-top">
+        Folder
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Folder Type
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Description
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          src/test/java
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         source
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         It’s the root folder of the test classes used to validate the custom Java code of the app.
+         <br/>
+         It follows the conventions of any normal Java application.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          src/test/munit
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         source
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         It contains the MUnit source code.
+         <br/>
+         It can contain nested folders in the way of packages.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          src/test/resources
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         resource
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         It contains resources, such as XML, JSON,  and properties files.
+         <br/>
+         This folder also contains files describing metadata being referenced in the
+         <code>
+          mule-config.xml
+         </code>
+         .
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="package-a-mule-application">
+   <a class="anchor" href="#package-a-mule-application">
+   </a>
+   Package a Mule Application
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     From the command line in your project’s folder, execute the package goal:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">mvn clean package</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The plugin packages your application and creates the deployable JAR file into the target directory within your project’s folder.
+    </p>
+   </div>
+   <div class="admonitionblock note">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-note" title="Note">
+       </i>
+      </td>
+      <td class="content">
+       If there is a dependency version conflict in your
+       <code>
+        pom.xml
+       </code>
+       , the latest version is used.
+      </td>
+     </tr>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="create-an-application-package-to-import-into-anypoint-studio">
+   <a class="anchor" href="#create-an-application-package-to-import-into-anypoint-studio">
+   </a>
+   Create an Application Package to Import into Anypoint Studio
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To generate a JAR file that can be imported into Anypoint Studio, you must package your application using the
+     <code>
+      -DattachMuleSources
+     </code>
+     parameter to include source files and metadata that Studio requires to reimport the deployable file as an open Mule project into your workspace.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     From the command line in your project’s folder, run:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">mvn clean package -DattachMuleSources</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The
+     <code>
+      -DattachMuleSources
+     </code>
+     parameter tells the plugin to add a
+     <code>
+      mule-src
+     </code>
+     folder inside the
+     <code>
+      META-INF
+     </code>
+     directory with an exact copy of your application structure at design time. This option also packages project modules and dependencies required to create a functioning Mule deployable archive file that can be deployed into a Mule runtime engine.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="create-a-lightweight-package">
+   <a class="anchor" href="#create-a-lightweight-package">
+   </a>
+   Create a Lightweight Package
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You can skip bundling the actual modules and external dependencies required to run the Mule application in a Mule runtime engine, and create a lightweight package with only the source files and metadata required to import the JAR package back into Anypoint Studio.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     From the command line in your project’s folder, run:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">mvn clean package -DlightweightPackage</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     When you specify this parameter, the plugin creates a lightweight JAR file that does not include any dependencies declared in the Mule application’s
+     <code>
+      pom.xml
+     </code>
+     file. This JAR file cannot be deployed to a Mule runtime engine, it only offers a way to archive just the Mule application’s source files. The result of this Maven parameter is the same as unchecking
+     <strong>
+      Include project modules and dependencies
+     </strong>
+     when exporting the Mule application from Anypoint Studio.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="specify-multiple-parameters">
+   <a class="anchor" href="#specify-multiple-parameters">
+   </a>
+   Specify Multiple Parameters
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You can also combine the parameters together to create a lightweight Mule application package that also includes the source files and metadata to import the package back into Anypoint Studio.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     From the command line in your project’s folder, run:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">mvn clean package -DattachMuleSources -DlightweightPackage</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="exclude-files-from-the-application-package">
+   <a class="anchor" href="#exclude-files-from-the-application-package">
+   </a>
+   Exclude Files from the Application Package
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     When you package an application, you can exclude certain files or directories. Create a
+     <code>
+      _muleExclude
+     </code>
+     file at the project root directory and edit its content to set the exclusion rules.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Each line in a
+     <code>
+      _muleExclude
+     </code>
+     file specifies a rule that follows the
+     <a href="https://docs.oracle.com/javase/tutorial/essential/io/fileOps.html#glob">
+      glob pattern
+     </a>
+     .
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     For example, consider the following
+     <code>
+      _muleExclude
+     </code>
+     file which contains two exclusion rules:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre>fileToBeExcluded.json
+**/src/main/resources/local_directory</pre>
+    </div>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       The first line indicates that all files named
+       <code>
+        fileToBeExcluded.json
+       </code>
+       , inside any directory, are excluded from the application package.
+       <br/>
+      </p>
+     </li>
+     <li>
+      <p>
+       The second line indicates that only the directory named
+       <code>
+        local_directory
+       </code>
+       located under
+       <code>
+        src/main/resources
+       </code>
+       is excluded from the package.
+       <br/>
+       If
+       <code>
+        **/src/main/resources/local_directory
+       </code>
+       is replaced with
+       <code>
+        local_directory
+       </code>
+       then all directories named
+       <code>
+        local_directory
+       </code>
+       , inside the project, are excluded from the application package.
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../studio/latest/import-export-packages#export-project-studio">
+        Exporting Projects from Studio
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="mmp-concept">
+        Mule Maven Plugin
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

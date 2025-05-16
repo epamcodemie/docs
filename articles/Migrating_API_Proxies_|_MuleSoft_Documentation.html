@@ -1,0 +1,832 @@
+<article class="doc">
+ <h1 class="page">
+  Migrating API Proxies
+ </h1>
+ <div class="sect1">
+  <h2 id="performing_migration">
+   <a class="anchor" href="#performing_migration">
+   </a>
+   Performing a Proxy Migration
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To perform a proxy migration, this example uses the Mule Migration Assistant
+(MMA).
+The procedure requires that you meet the
+     <a href="https://github.com/mulesoft/mule-migration-assistant/blob/master/docs/user-docs/migration-tutorial.adoc#prerequisites">
+      Prerequisites
+     </a>
+     for the tool. For complete user documentation on MMA, see
+     <a href="https://github.com/mulesoft/mule-migration-assistant/blob/master/docs/migration-intro.adoc">
+      Migration to Mule 4 (on GitHub)
+     </a>
+     .
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The MMA command for migrating proxies uses the standard
+     <a href="https://github.com/mulesoft/mule-migration-assistant/blob/master/docs/user-docs/migration-tool-procedure.adoc#options">
+      command-line options (on GitHub)
+     </a>
+     for migrating
+a Mule app:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Command-line Invocation:
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ java -jar mule-migration-assistant-runner-0.5.1.jar \
+ -projectBasePath /Users/me/AnypointStudio/workspace-studio/my-mule3-proxy/ \
+ -muleVersion 4.1.5 \
+ -destinationProjectBasePath /Users/me/my-dir/my-migrated-proxy</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Note that the MMA creates the directory for the migrated project through
+the
+     <code>
+      -destinationProjectBasePath
+     </code>
+     option. The
+     <code>
+      my-migrated-proxy
+     </code>
+     must
+     <em>
+      not
+     </em>
+     exist before you invoke the command. If you point to a folder that exists
+already, the migration will fail an error like this:
+     <code>
+      Exception: Destination folder already exists.
+     </code>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     When the migrator runs successfully, you see a message something like this:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Successful Migration
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">Executing migration...
+...
+========================================================
+MIGRATION SUCCESS
+========================================================
+Total time: 11.335 s
+Migration report:
+/Users/me/my-dir/my-migrated-proxy/report/summary.html</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     After migration completes successfully, the destination folder contains:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       A proxy POM file.
+      </p>
+     </li>
+     <li>
+      <p>
+       The
+       <code>
+        report
+       </code>
+       directory containing the
+       <a href="https://github.com/mulesoft/mule-migration-assistant/blob/master/docs/user-docs/migration-report.adoc">
+        Mule Migration Report (on GitHub)
+       </a>
+       (
+       <code>
+        summary.html
+       </code>
+       ).
+Note that the same information provided in the report can be found as comments
+in the proxy XML file.
+      </p>
+     </li>
+     <li>
+      <p>
+       The
+       <code>
+        mule-artifact.json
+       </code>
+       file, with a
+       <code>
+        minMuleVersion
+       </code>
+       value that matches the
+       <code>
+        -muleVersion
+       </code>
+       value set in the MMA command.
+      </p>
+     </li>
+     <li>
+      <p>
+       The
+       <code>
+        src
+       </code>
+       directory, which contains the migrated content.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     The
+     <code>
+      src
+     </code>
+     directory contains subdirectories
+     <code>
+      main
+     </code>
+     and
+     <code>
+      test
+     </code>
+     . Inside
+     <code>
+      main
+     </code>
+     , the
+     <code>
+      mule
+     </code>
+     directory
+is the proxy XML file. At the same level as the
+     <code>
+      mule
+     </code>
+     directory, MMA will create a
+     <code>
+      resources
+     </code>
+     directory for any DataWeave files or other files that the migrated proxy needs.
+Note that the configuration file defined in the proxy XML must be present in the
+     <code>
+      resources
+     </code>
+     directory
+for the artifact to be deployed correctly. The
+     <code>
+      test
+     </code>
+     directory contains test configuration files.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     After a successful migration, you need to modify the POM file as explained in
+     <a href="#pom_migration">
+      POM Migration
+     </a>
+     . Once the POM file has the correct organization ID, you can
+compile with
+     <code>
+      mvn clean install
+     </code>
+     . If the compilation is successful, you can
+upload the migrated proxy to Exchange using
+     <code>
+      maven clean deploy
+     </code>
+     . You can find
+a more detailed explanation of uploading a custom app in
+     <a href="https://docs.mulesoft.com/exchange/to-publish-assets-maven">
+      Publish and Deploy Exchange Assets Using Maven
+     </a>
+     .
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="pom_migration">
+     <a class="anchor" href="#pom_migration">
+     </a>
+     POM Migration
+    </h3>
+    <div class="paragraph">
+     <p>
+      The POM file migration modifies the file to include the elements necessary for
+uploading the custom proxy to Exchange.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      <em>
+       After
+      </em>
+      the migration:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        Replace the
+        <code>
+         {orgId}
+        </code>
+        value in the
+        <code>
+         &lt;groupId/&gt;
+        </code>
+        and
+        <code>
+         &lt;exchange.url/&gt;
+        </code>
+        elements with the organization ID found in Anypoint Platform.
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="paragraph">
+     <p>
+      For more information on how to obtain the organization ID, see
+      <a class="xref page" href="../../mule-gateway/policies-custom-upload-to-exchange">
+       Uploading a Custom Policy to Exchange
+      </a>
+      .
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      By default, the Exchange URL is set to the production environment.
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;groupId&gt;{orgId}&lt;/groupId&gt;
+
+&lt;properties&gt;
+ &lt;exchange.url&gt;https://maven.anypoint.mulesoft.com/api/v1/organizations/{orgId}/maven&lt;/exchange.url&gt;
+&lt;/properties&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      Note that for the EU version of the URL, you need to set the URL manually
+after the migration:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        URL template for EU:
+        <code>
+         https://maven.eu1.anypoint.mulesoft.com/api/v1/organizations/{orgId}/maven
+        </code>
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="paragraph">
+     <p>
+      If the MMA does not find a POM file for the proxy, MMA will create a new POM
+file. In this file, the
+      <code>
+       artifactId
+      </code>
+      for the proxy is the name of the
+base directory for the proxy app. For example, for a proxy in
+      <code>
+       mytestproxy/src/main/app/proxy.xml
+      </code>
+      , the
+      <code>
+       artifactId
+      </code>
+      is
+      <code>
+       mytestproxy
+      </code>
+      .
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="dependency_and_plugin_versions">
+     <a class="anchor" href="#dependency_and_plugin_versions">
+     </a>
+     Dependency and Plugin Versions
+    </h3>
+    <div class="paragraph">
+     <p>
+      Dependency and plugin versions are set by default by the MMA, and you can change
+them manually, as needed.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="not_migrated_elements">
+     <a class="anchor" href="#not_migrated_elements">
+     </a>
+     Un-Migrated Elements
+    </h3>
+    <div class="paragraph">
+     <p>
+      Several elements are not migrated from Mule 3 to Mule 4:
+     </p>
+    </div>
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col style="width: 28.5714%;"/>
+      <col style="width: 71.4286%;"/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-top">
+        Element
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Reason
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          api-platform-gw:tags
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         API auto-create is disabled in Mule 4.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          api-platform-gw:description
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         API auto-create is disabled in Mule 4.
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+    <div class="paragraph">
+     <p>
+      For each of these elements, the child elements are removed, as well.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="common_migration_issues">
+     <a class="anchor" href="#common_migration_issues">
+     </a>
+     Common Migration Issues
+    </h3>
+    <div class="paragraph">
+     <p>
+      If proxy files are not found during the migration, the MMA prints a message
+like this one:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Unsuccessful Migration
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">Executing migration...
+...
+===============================================================================
+MIGRATION FAILED
+===============================================================================
+Total time: 3.008 s
+Exception: Cannot read mule project. Is it a Mule Studio project?
+com.mulesoft.tools.migration.engine.exception.MigrationJobException: Cannot read mule project. Is it a Mule Studio project?
+	at com.mulesoft.tools.migration.engine.project.MuleProjectFactory.getMuleProject(MuleProjectFactory.java:50)
+	at com.mulesoft.tools.migration.engine.MigrationJob.generateSourceApplicationModel(MigrationJob.java:116)
+	at com.mulesoft.tools.migration.engine.MigrationJob.execute(MigrationJob.java:80)
+	at com.mulesoft.tools.migration.MigrationRunner.main(MigrationRunner.java:83)
+
+===============================================================================</code></pre>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="pom_migration_issues">
+     <a class="anchor" href="#pom_migration_issues">
+     </a>
+     POM Migration Issues
+    </h3>
+    <div class="paragraph">
+     <p>
+      If the MMA does not find the POM model for the proxy, the MMA will
+either generate the model from an existing POM in Mule 3, or if there is no
+Mule 3 POM, the MMA will create the model. If MMA uses an existing POM, any
+incorrect POM definition that the MMA encounters will cause POM model creation
+process to fail. For information about a POM model failure, you need to
+check for any preceding error messages regarding MMA steps on modifying the
+POM model.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="raml_proxy_migration">
+     <a class="anchor" href="#raml_proxy_migration">
+     </a>
+     RAML Proxy Migration
+    </h3>
+    <div class="paragraph">
+     <p>
+      RAML proxy elements are migrated to REST proxy elements:
+     </p>
+    </div>
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col style="width: 28.5714%;"/>
+      <col style="width: 71.4286%;"/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-top">
+        Mule 3
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Mule 4
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          proxy:raml-proxy-config
+         </code>
+         .
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          rest-validator:config
+         </code>
+         .
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          proxy:raml
+         </code>
+         .
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          rest-validator:validate-request
+         </code>
+         .
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          apikit:mapping-exception-strategy
+         </code>
+         .
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          error-handler
+         </code>
+         with
+         <code>
+          on-error-continue
+         </code>
+         elements in the flow containing the
+         <code>
+          rest-validator:validate-request
+         </code>
+         element.
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+    <div class="paragraph">
+     <p>
+      The
+      <code>
+       error-handler
+      </code>
+      element contains the following types for
+      <code>
+       on-error-continue
+      </code>
+      elements:
+     </p>
+    </div>
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col style="width: 28.5714%;"/>
+      <col style="width: 71.4286%;"/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-top">
+        Type
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Status Code
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         REST-VALIDATOR:BAD_REQUEST
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         400
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         REST-VALIDATOR:RESOURCE_NOT_FOUND
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         404
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         REST-VALIDATOR:METHOD_NOT_ALLOWED
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         405
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         HTTP:TIMEOUT
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         504
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+    <div class="paragraph">
+     <p>
+      Exceptions that are not found in the Mule 3 element are autocompleted
+by the Mule Migration Assistant.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="wsdl_proxy_migration">
+     <a class="anchor" href="#wsdl_proxy_migration">
+     </a>
+     WSDL Proxy Migration
+    </h3>
+    <div class="paragraph">
+     <p>
+      WSDL proxy migration consists of migrating the attribute values for WSDL properties. In Mule 3, most values are extracted using the function defined as attribute value. In Mule 4, there is no equivalent process, so most properties are migrated to a default value and require manual configuration with values from the WSDL file, which start with the
+      <code>
+       service
+      </code>
+      keyword.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      Some properties are renamed to extract the value in a more transparent way, for example:
+     </p>
+    </div>
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col style="width: 28.5714%;"/>
+      <col style="width: 71.4286%;"/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-top">
+        Mule 3
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Mule 4
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          ![wsdl(p['wsdl.uri']).services[0].preferredPort.name]
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          ${service.port}
+         </code>
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          ![wsdl(p['wsdl.uri']).targetNamespace]
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          ${service.namespace}
+         </code>
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          ![wsdl(p['wsdl.uri']).services[0].name]
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          ${service.name}
+         </code>
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+    <div class="paragraph">
+     <p>
+      Other properties, such as the following, are migrated to a DataWeave expression that uses the WSDL Functions Extension dependency, provided by MMA, to extract the expected values:
+     </p>
+    </div>
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col style="width: 28.5714%;"/>
+      <col style="width: 71.4286%;"/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-top">
+        Mule 3
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Mule 4
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          ![wsdl(p['wsdl.uri']).services[0].preferredPort.addresses[0].port]
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          #[Wsdl::getPort('${wsdl.uri}','${service.name}','${service.port}')]
+         </code>
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          ![wsdl(p['wsdl.uri']).services[0].preferredPort.addresses[0].host]
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          #[Wsdl::getHost('${wsdl.uri}','${service.name}','${service.port}')]
+         </code>
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          ![wsdl(p['wsdl.uri']).services[0].preferredPort.addresses[0].path]
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          #[Wsdl::getPath('${wsdl.uri}','${service.name}','${service.port}')]
+         </code>
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     <a class="xref page" href="migration-api-gateways">
+      Migrating API Gateways
+     </a>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     <a class="xref page" href="migration-api-gateways-autodiscovery">
+      Migrating API Gateways: Autodiscovery
+     </a>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     <a class="xref page" href="migration-api-gateways-runtime-config">
+      Migrating API Gateways: Mule Runtime Configuration
+     </a>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     <a class="xref page" href="migration-core">
+      Core Components Migration
+     </a>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     <a href="https://docs.mulesoft.com/exchange/to-publish-assets-maven">
+      Publish and Deploy Exchange Assets Using Maven
+     </a>
+    </p>
+   </div>
+  </div>
+ </div>
+</article>

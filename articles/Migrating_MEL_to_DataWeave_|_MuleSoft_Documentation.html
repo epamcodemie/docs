@@ -1,0 +1,1110 @@
+<article class="doc">
+ <h1 class="page">
+  Migrating MEL to DataWeave
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In Mule 4, the DataWeave expression language replaces Mule Expression Language (MEL).
+This section provides guidance on migrating MEL expressions in your Mule apps to
+DataWeave (2.0 and later).
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="dataweave-at-a-glance">
+   <a class="anchor" href="#dataweave-at-a-glance">
+   </a>
+   DataWeave at a Glance
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     DataWeave is a Mule-specific language that can be used lightly as an
+expression language to simply reference values and evaluate conditions, or as a
+scripting language to construct complex data transformations that include functions
+and recursion.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Unlike MEL, it supports different data types out of the box, like JSON, XML, or CSV,
+which means data no longer needs to be transformed before expressions can be evaluated.
+It also supports advanced use cases like mapping functions or filtering data.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     It’s important to notice that the main data selector in DataWeave is the
+     <code>
+      .
+     </code>
+     operator.
+Since it shares most keywords with MEL, the syntax for most scenarios is
+identical. For example,
+     <code>
+      #[message.payload.name]
+     </code>
+     is the same in both languages.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The main difference between MEL and DataWeave is that DataWeave expressions have
+no side effects. You can use DataWeave to extract or generate data but not to modify it.
+The
+     <a class="xref page" href="intro-java-integration">
+      Java Integration
+     </a>
+     examples explain how to deal with
+those use cases.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="mel-usages">
+   <a class="anchor" href="#mel-usages">
+   </a>
+   MEL Usages
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The next sections show how to adapt some uses of MEL to Mule 4.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="accessing-context-variables">
+     <a class="anchor" href="#accessing-context-variables">
+     </a>
+     Accessing Context Variables
+    </h3>
+    <div class="paragraph">
+     <p>
+      Except for the following changes,
+      <a class="xref unresolved" href="#3.9@mule-runtime::mel-cheat-sheet.adoc#server-mule-application-and-message-variables">
+       context variables
+      </a>
+      (also called Mule Runtime variables) remain the same in DataWeave:
+     </p>
+    </div>
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col style="width: 50%;"/>
+      <col style="width: 50%;"/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-top">
+        MEL
+       </th>
+       <th class="tableblock halign-left valign-top">
+        DataWeave
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <strong>
+            Flow variables
+           </strong>
+          </p>
+         </div>
+         <div class="paragraph">
+          <p>
+           <code>
+            flowVars
+           </code>
+          </p>
+         </div>
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             Example:
+             <code>
+              #[flowVars.myVar]
+             </code>
+            </p>
+           </li>
+          </ul>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <strong>
+            Mule Event Variables
+           </strong>
+          </p>
+         </div>
+         <div class="paragraph">
+          <p>
+           <code>
+            vars
+           </code>
+          </p>
+         </div>
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             Example:
+             <code>
+              #[vars.myVar]
+             </code>
+            </p>
+           </li>
+          </ul>
+         </div>
+        </div>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <strong>
+            Exception
+           </strong>
+          </p>
+         </div>
+         <div class="paragraph">
+          <p>
+           <code>
+            exception
+           </code>
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <a class="xref page" href="error-handling">
+            Mule Error
+           </a>
+           :
+          </p>
+         </div>
+         <div class="paragraph">
+          <p>
+           <code>
+            error
+           </code>
+          </p>
+         </div>
+        </div>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <strong>
+            Inbound Attachments
+           </strong>
+          </p>
+         </div>
+         <div class="paragraph">
+          <p>
+           <code>
+            message.inboundAttachments
+           </code>
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <strong>
+            Multipart Data Formats
+           </strong>
+          </p>
+         </div>
+         <div class="paragraph">
+          <p>
+           See:
+          </p>
+         </div>
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             <a href="https://github.com/mulesoft/mule-migration-assistant/blob/master/docs/user-docs/migration-tool-post-mig.adoc#inbound_attachments">
+              Inbound Attachments (on GitHub)
+             </a>
+            </p>
+           </li>
+           <li>
+            <p>
+             <a class="xref page" href="intro-mule-message#attachments">
+              Attachments
+             </a>
+            </p>
+           </li>
+          </ul>
+         </div>
+        </div>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <strong>
+            Inbound Properties
+           </strong>
+          </p>
+         </div>
+         <div class="paragraph">
+          <p>
+           <code>
+            message.inboundProperties
+           </code>
+          </p>
+         </div>
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             Examples:
+            </p>
+           </li>
+          </ul>
+         </div>
+         <div class="listingblock">
+          <div class="content">
+           <pre class="highlightjs highlight"><code class="language-txt hljs" data-lang="txt">#[inboundProperties.'http.query.params']
+#[inboundProperties]</code></pre>
+          </div>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <strong>
+            Mule Message Attributes
+           </strong>
+           (metadata)
+          </p>
+         </div>
+         <div class="paragraph">
+          <p>
+           <code>
+            attributes
+           </code>
+          </p>
+         </div>
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             Examples:
+            </p>
+           </li>
+          </ul>
+         </div>
+         <div class="listingblock">
+          <div class="content">
+           <pre class="highlightjs highlight"><code class="language-txt hljs" data-lang="txt">#[attributes.queryParams]
+#[attributes.headers]</code></pre>
+          </div>
+         </div>
+         <div class="paragraph">
+          <p>
+           <a class="xref page" href="intro-mule-message#inbound-properties-are-now-attributes">
+            Inbound Properties Are Now Attributes
+           </a>
+          </p>
+         </div>
+        </div>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <strong>
+            Outbound Attachments
+           </strong>
+          </p>
+         </div>
+         <div class="paragraph">
+          <p>
+           <code>
+            message.outboundAttachments
+           </code>
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <strong>
+            Multipart data formats
+           </strong>
+          </p>
+         </div>
+         <div class="paragraph">
+          <p>
+           See:
+          </p>
+         </div>
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             <a href="https://github.com/mulesoft/mule-migration-assistant/blob/master/docs/user-docs/migration-tool-post-mig.adoc#outbound_attachments">
+              Outbound Attachments
+             </a>
+            </p>
+           </li>
+           <li>
+            <p>
+             <a class="xref page" href="intro-mule-message#attachments">
+              Attachments
+             </a>
+             .
+            </p>
+           </li>
+          </ul>
+         </div>
+        </div>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <strong>
+            Outbound Properties
+           </strong>
+          </p>
+         </div>
+         <div class="paragraph">
+          <p>
+           <code>
+            message.outboundProperties
+           </code>
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <strong>
+            Removed:
+           </strong>
+          </p>
+         </div>
+         <div class="paragraph">
+          <p>
+           See:
+          </p>
+         </div>
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             <a class="xref page" href="intro-mule-message#outbound-properties">
+              Outbound Properties
+             </a>
+             .
+            </p>
+           </li>
+          </ul>
+         </div>
+        </div>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <code>
+            message.dataType
+           </code>
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <code>
+            dataType
+           </code>
+          </p>
+         </div>
+        </div>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <code>
+            message.id
+           </code>
+           ,
+           <code>
+            message.rootId
+           </code>
+           ,
+           <code>
+            message.replyTo
+           </code>
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <strong>
+            Removed
+           </strong>
+          </p>
+         </div>
+        </div>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <strong>
+            Record Variables
+           </strong>
+          </p>
+         </div>
+         <div class="paragraph">
+          <p>
+           <code>
+            recordVars
+           </code>
+          </p>
+         </div>
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             Example:
+             <code>
+              #[recordVars.myVar]
+             </code>
+            </p>
+           </li>
+          </ul>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <strong>
+            Mule Event Variables
+           </strong>
+          </p>
+         </div>
+         <div class="paragraph">
+          <p>
+           <code>
+            vars
+           </code>
+          </p>
+         </div>
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             Example:
+             <code>
+              #[vars.myVar]
+             </code>
+            </p>
+           </li>
+          </ul>
+         </div>
+        </div>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <strong>
+            Session Variables
+           </strong>
+          </p>
+         </div>
+         <div class="paragraph">
+          <p>
+           <code>
+            sessionVars
+           </code>
+          </p>
+         </div>
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             Example:
+             <code>
+              #[sessionVars.myVar]
+             </code>
+            </p>
+           </li>
+          </ul>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <strong>
+            Removed:
+           </strong>
+          </p>
+         </div>
+         <div class="paragraph">
+          <p>
+           Transport barriers do not exist in Mule 4. See:
+          </p>
+         </div>
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             <a class="xref page" href="intro-mule-message#session-properties">
+              Session Properties
+             </a>
+            </p>
+           </li>
+          </ul>
+         </div>
+        </div>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <code>
+            server.dateTime
+           </code>
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <strong>
+            Removed:
+           </strong>
+          </p>
+         </div>
+         <div class="paragraph">
+          <p>
+           Use the DataWeave
+           <a class="xref page" href="../../dataweave/latest/dw-core-functions-now">
+            <code>
+             now
+            </code>
+           </a>
+           function.
+          </p>
+         </div>
+        </div>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+   <div class="sect2">
+    <h3 id="extract_data">
+     <a class="anchor" href="#extract_data">
+     </a>
+     Extracting Data
+    </h3>
+    <div class="paragraph">
+     <p>
+      You can use
+      <a class="xref page" href="../../dataweave/latest/dataweave-selectors">
+       DataWeave Selectors
+      </a>
+      to query data as you did with MEL. Only now, you won’t need extra transformations
+when dealing with types like JSON.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      The next examples log the ID from this JSON payload:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      JSON Payload
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">{
+  "name" : "Rachel Duncan",
+  "id": "779H41"
+}</code></pre>
+     </div>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 3 Example
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;json:json-to-object-transformer returnClass="java.util.Map" /&gt;
+&lt;logger message="Updating health check record for subject '#[payload.id]'" level="INFO" /&gt;</code></pre>
+     </div>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 4 Example
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;logger message="Updating health check record for subject '#[payload.id]'" /&gt;</code></pre>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="assigning-values">
+     <a class="anchor" href="#assigning-values">
+     </a>
+     Assigning Values
+    </h3>
+    <div class="paragraph">
+     <p>
+      As mentioned earlier, DataWeave does not support modifying data in the way the
+      <code>
+       expression-component
+      </code>
+      allowed with MEL. To achieve those use cases, you must use the Scripting module.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      Consider payload described
+      <a href="#extract_data">
+       above
+      </a>
+      as a Java Map. The examples modify the
+      <code>
+       name
+      </code>
+      attribute.
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 3 Example
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;expression-component&gt;
+  &lt;![CDATA[
+    payload.name = 'R. Duncan'
+  ]]&gt;
+&lt;/expression-component&gt;</code></pre>
+     </div>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 4 Example
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;script:execute engine="groovy"&gt;
+  &lt;script:code&gt;
+    payload.put('name', 'R. Duncan')
+    return payload
+  &lt;/script:code&gt;
+&lt;/script:execute&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      To use the Scripting module, simply add it to your app using the Studio palette, or add the following dependency in your
+      <code>
+       pom.xml
+      </code>
+      file:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;dependency&gt;
+  &lt;groupId&gt;org.mule.modules&lt;/groupId&gt;
+  &lt;artifactId&gt;mule-scripting-module&lt;/artifactId&gt;
+  &lt;version&gt;1.1.0&lt;/version&gt; &lt;!-- or newer --&gt;
+  &lt;classifier&gt;mule-plugin&lt;/classifier&gt;
+&lt;/dependency&gt;</code></pre>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="invoking-java-methods">
+     <a class="anchor" href="#invoking-java-methods">
+     </a>
+     Invoking Java Methods
+    </h3>
+    <div class="paragraph">
+     <p>
+      DataWeave can be used to invoke static methods. For regular methods, you can use
+the Java module, which exposes both an operation and a function to invoke Java
+methods.
+     </p>
+    </div>
+    <div class="sect3">
+     <h4 id="static-methods">
+      <a class="anchor" href="#static-methods">
+      </a>
+      Static Methods
+     </h4>
+     <div class="paragraph">
+      <p>
+       The following examples use Java’s Locale
+       <code>
+        getDefault
+       </code>
+       static method in Mule 3 and 4.
+      </p>
+     </div>
+     <div class="listingblock">
+      <div class="title">
+       Mule 3 example
+      </div>
+      <div class="content">
+       <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;validation:is-time time="#[payload]" pattern="h:mm a" locale="#[java.util.Locale.getDefault().getLanguage()]"/&gt;</code></pre>
+      </div>
+     </div>
+     <div class="listingblock">
+      <div class="title">
+       Mule 4 example
+      </div>
+      <div class="content">
+       <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;validation:is-time time="#[payload]" pattern="h:mm a" locale="#[java!java::util::Locale::getDefault().getLanguage()]"/&gt;</code></pre>
+      </div>
+     </div>
+     <div class="paragraph">
+      <p>
+       Note that DataWeave requires the
+       <code>
+        java!
+       </code>
+       prefix to indicate that a Java static method is to be searched, and
+it requires the fully qualified Class name (separated by
+       <code>
+        ::
+       </code>
+       instead of
+       <code>
+        .
+       </code>
+       ).
+      </p>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="instance-methods">
+      <a class="anchor" href="#instance-methods">
+      </a>
+      Instance Methods
+     </h4>
+     <div class="paragraph">
+      <p>
+       The following examples show the usage of Java’s String
+       <code>
+        equalsIgnoreCase
+       </code>
+       method in Mule 3 and 4.
+      </p>
+     </div>
+     <div class="listingblock">
+      <div class="title">
+       Mule 3 example
+      </div>
+      <div class="content">
+       <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;choice&gt;
+  &lt;when expression="#[payload.equalsIgnoreCase('error')]"&gt;
+    &lt;logger message="An error message has been received." level="ERROR"/&gt;
+  &lt;/when&gt;
+  &lt;otherwise&gt;
+    &lt;logger message="Message received: #[payload]" level="INFO"/&gt;
+  &lt;/otherwise&gt;
+&lt;/choice&gt;</code></pre>
+      </div>
+     </div>
+     <div class="listingblock">
+      <div class="title">
+       Mule 4 example
+      </div>
+      <div class="content">
+       <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;choice doc:name="Choice"&gt;
+  &lt;when expression="#[Java::invoke('java.lang.String', 'equalsIgnoreCase(String)', payload, {arg0: 'error'})]"&gt;
+		&lt;logger message="An error message has been received." level="ERROR"/&gt;
+	&lt;/when&gt;
+	&lt;otherwise &gt;
+		&lt;logger message="Message received: #[payload]" level="INFO"/&gt;
+	&lt;/otherwise&gt;
+&lt;/choice&gt;</code></pre>
+      </div>
+     </div>
+     <div class="paragraph">
+      <p>
+       To use the Java module, simply add it to your app using the Studio palette, or add the following dependency to your
+       <code>
+        pom.xml
+       </code>
+       file:
+      </p>
+     </div>
+     <div class="listingblock">
+      <div class="content">
+       <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;dependency&gt;
+  &lt;groupId&gt;org.mule.modules&lt;/groupId&gt;
+  &lt;artifactId&gt;mule-java-module&lt;/artifactId&gt;
+  &lt;version&gt;1.0.0&lt;/version&gt; &lt;!-- or newer --&gt;
+  &lt;classifier&gt;mule-plugin&lt;/classifier&gt;
+&lt;/dependency&gt;</code></pre>
+      </div>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="target-definitions">
+     <a class="anchor" href="#target-definitions">
+     </a>
+     Target Definitions
+    </h3>
+    <div class="paragraph">
+     <p>
+      The
+      <code>
+       enricher
+      </code>
+      has been removed and replaced by target variables, which are now supported
+by every operation. The example below shows how to send the result of an
+operation to a variable in Mule 3 and 4.
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 3 example
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;enricher target="#[flowVars.response]"&gt;
+    &lt;http:request config-ref="HTTP_Request_Configuration" path="/get" method="GET"/&gt;
+&lt;/enricher&gt;</code></pre>
+     </div>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 4 example
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;http:request config-ref="HTTP_Request_Configuration" path="/get" method="GET" target="response"/&gt;</code></pre>
+     </div>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        See:
+        <a class="xref page" href="target-variables">
+         Enriching Data with Target Variables
+        </a>
+        for more details.
+       </p>
+      </li>
+     </ul>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="xpath-function">
+     <a class="anchor" href="#xpath-function">
+     </a>
+     XPath Function
+    </h3>
+    <div class="paragraph">
+     <p>
+      DataWeave can be used to query XML content using its
+      <a class="xref page" href="../../dataweave/latest/dataweave-selectors">
+       selectors
+      </a>
+      ,
+but you can also use the XML module, which exposes both an operation and a function
+to execute XPath queries.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      The following examples show how to take lines containing a specific word taken from a variable in Mule 3 and 4.
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 3 example
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;set‐variable variableName="word" value="handkerchief"/&gt;
+&lt;expression‐transformer&gt;
+   xpath3('//LINE[contains(.,$word)]',payload,'NODESET')
+&lt;/expression‐transformer&gt;</code></pre>
+     </div>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 4 example
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;set‐variable variableName="word" value="handkerchief"/&gt;
+&lt;set-payload value="#[XmlModule::xpath('//LINE[contains(., \$word)]', payload, {'word': vars.word})]" /&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      To use the XML module, simply add it to your app using the Studio palette, or add the following dependency to your
+      <code>
+       pom.xml
+      </code>
+      file:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;dependency&gt;
+  &lt;groupId&gt;org.mule.modules&lt;/groupId&gt;
+  &lt;artifactId&gt;mule-xml-module&lt;/artifactId&gt;
+  &lt;version&gt;1.1.0&lt;/version&gt; &lt;!-- or newer --&gt;
+  &lt;classifier&gt;mule-plugin&lt;/classifier&gt;
+&lt;/dependency&gt;</code></pre>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="wildcard-and-regex-functions">
+     <a class="anchor" href="#wildcard-and-regex-functions">
+     </a>
+     Wildcard and Regex functions
+    </h3>
+    <div class="paragraph">
+     <p>
+      DataWeave matching functions
+      <code>
+       match
+      </code>
+      and
+      <code>
+       matches
+      </code>
+      (see Core DataWeave Functions)
+can be used instead. The next example shows how a regex is used in DataWeave to replace the use of the
+      <code>
+       wildcard
+      </code>
+      MEL function.
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 3 example
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;choice&gt;
+  &lt;when expression="#[wildcard('Hello *')]"&gt;
+    &lt;set-payload value="Hello, how can I help?"/&gt;
+  &lt;/when&gt;
+  &lt;otherwise&gt;
+    &lt;set-payload value="Courtesy requires a greeting."/&gt;
+  &lt;/otherwise&gt;
+&lt;/choice&gt;</code></pre>
+     </div>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 4 example
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;choice doc:name="Choice"&gt;
+  &lt;when expression="#[payload matches /Hello\s[A-z]+/]"&gt;
+    &lt;set-payload value="Hello, how can I help?"/&gt;
+  &lt;/when&gt;
+  &lt;otherwise &gt;
+    &lt;set-payload value="Courtesy requires a greeting."/&gt;
+  &lt;/otherwise&gt;
+&lt;/choice&gt;</code></pre>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     <a class="xref page" href="dataweave">
+      DataWeave Language
+     </a>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     <a href="https://blogs.mulesoft.com/dev/mule-dev/why-dataweave-main-expression-language-mule-4/">
+      Why DataWeave is the Main Expression Language in Mule 4 Beta
+     </a>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     <a class="xref unresolved" href="#3.9@mule-runtime::mule-expression-language-mel.adoc">
+      Mule Expression Language (MEL)
+     </a>
+     (3.9)
+    </p>
+   </div>
+  </div>
+ </div>
+</article>

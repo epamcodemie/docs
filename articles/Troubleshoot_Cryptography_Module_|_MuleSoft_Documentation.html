@@ -1,0 +1,424 @@
+<article class="doc">
+ <h1 class="page">
+  Troubleshoot Cryptography Module
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To troubleshoot the Cryptography module, become familiar with app logs, PGP protocol, attached and detached signatures, and interpreting commonly thrown messages.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="view-the-app-log">
+   <a class="anchor" href="#view-the-app-log">
+   </a>
+   View the App Log
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     If you encounter problems while running your Mule runtime engine (Mule) app, you can view the app log as follows:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       If you’re running the app from Anypoint Platform, the output is visible in the Anypoint Studio console window.
+      </p>
+     </li>
+     <li>
+      <p>
+       If you’re running the app using Mule from the command line, the app log is visible in your OS console.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     Unless the log file path is customized in the app’s log file
+     <code>
+      log4j2.xml
+     </code>
+     , view the app log in the default location
+     <code>
+      MULE_HOME/logs/&lt;app-name&gt;.log
+     </code>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="enable-cryptography-module-debug-logging">
+   <a class="anchor" href="#enable-cryptography-module-debug-logging">
+   </a>
+   Enable Cryptography Module Debug Logging
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To begin troubleshooting the Cryptography module, enable debug logging to see the exact error messages:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Access Anypoint Studio and navigate to the
+       <strong>
+        Package Explorer
+       </strong>
+       view.
+      </p>
+     </li>
+     <li>
+      <p>
+       Open your application by clicking the project name.
+      </p>
+     </li>
+     <li>
+      <p>
+       Open the
+       <code>
+        src/main/resources
+       </code>
+       path folder.
+      </p>
+     </li>
+     <li>
+      <p>
+       Open the
+       <code>
+        log4j2.xml
+       </code>
+       file inside the folder.
+      </p>
+     </li>
+     <li>
+      <p>
+       Add the following line:
+      </p>
+      <div class="paragraph">
+       <p>
+        <code>
+         &lt;AsyncLogger name="com.mulesoft.modules.cryptography" level="DEBUG" /&gt;
+        </code>
+       </p>
+      </div>
+     </li>
+    </ol>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic" start="6">
+     <li>
+      <p>
+       Save your changes.
+      </p>
+     </li>
+     <li>
+      <p>
+       Click the project name in
+       <strong>
+        Package Explorer
+       </strong>
+       and then click
+       <strong>
+        Run
+       </strong>
+       &gt;
+       <strong>
+        Run As
+       </strong>
+       &gt;
+       <strong>
+        Mule Application
+       </strong>
+       .
+      </p>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="understand-pgp-encryption-and-decryption-configuration">
+   <a class="anchor" href="#understand-pgp-encryption-and-decryption-configuration">
+   </a>
+   Understand PGP Encryption and Decryption Configuration
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     During PGP encryption, the sender of the message must encrypt its content using the receiver’s
+     <em>
+      public key
+     </em>
+     . To encrypt messages in your Mule app using someone else’s public key, in the
+     <strong>
+      Crypto Pgp
+     </strong>
+     global configuration add the
+     <em>
+      receiver
+     </em>
+     public keyring file in the
+     <strong>
+      Public keyring
+     </strong>
+     field.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     During PGP decryption, the receiver of the message must use its
+     <em>
+      private key
+     </em>
+     to decrypt the contents of a message that was encrypted using a public key. To decrypt the message, in the
+     <strong>
+      Crypto Pgp
+     </strong>
+     global configuration add the
+     <em>
+      receiver
+     </em>
+     private keyring file in the
+     <strong>
+      Private keyring
+     </strong>
+     field.
+    </p>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="Global element properties for Crypto PGP with keyring details" src="_images/mruntime-crypto-pgp-global-config.png"/>
+    </div>
+    <div class="title">
+     Figure 1. Crypto Pgp Global configuration with Public keyring and Private keyring fields
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="understand-pgp-signature-configuration">
+   <a class="anchor" href="#understand-pgp-signature-configuration">
+   </a>
+   Understand PGP Signature Configuration
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In addition to encrypting, you can sign a message. The signature provides an integrity check of the original message.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     To create a signature, in the
+     <strong>
+      Crypto Pgp
+     </strong>
+     global configuration add the
+     <em>
+      sender
+     </em>
+     private keyring file in the
+     <strong>
+      Private keyring
+     </strong>
+     field.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     To validate a signature, in the
+     <strong>
+      Crypto Pgp
+     </strong>
+     global configuration add the
+     <em>
+      sender
+     </em>
+     public keyring file in the
+     <strong>
+      Public keyring
+     </strong>
+     field.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="pgp-signature-types-and-operations">
+     <a class="anchor" href="#pgp-signature-types-and-operations">
+     </a>
+     PGP Signature Types and Operations
+    </h3>
+    <div class="paragraph">
+     <p>
+      The Cryptography module has two PGP signature operations:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        <strong>
+         Pgp sign
+        </strong>
+        : Creates a PGP armored signature in ASCII format.
+       </p>
+      </li>
+      <li>
+       <p>
+        <strong>
+         Pgp sign binary
+        </strong>
+        : Creates a PGP binary signature.
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="paragraph">
+     <p>
+      In both cases, signing includes the private key of the sender, so the secret passphrase must be provided.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      There are two types of signatures:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        Attached signature
+        <br/>
+        Generates a single document file that contains both the signature and the original document.
+       </p>
+      </li>
+      <li>
+       <p>
+        Detached signature
+        <br/>
+        Generates a single document file that contains only the signature, which is stored and transmitted separately from the document the signature signs.
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="paragraph">
+     <p>
+      Currently, the Cryptography module supports validation of detached signatures only.
+     </p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="understand-common-throws">
+   <a class="anchor" href="#understand-common-throws">
+   </a>
+   Understand Common Throws
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Here is a list of common throw messages and how to interpret them:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       CRYPTO:PARAMETERS
+      </p>
+      <div class="literalblock">
+       <div class="content">
+        <pre>The operation is configured using invalid parameters.</pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       CRYPTO:MISSING_KEY
+      </p>
+      <div class="literalblock">
+       <div class="content">
+        <pre>A key required for the operation was not found.</pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       CRYPTO:PASSPHRASE
+      </p>
+      <div class="literalblock">
+       <div class="content">
+        <pre>The unlocking password is invalid.</pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       CRYPTO:CHECKSUM
+      </p>
+      <div class="literalblock">
+       <div class="content">
+        <pre>An error occurred during an attempt to calculate a checksum.</pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       CRYPTO:TRANSFORMATION
+      </p>
+      <div class="literalblock">
+       <div class="content">
+        <pre>An error occurred during an attempt to transform binary to ASCII to build the ASCII Armor file.</pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       CRYPTO:VALIDATION
+      </p>
+      <div class="literalblock">
+       <div class="content">
+        <pre>The signature cannot be validated against the data.</pre>
+       </div>
+      </div>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a href="https://help.mulesoft.com">
+        MuleSoft Help Center
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="cryptography-reference">
+        Cryptography Module Reference
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

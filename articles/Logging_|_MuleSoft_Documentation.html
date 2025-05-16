@@ -1,0 +1,125 @@
+<article class="doc">
+ <h1 class="page">
+  Logging
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Mule runtime engine (Mule) 4 uses Log4j 2 asynchronous logging by default, so the logging operation happens in a separate thread from the message processing, and the latter can continue without having to wait for the log operation to complete.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Asynchronous logging poses a performance-reliability trade-off as explained in
+     <a href="https://blogs.mulesoft.com/dev/mule-dev/mule-3-6-asynchronous-logging/">
+      Asynchronous Logging Mule
+     </a>
+     , and you may lose some messages if Mule crashes before the logging buffers flush to the disk. In this case, consider that you can have a mixed configuration of asynchronous or synchronous loggers in your app.
+Best practice is to use asynchronous logging over synchronous with a minimum logging level of
+     <code>
+      WARN
+     </code>
+     for a production application. In some cases, enable
+     <code>
+      INFO
+     </code>
+     logging level when you need to confirm events such as successful policy installation or to perform troubleshooting.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Configure your logging strategy by editing your application’s
+     <code>
+      src/main/resources/log4j2.xml
+     </code>
+     file, as shown in the following example:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;Configuration&gt;
+   &lt;Appenders&gt;
+       &lt;RollingFile name="file" fileName="${sys:mule.home}${sys:file.separator}logs${sys:file.separator}try-transactional-propagate.log"
+                filePattern="${sys:mule.home}${sys:file.separator}logs${sys:file.separator}try-transactional-propagate-%i.log"&gt;
+           &lt;PatternLayout pattern="%-5p %d [%t] [event: %X{correlationId}] %c: %m%n" /&gt;
+           &lt;SizeBasedTriggeringPolicy size="10 MB" /&gt;
+           &lt;DefaultRolloverStrategy max="10"/&gt;
+       &lt;/RollingFile&gt;
+   &lt;/Appenders&gt;
+   &lt;Loggers&gt;
+
+       &lt;!-- Http Logger shows wire traffic on DEBUG. --&gt;
+       &lt;!--AsyncLogger name="org.mule.service.http.impl.service.HttpMessageLogger" level="DEBUG" /--&gt;
+       &lt;AsyncLogger name="org.mule.service.http" level="WARN"/&gt;
+       &lt;AsyncLogger name="org.mule.extension.http" level="WARN"/&gt;
+
+   &lt;!-- Mule logger --&gt;
+       &lt;AsyncLogger name="org.mule.runtime.core.internal.processor.LoggerMessageProcessor" level="WARN"/&gt;
+       &lt;AsyncRoot level="WARN"&gt;
+           &lt;AppenderRef ref="file" /&gt;
+       &lt;/AsyncRoot&gt;
+   &lt;/Loggers&gt;
+&lt;/Configuration&gt;</code></pre>
+    </div>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Apply caution when logging parts of messages, especially the payload, because this bypasses streaming and causes significant disk I/O for large payloads
+      </p>
+     </li>
+     <li>
+      <p>
+       Avoid using the
+       <code>
+        &lt;async&gt;
+       </code>
+       scope to log messages
+      </p>
+      <div class="paragraph">
+       <p>
+        Because the logging mechanism is already implemented asynchronously by the Log4j2 library in the backend, enclosing a logger into the
+        <code>
+         &lt;async&gt;
+        </code>
+        scope does not improve parallelism, it increases the resource usage and duplicates the numbers of threads required. Repeatedly using this pattern in an application can cause thread exhaustion, low performance, and back-pressure.
+       </p>
+      </div>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">		&lt;async doc:name="Async" doc:description="Don't do this"&gt;
+			&lt;logger level="INFO" doc:name="Logger" message="Don't do this" /&gt;
+		&lt;/async&gt;
+
+		&lt;logger level="INFO" doc:name="Logger" message="Do this"/&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="logging-in-mule">
+        Logging in Mule
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

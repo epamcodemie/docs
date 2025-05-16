@@ -1,0 +1,231 @@
+<article class="doc">
+ <h1 class="page">
+  Migrating the Security Filters
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="admonitionblock note">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-note" title="Note">
+       </i>
+      </td>
+      <td class="content">
+       <div class="paragraph">
+        <p>
+         Where possible, we changed noninclusive terms to align with our company value of Equality. We maintained certain terms to avoid any effect on customer implementations.
+        </p>
+       </div>
+      </td>
+     </tr>
+    </table>
+   </div>
+   <div class="paragraph">
+    <p>
+     In Mule 3, the Security Filters where part of the Mule Module Security. In Mule 4, this where migrated to the
+     <a class="xref page" href="../../validation-connector/latest/">
+      Mule Validation Module
+     </a>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="ip-filters">
+   <a class="anchor" href="#ip-filters">
+   </a>
+   IP filters
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In mule 3 we had three different options to filter by IP:
+*
+     <code>
+      &lt;filters:filter-by-ip&gt;
+     </code>
+     *
+     <code>
+      &lt;filters:filter-by-ip-range&gt;
+     </code>
+     *
+     <code>
+      &lt;filters:filter-by-ip-range-cidr&gt;
+     </code>
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="filtering-by-one-ip">
+     <a class="anchor" href="#filtering-by-one-ip">
+     </a>
+     Filtering By one IP
+    </h3>
+    <div class="listingblock">
+     <div class="title">
+      Example: Filtering by one IP in Mule 3
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;filters:filter-by-ip regex="127.0.0.1"/&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      This will filter those IPs that matches the regex. In mule4:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Example: Filtering by one IP in Mule 4
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;validation:is-blacklisted-ip blacklist="iplist" ip="#[vars.ip]"&gt;
+&lt;validation:ip-filter-list&gt;
+	&lt;validation:ips&gt;
+		&lt;validation:ip value="127.0.0.1"/&gt;
+	&lt;/validation:ips&gt;
+&lt;/validation:ip-filter-list&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      Where is necessary to set that
+      <code>
+       ip
+      </code>
+      variable (or whichever variable suits).
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="filtering-by-range-of-ips">
+     <a class="anchor" href="#filtering-by-range-of-ips">
+     </a>
+     Filtering by range of IPs
+    </h3>
+    <div class="paragraph">
+     <p>
+      In mule 3, we had two ways of defining subnet mask to filter with:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Example: Filtering by IP range in Mule 3
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;filters:filter-by-ip-range net="127.0.0.1" mask="255.255.255.0"/&gt;
+&lt;!-- or --&gt;
+&lt;filters:filter-by-ip-range-cidr cidr="127.0.0.1/24"/&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      Both are replaced by:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Example: Filtering by IP range in Mule 4
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;validation:is-blacklisted-ip blacklist="iplist" ip="#[vars.ip]"&gt;
+&lt;validation:ip-filter-list&gt;
+	&lt;validation:ips&gt;
+		&lt;validation:ip value="127.0.0.1/24"/&gt;
+	&lt;/validation:ips&gt;
+&lt;/validation:ip-filter-list&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      Where is necessary to set that
+      <code>
+       ip
+      </code>
+      variable (or whichever variable suits).
+     </p>
+    </div>
+    <div class="qlist qanda">
+     <ol>
+      <li>
+       <p>
+        <em>
+         Are there other similar validations added in mule 4?
+        </em>
+       </p>
+       <p>
+        Yes, there is also a WhiteList validation, which only allows IPs from a IP Filter List.
+       </p>
+      </li>
+     </ol>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="time-expiration-filters">
+   <a class="anchor" href="#time-expiration-filters">
+   </a>
+   Time Expiration Filters
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In mule 3 we could filter the message if it had elapsed some defined time from a starting date. For example:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Example: Filtering by elapsed time in Mule 3
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;filters:filter-expired dateTime="#[vars.startingTime]" expiresIn="1000"/&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     In Mule 4, this validation is in the validations module:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Example: Filtering by elapsed time in Mule 4
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;validation:is-not-elapsed time="1" timeUnit="SECONDS" since="#[vars.startingTime]"/&gt;</code></pre>
+    </div>
+   </div>
+   <div class="qlist qanda">
+    <ol>
+     <li>
+      <p>
+       <em>
+        Are there other similar validations added in mule 4?
+       </em>
+      </p>
+      <p>
+       Yes, there is also a Time Elapsed validation, which validates if the time elapsed has exceeded a certain amount of time.
+      </p>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     <a class="xref page" href="../../validation-connector/latest/validation-documentation">
+      Validation Connector Technical Reference
+     </a>
+    </p>
+   </div>
+  </div>
+ </div>
+</article>

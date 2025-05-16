@@ -1,0 +1,2428 @@
+<article class="doc">
+ <h1 class="page">
+  Migrating an APIkit-based Application
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     This example covers the necessary steps for successfully migrate an APIkit-based application from Mule 3 to Mule 4. The following REST API performs CRUD (create, read, update and delete) operations over a MySQL database.
+    </p>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="A flow showing a main API flow with components including HTTP, APIkit Router, and Error handling" src="_images/m3-apikit-based-example-main.png"/>
+    </div>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="A flow including an HTTP, APIkit Console, and Error handling" src="_images/m3-apikit-based-example-console.png"/>
+    </div>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="A flow showing a GET request to retrieve products in an API-config" src="_images/m3-apikit-based-example-get-products.png"/>
+    </div>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="A flowshowing the process for retrieving a product by ID using API configuration and error handling" src="_images/m3-apikit-based-example-get-product-id.png"/>
+    </div>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="A flow for posting a new product with error handling steps" src="_images/m3-apikit-based-example-post-product.png"/>
+    </div>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="A flow showing the process for deleting a product by ID including error handling" src="_images/m3-apikit-based-example-delete-product.png"/>
+    </div>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="An API configuration for a PUT request to update a product with JSON format in an API-config" src="_images/m3-apikit-based-example-put-product.png"/>
+    </div>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="A flow showing API global exception handling with components including HTTP status codes and payload settings" src="_images/m3-apikit-based-example-globalexceptionmapping.png"/>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="migrating-property-placeholders">
+   <a class="anchor" href="#migrating-property-placeholders">
+   </a>
+   Migrating Property Placeholders
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Mule 4 supports property placeholders either as
+     <code>
+      .yaml
+     </code>
+     or
+     <code>
+      .properties
+     </code>
+     configuration files.
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Create a folder with the name
+       <code>
+        config
+       </code>
+       under
+       <code>
+        /src/main/resources
+       </code>
+       project directory.
+      </p>
+     </li>
+     <li>
+      <p>
+       Create a configuration file with the name
+       <code>
+        configuration.yaml
+       </code>
+       inside the newly created config folder.
+      </p>
+     </li>
+     <li>
+      <p>
+       Migrate property placeholders from
+       <code>
+        .properties
+       </code>
+       to
+       <code>
+        .yaml
+       </code>
+       format.
+      </p>
+      <div class="listingblock">
+       <div class="title">
+        configuration.properties
+       </div>
+       <div class="content">
+        <pre>http.host=0.0.0.0
+http.port=8081
+
+mysql.password=pa$$w0rd
+mysql.port=3306
+mysql.user=admin
+mysql.database=products
+mysql.host=corp.services.com
+
+autodiscovery.api.version=1.0.0:1762946
+autodiscovery.api.name=groupId:com.mulesoft.retailer.manufacturingit.apis:assetId:product-api-database
+
+anypoint.platform.client_id=1f702j71hu9z2x88v9vd19v7h248s589
+anypoint.platform.client_secret=87v8V47668701Dd574B0531255d6287d</pre>
+       </div>
+      </div>
+      <div class="listingblock">
+       <div class="title">
+        configuration.yaml
+       </div>
+       <div class="content">
+        <pre>http:
+  host: "0.0.0.0"
+  port: "8081"
+
+mysql:
+  password: "pa$$w0rd"
+  port: "3306"
+  user: "admin"
+  database: "products"
+  host: "corp.services.com"
+
+autodiscovery:
+  api:
+    name: "groupId:com.mulesoft.retailer.manufacturingit.apis:assetId:product-api-database"
+    version: "1.0.0:1762946"
+
+anypoint:
+  platform:
+    client_id: "1f702j71hu9z2x88v9vd19v7h248s589"
+    client_secret: "87v8V47668701Dd574B0531255d6287d"</pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Replace the standard Spring element
+       <code>
+        &lt;context:property-placeholder&gt;
+       </code>
+       with the new Global Element
+       <code>
+        configuration-properties
+       </code>
+       .
+      </p>
+      <div class="listingblock">
+       <div class="title">
+        Configuration XML for Property Placeholders in Studio 6.
+       </div>
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;context:property-placeholder location="configuration.properties" /&gt;</code></pre>
+       </div>
+      </div>
+      <div class="paragraph">
+       <p>
+        The
+        <code>
+         file
+        </code>
+        attribute points to the new configuration file in YAML format located under
+        <code>
+         /src/main/resources/config
+        </code>
+        folder.
+       </p>
+      </div>
+      <div class="listingblock">
+       <div class="title">
+        Configuration XML for Property Placeholders in Studio 7.
+       </div>
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;configuration-properties file="config/configuration.yaml" doc:name="Configuration properties" /&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="migrating-global-http-listener-configuration">
+   <a class="anchor" href="#migrating-global-http-listener-configuration">
+   </a>
+   Migrating Global HTTP Listener Configuration
+  </h2>
+  <div class="sectionbody">
+   <div class="listingblock">
+    <div class="title">
+     Configuration XML for Global HTTP Listener Configuration in Studio 6.
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;http:listener-config name="HTTP_Listener_Configuration" host="${http.host}" port="${http.port}" doc:name="HTTP Listener Configuration"/&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The minimal configuration requires specifying
+     <code>
+      host
+     </code>
+     and
+     <code>
+      port
+     </code>
+     in the inner
+     <code>
+      http:listener-connection
+     </code>
+     element. We use the placeholders defined in the previous step.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Configuration XML for Global HTTP Listener Configuration in Studio 7.
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;http:listener-config name="httpListenerConfig"&gt;
+  &lt;http:listener-connection host="${http.host}" port="${http.port}" /&gt;
+&lt;/http:listener-config&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="migrating-mysql-global-configuration">
+   <a class="anchor" href="#migrating-mysql-global-configuration">
+   </a>
+   Migrating MySQL Global Configuration
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The database connector facilitates setting up
+     <em>
+      Derby
+     </em>
+     ,
+     <em>
+      MySQL
+     </em>
+     and
+     <em>
+      Oracle
+     </em>
+     databases for use in a Mule app.
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       In the Mule Palette, click
+       <code>
+        Add Module
+       </code>
+       and select
+       <code>
+        Database Connector
+       </code>
+       among the available modules.
+      </p>
+     </li>
+     <li>
+      <p>
+       Add a
+       <code>
+        Database Config
+       </code>
+       Global Configuration Element.
+      </p>
+     </li>
+     <li>
+      <p>
+       In Database Config &gt; Connection, select MySQL Connection.
+      </p>
+     </li>
+     <li>
+      <p>
+       In MySQL JDBC Driver, click Add Dependency and configure the Maven information for the driver.
+      </p>
+      <div class="literalblock">
+       <div class="content">
+        <pre>&lt;dependency&gt;
+  &lt;groupId&gt;mysql&lt;/groupId&gt;
+  &lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;
+  &lt;version&gt;5.1.6&lt;/version&gt;
+&lt;/dependency&gt;</pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Complete MySQL Global Configuration with
+       <code>
+        host
+       </code>
+       ,
+       <code>
+        port
+       </code>
+       ,
+       <code>
+        user
+       </code>
+       ,
+       <code>
+        password
+       </code>
+       and
+       <code>
+        database
+       </code>
+       using previously defined placeholders.
+      </p>
+      <div class="listingblock">
+       <div class="title">
+        Configuration XML for MySQL Global Configuration in Studio 6.
+       </div>
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;db:mysql-config name="MySQL_Configuration" host="${mysql.host}" port="${mysql.port}" user="${mysql.user}" password="${mysql.password}" database="${mysql.database}" doc:name="MySQL Configuration" /&gt;</code></pre>
+       </div>
+      </div>
+      <div class="listingblock">
+       <div class="title">
+        Configuration XML for MySQL Global Configuration in Studio 7.
+       </div>
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;db:config name="MySQL_Configuration" doc:name="Database Config"&gt;
+  &lt;db:my-sql-connection host="${mysql.host}" port="${mysql.port}" user="${mysql.user}" password="${mysql.password}" database="${mysql.database}" /&gt;
+&lt;/db:config&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="migrating-api-autodiscovery-configuration">
+   <a class="anchor" href="#migrating-api-autodiscovery-configuration">
+   </a>
+   Migrating API Autodiscovery Configuration
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The
+     <code>
+      api-platform-gw
+     </code>
+     global element is required for registering an API in Anypoint Platform.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Configuration XML for API Autodiscovery Configuration in Studio 6.
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;api-platform-gw:api apiName="${autodiscovery.api.name}" version="${autodiscovery.api.version}" flowRef="api-main" create="true" doc:name="API Autodiscovery"/&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     In Mule Runtime 4.x, the
+     <code>
+      apiName
+     </code>
+     ,
+     <code>
+      version
+     </code>
+     , and
+     <code>
+      create
+     </code>
+     attributes were removed. Just the
+     <code>
+      apiId
+     </code>
+     and
+     <code>
+      flowRef
+     </code>
+     attributes are required.
+     <code>
+      apiId
+     </code>
+     is generated by API Manager and visible on the API instance dashboard.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     For API Autodiscovery Configuration in Mule Runtime 4.x:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Add the following Namespace, Schema
+       <code>
+        global.xml
+       </code>
+       Configuration file.
+      </p>
+      <div class="literalblock">
+       <div class="content">
+        <pre>xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway"
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd</pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Add the required Autodiscovery Dependency Information to project
+       <code>
+        pom.xml
+       </code>
+       file.
+      </p>
+      <div class="literalblock">
+       <div class="content">
+        <pre>&lt;dependency&gt;
+  &lt;groupId&gt;com.mulesoft.anypoint&lt;/groupId&gt;
+  &lt;artifactId&gt;mule-module-autodiscovery&lt;/artifactId&gt;
+  &lt;version&gt;4.0.0&lt;/version&gt;
+&lt;/dependency&gt;</pre>
+       </div>
+      </div>
+      <div class="listingblock">
+       <div class="title">
+        Configuration XML for API Autodiscovery Configuration in Studio 7.
+       </div>
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;api-gateway:autodiscovery apiId="${autodiscovery.api.id}" flowRef="api-product-main" doc:name="API Autodiscovery"/&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="migrating-global-validation-configuration">
+   <a class="anchor" href="#migrating-global-validation-configuration">
+   </a>
+   Migrating Global Validation Configuration
+  </h2>
+  <div class="sectionbody">
+   <div class="listingblock">
+    <div class="title">
+     Configuration XML for Global Validation Configuration in Studio 6.
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;validation:config name="Validation_Configuration" doc:name="Validation Configuration"/&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Opposite to Mule Runtime 3.x, adding the Validation Module to the Mule Palette is required to proceed with the configuration.
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       In the Mule Palette, click
+       <code>
+        Add Module
+       </code>
+       and select
+       <code>
+        Validation Module
+       </code>
+       among the available modules.
+      </p>
+     </li>
+     <li>
+      <p>
+       Add a
+       <code>
+        Validation Config
+       </code>
+       Global Configuration Element.
+      </p>
+     </li>
+    </ol>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Configuration XML for Global Validation Configuration in Studio 7.
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;validation:config name="Validation_Config" doc:name="Validation Config" /&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="migrating-get-products-flow">
+   <a class="anchor" href="#migrating-get-products-flow">
+   </a>
+   Migrating
+   <em>
+    get-products-flow
+   </em>
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     <code>
+      get-products-flow
+     </code>
+     returns products from the database filtering by
+     <code>
+      Product Category
+     </code>
+     and/or
+     <code>
+      Product Name
+     </code>
+     also supporting paginated queries with
+     <code>
+      offset
+     </code>
+     and
+     <code>
+      maxResults
+     </code>
+     parameters.
+    </p>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="A flow showing a GET request to retrieve products with components including Source, Transform Message, and Error handling" src="_images/m3-apikit-based-example-get-products-flow.png"/>
+    </div>
+    <div class="title">
+     Figure 1. get-products-flow in Studio 6
+    </div>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Configuration XML for get-products-flow in Studio 6.
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="get-products-flow"&gt;
+  &lt;message-properties-transformer doc:name="Get Query Params" scope="invocation"&gt;
+    &lt;add-message-property key="queryOffset" value="#[Integer.valueOf(message.inboundProperties.'http.query.params'.offset)]" /&gt;
+    &lt;add-message-property key="queryLimit" value="#[Integer.valueOf(message.inboundProperties.'http.query.params'.maxResults)]" /&gt;
+    &lt;add-message-property key="queryName" value="#[ (message.inboundProperties.'http.query.params'.name != null) ? ('%'+message.inboundProperties.'http.query.params'.name+'%') : '%%']" /&gt;
+    &lt;add-message-property key="queryCategory" value="#[ (message.inboundProperties.'http.query.params'.category != null) ? ('%'+message.inboundProperties.'http.query.params'.category+'%') : '%%']" /&gt;
+  &lt;/message-properties-transformer&gt;
+  &lt;db:select config-ref="MySQL_Configuration" doc:name="Query Products"&gt;
+    &lt;db:parameterized-query&gt;&lt;![CDATA[SELECT  p.id, p.name, p.description, p.product_number, p.manufactured, p.colors, p.categories, p.stock, p.safety_stock_level, p.standard_cost, p.list_price, p.size, p.size_unit_measure_code, p.weight, p.weight_unit_measure_code, p.days_to_manufacture, p.images,  p.modified_date, p.created_date
+FROM product p
+WHERE LOWER(p.name) like #[flowVars.queryName.toLowerCase()] AND LOWER(p.categories) like #[flowVars.queryCategory.toLowerCase()]
+LIMIT #[flowVars.queryLimit]
+OFFSET #[flowVars.queryOffset]]]&gt;
+    &lt;/db:parameterized-query&gt;
+  &lt;/db:select&gt;
+  &lt;dw:transform-message doc:name="Products to JSON"&gt;
+    &lt;dw:set-payload resource="classpath:mappings/get-products-response.dwl"/&gt;
+  &lt;/dw:transform-message&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       There are no changes regarding
+       <code>
+        get-products-flow
+       </code>
+       definition.
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="get-products-flow"&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Create a package with the name
+       <code>
+        variables
+       </code>
+       under
+       <code>
+        src/main/resources
+       </code>
+       folder.
+      </p>
+     </li>
+     <li>
+      <p>
+       Create the file
+       <code>
+        set-queryCategory-variable.dwl
+       </code>
+       under
+       <code>
+        src/main/resources/variables
+       </code>
+       folder and write a DW script for setting
+       <code>
+        queryCategory
+       </code>
+       flow variable.
+      </p>
+      <div class="literalblock">
+       <div class="content">
+        <pre>%dw 2.0
+output application/java
+var queryCategory = attributes.queryParams.category
+---
+if (queryCategory != null)
+	queryCategory
+else
+	'%%'</pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Create the file
+       <code>
+        set-queryLimit-variable.dwl
+       </code>
+       under
+       <code>
+        src/main/resources/variables
+       </code>
+       folder and write a DW script for setting
+       <code>
+        queryLimit
+       </code>
+       flow variable.
+      </p>
+      <div class="literalblock">
+       <div class="content">
+        <pre>%dw 2.0
+output application/java
+---
+attributes.queryParams.maxResults as Number</pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Create the file
+       <code>
+        set-queryName-variable.dwl
+       </code>
+       under
+       <code>
+        src/main/resources/variables
+       </code>
+       folder and write a DW script for setting
+       <code>
+        queryName
+       </code>
+       flow variable.
+      </p>
+      <div class="literalblock">
+       <div class="content">
+        <pre>%dw 2.0
+output application/java
+var queryName = attributes.queryParams.name
+---
+if (queryName != null)
+	queryName
+else
+	'%%'</pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Create the file
+       <code>
+        set-queryOffset-variable.dwl
+       </code>
+       under
+       <code>
+        src/main/resources/variables
+       </code>
+       folder and write a DW script for setting
+       <code>
+        queryOffset
+       </code>
+       flow variable.
+      </p>
+      <div class="literalblock">
+       <div class="content">
+        <pre>%dw 2.0
+output application/java
+---
+attributes.queryParams.offset as Number</pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Add a
+       <code>
+        Transform component
+       </code>
+       to replace the logic inside
+       <code>
+        message-properties-transformer
+       </code>
+       and set the variables
+       <code>
+        queryOffset
+       </code>
+       ,
+       <code>
+        queryLimit
+       </code>
+       ,
+       <code>
+        queryName
+       </code>
+       and
+       <code>
+        queryCategory
+       </code>
+       referencing to its DW script.
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="get-products-flow"&gt;
+  &lt;ee:transform doc:name="Get Query Params" doc:id="ab756164-e1df-4fc5-8fbe-8f4f8cafc2f6"&gt;
+    &lt;ee:message /&gt;
+    &lt;ee:variables&gt;
+     &lt;ee:set-variable variableName="queryOffset" resource="variables/set-queryOffset-variable.dwl" /&gt;
+     &lt;ee:set-variable variableName="queryLimit" resource="variables/set-queryLimit-variable.dwl" /&gt;
+     &lt;ee:set-variable variableName="queryName" resource="variables/set-queryName-variable.dwl" /&gt;
+     &lt;ee:set-variable variableName="queryCategory" resource="variables/set-queryCategory-variable.dwl" /&gt;
+   &lt;/ee:variables&gt;
+ &lt;/ee:transform&gt;
+&lt;/flow&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Add a
+       <code>
+        db:select
+       </code>
+       element, referencing the MySQL Global Configuration. Use the colon (:) syntax in parametrized queries. Parameters must be supplied as key-value pairs into the
+       <code>
+        db:input-parameters
+       </code>
+       element.
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;db:select config-ref="MySQL_Configuration" doc:name="Query Products"&gt;
+  &lt;db:sql &gt;SELECT  p.id, p.name, p.description, p.product_number, p.manufactured, p.colors, p.categories, p.stock, p.safety_stock_level, p.standard_cost, p.list_price, p.size, p.size_unit_measure_code, p.weight, p.weight_unit_measure_code, p.days_to_manufacture, p.images,  p.modified_date, p.created_date
+FROM product p
+WHERE LOWER(p.name) like :name AND LOWER(p.categories) like :category
+LIMIT :limit
+OFFSET :offset&lt;/db:sql&gt;
+  &lt;db:input-parameters &gt;&lt;![CDATA[#[{'name' : lower(vars.queryName), 'category': lower(vars.queryCategory), 'limit': vars.queryLimit, 'offset': vars.queryOffset}]]]&gt;&lt;/db:input-parameters&gt;
+&lt;/db:select&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Create a package with the name
+       <code>
+        mappings
+       </code>
+       under
+       <code>
+        src/main/resources
+       </code>
+       folder.
+      </p>
+     </li>
+     <li>
+      <p>
+       Create the file
+       <code>
+        get-products-response.dwl
+       </code>
+       under
+       <code>
+        src/main/resources/mappings
+       </code>
+       folder.
+      </p>
+     </li>
+     <li>
+      <p>
+       Migrate
+       <code>
+        get-products-response.dwl
+       </code>
+       DW 1.0 script to DW 2.0.
+      </p>
+      <div class="listingblock">
+       <div class="title">
+        Transformation for get-products-response in DW 1.0.
+       </div>
+       <div class="content">
+        <pre>%dw 1.0
+%output application/json
+---
+payload map {
+	id: $.id,
+	categories: ($.categories default "") splitBy ",",
+	colors: ($.colors default "") splitBy ",",
+	images: ($.images default "") splitBy ",",
+	createdDate: $.created_date as :string {format: "yyyy-MM-dd"},
+	modifiedDate: $.modified_date as :string {format: "yyyy-MM-dd"},
+	safetyStockLevel: $.safety_stock_level as :number,
+	stock: $.stock as :number,
+	daysToManufacture: $.days_to_manufacture,
+	name: $.name,
+	description: $.description,
+	listPrice: $.list_price,
+	manufactured: $.manufactured,
+	productNumber: $.product_number,
+	size: $.size,
+	sizeUnitMeasureCode: $.size_unit_measure_code,
+	standardCost: $.standard_cost,
+	weightUnitMeasureCode: $.weight_unit_measure_code,
+	weight: $.weight
+}</pre>
+       </div>
+      </div>
+      <div class="listingblock">
+       <div class="title">
+        Transformation for get-products-response in DW 2.0.
+       </div>
+       <div class="content">
+        <pre>%dw 2.0
+output application/json
+---
+payload map {
+	id: $.id,
+	categories: ($.categories default "") splitBy ",",
+	colors: ($.colors default "") splitBy ",",
+	images: ($.images default "") splitBy ",",
+	createdDate: $.created_date as String {format: "yyyy-MM-dd"},
+	modifiedDate: $.modified_date as String {format: "yyyy-MM-dd"},
+	safetyStockLevel: $.safety_stock_level as Number,
+	stock: $.stock as Number,
+	daysToManufacture: $.days_to_manufacture,
+	name: $.name,
+	description: $.description,
+	listPrice: $.list_price,
+	manufactured: $.manufactured,
+	productNumber: $.product_number,
+	size: $.size,
+	sizeUnitMeasureCode: $.size_unit_measure_code,
+	standardCost: $.standard_cost,
+	weightUnitMeasureCode: $.weight_unit_measure_code,
+	weight: $.weight
+}</pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Finally, add a
+       <code>
+        Transform component
+       </code>
+       that sets the payload using the DW 2.0 transformation.
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="get-products-flow"&gt;
+	&lt;!-- more logic here --&gt;
+	&lt;ee:transform doc:name="Products to JSON"&gt;
+		&lt;ee:message&gt;
+			&lt;ee:set-payload resource="mappings/get-products-response.dwl" /&gt;
+		&lt;/ee:message&gt;
+	&lt;/ee:transform&gt;
+&lt;/flow&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+    </ol>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Configuration XML for get-products-flow in Studio 7.
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="get-products-flow"&gt;
+  &lt;ee:transform doc:name="Get Query Params" doc:id="ab756164-e1df-4fc5-8fbe-8f4f8cafc2f6"&gt;
+    &lt;ee:message /&gt;
+    &lt;ee:variables&gt;
+      &lt;ee:set-variable variableName="queryOffset" resource="variables/set-queryOffset-variable.dwl" /&gt;
+      &lt;ee:set-variable variableName="queryLimit" resource="variables/set-queryLimit-variable.dwl" /&gt;
+      &lt;ee:set-variable variableName="queryName" resource="variables/set-queryName-variable.dwl" /&gt;
+      &lt;ee:set-variable variableName="queryCategory" resource="variables/set-queryCategory-variable.dwl" /&gt;
+    &lt;/ee:variables&gt;
+  &lt;/ee:transform&gt;
+  &lt;db:select config-ref="MySQL_Configuration" doc:name="Query Products"&gt;
+    &lt;db:sql&gt;SELECT p.id, p.name, p.description, p.product_number,
+				p.manufactured, p.colors, p.categories, p.stock,
+				p.safety_stock_level, p.standard_cost, p.list_price, p.size,
+				p.size_unit_measure_code, p.weight, p.weight_unit_measure_code,
+				p.days_to_manufacture, p.images, p.modified_date, p.created_date
+				FROM product p
+				WHERE LOWER(p.name) like :name AND LOWER(p.categories) like :category
+				LIMIT :limit
+				OFFSET :offset&lt;/db:sql&gt;
+    &lt;db:input-parameters&gt;&lt;![CDATA[#[{'name' : lower(vars.queryName), 'category': lower(vars.queryCategory), 'limit': vars.queryLimit, 'offset': vars.queryOffset}]]]&gt;&lt;/db:input-parameters&gt;
+  &lt;/db:select&gt;
+  &lt;ee:transform doc:name="Products to JSON"&gt;
+    &lt;ee:message&gt;
+      &lt;ee:set-payload resource="mappings/get-products-response.dwl" /&gt;
+    &lt;/ee:message&gt;
+  &lt;/ee:transform&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="A flow showing the process for getting products with components including Source, Transform Message, and Error handling" src="_images/m4-apikit-based-example-get-products-flow.png"/>
+    </div>
+    <div class="title">
+     Figure 2. get-products-flow in Studio 7
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="migrating-get-product-by-id-flow">
+   <a class="anchor" href="#migrating-get-product-by-id-flow">
+   </a>
+   Migrating
+   <em>
+    get-product-by-id-flow
+   </em>
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     <code>
+      get-product-by-id-flow
+     </code>
+     returns a product from the database filtering by
+     <code>
+      id
+     </code>
+     . If there isn’t a product with the required id, an
+     <code>
+      HTTP 404 Not Found
+     </code>
+     error is returned.
+    </p>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="A flow showing the process to retrieve a product by ID, including validation and JSON transformation" src="_images/m3-apikit-based-example-get-product-by-id-flow.png"/>
+    </div>
+    <div class="title">
+     Figure 3. get-product-by-id-flow in Studio 6
+    </div>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Configuration XML for get-product-by-id-flow in Studio 6.
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="get-product-by-id-flow"&gt;
+  &lt;db:select config-ref="MySQL_Configuration" doc:name="Get by Id"&gt;
+    &lt;db:parameterized-query&gt;&lt;![CDATA[SELECT p.id, p.name, p.description, p.product_number, p.manufactured, p.colors, p.categories, p.stock, p.safety_stock_level, p.standard_cost, p.list_price, p.size, p.size_unit_measure_code, p.weight, p.weight_unit_measure_code, p.days_to_manufacture, p.images,  p.modified_date, p.created_date FROM product p where p.id = #[id]]]&gt;&lt;/db:parameterized-query&gt;
+  &lt;/db:select&gt;
+  &lt;validation:is-true config-ref="Validation_Configuration" doc:name="Is Not Empty" exceptionClass="org.mule.module.apikit.exception.NotFoundException" expression="#[payload.size() &amp;gt; 0]"/&gt;
+  &lt;dw:transform-message doc:name="Product to JSON"&gt;
+    &lt;dw:set-payload resource="classpath:mappings/get-product-by-id-response.dwl"/&gt;
+  &lt;/dw:transform-message&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       There are no changes regarding
+       <code>
+        get-product-by-id-flow
+       </code>
+       definition.
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="get-product-by-id-flow" /&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Create
+       <code>
+        set-productId-variable.dwl
+       </code>
+       under
+       <code>
+        src/main/resources/variables
+       </code>
+       folder. Add the following logic for getting the
+       <code>
+        id
+       </code>
+       from
+       <code>
+        uriParams
+       </code>
+       .
+      </p>
+      <div class="literalblock">
+       <div class="content">
+        <pre>%dw 2.0
+output application/java
+---
+attributes.uriParams.id</pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Add a
+       <code>
+        Transform component
+       </code>
+       that references the DW script that sets a variable with the
+       <code>
+        productId
+       </code>
+       value received as a
+       <code>
+        URI parameter
+       </code>
+       .
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="get-product-by-id-flow"&gt;
+  &lt;ee:transform doc:name="Get Uri Params"&gt;
+    &lt;ee:message /&gt;
+    &lt;ee:variables&gt;
+      &lt;ee:set-variable variableName="id" resource="variables/set-productId-variable.dwl" /&gt;
+    &lt;/ee:variables&gt;
+  &lt;/ee:transform&gt;
+&lt;/flow&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Add a
+       <code>
+        db:select
+       </code>
+       element, referencing the MySQL Global Configuration. Use the colon (:) syntax in parametrized queries. Parameters must be supplied as key-value pairs into the
+       <code>
+        db:input-parameters
+       </code>
+       element.
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;db:select config-ref="MySQL_Configuration" doc:name="Get by Id"&gt;
+  &lt;db:sql&gt;SELECT p.id, p.name, p.description, p.product_number, p.manufactured, p.colors, p.categories, p.stock, p.safety_stock_level, p.standard_cost, p.list_price, p.size, p.size_unit_measure_code, p.weight, p.weight_unit_measure_code, p.days_to_manufacture, p.images,  p.modified_date, p.created_date
+FROM product p
+where p.id = :id&lt;/db:sql&gt;
+  &lt;db:input-parameters&gt;&lt;![CDATA[#[{'id' : vars.id}]]]&gt;&lt;/db:input-parameters&gt;
+&lt;/db:select&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Add a
+       <code>
+        validation:is-true
+       </code>
+       element after the
+       <code>
+        db:select
+       </code>
+       that checks if the query has returned results. If not, throw an
+       <code>
+        APP:NOT_FOUND
+       </code>
+       error. Notice that as
+       <code>
+        MEL
+       </code>
+       has been replaced by
+       <code>
+        DataWeave
+       </code>
+       as the default expression language,
+       <code>
+        <mark>
+         [payload.size() &gt; 0]
+        </mark>
+       </code>
+       is rewritten as
+       <code>
+        [sizeOf(payload) &gt; 0]
+       </code>
+       .
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;validation:is-true doc:name="Is Not Empty" config-ref="Validation_Config" expression="#[sizeOf(payload) &amp;gt; 0]"&gt;
+  &lt;error-mapping sourceType="VALIDATION:INVALID_BOOLEAN" targetType="APP:NOT_FOUND" /&gt;
+&lt;/validation:is-true&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Create
+       <code>
+        get-product-by-id-response.dwl
+       </code>
+       file under
+       <code>
+        src/main/resources/mappings
+       </code>
+       folder and migrate DataWeave script for building JSON response from 1.0 to 2.0.
+      </p>
+      <div class="listingblock">
+       <div class="title">
+        Transformation for get-product-by-id-response in DW 1.0.
+       </div>
+       <div class="content">
+        <pre>%dw 1.0
+%output application/json
+%var product = payload[0]
+---
+{
+	id: product.id,
+	name: product.name,
+	description: product.description,
+	manufactured: product.manufactured,
+	productNumber: product.product_number,
+	colors: (product.colors default "") splitBy "," ,
+	categories:(product.categories default "") splitBy "," ,
+	safetyStockLevel: product.safety_socket_level,
+	standardCost: (product.standard_cost default "0.0") as :string {format: "##.##"} as :number,
+	listPrice: (product.list_price default "0.0") as :string {format: "##.##"} as :number,
+	stock: product.stock,
+	safetyStockLevel: product.safety_stock_level,
+	daysToManufacture: product.days_to_manufacture,
+	size: product.size,
+	sizeUnitMeasureCode: product.size_unit_measure_code,
+	weight: product.weight,
+	weightUnitMeasureCode: product.weight_unit_measure_code,
+	daysToManufacture: product.days_to_manufacture,
+	images: (product.images splitBy "," default null),
+	modifiedDate: (product.modified_date default "") as :date {format: "yyyy-MM-dd"},
+	createdDate: (product.created_date default "") as :date {format: "yyyy-MM-dd"}
+
+}</pre>
+       </div>
+      </div>
+      <div class="listingblock">
+       <div class="title">
+        Transformation for get-product-by-id-response.dwl in DW 2.0.
+       </div>
+       <div class="content">
+        <pre>%dw 2.0
+output application/json
+var product = payload[0]
+---
+{
+	id: product.id,
+	name: product.name,
+	description: product.description,
+	manufactured: product.manufactured,
+	productNumber: product.product_number,
+	colors: (product.colors default "") splitBy "," ,
+	categories:(product.categories default "") splitBy "," ,
+	safetyStockLevel: product.safety_socket_level,
+	standardCost: (product.standard_cost default "0.0") as String {format: "##.##"} as Number,
+	listPrice: (product.list_price default "0.0") as String {format: "##.##"} as Number,
+	stock: product.stock,
+	safetyStockLevel: product.safety_stock_level,
+	daysToManufacture: product.days_to_manufacture,
+	size: product.size,
+	sizeUnitMeasureCode: product.size_unit_measure_code,
+	weight: product.weight,
+	weightUnitMeasureCode: product.weight_unit_measure_code,
+	daysToManufacture: product.days_to_manufacture,
+	images: (product.images splitBy "," default null),
+	modifiedDate: (product.modified_date default "") as Date {format: "yyyy-MM-dd"},
+	createdDate: (product.created_date default "") as Date {format: "yyyy-MM-dd"}
+}</pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Finally, add a
+       <code>
+        Transform component
+       </code>
+       that sets the payload using the DW 2.0 transformation.
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;ee:transform doc:name="Product to JSON"&gt;
+  &lt;ee:message&gt;
+    &lt;ee:set-payload resource="mappings/get-product-by-id-response.dwl" /&gt;
+  &lt;/ee:message&gt;
+&lt;/ee:transform&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+    </ol>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Configuration XML for get-product-by-id-flow in Studio 7.
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="get-product-by-id-flow"&gt;
+  &lt;ee:transform doc:name="Get Uri Params"&gt;
+    &lt;ee:message /&gt;
+    &lt;ee:variables&gt;
+      &lt;ee:set-variable variableName="id" resource="variables/set-productId-variable.dwl" /&gt;
+    &lt;/ee:variables&gt;
+  &lt;/ee:transform&gt;
+  &lt;db:select config-ref="MySQL_Configuration" doc:name="Get by Id"&gt;
+    &lt;db:sql&gt;SELECT p.id, p.name, p.description, p.product_number, p.manufactured, p.colors, p.categories, p.stock, p.safety_stock_level, p.standard_cost, p.list_price, p.size, p.size_unit_measure_code, p.weight, p.weight_unit_measure_code, p.days_to_manufacture, p.images,  p.modified_date, p.created_date
+FROM product p
+where p.id = :id&lt;/db:sql&gt;
+    &lt;db:input-parameters&gt;&lt;![CDATA[#[{'id' : vars.id}]]]&gt;&lt;/db:input-parameters&gt;
+  &lt;/db:select&gt;
+  &lt;validation:is-true doc:name="Is Not Empty" config-ref="Validation_Config" expression="#[sizeOf(payload) &amp;gt; 0]"&gt;
+    &lt;error-mapping sourceType="VALIDATION:INVALID_BOOLEAN" targetType="APP:NOT_FOUND" /&gt;
+  &lt;/validation:is-true&gt;
+  &lt;ee:transform doc:name="Product to JSON"&gt;
+    &lt;ee:message&gt;
+      &lt;ee:set-payload resource="mappings/get-product-by-id-response.dwl" /&gt;
+    &lt;/ee:message&gt;
+  &lt;/ee:transform&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="A flow showing a GET request by ID with components including Source, Transform Message, and Error handling" src="_images/m4-apikit-based-example-get-product-by-id-flow.png"/>
+    </div>
+    <div class="title">
+     Figure 4. get-product-by-id-flow in Studio 7
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="migrating-post-product-flow">
+   <a class="anchor" href="#migrating-post-product-flow">
+   </a>
+   Migrating
+   <em>
+    post-product-flow
+   </em>
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     <code>
+      post-product-flow
+     </code>
+     inserts a product in the database.
+    </p>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="A flow showing the process for posting a product with components including Source, Transactional, and Error handling" src="_images/m3-apikit-based-example-post-product-flow.png"/>
+    </div>
+    <div class="title">
+     Figure 5. post-product-flow in Studio 6
+    </div>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Configuration XML for post-product-flow in Studio 6.
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="post-product-flow"&gt;
+  &lt;set-variable variableName="originalPayload" value="#[payload:java.lang.String]" doc:name="Set Original Payload" /&gt;
+  &lt;dw:transform-message doc:name="Json to Map"&gt;
+    &lt;dw:set-payload resource="classpath:mappings/json-product-to-java.dwl"/&gt;
+  &lt;/dw:transform-message&gt;
+  &lt;transactional action="ALWAYS_BEGIN" doc:name="Transactional"&gt;
+    &lt;db:insert config-ref="MySQL_Configuration" doc:name="Insert Product" autoGeneratedKeys="true" autoGeneratedKeysColumnNames="id" target="#[payload]"&gt;
+      &lt;db:parameterized-query&gt;&lt;![CDATA[insert into product(name, description, product_number, manufactured, colors, categories, stock, safety_stock_level, standard_cost, list_price, size, size_unit_measure_code, weight, weight_unit_measure_code, days_to_manufacture, images, modified_date, created_date) values(#[payload.name],#[payload.description], #[payload.productNumber], #[payload.manufactured], #[payload.colors],  #[payload.categories], #[payload.stock], #[payload.safetyStockLevel], #[payload.standardCost], #[payload.listPrice], #[payload.size], #[payload.sizeUnitMeasureCode], #[payload.weight], #[payload.weightUnitMeasureCode], #[payload.daysToManufacture], #[payload.images], CURDATE(), CURDATE() );]]&gt;&lt;/db:parameterized-query&gt;
+    &lt;/db:insert&gt;
+  &lt;/transactional&gt;
+  &lt;dw:transform-message doc:name="Database to Json"&gt;
+    &lt;dw:input-variable doc:sample="json.json" mimeType="application/json" variableName="originalPayload" /&gt;
+    &lt;dw:set-payload resource="classpath:mappings/post-product-response.dwl"/&gt;
+  &lt;/dw:transform-message&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       There are no changes regarding
+       <code>
+        post-product-flow
+       </code>
+       definition.
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="post-product-flow" /&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Create a
+       <code>
+        json-to-java.dwl
+       </code>
+       file into
+       <code>
+        src/main/resources/mappings
+       </code>
+       folder to transform the JSON request into a JAVA map.
+      </p>
+      <div class="literalblock">
+       <div class="content">
+        <pre>%dw 2.0
+output application/java
+---
+payload</pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Create a
+       <code>
+        json-product-to-java.dwl
+       </code>
+       file into
+       <code>
+        src/main/resources/mappings
+       </code>
+       and migrate the original script from DW 1.0 to 2.0.
+      </p>
+      <div class="listingblock">
+       <div class="title">
+        Transformation for json-product-to-java.dwl in DW 1.0.
+       </div>
+       <div class="content">
+        <pre>%dw 1.0
+%output application/java
+---
+{
+	categories: payload.categories joinBy ",",
+	colors: payload.colors joinBy ",",
+	daysToManufacture: payload.daysToManufacture,
+	description: payload.description,
+	images: payload.images joinBy ",",
+	listPrice: payload.listPrice,
+	(manufactured: 1) when payload.manufactured == true,
+	(manufactured: 0) when payload.manufactured == false,
+	name: payload.name,
+	productNumber: payload.productNumber,
+	safetyStockLevel: payload.safetyStockLevel,
+	size: payload.size,
+	sizeUnitMeasureCode: payload.sizeUnitMeasureCode,
+	standardCost: payload.standardCost,
+	stock: payload.stock,
+	weight: payload.weight,
+	weightUnitMeasureCode: payload.weightUnitMeasureCode
+}</pre>
+       </div>
+      </div>
+      <div class="listingblock">
+       <div class="title">
+        Transformation for json-product-to-java.dwl in DW 2.0.
+       </div>
+       <div class="content">
+        <pre>%dw 2.0
+output application/java
+fun getManufacturedCode(value) =
+	if (value == true) 1
+	else 0
+---
+{
+	categories: payload.categories joinBy ",",
+	colors: payload.colors joinBy ",",
+	daysToManufacture: payload.daysToManufacture,
+	description: payload.description,
+	images: payload.images joinBy ",",
+	listPrice: payload.listPrice,
+	manufactured: getManufacturedCode(payload.manufactured),
+	name: payload.name,
+	productNumber: payload.productNumber,
+	safetyStockLevel: payload.safetyStockLevel,
+	size: payload.size,
+	sizeUnitMeasureCode: payload.sizeUnitMeasureCode,
+	standardCost: payload.standardCost,
+	stock: payload.stock,
+	weight: payload.weight,
+	weightUnitMeasureCode: payload.weightUnitMeasureCode
+}</pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Add a
+       <code>
+        Transform component
+       </code>
+       that sets
+       <code>
+        originalPayload
+       </code>
+       and
+       <code>
+        newPayload
+       </code>
+       using the previously created DataWeave transformations.
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="post-product-flow"&gt;
+  &lt;ee:transform doc:name="Json to Map"&gt;
+    &lt;ee:message /&gt;
+    &lt;ee:variables&gt;
+      &lt;ee:set-variable variableName="originalPayload" resource="mappings/json-to-java.dwl" /&gt;
+      &lt;ee:set-variable variableName="newPayload" resource="mappings/json-product-to-java.dwl" /&gt;
+    &lt;/ee:variables&gt;
+  &lt;/ee:transform&gt;
+&lt;/flow&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       For configuring the details of the transaction, replace the Mule 3.x
+       <code>
+        transactional
+       </code>
+       scope with the new
+       <code>
+        try
+       </code>
+       scope and set the
+       <code>
+        transactionalAction
+       </code>
+       attribute to
+       <code>
+        ALWAYS_BEGIN
+       </code>
+       .
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;try doc:name="Try" transactionalAction="ALWAYS_BEGIN"&gt;
+&lt;/try&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Add a
+       <code>
+        db:insert
+       </code>
+       element into the
+       <code>
+        Try scope
+       </code>
+       , referencing the MySQL Global Configuration. Parameters must be supplied as key-value pairs into the
+       <code>
+        db:input-parameters
+       </code>
+       element. Notice also the inclusion of
+       <code>
+        db:auto-generated-keys-column-name
+       </code>
+       tag for setting the payload with the
+       <code>
+        ID
+       </code>
+       that was auto-generated by the Database engine.
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;try transactionalAction="ALWAYS_BEGIN" doc:name="Try"&gt;
+  &lt;db:insert config-ref="MySQL_Configuration" doc:name="Insert Product" autoGenerateKeys="true"&gt;
+    &lt;db:sql&gt;insert into product(name, description, product_number,
+					manufactured, colors, categories, stock, safety_stock_level,
+					standard_cost, list_price, size, size_unit_measure_code, weight,
+					weight_unit_measure_code, days_to_manufacture, images,
+					modified_date, created_date)
+					values(:name, :description,
+					:product_number, :manufactured, :colors,
+					:categories, :stock,
+					:safety_stock_level, :standard_cost,
+					:list_price, :size,
+					:size_unit_measure_code, :weight,
+					:weight_unit_measure_code,
+					:days_to_manufacture, :images,
+					CURDATE(), CURDATE());
+				&lt;/db:sql&gt;
+    &lt;db:input-parameters&gt;&lt;![CDATA[#[{'name': vars.newPayload.name, 'description': vars.newPayload.description, 'product_number': vars.newPayload.productNumber, 'manufactured': vars.newPayload.manufactured, 'colors': vars.newPayload.colors, 'categories': vars.newPayload.categories, 'stock': vars.newPayload.stock, 'safety_stock_level': vars.newPayload.safetyStockLevel, 'standard_cost': vars.newPayload.standardCost, 'list_price': vars.newPayload.listPrice, 'size': vars.newPayload.size, 'size_unit_measure_code': vars.newPayload.sizeUnitMeasureCode, 'weight': vars.newPayload.weight, 'weight_unit_measure_code': vars.newPayload.weightUnitMeasureCode, 'days_to_manufacture': vars.newPayload.daysToManufacture, 'images': vars.newPayload.images}]]]&gt;&lt;/db:input-parameters&gt;
+    &lt;db:auto-generated-keys-column-names&gt;
+      &lt;db:auto-generated-keys-column-name value="id" /&gt;
+    &lt;/db:auto-generated-keys-column-names&gt;
+  &lt;/db:insert&gt;
+&lt;/try&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Create a
+       <code>
+        post-product-response.dwl
+       </code>
+       file under
+       <code>
+        src/main/resources/mappings
+       </code>
+       and migrate the response transformation from DataWeave 1.0 to 2.0. Notice the difference getting the generated
+       <code>
+        id
+       </code>
+       from the payload with the expression
+       <code>
+        payload.generatedKeys.GENERATED_KEY
+       </code>
+       .
+      </p>
+      <div class="listingblock">
+       <div class="title">
+        Transformation for post-product-response.dwl in DW 1.0.
+       </div>
+       <div class="content">
+        <pre>%dw 1.0
+%output application/json
+---
+flowVars.originalPayload ++
+id: payload[0].GENERATED_KEY</pre>
+       </div>
+      </div>
+      <div class="listingblock">
+       <div class="title">
+        Transformation for post-product-response.dwl in DW 2.0.
+       </div>
+       <div class="content">
+        <pre>%dw 2.0
+output application/json
+---
+vars.originalPayload ++
+id: payload.generatedKeys.GENERATED_KEY</pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Add a
+       <code>
+        Transform component
+       </code>
+       and set the payload with the DataWeave script.
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;ee:transform doc:name="Database to Json"&gt;
+  &lt;ee:message&gt;
+    &lt;ee:set-payload resource="mappings/post-product-response.dwl" /&gt;
+  &lt;/ee:message&gt;
+&lt;/ee:transform&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+    </ol>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Configuration XML for post-product-flow in Studio 7.
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="post-product-flow"&gt;
+  &lt;ee:transform doc:name="Json to Map"&gt;
+    &lt;ee:message /&gt;
+    &lt;ee:variables&gt;
+      &lt;ee:set-variable variableName="originalPayload" resource="mappings/json-to-java.dwl" /&gt;
+      &lt;ee:set-variable variableName="newPayload" resource="mappings/json-product-to-java.dwl" /&gt;
+    &lt;/ee:variables&gt;
+  &lt;/ee:transform&gt;
+  &lt;try transactionalAction="ALWAYS_BEGIN" doc:name="Try"&gt;
+    &lt;db:insert config-ref="MySQL_Configuration" doc:name="Insert Product" autoGenerateKeys="true"&gt;
+      &lt;db:sql&gt;insert into product(name, description, product_number,
+					manufactured, colors, categories, stock, safety_stock_level,
+					standard_cost, list_price, size, size_unit_measure_code, weight,
+					weight_unit_measure_code, days_to_manufacture, images,
+					modified_date, created_date)
+					values(:name, :description,
+					:product_number, :manufactured, :colors,
+					:categories, :stock,
+					:safety_stock_level, :standard_cost,
+					:list_price, :size,
+					:size_unit_measure_code, :weight,
+					:weight_unit_measure_code,
+					:days_to_manufacture, :images,
+					CURDATE(), CURDATE());
+				&lt;/db:sql&gt;
+      &lt;db:input-parameters&gt;&lt;![CDATA[#[{'name': vars.newPayload.name, 'description': vars.newPayload.description, 'product_number': vars.newPayload.productNumber, 'manufactured': vars.newPayload.manufactured, 'colors': vars.newPayload.colors, 'categories': vars.newPayload.categories, 'stock': vars.newPayload.stock, 'safety_stock_level': vars.newPayload.safetyStockLevel, 'standard_cost': vars.newPayload.standardCost, 'list_price': vars.newPayload.listPrice, 'size': vars.newPayload.size, 'size_unit_measure_code': vars.newPayload.sizeUnitMeasureCode, 'weight': vars.newPayload.weight, 'weight_unit_measure_code': vars.newPayload.weightUnitMeasureCode, 'days_to_manufacture': vars.newPayload.daysToManufacture, 'images': vars.newPayload.images}]]]&gt;&lt;/db:input-parameters&gt;
+      &lt;db:auto-generated-keys-column-names&gt;
+        &lt;db:auto-generated-keys-column-name value="id" /&gt;
+      &lt;/db:auto-generated-keys-column-names&gt;
+    &lt;/db:insert&gt;
+  &lt;/try&gt;
+  &lt;ee:transform doc:name="Database to Json"&gt;
+    &lt;ee:message&gt;
+      &lt;ee:set-payload resource="mappings/post-product-response.dwl" /&gt;
+    &lt;/ee:message&gt;
+  &lt;/ee:transform&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="A flow showing the process to post a new product, including JSON transformation and database interaction" src="_images/m4-apikit-based-example-post-product-flow.png"/>
+    </div>
+    <div class="title">
+     Figure 6. post-product-flow in Studio 7
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="migrating-put-product-flow">
+   <a class="anchor" href="#migrating-put-product-flow">
+   </a>
+   Migrating
+   <em>
+    put-product-flow
+   </em>
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     <code>
+      put-product-flow
+     </code>
+     updates a product in the database based on the specified
+     <code>
+      id
+     </code>
+     .
+    </p>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="A flow for updating a product with transactional error handling and status updates" src="_images/m3-apikit-based-example-put-product-flow.png"/>
+    </div>
+    <div class="title">
+     Figure 7. put-product-flow in Studio 6
+    </div>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Configuration XML for put-product-flow in Studio 6.
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="put-product-flow"&gt;
+  &lt;dw:transform-message doc:name="JSon to Product"&gt;
+    &lt;dw:set-payload resource="classpath:mappings/put-json-product-to-java.dwl"/&gt;
+  &lt;/dw:transform-message&gt;
+  &lt;transactional action="ALWAYS_BEGIN" doc:name="Transactional"&gt;
+    &lt;db:update config-ref="MySQL_Configuration" doc:name="Update Product"&gt;
+      &lt;db:parameterized-query&gt;&lt;![CDATA[update product set name = #[payload.name], description = #[payload.description], product_number = #[payload.productNumber], manufactured = #[payload.manufactured], colors = #[payload.colors], categories= #[payload.categories], stock = #[payload.stock], safety_stock_level = #[payload.safetyStockLevel], standard_cost = #[payload.standardCost], list_price = #[payload.listPrice], size = #[payload.size], size_unit_measure_code = #[payload.sizeUnitMeasureCode], weight = #[payload.weight], weight_unit_measure_code = #[payload.weightUnitMeasureCode], days_to_manufacture = #[payload.daysToManufacture], images = #[payload.images],  modified_date = CURDATE() where id = #[id]]]&gt;&lt;/db:parameterized-query&gt;
+    &lt;/db:update&gt;
+  &lt;/transactional&gt;
+  &lt;set-payload value="#[NullPayload.getInstance()]" doc:name="Set Payload" /&gt;
+  &lt;set-property propertyName="http.status" value="204" doc:name="Set Status" /&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       There are no changes regarding
+       <code>
+        put-product-flow
+       </code>
+       definition.
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="put-product-flow" /&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Create a
+       <code>
+        put-json-product-to-java.dwl
+       </code>
+       file under
+       <code>
+        src/main/resources/mappings
+       </code>
+       folder and migrate the original script from DW 1.0 to 2.0.
+      </p>
+      <div class="listingblock">
+       <div class="title">
+        Transformation for put-json-product-to-java.dwl in DW 1.0.
+       </div>
+       <div class="content">
+        <pre>%dw 1.0
+%output application/java
+---
+{
+	categories: payload.categories joinBy ",",
+	colors: payload.colors joinBy ",",
+	daysToManufacture: payload.daysToManufacture,
+	description: payload.description,
+	images: payload.images joinBy ",",
+	listPrice: payload.listPrice,
+	manufactured: payload.manufactured,
+	name: payload.name,
+	productNumber: payload.productNumber,
+	safetyStockLevel: payload.safetyStockLevel,
+	size: payload.size,
+	sizeUnitMeasureCode: payload.sizeUnitMeasureCode,
+	standardCost: payload.standardCost,
+	stock: payload.stock,
+	weight: payload.weight,
+	weightUnitMeasureCode: payload.weightUnitMeasureCode
+}</pre>
+       </div>
+      </div>
+      <div class="listingblock">
+       <div class="title">
+        Transformation for put-json-product-to-java.dwl in DW 2.0.
+       </div>
+       <div class="content">
+        <pre>%dw 2.0
+output application/java
+---
+{
+	categories: payload.categories joinBy ",",
+	colors: payload.colors joinBy ",",
+	daysToManufacture: payload.daysToManufacture,
+	description: payload.description,
+	images: payload.images joinBy ",",
+	listPrice: payload.listPrice,
+	manufactured: payload.manufactured,
+	name: payload.name,
+	productNumber: payload.productNumber,
+	safetyStockLevel: payload.safetyStockLevel,
+	size: payload.size,
+	sizeUnitMeasureCode: payload.sizeUnitMeasureCode,
+	standardCost: payload.standardCost,
+	stock: payload.stock,
+	weight: payload.weight,
+	weightUnitMeasureCode: payload.weightUnitMeasureCode
+}</pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Add a
+       <code>
+        Transform component
+       </code>
+       that sets
+       <code>
+        updatePayload
+       </code>
+       using the previously created DataWeave transformation and
+       <code>
+        id
+       </code>
+       with
+       <code>
+        variables/set-productId-variable.dwl
+       </code>
+       script.
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="put-product-flow"&gt;
+  &lt;ee:transform doc:name="JSon to Product"&gt;
+    &lt;ee:message /&gt;
+    &lt;ee:variables &gt;
+      &lt;ee:set-variable variableName="updatePayload" resource="mappings/put-json-product-to-java.dwl" /&gt;
+      &lt;ee:set-variable variableName="id" resource="variables/set-productId-variable.dwl" /&gt;
+    &lt;/ee:variables&gt;
+  &lt;/ee:transform&gt;
+&lt;/flow&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       For configuring the details of the transaction, replace the Mule 3.x
+       <code>
+        transactional
+       </code>
+       scope with the new
+       <code>
+        try
+       </code>
+       scope and set the
+       <code>
+        transactionalAction
+       </code>
+       attribute to
+       <code>
+        ALWAYS_BEGIN
+       </code>
+       .
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;try doc:name="Try" transactionalAction="ALWAYS_BEGIN"&gt;
+&lt;/try&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Add a
+       <code>
+        db:update
+       </code>
+       element into the
+       <code>
+        Try scope
+       </code>
+       , referencing the MySQL Global Configuration. Parameters must be supplied as key-value pairs into the
+       <code>
+        db:input-parameters
+       </code>
+       element.
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;try doc:name="Try" transactionalAction="ALWAYS_BEGIN"&gt;
+  &lt;db:update config-ref="MySQL_Configuration" doc:name="Update Product"&gt;
+    &lt;db:sql &gt;update product
+set name = :name, description = :description, product_number = :product_number, manufactured = :manufactured, colors = :colors, categories= :categories, stock = :stock, safety_stock_level = :safety_stock_level, standard_cost = :standard_cost, list_price = :list_price, size = :size, size_unit_measure_code = :size_unit_measure_code, weight = :weight, weight_unit_measure_code = :weight_unit_measure_code, days_to_manufacture = :days_to_manufacture, images = :images,  modified_date = CURDATE()
+where id = :id&lt;/db:sql&gt;
+    &lt;db:input-parameters &gt;&lt;![CDATA[#[{'name': vars.updatePayload.name, 'description': vars.updatePayload.description, 'product_number': vars.updatePayload.productNumber, 'manufactured': vars.updatePayload.manufactured, 'colors': vars.updatePayload.colors, 'categories': vars.updatePayload.categories, 'stock': vars.updatePayload.stock, 'safety_stock_level': vars.updatePayload.safetyStockLevel, 'standard_cost': vars.updatePayload.standardCost, 'list_price': vars.updatePayload.listPrice, 'size': vars.updatePayload.size, 'size_unit_measure_code': vars.updatePayload.sizeUnitMeasureCode, 'weight': vars.updatePayload.weight, 'weight_unit_measure_code': vars.updatePayload.weightUnitMeasureCode, 'days_to_manufacture': vars.updatePayload.daysToManufacture, 'images': vars.updatePayload.images, 'id': vars.id}]]]&gt;&lt;/db:input-parameters&gt;
+  &lt;/db:update&gt;
+&lt;/try&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Add a
+       <code>
+        Transform component
+       </code>
+       and set the
+       <code>
+        httpStatus
+       </code>
+       variable with
+       <code>
+        204
+       </code>
+       using
+       <code>
+        set-httpStatus-with-204.dwl
+       </code>
+       file into
+       <code>
+        src/main/resources/variables
+       </code>
+       .
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;ee:transform doc:name="Set Status"&gt;
+  &lt;ee:message /&gt;
+  &lt;ee:variables &gt;
+    &lt;ee:set-variable variableName="httpStatus" resource="variables/set-httpStatus-with-204.dwl" /&gt;
+  &lt;/ee:variables&gt;
+&lt;/ee:transform&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+    </ol>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Configuration XML for put-product-flow in Studio 7.
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="put-product-flow"&gt;
+  &lt;ee:transform doc:name="JSon to Product"&gt;
+    &lt;ee:message /&gt;
+    &lt;ee:variables &gt;
+      &lt;ee:set-variable variableName="updatePayload" resource="mappings/put-json-product-to-java.dwl" /&gt;
+      &lt;ee:set-variable variableName="id" resource="variables/set-productId-variable.dwl" /&gt;
+    &lt;/ee:variables&gt;
+  &lt;/ee:transform&gt;
+  &lt;try doc:name="Try" transactionalAction="ALWAYS_BEGIN"&gt;
+    &lt;db:update config-ref="MySQL_Configuration" doc:name="Update Product"&gt;
+      &lt;db:sql &gt;update product
+set name = :name, description = :description, product_number = :product_number, manufactured = :manufactured, colors = :colors, categories= :categories, stock = :stock, safety_stock_level = :safety_stock_level, standard_cost = :standard_cost, list_price = :list_price, size = :size, size_unit_measure_code = :size_unit_measure_code, weight = :weight, weight_unit_measure_code = :weight_unit_measure_code, days_to_manufacture = :days_to_manufacture, images = :images,  modified_date = CURDATE()
+where id = :id&lt;/db:sql&gt;
+      &lt;db:input-parameters &gt;&lt;![CDATA[#[{'name': vars.updatePayload.name, 'description': vars.updatePayload.description, 'product_number': vars.updatePayload.productNumber, 'manufactured': vars.updatePayload.manufactured, 'colors': vars.updatePayload.colors, 'categories': vars.updatePayload.categories, 'stock': vars.updatePayload.stock, 'safety_stock_level': vars.updatePayload.safetyStockLevel, 'standard_cost': vars.updatePayload.standardCost, 'list_price': vars.updatePayload.listPrice, 'size': vars.updatePayload.size, 'size_unit_measure_code': vars.updatePayload.sizeUnitMeasureCode, 'weight': vars.updatePayload.weight, 'weight_unit_measure_code': vars.updatePayload.weightUnitMeasureCode, 'days_to_manufacture': vars.updatePayload.daysToManufacture, 'images': vars.updatePayload.images, 'id': vars.id}]]]&gt;&lt;/db:input-parameters&gt;
+    &lt;/db:update&gt;
+  &lt;/try&gt;
+  &lt;ee:transform doc:name="Set Status"&gt;
+    &lt;ee:message /&gt;
+    &lt;ee:variables &gt;
+      &lt;ee:set-variable variableName="httpStatus" resource="variables/set-httpStatus-with-204.dwl" /&gt;
+    &lt;/ee:variables&gt;
+  &lt;/ee:transform&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="A flow showing the process to update a product, including JSON transformation and status setting" src="_images/m4-apikit-based-example-put-product-flow.png"/>
+    </div>
+    <div class="title">
+     Figure 8. put-product-flow in Studio 7
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="migrating-delete-product-flow">
+   <a class="anchor" href="#migrating-delete-product-flow">
+   </a>
+   Migrating
+   <em>
+    delete-product-flow
+   </em>
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     <code>
+      delete-product-flow
+     </code>
+     deletes the product record from the MySQL database with the
+     <code>
+      id
+     </code>
+     specified as a
+     <code>
+      URI parameter
+     </code>
+     returning an HTTP 204 status code.
+    </p>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="A flow showing the process for deleting a product with components including Source, Transactional, and Error handling" src="_images/m3-apikit-based-example-delete-product-flow.png"/>
+    </div>
+    <div class="title">
+     Figure 9. delete-product-flow in Studio 6
+    </div>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Configuration XML for delete-product-flow in Studio 6.
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="delete-product-flow"&gt;
+  &lt;transactional action="ALWAYS_BEGIN" doc:name="Transactional"&gt;
+    &lt;db:delete config-ref="MySQL_Configuration" doc:name="Delete Product"&gt;
+      &lt;db:parameterized-query&gt;&lt;![CDATA[delete from product where id=#[id]]]&gt;&lt;/db:parameterized-query&gt;
+    &lt;/db:delete&gt;
+  &lt;/transactional&gt;
+  &lt;set-payload value="#[NullPayload.getInstance()]" doc:name="Set Payload"/&gt;
+  &lt;set-property propertyName="http.status" value="204" doc:name="Set Status"/&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       There are no changes regarding
+       <code>
+        delete-product-flow
+       </code>
+       definition.
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="delete-product-flow" /&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Add a
+       <code>
+        Transform component
+       </code>
+       that references the DW script that sets a variable with the
+       <code>
+        productId
+       </code>
+       value received as a
+       <code>
+        URI parameter
+       </code>
+       .
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="delete-product-flow"&gt;
+  &lt;ee:transform doc:name="Set productId variable"&gt;
+    &lt;ee:message /&gt;
+    &lt;ee:variables&gt;
+      &lt;ee:set-variable variableName="productId" resource="variables/set-productId-variable.dwl" /&gt;
+    &lt;/ee:variables&gt;
+  &lt;/ee:transform&gt;
+&lt;/flow&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       For configuring the details of the transaction, replace the Mule 3.x
+       <code>
+        transactional
+       </code>
+       scope with the new
+       <code>
+        try
+       </code>
+       scope and set the
+       <code>
+        transactionalAction
+       </code>
+       attribute to
+       <code>
+        ALWAYS_BEGIN
+       </code>
+       .
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;try doc:name="Try" transactionalAction="ALWAYS_BEGIN"&gt;
+&lt;/try&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Add a
+       <code>
+        db:delete
+       </code>
+       element into the
+       <code>
+        Try scope
+       </code>
+       , referencing the MySQL Global Configuration. Parameters must be supplied as key-value pairs into the
+       <code>
+        db:input-parameters
+       </code>
+       element. Opposite to Mule 3.x, the previously defined
+       <code>
+        productId
+       </code>
+       flow variable must be accessed as
+       <code>
+        vars.productId
+       </code>
+       instead of
+       <code>
+        flowVars.productId
+       </code>
+       .
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;try doc:name="Try" transactionalAction="ALWAYS_BEGIN"&gt;
+  &lt;db:delete config-ref="MySQL_Configuration" doc:name="Delete Product"&gt;
+    &lt;db:sql&gt;delete from product where id=:productId&lt;/db:sql&gt;
+    &lt;db:input-parameters&gt;&lt;![CDATA[#[{'productId' : vars.productId}]]]&gt;&lt;/db:input-parameters&gt;
+  &lt;/db:delete&gt;
+&lt;/try&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Create a
+       <code>
+        set-httpStatus-with-204.dwl
+       </code>
+       file under
+       <code>
+        src/main/resources/variables
+       </code>
+       as follows.
+      </p>
+      <div class="literalblock">
+       <div class="content">
+        <pre>%dw 2.0
+output application/java
+---
+204</pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Set
+       <code>
+        httpStatus
+       </code>
+       variable with the value
+       <code>
+        204
+       </code>
+       using a
+       <code>
+        Transform Component
+       </code>
+       for defining a
+       <code>
+        NO CONTENT
+       </code>
+       response code.
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;ee:transform doc:name="Set 204 HTTP Status code"&gt;
+  &lt;ee:message /&gt;
+  &lt;ee:variables&gt;
+    &lt;ee:set-variable variableName="httpStatus" resource="variables/set-httpStatus-with-204.dwl" /&gt;
+  &lt;/ee:variables&gt;
+&lt;/ee:transform&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+    </ol>
+   </div>
+   <div class="paragraph">
+    <p>
+     To return a specific HTTP Status code, instead of setting a
+     <code>
+      http.status
+     </code>
+     property, APIkit in Mule 4 requires setting a variable with the name
+     <code>
+      httpStatus
+     </code>
+     .
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Configuration XML for delete-product-flow in Studio 7.
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="delete-product-flow"&gt;
+  &lt;ee:transform doc:name="Set productId variable"&gt;
+    &lt;ee:message /&gt;
+    &lt;ee:variables&gt;
+      &lt;ee:set-variable variableName="productId" resource="variables/set-productId-variable.dwl" /&gt;
+    &lt;/ee:variables&gt;
+  &lt;/ee:transform&gt;
+  &lt;try doc:name="Try" transactionalAction="ALWAYS_BEGIN"&gt;
+    &lt;db:delete config-ref="MySQL_Configuration" doc:name="Delete Product"&gt;
+      &lt;db:sql&gt;delete from product where id=:productId&lt;/db:sql&gt;
+      &lt;db:input-parameters&gt;&lt;![CDATA[#[{'productId' : vars.productId}]]]&gt;&lt;/db:input-parameters&gt;
+    &lt;/db:delete&gt;
+  &lt;/try&gt;
+  &lt;ee:transform doc:name="Set 204 HTTP Status code"&gt;
+    &lt;ee:message /&gt;
+    &lt;ee:variables&gt;
+      &lt;ee:set-variable variableName="httpStatus" resource="variables/set-httpStatus-with-204.dwl" /&gt;
+    &lt;/ee:variables&gt;
+  &lt;/ee:transform&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="A flow showing the process for deleting a product, including error handling and HTTP status setting" src="_images/m4-apikit-based-example-delete-product-flow.png"/>
+    </div>
+    <div class="title">
+     Figure 10. delete-product-flow in Studio 7
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="migrating-backend-flows">
+   <a class="anchor" href="#migrating-backend-flows">
+   </a>
+   Migrating Backend Flows
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To migrate backend flows:
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     For each Backend Flow generated by APIkit, add a
+     <code>
+      flow-ref
+     </code>
+     to its implementation.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     +
+.Configuration XML for Backend Flows in Studio 6.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="get:/product:api-config"&gt;
+  &lt;flow-ref name="get-products-flow" doc:name="get-products-flow" /&gt;
+&lt;/flow&gt;
+&lt;flow name="get:/product/{id}:api-config"&gt;
+  &lt;flow-ref name="get-product-by-id-flow" doc:name="get-product-by-id-flow" /&gt;
+&lt;/flow&gt;
+&lt;flow name="post:/product:application/json:api-config"&gt;
+  &lt;flow-ref name="post-product-flow" doc:name="post-product-flow" /&gt;
+&lt;/flow&gt;
+&lt;flow name="delete:/product/{id}:api-config"&gt;
+  &lt;flow-ref name="delete-product-flow" doc:name="delete-product-flow" /&gt;
+&lt;/flow&gt;
+&lt;flow name="put:/product/{id}:application/json:api-config"&gt;
+  &lt;flow-ref name="put-product-flow" doc:name="put-product-flow" /&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     +
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     +
+.Configuration XML for Backend Flows in Studio 7.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="get:\product:api-product-config"&gt;
+  &lt;flow-ref name="get-products-flow" doc:name="get-products-flow" /&gt;
+&lt;/flow&gt;
+&lt;flow name="get:\product\(id):api-product-config"&gt;
+  &lt;flow-ref doc:name="get-product-by-id-flow" name="get-product-by-id-flow"/&gt;
+&lt;/flow&gt;
+&lt;flow name="post:\product:application\json:api-product-config"&gt;
+  &lt;flow-ref name="post-product-flow" doc:name="post-product-flow" /&gt;
+&lt;/flow&gt;
+&lt;flow name="delete:\product\(id):application\json:api-product-config"&gt;
+  &lt;flow-ref doc:name="delete-product-flow" doc:id="38894873-9a01-4e59-8362-5eefce5ea043" name="delete-product-flow"/&gt;
+&lt;/flow&gt;
+&lt;flow name="put:\product\(id):application\json:api-product-config"&gt;
+  &lt;flow-ref doc:name="put-product-flow" doc:id="e64cf378-26a2-4435-8d0d-269c50282b3c" name="put-product-flow"/&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="extending-default-apikit-global-exception-strategies">
+   <a class="anchor" href="#extending-default-apikit-global-exception-strategies">
+   </a>
+   Extending default APIkit Global Exception Strategies
+  </h2>
+  <div class="sectionbody">
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Add
+       <code>
+        APP:NOT_FOUND
+       </code>
+       exception type to the ApiKit-generated 404 mapping to handle the exception thrown by the
+       <code>
+        validation:is-true
+       </code>
+       element in
+       <code>
+        get-product-by-id-flow
+       </code>
+       . You can repeat this process for any other errors you want to map to a specific status code.
+      </p>
+      <div class="listingblock">
+       <div class="title">
+        Configuration XML for ApiKit Mapping 404 in Studio 6.
+       </div>
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;apikit:mapping statusCode="404"&gt;
+  &lt;apikit:exception value="org.mule.module.apikit.exception.NotFoundException" /&gt;
+  &lt;set-property propertyName="Content-Type" value="application/json" doc:name="Property" /&gt;
+  &lt;set-payload value="{ &amp;quot;message&amp;quot;: &amp;quot;Resource not found&amp;quot; }" doc:name="Set Payload" /&gt;
+&lt;/apikit:mapping&gt;</code></pre>
+       </div>
+      </div>
+      <div class="listingblock">
+       <div class="title">
+        Configuration XML for ApiKit Mapping 404 in Studio 7.
+       </div>
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;on-error-propagate type="APIKIT:NOT_FOUND, APP:NOT_FOUND" doc:name="On Error Propagate" enableNotifications="true" logException="true"&gt;
+  &lt;ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="70f893cb-6106-42d9-9a95-e201e9349159"&gt;
+    &lt;ee:message&gt;
+      &lt;ee:set-payload&gt;&lt;![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]&gt;&lt;/ee:set-payload&gt;
+    &lt;/ee:message&gt;
+    &lt;ee:variables&gt;
+      &lt;ee:set-variable variableName="httpStatus"&gt;&lt;![CDATA[404]]&gt;&lt;/ee:set-variable&gt;
+    &lt;/ee:variables&gt;
+  &lt;/ee:transform&gt;
+&lt;/on-error-propagate&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Add a Generic ApiKit Mapping 500 for all the non previously managed exceptions.
+      </p>
+      <div class="listingblock">
+       <div class="title">
+        Configuration XML for Generic ApiKit Mapping 500 in Studio 6.
+       </div>
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;apikit:mapping-exception-strategy name="api-apiKitGlobalExceptionMapping"&gt;
+  &lt;!-- other exception strategies here --&gt;
+  &lt;apikit:mapping statusCode="500"&gt;
+    &lt;apikit:exception value="java.lang.Exception" /&gt;
+    &lt;set-property propertyName="Content-Type" value="application/json" doc:name="Property" /&gt;
+    &lt;set-payload value="{ &amp;quot;message&amp;quot;: &amp;quot;Internal Server Error&amp;quot; }" doc:name="Set Payload" /&gt;
+  &lt;/apikit:mapping&gt;
+&lt;/apikit:mapping-exception-strategy&gt;</code></pre>
+       </div>
+      </div>
+      <div class="listingblock">
+       <div class="title">
+        Configuration XML for Generic ApiKit Mapping 500 in Studio 7.
+       </div>
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;error-handler&gt;
+  &lt;!-- other exception strategies here --&gt;
+  &lt;on-error-propagate doc:name="On Error Propagate" enableNotifications="true" logException="true"&gt;
+    &lt;ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="7e8049ff-cae6-4937-8569-c36bb7f06dad"&gt;
+      &lt;ee:message&gt;
+        &lt;ee:set-payload&gt;&lt;![CDATA[%dw 2.0
+output application/json
+---
+{message: "Internal Server Error"}]]&gt;&lt;/ee:set-payload&gt;
+      &lt;/ee:message&gt;
+      &lt;ee:variables&gt;
+        &lt;ee:set-variable variableName="httpStatus"&gt;&lt;![CDATA[500]]&gt;&lt;/ee:set-variable&gt;
+      &lt;/ee:variables&gt;
+    &lt;/ee:transform&gt;
+  &lt;/on-error-propagate&gt;
+&lt;/error-handler&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+</article>

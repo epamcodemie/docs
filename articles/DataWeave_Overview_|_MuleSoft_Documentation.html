@@ -6,20 +6,34 @@
   <div class="sectionbody">
    <div class="paragraph">
     <p>
-     DataWeave is the programming language designed by MuleSoft for data transformation. It is also the expression language Mule runtime engine uses to configure components and connectors.
+     DataWeave is a programming language designed by MuleSoft for accessing and transforming
+data that travels through a Mule application. Mule runtime engine incorporates DataWeave in several core components like Transform and Set Payload, which enable you to execute DataWeave scripts and expressions in your Mule app.
     </p>
    </div>
    <div class="paragraph">
     <p>
-     DataWeave enables you to build a simple solution for a common use case for integration developers: read and parse data from one format, transform the data, and write it out as a different format. For example, a DataWeave script can receive a CSV file as input and transform it into an array of complex JSON objects, or receive an XML input and write the data out to a flat file format. DataWeave enables developers to focus on the transformation logic instead of thinking about the specifics of reading, parsing, and writing specific data formats in a performant way.
+     DataWeave scripts act on data in the Mule event. Most commonly, you use it to
+access and transform data in the message payload. For example, after a component
+in your Mule app retrieves data from one system, you can use DataWeave to modify and
+output selected fields in that data to a new data format, then use another
+component in your app to pass on that data to another system.
     </p>
    </div>
    <div class="ulist">
     <ul>
      <li>
       <p>
+       To get started with DataWeave 2.4.0 for Mule runtime engine (Mule) version 4.4 and later, visit
+       <a class="xref page" href="../../dataweave/latest/dataweave-quickstart">
+        the quickstart
+       </a>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
        To learn more about DataWeave, visit
-       <a class="xref page" href="dataweave-language-guide">
+       <a class="xref page" href="../../dataweave/latest/dataweave-language-guide">
         the language guide
        </a>
        .
@@ -27,36 +41,9 @@
      </li>
      <li>
       <p>
-       To look up reference information about DataWeave operators and functions, visit
-       <a class="xref page" href="dw-functions">
+       To look up reference information about DataWeave 2.4.0 operators and functions, visit
+       <a class="xref page" href="../../dataweave/latest/dw-functions">
         the reference guide
-       </a>
-       .
-      </p>
-     </li>
-     <li>
-      <p>
-       To see sample scripts to solve common transformation scenarios, visit
-       <a class="xref page" href="dataweave-cookbook">
-        DataWeave examples
-       </a>
-       .
-      </p>
-     </li>
-     <li>
-      <p>
-       To try DataWeave scripts interactively, visit
-       <a href="https://developer.mulesoft.com/learn/dataweave/">
-        DataWeave Playground
-       </a>
-       .
-      </p>
-     </li>
-     <li>
-      <p>
-       To get started with DataWeave for Mule runtime engine (Mule) version 4.4 and later, visit
-       <a class="xref page" href="dataweave-quickstart">
-        the quickstart
        </a>
        .
       </p>
@@ -236,6 +223,33 @@
         1.0
        </p>
       </td>
+     </tr>
+    </tbody>
+   </table>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../dataweave/latest/">
+        Dataweave
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>
+/td>
      </tr>
     </tbody>
    </table>

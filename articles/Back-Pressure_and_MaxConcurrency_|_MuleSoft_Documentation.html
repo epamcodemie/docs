@@ -1,0 +1,146 @@
+<article class="doc">
+ <h1 class="page">
+  Back-Pressure and MaxConcurrency
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Under heavy load, Mule runtime engine (Mule) might not immediately have the resources available to process a specific event. This issue might occur because all threads are busy and the current flow’s concurrency is exceeded. When this occurs, Mule logs the following message:
+     <code>
+      Flow 'flowName' is unable to accept new events at this time
+     </code>
+     <br/>
+     This message is known as back-pressure. Mule back-pressure actions are specific to each connector’s source.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     When a producer component outputs information at a higher rate than a consumer component can process it, you can use the
+     <code>
+      maxConcurrency
+     </code>
+     parameter to set the maximum number of concurrent messages that a flow can process at any given time, whether the components are internal or external, flows or sources, and so on.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Although Mule applies back-pressure on its own, the
+     <code>
+      maxConcurrency
+     </code>
+     parameter helps to control the flow performance, especially when a backend server may affect when having high concurrency. See how to set the parameter in the following example:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="perf-test-flow" maxConcurrency="${flow.max.concurrency}"&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Similarly, you can limit the number of records that can be processed in a batch job by setting the
+     <code>
+      maxConcurrency
+     </code>
+     parameter as in the following example:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;batch:job jobName="test-batch" maxConcurrency="${batch.max.concurrency}"&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     By default, the Flow and Async scopes do not set a
+     <code>
+      maxConcurrency
+     </code>
+     limit, but the Batch Job component limits concurrency to twice the number of available cores. The capacity of your system also limits concurrency.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="components-with-max-concurrency-settings">
+   <a class="anchor" href="#components-with-max-concurrency-settings">
+   </a>
+   Components with Max Concurrency Settings
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The following
+     <a class="xref page" href="about-components">
+      components
+     </a>
+     provide a max concurrency setting:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Flow scope
+      </p>
+     </li>
+     <li>
+      <p>
+       Scatter-Gather router
+      </p>
+     </li>
+     <li>
+      <p>
+       Async scope
+      </p>
+     </li>
+     <li>
+      <p>
+       Batch Job scope
+      </p>
+     </li>
+     <li>
+      <p>
+       Parallel For Each scope
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="recommendation">
+   <a class="anchor" href="#recommendation">
+   </a>
+   Recommendation
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Unless a lower concurrency is required to artificially trigger a back-pressure event, use the default settings, and do not change the max concurrency value.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="intro-engine">
+        Execution Engine Threads and Concurrency
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

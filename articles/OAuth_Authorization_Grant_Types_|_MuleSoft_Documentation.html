@@ -1,0 +1,307 @@
+<article class="doc">
+ <h1 class="page">
+  OAuth Authorization Grant Types
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     There are four types of authorization grants that an OAuth consumer (that is, a client app) can use to obtain access to a protected resource from an OAuth service provider:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a href="#authorization-code">
+        Authorization Code
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#implicit">
+        Implicit
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#resource-owner-password-credentials">
+        Resource Owner Password Credentials
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#client-credentials">
+        Client Credentials
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     For information about the OAuth authorization framework, see RFC 6749, "The OAuth 2.0 Authorization Framework."
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="authorization-code">
+   <a class="anchor" href="#authorization-code">
+   </a>
+   Authorization Code
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The Authorization Code grant type uses an authorization server (responsible for confirming and granting permission to access the protected resource) and a resource server (responsible for providing access to the protected resource). Though described as independent servers, the authorization and resource servers reside on the same Mule server. With the Authorization Code grant type, a client app must request an authorization code from the service provider before it can request the token that will grant access to protected resources.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The Authorization Code grant type is especially secure, because it authenticates the client and transmits the access token without exposing it to unauthorized parties, including the resource owner.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     An OAuth dance that uses an Authorization Code grant type works as follows:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Client app wants to use a protected resource controlled by the service provider, so the client initiates a request to access the resource.
+      </p>
+     </li>
+     <li>
+      <p>
+       Client app calls the service provider’s authorization server, providing its client ID to confirm that it is a registered client of the service provider.
+      </p>
+     </li>
+     <li>
+      <p>
+       Client app uses a login page supplied by the service provider to authenticate itself to the service provider.
+      </p>
+     </li>
+     <li>
+      <p>
+       After confirming that the client ID is valid (that is, the client app had previously registered with the service provider), and authenticating the resource owner’s login credentials, the service provider returns an authorization code.
+      </p>
+     </li>
+     <li>
+      <p>
+       Client app calls the authorization server again, and provides the authorization code, client ID (again), and client secret.
+      </p>
+     </li>
+     <li>
+      <p>
+       Service provider returns an access token.
+      </p>
+     </li>
+     <li>
+      <p>
+       Client app calls the resource server, providing the access token to request the protected resource.
+      </p>
+     </li>
+     <li>
+      <p>
+       Service provider delivers the protected resource.
+      </p>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="implicit">
+   <a class="anchor" href="#implicit">
+   </a>
+   Implicit
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     As with the Authorization Code grant type, an Implicit grant type involves both an authorization server and a resource server. However, rather than taking the extra steps to authenticate a client application by using an authorization code and client secret, the service provider does the following:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Authenticates a client based upon its client ID.
+      </p>
+     </li>
+     <li>
+      <p>
+       Provides the access token to access the protected resource.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     The Implicit grant type optimizes performance for browser clients that use a scripting language, such as Javascript. However, this grant type can expose the access token to the resource owner or the resource owner’s user-agent.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     An OAuth dance that uses an Implicit grant type works as follows:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Client app calls the service provider’s authorization server, providing its client ID to confirm that it is a registered client of the service provider.
+      </p>
+     </li>
+     <li>
+      <p>
+       Client app uses a login page supplied by the service provider to request that the resource owner authenticate itself to the service provider.
+      </p>
+     </li>
+     <li>
+      <p>
+       After confirming that the client ID is valid (that is, the client app had previously registered with the service provider), and authenticating the resource owner’s login credentials, the service provider returns an access token.
+      </p>
+     </li>
+     <li>
+      <p>
+       Client app calls the resource server, providing the access token to request the protected resource.
+      </p>
+     </li>
+     <li>
+      <p>
+       Service provider delivers the protected resource.
+      </p>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="resource-owner-password-credentials">
+   <a class="anchor" href="#resource-owner-password-credentials">
+   </a>
+   Resource Owner Password Credentials
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     With the Resource Owner Password Credentials grant type, a client application demands that the resource owner share its service provider login credentials. The client app then uses these credentials to access the service provider and log into the resource owner’s account. The service provider accepts the valid login credentials and grants the client app full access to the resource owner’s account.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     This type of authorization optimizes performance at the expense of sharing secure access credentials. The resource owner must trust the client app not to share access to private data.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     An OAuth dance that uses the Resource Owner Password Credentials grant type works as follows:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Resource owner provides access credentials to the client app.
+      </p>
+     </li>
+     <li>
+      <p>
+       Client app calls the service provider to request an access token. During the call, the client provides the client ID to confirm that it is a registered client of the service provider. It also provides the access credentials for the protected resource.
+      </p>
+     </li>
+     <li>
+      <p>
+       Service provider authenticates the client app and validates the access credentials. Then it issues an access token.
+      </p>
+     </li>
+     <li>
+      <p>
+       Client app calls the resource server, providing the access token to request access to the protected resource.
+      </p>
+     </li>
+     <li>
+      <p>
+       Service provider delivers the protected resource.
+      </p>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="client-credentials">
+   <a class="anchor" href="#client-credentials">
+   </a>
+   Client Credentials
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     With the Client Credentials grant type, a client app requests access to data that is not associated with a particular resource owner. With this grant type, a service provider must only verify that the client as valid. This type of OAuth interaction is sometimes referred to as "two-legged OAuth" because it involves only two roles: the service provider and a client app.  The other three authorization types involve a third role, the resource owner. Thus, they are sometimes referred to as "three-legged OAuth".
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The Client Credentials grant type typically applies when the client is also the resource owner.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     An OAuth dance that uses the Client Credentials grant type works as follows:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Client app calls the authorization server, providing a client ID to confirm that it is a registered client of the service provider.
+      </p>
+     </li>
+     <li>
+      <p>
+       After confirming that the client ID is valid (that is, the client app had previously registered with the service provider), the service provider returns an access token.
+      </p>
+     </li>
+     <li>
+      <p>
+       Client app calls the resource server, providing the access token to request the protected resource.
+      </p>
+     </li>
+     <li>
+      <p>
+       Client app retrieves the protected resource.
+      </p>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="mule-secure-token-service">
+        Mule Secure Token Service
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

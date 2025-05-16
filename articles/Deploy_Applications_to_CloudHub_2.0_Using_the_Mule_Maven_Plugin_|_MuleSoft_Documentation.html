@@ -1,0 +1,2532 @@
+<article class="doc">
+ <h1 class="page">
+  Deploy Applications to CloudHub 2.0 Using the Mule Maven Plugin
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="admonitionblock warning">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-warning" title="Warning">
+       </i>
+      </td>
+      <td class="content">
+       Mule Maven plugin versions 3.0.0, 3.1.0, 3.1.1, 3.1.2, 3.1.3, 3.1.4, 3.1.5, 3.1.6, 3.1.7, and 3.8.3 are deprecated.
+      </td>
+     </tr>
+    </table>
+   </div>
+   <div class="admonitionblock note">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-note" title="Note">
+       </i>
+      </td>
+      <td class="content">
+       <div class="paragraph">
+        <p>
+         Where possible, we changed noninclusive terms to align with our company value of Equality. We maintained certain terms to avoid any effect on customer implementations.
+        </p>
+       </div>
+      </td>
+     </tr>
+    </table>
+   </div>
+   <div class="paragraph">
+    <p>
+     In addition to using Anypoint Runtime Manager, to deploy applications to CloudHub 2.0, you can also deploy applications by using the Mule Maven plugin. To do so, you must meet certain prerequisites, and configure your CloudHub 2.0 deployment strategy in your project’s
+     <code>
+      pom.xml
+     </code>
+     file.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="before-you-begin">
+   <a class="anchor" href="#before-you-begin">
+   </a>
+   Before You Begin
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Ensure that the Mule Maven Plugin is added to your project
+      </p>
+      <div class="paragraph">
+       <p>
+        See
+        <a class="xref page" href="mmp-concept#add-mmp">
+         Add the Mule Maven Plugin to a Mule Project
+        </a>
+        for instructions.
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       The application is already published in Exchange
+      </p>
+      <div class="paragraph">
+       <p>
+        See
+        <a class="xref page" href="../../exchange/to-publish-assets-maven">
+         Publish and Deploy Exchange Assets Using Maven
+        </a>
+        .
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       The Mule Maven Facade API (v3) is added as a repository in the distribution management section of your project’s POM file. For example:
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">  &lt;distributionManagement&gt;
+    &lt;repository&gt;
+      &lt;id&gt;Repository&lt;/id&gt;
+      &lt;name&gt;Corporate Repository&lt;/name&gt;
+      &lt;url&gt;https://maven.anypoint.mulesoft.com/api/v3/organizations/ORGANIZATION_ID/maven&lt;/url&gt;
+      &lt;layout&gt;default&lt;/layout&gt;
+    &lt;/repository&gt;
+  &lt;/distributionManagement&gt;</code></pre>
+       </div>
+      </div>
+      <div class="paragraph">
+       <p>
+        See
+        <a href="https://anypoint.mulesoft.com/exchange/portals/anypoint-platform/f1e97bc6-315a-4490-82a7-23abe036327a.anypoint-platform/exchange-maven-facade-api-http/" rel="noopener" target="_blank">
+         The Mule Maven Facade API documentation
+        </a>
+        for more information.
+       </p>
+      </div>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="deploying-to-rtf">
+   <a class="anchor" href="#deploying-to-rtf">
+   </a>
+   Configure the CloudHub 2.0 Deployment Strategy
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Inside the
+     <code>
+      plugin
+     </code>
+     element, add a configuration for your CloudHub 2.0 deployment, replacing the following placeholder values with your CloudHub 2.0 information:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;plugin&gt;
+  &lt;groupId&gt;org.mule.tools.maven&lt;/groupId&gt;
+  &lt;artifactId&gt;mule-maven-plugin&lt;/artifactId&gt;
+  &lt;version&gt;3.7.1&lt;/version&gt;
+  &lt;extensions&gt;true&lt;/extensions&gt;
+  &lt;configuration&gt;
+    &lt;cloudhub2Deployment&gt;
+      &lt;uri&gt;https://anypoint.mulesoft.com&lt;/uri&gt;
+      &lt;provider&gt;MC&lt;/provider&gt;
+      &lt;environment&gt;${environment}&lt;/environment&gt;
+      &lt;target&gt;${targetName}&lt;/target&gt;
+      &lt;muleVersion&gt;${muleVersion}&lt;/muleVersion&gt;
+      &lt;username&gt;${user}&lt;/username&gt;
+      &lt;password&gt;${pass}&lt;/password&gt;
+      &lt;applicationName&gt;${appName}&lt;/applicationName&gt;
+      &lt;replicas&gt;1&lt;/replicas&gt;
+      &lt;vCores&gt;1&lt;/vCores&gt;
+      &lt;deploymentSettings&gt;
+        &lt;http&gt;
+          &lt;inbound&gt;
+            &lt;publicUrl&gt;${publicURL}&lt;/publicUrl&gt;
+            &lt;forwardSslSession&gt;true&lt;/forwardSslSession&gt;
+            &lt;lastMileSecurity&gt;true&lt;/lastMileSecurity&gt;
+          &lt;/inbound&gt;
+        &lt;/http&gt;
+      &lt;/deploymentSettings&gt;
+    &lt;/cloudhub2Deployment&gt;
+  &lt;/configuration&gt;
+&lt;/plugin&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="deploy-to-cloudhub-2-0">
+   <a class="anchor" href="#deploy-to-cloudhub-2-0">
+   </a>
+   Deploy to CloudHub 2.0
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     From the command line in your project’s folder, package the application and execute the deploy goal:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">mvn clean deploy -DmuleDeploy</code></pre>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="exchange-snapshot-assets">
+     <a class="anchor" href="#exchange-snapshot-assets">
+     </a>
+     Exchange Snapshot Assets
+    </h3>
+    <div class="paragraph">
+     <p>
+      You can also deploy Exchange snapshot assets into CloudHub 2.0.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      By using
+      <code>
+       SNAPSHOT
+      </code>
+      version assets in Anypoint Exchange during the development and testing phase, you can avoid incrementing your application’s version number for small changes. After your
+      <code>
+       SNAPSHOT
+      </code>
+      version application has been overwritten in Anypoint Exchange, you can redeploy your
+      <code>
+       SNAPSHOT
+      </code>
+      version application to CloudHub 2.0 via the Mule Maven plugin to deploy the latest changes.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      To learn more about publishing snapshot assets to Anypoint Exchange, see
+      <a class="xref page" href="../../exchange/to-publish-assets-maven#asset-lifecycle-state">
+       Asset Lifecycle State
+      </a>
+      .
+     </p>
+    </div>
+    <div class="admonitionblock note">
+     <table>
+      <tr>
+       <td class="icon">
+        <i class="fa icon-note" title="Note">
+        </i>
+       </td>
+       <td class="content">
+        <div class="paragraph">
+         <p>
+          Each time you update your application’s snapshot, redeploy the application to refresh it with the latest snapshot binaries.
+         </p>
+        </div>
+        <div class="paragraph">
+         <p>
+          Because snapshot assets can change after deployment, avoid deploying them into your production environment.
+         </p>
+        </div>
+       </td>
+      </tr>
+     </table>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="redeploy-to-cloudhub-2-0">
+   <a class="anchor" href="#redeploy-to-cloudhub-2-0">
+   </a>
+   Redeploy to CloudHub 2.0
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To redeploy the application, run the same command as you did to deploy.
+     <br/>
+     CloudHub 2.0 rewrites the application you had deployed.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="authentication-methods">
+   <a class="anchor" href="#authentication-methods">
+   </a>
+   Authentication Methods
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     When you deploy applications using Mule Maven plugin, you can use different methods to provide your credentials to authenticate against the deployment platform. Depending on the authentication method you use, the parameters to set in the deployment configuration differ:
+    </p>
+   </div>
+   <table class="tableblock frame-all grid-all fit-content spread">
+    <colgroup>
+     <col/>
+     <col/>
+     <col/>
+    </colgroup>
+    <thead>
+     <tr>
+      <th class="tableblock halign-left valign-middle">
+       Authentication Method
+      </th>
+      <th class="tableblock halign-left valign-middle">
+       Description
+      </th>
+      <th class="tableblock halign-left valign-middle">
+       Configuration Parameters
+      </th>
+     </tr>
+    </thead>
+    <tbody>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Username and password
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Use a CloudHub 2.0 username and password to authenticate.
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="ulist">
+         <ul>
+          <li>
+           <p>
+            <code>
+             username
+            </code>
+            <br/>
+           </p>
+          </li>
+          <li>
+           <p>
+            <code>
+             password
+            </code>
+           </p>
+          </li>
+         </ul>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Server
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Use credentials stored in a Maven server, configured inside the Maven
+          <code>
+           settings.xml
+          </code>
+          file.
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="ulist">
+         <ul>
+          <li>
+           <p>
+            <code>
+             server
+            </code>
+           </p>
+          </li>
+         </ul>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Authorization Token
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Use an authorization token to access the platform.
+          <br/>
+          See
+          <a class="xref page" href="../../access-management/external-identity">
+           Identity Management
+          </a>
+          for a list of supported single sign-on (SSO) types.
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="ulist">
+         <ul>
+          <li>
+           <p>
+            <code>
+             authToken
+            </code>
+           </p>
+          </li>
+         </ul>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Connected Apps
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Use a Connected App to perform the authentication programmatically by communicating with Anypoint Platform.
+          <br/>
+          Note that the Connected App credentials must have the
+          <code>
+           Design Center Developer
+          </code>
+          access scope.
+          <br/>
+          See
+          <a class="xref page" href="../../access-management/connected-apps-developers">
+           Connected Apps for Developers
+          </a>
+          for instructions about creating Connected Apps.
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="ulist">
+         <ul>
+          <li>
+           <p>
+            <code>
+             connectedAppClientId
+            </code>
+            <br/>
+           </p>
+          </li>
+          <li>
+           <p>
+            <code>
+             connectedAppClientSecret
+            </code>
+            <br/>
+           </p>
+          </li>
+          <li>
+           <p>
+            <code>
+             connectedAppGrantType
+            </code>
+           </p>
+          </li>
+         </ul>
+        </div>
+       </div>
+      </td>
+     </tr>
+    </tbody>
+   </table>
+   <div class="paragraph">
+    <p>
+     For a detailed description of the configuration parameters, see the
+     <a href="#cloudhub2-deploy-reference">
+      CloudHub 2.0 Deployment Parameters Reference
+     </a>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="cloudhub2-deploy-reference">
+   <a class="anchor" href="#cloudhub2-deploy-reference">
+   </a>
+   CloudHub 2.0 Deployment Parameters Reference
+  </h2>
+  <div class="sectionbody">
+   <table class="tableblock frame-all grid-all fit-content spread">
+    <colgroup>
+     <col/>
+     <col/>
+     <col/>
+    </colgroup>
+    <thead>
+     <tr>
+      <th class="tableblock halign-left valign-middle">
+       Parameter
+      </th>
+      <th class="tableblock halign-left valign-middle">
+       Description
+      </th>
+      <th class="tableblock halign-left valign-middle">
+       Required
+      </th>
+     </tr>
+    </thead>
+    <tbody>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           cloudhub2Deployment
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Top-Level Element
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Yes
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           uri
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Your Anypoint Platform URI.
+          <br/>
+          If not set, defaults to https://anypoint.mulesoft.com.
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          No
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           muleVersion
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          The Mule runtime engine version to run in your CloudHub 2.0 instance.
+          <br/>
+          Ensure that this value is equal to or higher than the earliest required Mule version of your application. By default, the latest available Mule version is selected.
+          <br/>
+          Example values:
+          <code>
+           4.6.0
+          </code>
+          selects the last build where it defaults to Edge channel and Java 8. If you want to select a different LTS or Edge selection or Java version, specify the full Mule version name as in
+          <code>
+           4.6.0:1e-java17
+          </code>
+          .
+          <br/>
+          When using Mule Maven plugin versions 3.8.0 and 4.0.0 for deployments, the
+          <code>
+           muleVersion
+          </code>
+          property doesn’t allow you to specify
+          <code>
+           releaseChannel
+          </code>
+          and
+          <code>
+           javaVersion
+          </code>
+          . To specify these properties, upgrade the plugin to version 4.1.1 or later.
+          <br/>
+          Because Mule runtime 4.4 Standard Support ends in October 2024, new Mule apps can be deployed on either Mule 4.6 LTS or Mule 4.8 Edge. As LTS channel isn’t supported for customers using a Mule Maven plugin version 4.1.0 or earlier, upgrade the plugin to version 4.1.1 or later.
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          No
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           releaseChannel
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Set the name of the release channel used to select the Mule image. Supported values are
+          <code>
+           NONE
+          </code>
+          ,
+          <code>
+           EDGE
+          </code>
+          , and
+          <code>
+           LTS
+          </code>
+          . By default, the value is set to
+          <code>
+           EDGE
+          </code>
+          . If the selected release channel doesn’t exist, an error occurs.
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          No
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           javaVersion
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Set the Java version used in the deploy. Supported values are
+          <code>
+           8
+          </code>
+          and
+          <code>
+           17
+          </code>
+          . By default, the value is set to
+          <code>
+           8
+          </code>
+          . If the selected Java version doesn’t exist, an error occurs.
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          No
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           username
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Your Anypoint Platform username
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Only when using Anypoint Platform credentials to login.
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           password
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Your Anypoint Platform password
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Only when using Anypoint Platform credentials to login.
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           applicationName
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          The application name displayed in Runtime Manager after the app deploys.
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Yes
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           scopeLoggingConfigurations
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <table class="tableblock frame-all grid-all stretch">
+         <colgroup>
+          <col style="width: 20%;"/>
+          <col style="width: 20%;"/>
+          <col style="width: 60%;"/>
+         </colgroup>
+         <tbody>
+          <tr>
+           <td class="tableblock halign-left valign-middle" rowspan="2">
+            <p class="tableblock">
+             <code>
+              scopeLoggingConfiguration
+             </code>
+            </p>
+           </td>
+           <td class="tableblock halign-left valign-middle">
+            <p class="tableblock">
+             <code>
+              scope
+             </code>
+            </p>
+           </td>
+           <td class="tableblock halign-left valign-middle">
+            <p class="tableblock">
+             The package of the logging library to use.
+            </p>
+           </td>
+          </tr>
+          <tr>
+           <td class="tableblock halign-left valign-middle">
+            <p class="tableblock">
+             <code>
+              logLevel
+             </code>
+            </p>
+           </td>
+           <td class="tableblock halign-left valign-middle">
+            <p class="tableblock">
+             The log level. Accepted values:
+             <code>
+              INFO
+             </code>
+             ,
+             <code>
+              DEBUG
+             </code>
+             ,
+             <code>
+              WARN
+             </code>
+             ,
+             <code>
+              ERROR
+             </code>
+             ,
+             <code>
+              FATAL
+             </code>
+             .
+            </p>
+           </td>
+          </tr>
+         </tbody>
+        </table>
+        <div class="paragraph">
+         <p>
+          Configuration example:
+         </p>
+        </div>
+        <div class="listingblock">
+         <div class="content">
+          <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;scopeLoggingConfigurations&gt;
+  &lt;scopeLoggingConfiguration&gt;
+    &lt;scope&gt;com.pkg.warning&lt;/scope&gt;
+    &lt;logLevel&gt;WARN&lt;/logLevel&gt;
+  &lt;/scopeLoggingConfiguration&gt;
+  &lt;scopeLoggingConfiguration&gt;
+    &lt;scope&gt;com.pkg.debug&lt;/scope&gt;
+    &lt;logLevel&gt;DEBUG&lt;/logLevel&gt;
+  &lt;/scopeLoggingConfiguration&gt;
+&lt;/scopeLoggingConfigurations&gt;</code></pre>
+         </div>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          No
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           target
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          The CloudHub 2.0 target name to deploy the app to.
+          <br/>
+          Specify either a shared space or a private space available in your Deployment Target values in CloudHub 2.0. See
+          <a class="xref page" href="../../cloudhub-2/ch2-features">
+           Features of CloudHub 2.0
+          </a>
+          for a detailed description on shared and private spaces. Use a target name value from the
+          <a class="xref page" href="../../cloudhub-2/ch2-architecture#regions-and-dns-records">
+           list of regions
+          </a>
+          . For example,
+          <code>
+           Cloudhub-US-East-1
+          </code>
+          .
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Yes
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           provider
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Provider MC (MuleSoft Control Plane) indicates that the deployment is managed through Anypoint Runtime Manager. Set to
+          <code>
+           MC
+          </code>
+          for CloudHub 2.0.
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Yes
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           environment
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Target Anypoint Platform environment.
+          <br/>
+          This value must match an environment configured in your Anypoint Platform account, as shown here:
+          <br/>
+         </p>
+        </div>
+        <div class="listingblock">
+         <div class="content">
+          <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;environment&gt;Sandbox&lt;/environment&gt;</code></pre>
+         </div>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Yes
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           replicas
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Specifies the number of replicas, or instances, of the Mule application to deploy.
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Only when
+          <code>
+           autoscaling
+          </code>
+          is set to
+          <code>
+           false
+          </code>
+          .
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           vCores
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          The size of each replica specified in vCores. Accepted values:
+          <code>
+           0.1
+          </code>
+          ,
+          <code>
+           0.2
+          </code>
+          ,
+          <code>
+           0.5
+          </code>
+          ,
+          <code>
+           1
+          </code>
+          ,
+          <code>
+           1.5
+          </code>
+          ,
+          <code>
+           2
+          </code>
+          ,
+          <code>
+           2.5
+          </code>
+          ,
+          <code>
+           3
+          </code>
+          ,
+          <code>
+           3.5
+          </code>
+          ,
+          <code>
+           4
+          </code>
+          .
+See
+          <a class="xref page" href="../../cloudhub-2/ch2-architecture#cloudhub-2-replicas">
+           CloudHub 2.0 Replicas
+          </a>
+          for a detailed description of available vCore sizes and their assigned hardware resources.
+          <br/>
+          This parameter cannot be used if you configure
+          <code>
+           instanceType
+          </code>
+          .
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          No
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           businessGroup
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          The Business group path of the deployment
+          <br/>
+          Specify the full hierarchical path from the parent organization to the target Business group, for example:
+         </p>
+        </div>
+        <div class="listingblock">
+         <div class="content">
+          <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;businessGroup&gt;ParentOrg\SubOrg1\myBusinessGroup&lt;/businessGroup&gt;</code></pre>
+         </div>
+        </div>
+        <div class="paragraph">
+         <p>
+          This value is omitted if
+          <code>
+           businessGroupId
+          </code>
+          is set. If
+          <code>
+           businessGroup
+          </code>
+          and
+          <code>
+           businessGroupId
+          </code>
+          are not set, the value defaults to the main business group of the user.
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          No
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           businessGroupId
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          The Business group ID of the deployment
+          <br/>
+          Instead of specifying the Business group path, you can specify the Business group ID to deploy your application. If
+          <code>
+           businessGroupId
+          </code>
+          and
+          <code>
+           businessGroup
+          </code>
+          are not set, the value defaults to the main business group of the user.
+          <br/>
+          The Business group ID is a mandatory parameter when you have access only to a specific Business group but not to the parent organization.
+          <br/>
+          This parameter is available in plugin version 3.2.7 and later.
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          No
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           deploymentTimeout
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          The allowed elapsed time, in milliseconds, between the start of the deployment process and the confirmation that the artifact has been deployed
+         </p>
+        </div>
+        <div class="paragraph">
+         <p>
+          The default value is
+          <code>
+           1000000
+          </code>
+          .
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          No
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           server
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Maven server with Anypoint Platform credentials
+          <br/>
+          This is only needed if you want to use your credentials stored in your Maven
+          <code>
+           settings.xml
+          </code>
+          file. This is not the Mule server name.
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          No
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           properties
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Top-Level element
+          <br/>
+          If you need to set properties for the Mule application you are deploying, you can use the
+          <code>
+           &lt;properties&gt;
+          </code>
+          top-level element:
+         </p>
+        </div>
+        <div class="listingblock">
+         <div class="content">
+          <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;properties&gt;
+  &lt;key&gt;value&lt;/key&gt;
+&lt;/properties&gt;</code></pre>
+         </div>
+        </div>
+        <div class="paragraph">
+         <p>
+          For example:
+         </p>
+        </div>
+        <div class="listingblock">
+         <div class="content">
+          <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;properties&gt;
+  &lt;http.port&gt;8081&lt;/http.port&gt;
+&lt;/properties&gt;</code></pre>
+         </div>
+        </div>
+        <div class="paragraph">
+         <p>
+          If you must redeploy the application and there aren’t properties configured in the deployment POM file, the existing properties in your CloudHub 2.0 environment are kept. Note that if properties are defined in the POM file, the app is deployed using those properties and overrides any properties set in the UI.
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          No
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           secureProperties
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Top-Level element
+          <br/>
+          Use the
+          <code>
+           secureProperties
+          </code>
+          top-level element to set properties for the Mule application and instruct CloudHub 2.0 to encrypt the values before storing them:
+         </p>
+        </div>
+        <div class="listingblock">
+         <div class="content">
+          <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;secureProperties&gt;
+  &lt;key&gt;value&lt;/key&gt;
+&lt;/secureProperties&gt;</code></pre>
+         </div>
+        </div>
+        <div class="paragraph">
+         <p>
+          For example:
+         </p>
+        </div>
+        <div class="listingblock">
+         <div class="content">
+          <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;secureProperties&gt;
+  &lt;http.port&gt;8081&lt;/http.port&gt;
+&lt;/secureProperties&gt;</code></pre>
+         </div>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          No
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           skip
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          When set to
+          <code>
+           true
+          </code>
+          , skips the plugin deployment goal.
+          <br/>
+          Its default value is
+          <code>
+           false
+          </code>
+          .
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          No
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           skipDeploymentVerification
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          When set to
+          <code>
+           true
+          </code>
+          , skips the status verification of your deployed app.
+          <br/>
+          Its default value is
+          <code>
+           false
+          </code>
+          .
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          No
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           authToken
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Specifies the authorization token to access the platform. You can use this authentication method instead of setting username and password.
+          <br/>
+          See
+          <a class="xref page" href="../../access-management/external-identity">
+           Identity Management
+          </a>
+          for a list of supported single sign-on (SSO) types.
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Only when using an Authorization token to login.
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           connectedAppClientId
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Specifies the Connected App
+          <code>
+           clientID
+          </code>
+          value.
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Only when using Connected Apps credentials to login.
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           connectedAppClientSecret
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Specifies the Connected App secret key.
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Only when using Connected Apps credentials to login.
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           connectedAppGrantType
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Specifies the only supported connection type:
+          <code>
+           client_credentials
+          </code>
+          .
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Only when using Connected Apps credentials to login.
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           deploymentSettings
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Any of the parameters documented in
+          <a href="#deployment-settings">
+           deploymentSettings Reference
+          </a>
+          .
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          No
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           integrations
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <table class="tableblock frame-all grid-all stretch">
+         <colgroup>
+          <col style="width: 16.6666%;"/>
+          <col style="width: 16.6666%;"/>
+          <col style="width: 16.6666%;"/>
+          <col style="width: 50.0002%;"/>
+         </colgroup>
+         <tbody>
+          <tr>
+           <td class="tableblock halign-left valign-middle">
+            <p class="tableblock">
+             <code>
+              services
+             </code>
+            </p>
+           </td>
+           <td class="tableblock halign-left valign-middle">
+            <p class="tableblock">
+             <code>
+              objectStoreV2
+             </code>
+            </p>
+           </td>
+           <td class="tableblock halign-left valign-middle">
+            <p class="tableblock">
+             <code>
+              enabled
+             </code>
+            </p>
+           </td>
+           <td class="tableblock halign-left valign-middle">
+            <p class="tableblock">
+             When set to
+             <code>
+              true
+             </code>
+             , instructs the deployment to use Object Store v2.
+            </p>
+           </td>
+          </tr>
+         </tbody>
+        </table>
+        <div class="paragraph">
+         <p>
+          Configuration example:
+         </p>
+        </div>
+        <div class="listingblock">
+         <div class="content">
+          <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;integrations&gt;
+  &lt;services&gt;
+    &lt;objectStoreV2&gt;
+      &lt;enabled&gt;true&lt;/enabled&gt;
+    &lt;/objectStoreV2&gt;
+  &lt;/services&gt;
+&lt;/integrations&gt;</code></pre>
+         </div>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          No
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           pathRewrite
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Supplies the base path expected by the HTTP listener in your application. This value must begin with
+          <code>
+           /
+          </code>
+          . This parameter is used only for applications that are deployed to
+          <a class="xref page" href="../../cloudhub-2/ch2-private-space-about">
+           private space
+          </a>
+          .
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          No
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           instanceType
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Specifies the capacity of the replica for application deployment. This flag is available only for organizations using a usage-based pricing (UBP) package. Non-UBP organizations use the
+          <code>
+           vCores
+          </code>
+          parameter instead. See
+          <a class="xref page" href="../../general/pricing">
+           Anypoint Platform Pricing
+          </a>
+          .
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          No
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+    </tbody>
+   </table>
+   <div class="sect2">
+    <h3 id="deployment-settings">
+     <a class="anchor" href="#deployment-settings">
+     </a>
+     deploymentSettings Parameters Reference
+    </h3>
+    <table class="tableblock frame-all grid-all fit-content spread">
+     <colgroup>
+      <col/>
+      <col/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-middle">
+        Parameter
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Description
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <code>
+            enforceDeployingReplicasAcrossNodes
+           </code>
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Enforces the deployment of replicas across different nodes. The default value is
+           <code>
+            false
+           </code>
+           .
+           <br/>
+           For high availability, set this value to
+           <code>
+            true
+           </code>
+           .
+          </p>
+         </div>
+         <div class="paragraph">
+          <p>
+           Configuration example:
+          </p>
+         </div>
+         <div class="listingblock">
+          <div class="content">
+           <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;deploymentSettings&gt;
+  &lt;enforceDeployingReplicasAcrossNodes&gt;false&lt;/enforceDeployingReplicasAcrossNodes&gt;
+&lt;/deploymentSettings&gt;</code></pre>
+          </div>
+         </div>
+        </div>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <code>
+            updateStrategy
+           </code>
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <table class="tableblock frame-all grid-all stretch">
+          <colgroup>
+           <col style="width: 25%;"/>
+           <col style="width: 75%;"/>
+          </colgroup>
+          <thead>
+           <tr>
+            <th class="tableblock halign-left valign-middle">
+             Accepted values
+            </th>
+            <th class="tableblock halign-left valign-middle">
+             Description
+            </th>
+           </tr>
+          </thead>
+          <tbody>
+           <tr>
+            <td class="tableblock halign-left valign-middle">
+             <p class="tableblock">
+              <code>
+               rolling
+              </code>
+             </p>
+            </td>
+            <td class="tableblock halign-left valign-middle">
+             <p class="tableblock">
+              Maintains availability by updating replicas incrementally. Requires one additional replica’s worth of resources to succeed.
+              <br/>
+              If
+              <code>
+               enforceDeployingReplicasAcrossNodes
+              </code>
+              is enabled, the maximum number of replicas you can configure is one less than the total number of nodes.
+             </p>
+            </td>
+           </tr>
+           <tr>
+            <td class="tableblock halign-left valign-middle">
+             <p class="tableblock">
+              <code>
+               recreate
+              </code>
+             </p>
+            </td>
+            <td class="tableblock halign-left valign-middle">
+             <p class="tableblock">
+              Terminates replicas before re-deployment. Re-deployment is quicker than
+              <code>
+               rolling
+              </code>
+              and doesn’t require additional resources.
+              <br/>
+              If
+              <code>
+               enforceDeployingReplicasAcrossNodes
+              </code>
+              is enabled, the maximum number of replicas you can configure is equal to the number of nodes.
+             </p>
+            </td>
+           </tr>
+          </tbody>
+         </table>
+         <div class="paragraph">
+          <p>
+           The default value is
+           <code>
+            rolling
+           </code>
+           .
+          </p>
+         </div>
+         <div class="paragraph">
+          <p>
+           Configuration example:
+          </p>
+         </div>
+         <div class="listingblock">
+          <div class="content">
+           <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;deploymentSettings&gt;
+  &lt;updateStrategy&gt;recreate&lt;/updateStrategy&gt;
+&lt;/deploymentSettings&gt;</code></pre>
+          </div>
+         </div>
+        </div>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <code>
+            clustered
+           </code>
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Enables clustering across two or more replicas of the application. The default value is
+           <code>
+            false
+           </code>
+           .
+           <br/>
+          </p>
+         </div>
+         <div class="paragraph">
+          <p>
+           Configuration example:
+          </p>
+         </div>
+         <div class="listingblock">
+          <div class="content">
+           <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;deploymentSettings&gt;
+    &lt;clustered&gt;true&lt;/clustered&gt;
+&lt;/deploymentSettings&gt;</code></pre>
+          </div>
+         </div>
+        </div>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <code>
+            http
+           </code>
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <table class="tableblock frame-all grid-all stretch">
+          <colgroup>
+           <col style="width: 20%;"/>
+           <col style="width: 20%;"/>
+           <col style="width: 60%;"/>
+          </colgroup>
+          <tbody>
+           <tr>
+            <td class="tableblock halign-left valign-middle" rowspan="3">
+             <p class="tableblock">
+              <code>
+               inbound
+              </code>
+             </p>
+            </td>
+            <td class="tableblock halign-left valign-middle">
+             <p class="tableblock">
+              <code>
+               publicURL
+              </code>
+             </p>
+            </td>
+            <td class="tableblock halign-left valign-middle">
+             <p class="tableblock">
+              URL of the deployed application. You can add multiple comma-separated values.
+             </p>
+            </td>
+           </tr>
+           <tr>
+            <td class="tableblock halign-left valign-middle">
+             <p class="tableblock">
+              <code>
+               lastMileSecurity
+              </code>
+             </p>
+            </td>
+            <td class="tableblock halign-left valign-middle">
+             <p class="tableblock">
+              Enable Last-Mile security to forward HTTPS connections to be decrypted by this application. This requires an SSL certificate to be included in the Mule application, and also requires more CPU resources. The default value is
+              <code>
+               false
+              </code>
+              .
+             </p>
+            </td>
+           </tr>
+           <tr>
+            <td class="tableblock halign-left valign-middle">
+             <p class="tableblock">
+              <code>
+               forwardSslSession
+              </code>
+             </p>
+            </td>
+            <td class="tableblock halign-left valign-middle">
+             <p class="tableblock">
+              Enables SSL forwarding during a session. The default value is
+              <code>
+               false
+              </code>
+              .
+             </p>
+            </td>
+           </tr>
+          </tbody>
+         </table>
+         <div class="paragraph">
+          <p>
+           Configuration example:
+          </p>
+         </div>
+         <div class="listingblock">
+          <div class="content">
+           <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;deploymentSettings&gt;
+  &lt;http&gt;
+    &lt;inbound&gt;
+      &lt;publicUrl&gt;https://myapp.anypoint.com&lt;/publicUrl&gt;
+      &lt;lastMileSecurity&gt;true&lt;/lastMileSecurity&gt;
+      &lt;forwardSslSession&gt;true&lt;/forwardSslSession&gt;
+    &lt;/inbound&gt;
+  &lt;/http&gt;
+&lt;/deploymentSettings&gt;</code></pre>
+          </div>
+         </div>
+        </div>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <code>
+            generateDefaultPublicUrl
+           </code>
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           When set to
+           <code>
+            true
+           </code>
+           , CloudHub 2.0 generates a public URL for the deployed application.
+           <br/>
+           This parameter is used only for applications that are deployed to
+           <a class="xref page" href="../../cloudhub-2/ch2-private-space-about">
+            private space
+           </a>
+           . Applications that are deployed to
+           <a class="xref page" href="../../cloudhub-2/ch2-shared-space-about">
+            shared space
+           </a>
+           always get a generated public URL.
+          </p>
+         </div>
+        </div>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <code>
+            disableAmLogForwarding
+           </code>
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Disables the application-level log forwarding to Anypoint Monitoring. The default value is
+           <code>
+            false
+           </code>
+           .
+          </p>
+         </div>
+        </div>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <code>
+            tracingEnabled
+           </code>
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Exposes tracing information in OpenTelemetry standard from Mule runtime into all APM solutions. See
+           <a class="xref page" href="../../cloudhub-2/ch2-deploy-private-space#enable-trace-data-collection">
+            cloudhub-2::ch2-deploy-private-space.adoc#enable-trace-data-collection
+           </a>
+           .
+          </p>
+         </div>
+        </div>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <code>
+            autoscaling
+           </code>
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Use this object to provide CPU Based Horizontal Autoscaling configuration on deployment and redeployment operations. If autoscaling is disabled and the fields
+           <code>
+            minReplicas
+           </code>
+           and
+           <code>
+            maxReplicas
+           </code>
+           are provided, they must match the value of the
+           <code>
+            target.replicas
+           </code>
+           field. See
+           <a class="xref page" href="../../cloudhub-2/ch2-configure-horizontal-autoscaling">
+            Enable Trace Data Collection
+           </a>
+           .
+Configuration example:
+          </p>
+         </div>
+         <div class="listingblock">
+          <div class="content">
+           <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;deploymentSettings&gt;
+  &lt;autoscaling&gt;
+    &lt;enabled&gt;true&lt;/enabled&gt;
+    &lt;minReplicas&gt;1&lt;/minReplicas&gt;
+    &lt;maxReplicas&gt;2&lt;/maxReplicas&gt;
+  &lt;/autoscaling&gt;
+&lt;/deploymentSettings&gt;</code></pre>
+          </div>
+         </div>
+        </div>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <code>
+            persistentObjectStore
+           </code>
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Configures the Mule application to use a persistent object store. By default, it’s set to
+           <code>
+            false
+           </code>
+           .
+          </p>
+         </div>
+        </div>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="encrypt-credentials">
+   <a class="anchor" href="#encrypt-credentials">
+   </a>
+   Encrypt Credentials
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To use encrypted credentials when deploying, you need to set up your Maven master encrypted password and your
+     <code>
+      settings-security.xml
+     </code>
+     file.
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Create a master password for your Maven configuration.
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre>mvn --encrypt-master-password &lt;yourMasterPassword&gt;</pre>
+       </div>
+      </div>
+      <div class="paragraph">
+       <p>
+        Maven returns your master password encrypted:
+       </p>
+      </div>
+      <div class="listingblock">
+       <div class="content">
+        <pre>{l9vZ2uM5SdgHy+H12z4pX7LEOZn3Kbnqmt3kIquLjnQ=}</pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Create a
+       <code>
+        settings-security.xml
+       </code>
+       file in your ~/.m2 repository and add your encrypted master password:
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;settingsSecurity&gt;
+  &lt;master&gt;{l9vZ2uM5SdgHy+H12z4pX7LEOZn3Kbnqmt3kIquLjnQ=}&lt;/master&gt;
+&lt;/settingsSecurity&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Encrypt your Anypoint platform password:
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre>mvn --encrypt-password &lt;yourAnypointPlatformPassword&gt;</pre>
+       </div>
+      </div>
+      <div class="paragraph">
+       <p>
+        Maven returns your Anypoint platform password encrypted:
+       </p>
+      </div>
+      <div class="listingblock">
+       <div class="content">
+        <pre>{HTWFGH5BG9QmvJ1B=}</pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Add your encrypted Anypoint Platform password to your
+       <code>
+        settings.xml
+       </code>
+       file in the &lt;server&gt; section:
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;settings&gt;
+ ...
+  &lt;servers&gt;
+   ...
+    &lt;server&gt;
+      &lt;id&gt;my.anypoint.credentials&lt;/id&gt;
+      &lt;username&gt;my.anypoint.username&lt;/username&gt;
+      &lt;password&gt;{HTWFGH5BG9QmvJ1B=}&lt;/password&gt;
+    &lt;/server&gt;
+   ...
+  &lt;/servers&gt;
+ ...
+&lt;/settings&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       In your configuration deployment, reference the credentials injecting the server ID configured in your
+       <code>
+        settings.xml
+       </code>
+       file:
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;plugin&gt;
+  ...
+  &lt;configuration&gt;
+    ...
+    &lt;cloudhub2Deployment&gt;
+      ...
+      &lt;server&gt;my.anypoint.credentials&lt;/server&gt;
+      ...
+    &lt;/cloudhub2Deployment&gt;
+    ...
+  &lt;/configuration&gt;
+  ...
+&lt;plugin&gt;</code></pre>
+       </div>
+      </div>
+      <div class="admonitionblock note">
+       <table>
+        <tr>
+         <td class="icon">
+          <i class="fa icon-note" title="Note">
+          </i>
+         </td>
+         <td class="content">
+          Make sure that the username and password aren’t set in the deployment configuration, or they will overwrite the defined server ID.
+         </td>
+        </tr>
+       </table>
+      </div>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="mmp-concept">
+        Mule Maven Plugin
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../cloudhub-2/">
+        CloudHub 2.0
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

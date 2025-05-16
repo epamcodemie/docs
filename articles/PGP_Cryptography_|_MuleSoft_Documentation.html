@@ -1,0 +1,4728 @@
+<article class="doc">
+ <h1 class="page">
+  PGP Cryptography
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Mule can encrypt all or part of a message using Pretty Good Privacy (PGP). PGP combines data compression and data encryption to secure messages. The compression reduces the size of the payload to help reduce the transmission time later on your application.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Due to its increased complexity, PGP encryption is a heavy-load task when compared to JCE or XML encryption.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     This section addresses these scenarios:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Encryption: Using another party’s public key to encrypt an outgoing message in a Mule app.
+      </p>
+     </li>
+     <li>
+      <p>
+       Decryption: Using your own private key to decrypt an incoming message in a Mule app.
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="prerequisites">
+   <a class="anchor" href="#prerequisites">
+   </a>
+   Prerequisites
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     This document assumes that you are reasonably familiar with PGP encryption, as well as the concepts of public and private keys and asymmetric cryptography.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="configure-pgp-encryption-from-anypoint-studio">
+   <a class="anchor" href="#configure-pgp-encryption-from-anypoint-studio">
+   </a>
+   Configure PGP Encryption from Anypoint Studio
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To configure PGP encryption from Anypoint Studio, follow these steps:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       From the Mule palette, add
+       <strong>
+        Crypto
+       </strong>
+       to your project.
+      </p>
+      <div class="paragraph">
+       <p>
+        See
+        <a class="xref page" href="cryptography#install-crypto-module">
+         Install the Extension
+        </a>
+        for instructions.
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       Select the desired operation, and drag the component to the flow:
+      </p>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="A palette menu for adding PGP encryption and decryption modules" src="_images/mruntime-crypto-pgp-add.png"/>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Open the component properties and select an existing
+       <strong>
+        Module configuration
+       </strong>
+       , or create a new one by specifying the
+       <strong>
+        Public keyring
+       </strong>
+       file and the
+       <strong>
+        Private keyring
+       </strong>
+       file.
+      </p>
+      <div class="paragraph">
+       <p>
+        You can also add asymmetric key information to be used in the sign operations:
+       </p>
+      </div>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="Global element properties for Crypto PGP with keyring details" src="_images/mruntime-crypto-pgp-global-config.png"/>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Configure
+       <strong>
+        Key selection
+       </strong>
+       by using a
+       <strong>
+        Key id
+       </strong>
+       value previously defined in the module configuration, or define a new one for this operation:
+      </p>
+      <div class="imageblock">
+       <div class="content">
+        <img alt="A configuration settings for PGP encrypt with algorithm and key selection" src="_images/mruntime-crypto-pgp-config.png"/>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Select the algorithm to use during the operation.
+      </p>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="working-with-subkeys">
+   <a class="anchor" href="#working-with-subkeys">
+   </a>
+   Working with Subkeys
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     A key can contain subkeys, according to the RFC-4880 standard specification. When working with subkeys, use the
+     <code>
+      fingerprint
+     </code>
+     attribute of the
+     <code>
+      &lt;crypto:pgp-asymmetric-key-info&gt;
+     </code>
+     element in the XML configuration to specify the key to use.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     For example, if you use different keys for signing and encrypting operations, and each of these keys use different algorithms, like DSA and ElGamal, then you must reference the appropriate key’s fingerprint, depending on the operation you want to perform.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     In this case, you reference the ElGamal fingerprint to encrypt your messages and the DSA fingerprint to sign your messages.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="encrypting-messages-with-public-keys">
+   <a class="anchor" href="#encrypting-messages-with-public-keys">
+   </a>
+   Encrypting Messages with Public Keys
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     During PGP encryption, the sender of the message must encrypt its content using the receiver’s public key. So, whenever you want to encrypt messages in your Mule app using someone else’s public key, you must add the public key to your key ring. When adding a new PGP configuration to your Mule app, you need to provide your key ring file so the encryption module can get the public key from it to encrypt the message.
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Use a tool such as GPG Suite to import the other party’s public key. See below for details.
+      </p>
+     </li>
+     <li>
+      <p>
+       Using the same tool, export the public key, selecting
+       <code>
+        binary
+       </code>
+       as the output format. This produces a key ring file with a
+       <code>
+        .gpg
+       </code>
+       extension.
+      </p>
+     </li>
+     <li>
+      <p>
+       Ensure that the key ring (
+       <code>
+        .gpg
+       </code>
+       ) file is stored where the Mule app can access it during runtime.
+      </p>
+     </li>
+    </ol>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Example: PGP Configuration
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;crypto:pgp-config name="encrypt-conf" publicKeyring="pgp/pubring.gpg"&gt;
+    &lt;crypto:pgp-key-infos&gt;
+        &lt;crypto:pgp-asymmetric-key-info keyId="myself" fingerprint="DE3F10F1B6B7F221"/&gt;
+    &lt;/crypto:pgp-key-infos&gt;
+&lt;/crypto:pgp-config&gt;</code></pre>
+    </div>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Using the Encrypt Operation
+      </p>
+      <div class="paragraph">
+       <p>
+        The next example returns an ASCII-armored encrypted payload, which is suitable for sending over plain-text channels:
+       </p>
+      </div>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;crypto:pgp-encrypt config-ref="encrypt-conf" keyId="myself"/&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Using the Encrypt Binary Operation
+      </p>
+      <div class="paragraph">
+       <p>
+        If you want to return a binary output instead, you can use the
+        <code>
+         pgp-encrypt-binary
+        </code>
+        operation:
+       </p>
+      </div>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;crypto:pgp-encrypt-binary config-ref="pgp-conf" keyId="recipient"/&gt;</code></pre>
+       </div>
+      </div>
+      <div class="paragraph">
+       <p>
+        Producing a binary output is faster than using ASCII-armored. However, the output is not standard and might not be ideal to send to other systems for decryption.
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       Using the Binary to Armored Operation
+      </p>
+      <div class="paragraph">
+       <p>
+        If you need to send a payload with binary output to another system, you can transform it to ASCII-armored:
+       </p>
+      </div>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;crypto:pgp-binary-to-armored/&gt;</code></pre>
+       </div>
+      </div>
+      <div class="paragraph">
+       <p>
+        This operation has a single input parameter, the message payload to transform.
+       </p>
+      </div>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="encrypt-and-sign">
+   <a class="anchor" href="#encrypt-and-sign">
+   </a>
+   Encrypt and Sign
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In addition to encrypting, you can atomically encrypt and sign a message, which returns a message (in ASCII-armored format) similar to the encrypted one. In this case, the returned message also has a signature inside its encrypted contents. The signature provides an integrity check of the original message.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     To encrypt and sign, the signer private key (which is usually the sender) must be in the public key ring. This process always produces an ASCII-armored output.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Example: PGP Configuration
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;crypto:pgp-encrypt-and-sign config-ref="encrypt-conf"&gt;
+    &lt;crypto:encryption-key-selection keyId="recipient-key-id" /&gt;
+    &lt;crypto:sign-key-selection keyId="signer-key-id" /&gt;
+&lt;/crypto:pgp-encrypt-and-sign&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="decrypt">
+   <a class="anchor" href="#decrypt">
+   </a>
+   Decrypt
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     During PGP decryption, the receiver of the message must use its private key to decrypt the contents of a message that was encrypted using a public key.
+Therefore, the receiver must distribute its public key to those who will use it to send encrypted messages.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Example: PGP Configuration
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;crypto:pgp-config name="decrypt-conf" privateKeyring="pgp/secring.gpg"&gt;
+    &lt;crypto:pgp-key-infos&gt;
+        &lt;crypto:pgp-asymmetric-key-info keyId="myself" fingerprint="DE3F10F1B6B7F221" passphrase="mule1234"/&gt;
+    &lt;/crypto:pgp-key-infos&gt;
+&lt;/crypto:pgp-config&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     In the example above, notice that you need to provide at least three parameters to be able to use the private key ring in the decrypt operation:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Key ID (
+       <code>
+        keyId
+       </code>
+       ): the internal ID that will allow you to reference this key from an operation.
+      </p>
+     </li>
+     <li>
+      <p>
+       Key Fingerprint (
+       <code>
+        fingerprint
+       </code>
+       ): The last 16 characters of your key fingerprint, which can be obtained from your external GPG tool (such as GPG Keychain).
+      </p>
+     </li>
+     <li>
+      <p>
+       Passphrase (
+       <code>
+        passphrase
+       </code>
+       ): The passphrase of the private key.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Example: Using the Decrypt Operation
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;crypto:pgp-decrypt config-ref="decrypt-conf"/&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="signing">
+   <a class="anchor" href="#signing">
+   </a>
+   Signing
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Sign a message using a configured private key.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Example: PGP Configuration
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;crypto:pgp-config name="sign-conf" privateKeyring="pgp/secring.gpg"&gt;
+    &lt;crypto:pgp-key-infos&gt;
+        &lt;crypto:pgp-asymmetric-key-info keyId="myself" fingerprint="DE3F10F1B6B7F221" passphrase="mule1234"/&gt;
+    &lt;/crypto:pgp-key-infos&gt;
+&lt;/crypto:pgp-config&gt;</code></pre>
+    </div>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Example: Using the Sign Operation
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;crypto:pgp-sign config-ref="sign-conf" keyId="myself"/&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="validating-a-signature">
+   <a class="anchor" href="#validating-a-signature">
+   </a>
+   Validating a Signature
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Validate the signature of a message using the signer’s public key.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Example: PGP Configuration
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;crypto:pgp-config name="validate-conf" publicKeyring="pgp/pubring.gpg"&gt;
+    &lt;crypto:pgp-key-infos&gt;
+        &lt;crypto:pgp-asymmetric-key-info keyId="signer" fingerprint="DE3F10F1B6B7F221"/&gt;
+    &lt;/crypto:pgp-key-infos&gt;
+&lt;/crypto:pgp-config&gt;</code></pre>
+    </div>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Example: Using the Validate Operation
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;crypto:pgp-validate config-ref="validate-conf" value="#[payload]" expected="#[vars.expected]"/&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="reference">
+   <a class="anchor" href="#reference">
+   </a>
+   Reference
+  </h2>
+  <div class="sectionbody">
+   <div class="sect2">
+    <h3 id="module-configuration">
+     <a class="anchor" href="#module-configuration">
+     </a>
+     Module Configuration
+    </h3>
+    <div class="paragraph">
+     <p>
+      Keystore configuration for PGP. Contains a list of keys with internal names to be used in the operations.
+     </p>
+    </div>
+    <div class="sect3">
+     <h4 id="parameters">
+      <a class="anchor" href="#parameters">
+      </a>
+      Parameters
+     </h4>
+     <table class="tableblock frame-all grid-all stretch">
+      <colgroup>
+       <col style="width: 20%;"/>
+       <col style="width: 20%;"/>
+       <col style="width: 35%;"/>
+       <col style="width: 20%;"/>
+       <col style="width: 5%;"/>
+      </colgroup>
+      <thead>
+       <tr>
+        <th class="tableblock halign-left valign-middle">
+         Name
+        </th>
+        <th class="tableblock halign-left valign-middle">
+         Type
+        </th>
+        <th class="tableblock halign-left valign-middle">
+         Description
+        </th>
+        <th class="tableblock halign-left valign-middle">
+         Default Value
+        </th>
+        <th class="tableblock halign-center valign-middle">
+         Required
+        </th>
+       </tr>
+      </thead>
+      <tbody>
+       <tr>
+        <td class="tableblock halign-left valign-middle">
+         <p class="tableblock">
+          Name
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-middle">
+         <p class="tableblock">
+          String
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-middle">
+         <p class="tableblock">
+          The name for this configuration. Connectors reference the configuration with this name.
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-middle">
+        </td>
+        <td class="tableblock halign-center valign-middle">
+         <p class="tableblock">
+          <strong>
+           x
+          </strong>
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-middle">
+         <p class="tableblock">
+          Public Keyring
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-middle">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            String
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-left valign-middle">
+         <p class="tableblock">
+          Public key ring file.
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-middle">
+        </td>
+        <td class="tableblock halign-center valign-middle">
+         <p class="tableblock">
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-middle">
+         <p class="tableblock">
+          Private Keyring
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-middle">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            String
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-left valign-middle">
+         <p class="tableblock">
+          Private key ring file.
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-middle">
+        </td>
+        <td class="tableblock halign-center valign-middle">
+         <p class="tableblock">
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-middle">
+         <p class="tableblock">
+          Pgp Key Infos
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-middle">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            Array of One of:
+           </p>
+          </div>
+          <div class="ulist">
+           <ul>
+            <li>
+             <p>
+              <a href="#PgpAsymmetricKeyInfo">
+               Pgp Asymmetric Key Info
+              </a>
+             </p>
+            </li>
+           </ul>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-left valign-middle">
+         <p class="tableblock">
+          List of keys to be considered, with internal IDs for referencing them.
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-middle">
+        </td>
+        <td class="tableblock halign-center valign-middle">
+         <p class="tableblock">
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-middle">
+         <p class="tableblock">
+          Expiration Policy
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-middle">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            <a href="#ExpirationPolicy">
+             Expiration Policy
+            </a>
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-left valign-middle">
+         <p class="tableblock">
+          Configures the minimum amount of time that a dynamic configuration instance can remain idle before the runtime considers it eligible for expiration. This does not mean that the platform will expire the instance at the exact moment that it becomes eligible. The runtime will actually purge the instances when it sees it fit.
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-middle">
+        </td>
+        <td class="tableblock halign-center valign-middle">
+         <p class="tableblock">
+         </p>
+        </td>
+       </tr>
+      </tbody>
+     </table>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="pgpDecrypt">
+   <a class="anchor" href="#pgpDecrypt">
+   </a>
+   Pgp Decrypt Operation
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     <code>
+      &lt;crypto:pgp-decrypt&gt;
+     </code>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Decrypt a stream using PGP, giving the original data as a result. The decryption is done with the private key, so the secret passphrase must be provided.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="parameters-2">
+     <a class="anchor" href="#parameters-2">
+     </a>
+     Parameters
+    </h3>
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col style="width: 20%;"/>
+      <col style="width: 20%;"/>
+      <col style="width: 35%;"/>
+      <col style="width: 20%;"/>
+      <col style="width: 5%;"/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-middle">
+        Name
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Type
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Description
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Default Value
+       </th>
+       <th class="tableblock halign-center valign-middle">
+        Required
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Configuration
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         String
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         The name of the configuration to use.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+         <strong>
+          x
+         </strong>
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Content
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Binary
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         You can decrypt all, or part of a message by using a DataWeave expression.
+         <br/>
+         For example, you can set Content to
+         <code>
+          #[payload.name]
+         </code>
+         to decrypt only an encrypted variable called
+         <code>
+          name
+         </code>
+         from the payload
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         <code>
+          #[payload]
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         File Name
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           String
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         the internal file name to decrypt, if not present the first will be used
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Output Mime Type
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           String
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         The mime type of the payload that this operation outputs.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Output Encoding
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           String
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         The encoding of the payload that this operation outputs.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Streaming Strategy
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             <a href="#repeatable-in-memory-stream">
+              Repeatable In Memory Stream
+             </a>
+            </p>
+           </li>
+           <li>
+            <p>
+             <a href="#repeatable-file-store-stream">
+              Repeatable File Store Stream
+             </a>
+            </p>
+           </li>
+           <li>
+            <p>
+             non-repeatable-stream
+            </p>
+           </li>
+          </ul>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Configure if repeatable streams should be used and their behavior
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Target Variable
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           String
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         The name of a variable on which the operation's output will be placed
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Target Value
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           String
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         An expression that will be evaluated against the operation's output and the outcome of that expression will be stored in the target variable
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         <code>
+          #[payload]
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Validate Signature if Found
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Boolean
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         If a contents signature is found in any of the internal decryption stages, the operation will attempt to validate the decrypted contents. Note that this requires the *Signer's public key* to be present in the operation config's public keyring. Also, if the validation fails, the decryption operation will also.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         <code>
+          false
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+   <div class="sect2">
+    <h3 id="output-type">
+     <a class="anchor" href="#output-type">
+     </a>
+     Output Type
+    </h3>
+    <div class="paragraph">
+     <p>
+      Binary
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="throws">
+     <a class="anchor" href="#throws">
+     </a>
+     Throws
+    </h3>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        <code>
+         CRYPTO:MISSING_KEY
+        </code>
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         CRYPTO:KEY
+        </code>
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         CRYPTO:PASSPHRASE
+        </code>
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         CRYPTO:DECRYPTION
+        </code>
+       </p>
+      </li>
+     </ul>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="pgpEncrypt">
+   <a class="anchor" href="#pgpEncrypt">
+   </a>
+   Pgp Encrypt Operation
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     <code>
+      &lt;crypto:pgp-encrypt&gt;
+     </code>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Encrypt a stream using PGP, giving an ASCII-armored stream output as a result. The encryption is done with the public key of the recipient, so the private keyring and secret passphrase are not required.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="parameters-3">
+     <a class="anchor" href="#parameters-3">
+     </a>
+     Parameters
+    </h3>
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col style="width: 20%;"/>
+      <col style="width: 20%;"/>
+      <col style="width: 35%;"/>
+      <col style="width: 20%;"/>
+      <col style="width: 5%;"/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-middle">
+        Name
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Type
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Description
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Default Value
+       </th>
+       <th class="tableblock halign-center valign-middle">
+        Required
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Configuration
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         String
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         The name of the configuration to use.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+         <strong>
+          x
+         </strong>
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Content
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Binary
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         You can encrypt all, or part of a message by using a DataWeave expression.
+         <br/>
+         For example, you can set Content to
+         <code>
+          #[payload.name]
+         </code>
+         to encrypt only a variable called
+         <code>
+          name
+         </code>
+         from the payload
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         <code>
+          #[payload]
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Algorithm
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Enumeration, one of:
+          </p>
+         </div>
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             <code>
+              IDEA
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              TRIPLE_DES
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              CAST5
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              BLOWFISH
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              SAFER
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              DES
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              AES_128
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              AES_192
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              AES_256
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              TWOFISH
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              CAMELLIA_128
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              CAMELLIA_192
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              CAMELLIA_256
+             </code>
+            </p>
+           </li>
+          </ul>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         the symmetric algorithm to use for encryption
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         <code>
+          AES_256
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         File Name
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           String
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         the internal file name to use in the resulting PGP header
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         stream
+        </p>
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Streaming Strategy
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             <a href="#repeatable-in-memory-stream">
+              Repeatable In Memory Stream
+             </a>
+            </p>
+           </li>
+           <li>
+            <p>
+             <a href="#repeatable-file-store-stream">
+              Repeatable File Store Stream
+             </a>
+            </p>
+           </li>
+           <li>
+            <p>
+             non-repeatable-stream
+            </p>
+           </li>
+          </ul>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Configure if repeatable streams should be used and their behavior
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Key Id
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           String
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         The key ID, as defined in the PGP configuration.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Pgp Key Info
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           One of:
+          </p>
+         </div>
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             <a href="#PgpAsymmetricKeyInfo">
+              Pgp Asymmetric Key Info
+             </a>
+            </p>
+           </li>
+          </ul>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         An inline key definition.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Target Variable
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           String
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         The name of a variable on which the operation's output will be placed
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Target Value
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           String
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         An expression that will be evaluated against the operation's output and the outcome of that expression will be stored in the target variable
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         <code>
+          #[payload]
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+   <div class="sect2">
+    <h3 id="output-type-2">
+     <a class="anchor" href="#output-type-2">
+     </a>
+     Output Type
+    </h3>
+    <div class="paragraph">
+     <p>
+      Binary
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="throws-2">
+     <a class="anchor" href="#throws-2">
+     </a>
+     Throws
+    </h3>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        <code>
+         CRYPTO:MISSING_KEY
+        </code>
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         CRYPTO:ENCRYPTION
+        </code>
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         CRYPTO:KEY
+        </code>
+       </p>
+      </li>
+     </ul>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="pgpEncryptAndSign">
+   <a class="anchor" href="#pgpEncryptAndSign">
+   </a>
+   PGP Encrypt and Sign Operation
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     <code>
+      &lt;crypto:pgp-encrypt-and-sign&gt;
+     </code>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     You can encrypt and sign a stream using PGP, producing an ASCII-armored stream output as a result. The encryption requires the public key of the recipient, so the secret passphrase is not required. The secret passphrase is required for signing because the process uses private key of the signer (usually the sender).
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="parameters-4">
+     <a class="anchor" href="#parameters-4">
+     </a>
+     Parameters
+    </h3>
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col style="width: 20%;"/>
+      <col style="width: 20%;"/>
+      <col style="width: 35%;"/>
+      <col style="width: 20%;"/>
+      <col style="width: 5%;"/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-middle">
+        Name
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Type
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Description
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Default Value
+       </th>
+       <th class="tableblock halign-center valign-middle">
+        Required
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Configuration
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         String
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         The name of the configuration to use.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+         <strong>
+          x
+         </strong>
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Content
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Binary
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         You can encrypt all, or part of a message by using a DataWeave expression.
+         <br/>
+         For example, you can set Content to
+         <code>
+          #[payload.name]
+         </code>
+         to encrypt only a variable called
+         <code>
+          name
+         </code>
+         from the payload
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         <code>
+          #[payload]
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Algorithm
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Enumeration, one of:
+          </p>
+         </div>
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             <code>
+              IDEA
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              TRIPLE_DES
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              CAST5
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              BLOWFISH
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              SAFER
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              DES
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              AES_128
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              AES_192
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              AES_256
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              TWOFISH
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              CAMELLIA_128
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              CAMELLIA_192
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              CAMELLIA_256
+             </code>
+            </p>
+           </li>
+          </ul>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Symmetric algorithm to use for encryption.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         <code>
+          AES_256
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         File Name
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           String
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         The internal file name to use in the resulting PGP header.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         stream
+        </p>
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Encryption key selection
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           A child element with
+           <a href="#PgpKeySelection">
+            PGP Key Selection
+           </a>
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         The identifier of the recipient public key.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Sign key selection
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           A child element with
+           <a href="#PgpKeySelection">
+            PGP Key Selection
+           </a>
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         The identifier of the signer’s private key.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Streaming Strategy
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             <a href="#repeatable-in-memory-stream">
+              Repeatable In Memory Stream
+             </a>
+            </p>
+           </li>
+           <li>
+            <p>
+             <a href="#repeatable-file-store-stream">
+              Repeatable File Store Stream
+             </a>
+            </p>
+           </li>
+           <li>
+            <p>
+             non-repeatable-stream
+            </p>
+           </li>
+          </ul>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Configure if repeatable streams should be used and their behavior
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Key Id
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           String
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         The key ID, as defined in the PGP configuration.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Target Variable
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           String
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         The name of a variable in which to store the operation’s output.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Target Value
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           String
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         An expression that is evaluated against the operation’s output. The result of that expression is stored in the target variable.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         <code>
+          #[payload]
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+   <div class="sect2">
+    <h3 id="output-type-3">
+     <a class="anchor" href="#output-type-3">
+     </a>
+     Output Type
+    </h3>
+    <div class="paragraph">
+     <p>
+      Binary
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="throws-3">
+     <a class="anchor" href="#throws-3">
+     </a>
+     Throws
+    </h3>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        <code>
+         CRYPTO:MISSING_KEY
+        </code>
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         CRYPTO:ENCRYPTION
+        </code>
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         CRYPTO:KEY
+        </code>
+       </p>
+      </li>
+     </ul>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="pgpEncryptBinary">
+   <a class="anchor" href="#pgpEncryptBinary">
+   </a>
+   PGP Encrypt Binary Operation
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     <code>
+      &lt;crypto:pgp-encrypt-binary&gt;
+     </code>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     You can encrypt a stream using PGP, producing a binary output as a result. Because the encryption process uses the public key of the recipient, the secret passphrase is not required.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="parameters-5">
+     <a class="anchor" href="#parameters-5">
+     </a>
+     Parameters
+    </h3>
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col style="width: 20%;"/>
+      <col style="width: 20%;"/>
+      <col style="width: 35%;"/>
+      <col style="width: 20%;"/>
+      <col style="width: 5%;"/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-middle">
+        Name
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Type
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Description
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Default Value
+       </th>
+       <th class="tableblock halign-center valign-middle">
+        Required
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Configuration
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         String
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         The name of the configuration to use.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+         <strong>
+          x
+         </strong>
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Content
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Binary
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         You can encrypt all, or part of a message by using a DataWeave expression.
+         <br/>
+         For example, you can set Content to
+         <code>
+          #[payload.name]
+         </code>
+         to encrypt only a variable called
+         <code>
+          name
+         </code>
+         from the payload
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         <code>
+          #[payload]
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Algorithm
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Enumeration, one of:
+          </p>
+         </div>
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             <code>
+              IDEA
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              TRIPLE_DES
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              CAST5
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              BLOWFISH
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              SAFER
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              DES
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              AES_128
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              AES_192
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              AES_256
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              TWOFISH
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              CAMELLIA_128
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              CAMELLIA_192
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              CAMELLIA_256
+             </code>
+            </p>
+           </li>
+          </ul>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         the symmetric algorithm to use for encryption
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         <code>
+          AES_256
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         File Name
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           String
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         the internal file name to use in the resulting PGP header
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         stream
+        </p>
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Output Mime Type
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           String
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         The mime type of the payload that this operation outputs.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Output Encoding
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           String
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         The encoding of the payload that this operation outputs.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Streaming Strategy
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             <a href="#repeatable-in-memory-stream">
+              Repeatable In Memory Stream
+             </a>
+            </p>
+           </li>
+           <li>
+            <p>
+             <a href="#repeatable-file-store-stream">
+              Repeatable File Store Stream
+             </a>
+            </p>
+           </li>
+           <li>
+            <p>
+             non-repeatable-stream
+            </p>
+           </li>
+          </ul>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Configure if repeatable streams should be used and their behavior
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Key Id
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           String
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         The key ID, as defined in the PGP configuration.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Pgp Key Info
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           One of:
+          </p>
+         </div>
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             <a href="#PgpAsymmetricKeyInfo">
+              Pgp Asymmetric Key Info
+             </a>
+            </p>
+           </li>
+          </ul>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         An inline key definition.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Target Variable
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           String
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         The name of a variable on which the operation's output will be placed
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Target Value
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           String
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         An expression that will be evaluated against the operation's output and the outcome of that expression will be stored in the target variable
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         <code>
+          #[payload]
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+   <div class="sect2">
+    <h3 id="output-type-4">
+     <a class="anchor" href="#output-type-4">
+     </a>
+     Output Type
+    </h3>
+    <div class="paragraph">
+     <p>
+      Binary
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="throws-4">
+     <a class="anchor" href="#throws-4">
+     </a>
+     Throws
+    </h3>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        <code>
+         CRYPTO:MISSING_KEY
+        </code>
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         CRYPTO:ENCRYPTION
+        </code>
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         CRYPTO:KEY
+        </code>
+       </p>
+      </li>
+     </ul>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="pgpSign">
+   <a class="anchor" href="#pgpSign">
+   </a>
+   Pgp Sign Operation
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     <code>
+      &lt;crypto:pgp-sign&gt;
+     </code>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Create a detached (standalone) PGP signature of the stream. The signing is done with the private key of the sender, so the secret passphrase must be provided.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="parameters-6">
+     <a class="anchor" href="#parameters-6">
+     </a>
+     Parameters
+    </h3>
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col style="width: 20%;"/>
+      <col style="width: 20%;"/>
+      <col style="width: 35%;"/>
+      <col style="width: 20%;"/>
+      <col style="width: 5%;"/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-middle">
+        Name
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Type
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Description
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Default Value
+       </th>
+       <th class="tableblock halign-center valign-middle">
+        Required
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Configuration
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         String
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         The name of the configuration to use.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+         <strong>
+          x
+         </strong>
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Content
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Binary
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         the content to sign
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         <code>
+          #[payload]
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Algorithm
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Enumeration, one of:
+          </p>
+         </div>
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             <code>
+              MD5
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              RIPEMD160
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              TIGER_192
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              HAVAL_5_160
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              DOUBLE_SHA
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              SHA1
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              SHA224
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              SHA256
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              SHA384
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              SHA512
+             </code>
+            </p>
+           </li>
+          </ul>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         the digest (or hashing) algorithm
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         <code>
+          SHA256
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Streaming Strategy
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             <a href="#repeatable-in-memory-stream">
+              Repeatable In Memory Stream
+             </a>
+            </p>
+           </li>
+           <li>
+            <p>
+             <a href="#repeatable-file-store-stream">
+              Repeatable File Store Stream
+             </a>
+            </p>
+           </li>
+           <li>
+            <p>
+             non-repeatable-stream
+            </p>
+           </li>
+          </ul>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Configure if repeatable streams should be used and their behavior
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Key Id
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           String
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         The key ID, as defined in the PGP configuration.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Pgp Key Info
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           One of:
+          </p>
+         </div>
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             <a href="#PgpAsymmetricKeyInfo">
+              Pgp Asymmetric Key Info
+             </a>
+            </p>
+           </li>
+          </ul>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         An inline key definition.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Target Variable
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           String
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         The name of a variable on which the operation's output will be placed
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Target Value
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           String
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         An expression that will be evaluated against the operation's output and the outcome of that expression will be stored in the target variable
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         <code>
+          #[payload]
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+   <div class="sect2">
+    <h3 id="output-type-5">
+     <a class="anchor" href="#output-type-5">
+     </a>
+     Output Type
+    </h3>
+    <div class="paragraph">
+     <p>
+      Binary
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="throws-5">
+     <a class="anchor" href="#throws-5">
+     </a>
+     Throws
+    </h3>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        <code>
+         CRYPTO:MISSING_KEY
+        </code>
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         CRYPTO:KEY
+        </code>
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         CRYPTO:PASSPHRASE
+        </code>
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         CRYPTO:SIGNATURE
+        </code>
+       </p>
+      </li>
+     </ul>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="pgpSignBinary">
+   <a class="anchor" href="#pgpSignBinary">
+   </a>
+   Pgp Sign Binary Operation
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     <code>
+      &lt;crypto:pgp-sign-binary&gt;
+     </code>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Create a detached (standalone) PGP signature of the stream. The signing is done with the private key of the sender, so the secret passphrase must be provided.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="parameters-7">
+     <a class="anchor" href="#parameters-7">
+     </a>
+     Parameters
+    </h3>
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col style="width: 20%;"/>
+      <col style="width: 20%;"/>
+      <col style="width: 35%;"/>
+      <col style="width: 20%;"/>
+      <col style="width: 5%;"/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-middle">
+        Name
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Type
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Description
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Default Value
+       </th>
+       <th class="tableblock halign-center valign-middle">
+        Required
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Configuration
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         String
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         The name of the configuration to use.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+         <strong>
+          x
+         </strong>
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Content
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Binary
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         the content to sign
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         <code>
+          #[payload]
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Algorithm
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Enumeration, one of:
+          </p>
+         </div>
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             <code>
+              MD5
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              RIPEMD160
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              TIGER_192
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              HAVAL_5_160
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              DOUBLE_SHA
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              SHA1
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              SHA224
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              SHA256
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              SHA384
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              SHA512
+             </code>
+            </p>
+           </li>
+          </ul>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         the digest (or hashing) algorithm
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         <code>
+          SHA256
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Output Mime Type
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           String
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         The mime type of the payload that this operation outputs.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Output Encoding
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           String
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         The encoding of the payload that this operation outputs.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Streaming Strategy
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             <a href="#repeatable-in-memory-stream">
+              Repeatable In Memory Stream
+             </a>
+            </p>
+           </li>
+           <li>
+            <p>
+             <a href="#repeatable-file-store-stream">
+              Repeatable File Store Stream
+             </a>
+            </p>
+           </li>
+           <li>
+            <p>
+             non-repeatable-stream
+            </p>
+           </li>
+          </ul>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Configure if repeatable streams should be used and their behavior
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Key Id
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           String
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         The key ID, as defined in the PGP configuration.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Pgp Key Info
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           One of:
+          </p>
+         </div>
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             <a href="#PgpAsymmetricKeyInfo">
+              Pgp Asymmetric Key Info
+             </a>
+            </p>
+           </li>
+          </ul>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         An inline key definition.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Target Variable
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           String
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         The name of a variable on which the operation's output will be placed
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Target Value
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           String
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         An expression that will be evaluated against the operation's output and the outcome of that expression will be stored in the target variable
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         <code>
+          #[payload]
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+   <div class="sect2">
+    <h3 id="output-type-6">
+     <a class="anchor" href="#output-type-6">
+     </a>
+     Output Type
+    </h3>
+    <div class="paragraph">
+     <p>
+      Binary
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="throws-6">
+     <a class="anchor" href="#throws-6">
+     </a>
+     Throws
+    </h3>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        <code>
+         CRYPTO:MISSING_KEY
+        </code>
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         CRYPTO:KEY
+        </code>
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         CRYPTO:PASSPHRASE
+        </code>
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         CRYPTO:SIGNATURE
+        </code>
+       </p>
+      </li>
+     </ul>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="pgpValidate">
+   <a class="anchor" href="#pgpValidate">
+   </a>
+   Pgp Validate Operation
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     <code>
+      &lt;crypto:pgp-validate&gt;
+     </code>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Validate a PGP signature against a stream, to authenticate it. The validation is done with the public key of the sender, so the secret passphrase is not required.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="parameters-8">
+     <a class="anchor" href="#parameters-8">
+     </a>
+     Parameters
+    </h3>
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col style="width: 20%;"/>
+      <col style="width: 20%;"/>
+      <col style="width: 35%;"/>
+      <col style="width: 20%;"/>
+      <col style="width: 5%;"/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-middle">
+        Name
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Type
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Description
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Default Value
+       </th>
+       <th class="tableblock halign-center valign-middle">
+        Required
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Configuration
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         String
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         The name of the configuration to use.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+         <strong>
+          x
+         </strong>
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Value
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Binary
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         the message to authenticate
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         <code>
+          #[payload]
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Expected
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Binary
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         the signature
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+         <strong>
+          x
+         </strong>
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+   <div class="sect2">
+    <h3 id="throws-7">
+     <a class="anchor" href="#throws-7">
+     </a>
+     Throws
+    </h3>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        <code>
+         CRYPTO:MISSING_KEY
+        </code>
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         CRYPTO:VALIDATION
+        </code>
+       </p>
+      </li>
+     </ul>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="pgpBinaryToArmored">
+   <a class="anchor" href="#pgpBinaryToArmored">
+   </a>
+   Pgp Binary To Armored Operation
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     <code>
+      &lt;crypto:pgp-binary-to-armored&gt;
+     </code>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Converts an encrypted PGP message or a PGP signature to an ASCII armored representation, suitable for plain text channels.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="parameters-9">
+     <a class="anchor" href="#parameters-9">
+     </a>
+     Parameters
+    </h3>
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col style="width: 20%;"/>
+      <col style="width: 20%;"/>
+      <col style="width: 35%;"/>
+      <col style="width: 20%;"/>
+      <col style="width: 5%;"/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-middle">
+        Name
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Type
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Description
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Default Value
+       </th>
+       <th class="tableblock halign-center valign-middle">
+        Required
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Content
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Binary
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         the content to convert
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         <code>
+          #[payload]
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Streaming Strategy
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             <a href="#repeatable-in-memory-stream">
+              Repeatable In Memory Stream
+             </a>
+            </p>
+           </li>
+           <li>
+            <p>
+             <a href="#repeatable-file-store-stream">
+              Repeatable File Store Stream
+             </a>
+            </p>
+           </li>
+           <li>
+            <p>
+             non-repeatable-stream
+            </p>
+           </li>
+          </ul>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Configure if repeatable streams should be used and their behavior
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Target Variable
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           String
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         The name of a variable on which the operation's output will be placed
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Target Value
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           String
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         An expression that will be evaluated against the operation's output and the outcome of that expression will be stored in the target variable
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         <code>
+          #[payload]
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-center valign-middle">
+        <p class="tableblock">
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+   <div class="sect2">
+    <h3 id="output-type-7">
+     <a class="anchor" href="#output-type-7">
+     </a>
+     Output Type
+    </h3>
+    <div class="paragraph">
+     <p>
+      Binary
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="throws-8">
+     <a class="anchor" href="#throws-8">
+     </a>
+     Throws
+    </h3>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        <code>
+         CRYPTO:PARAMETERS
+        </code>
+       </p>
+      </li>
+     </ul>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="types">
+   <a class="anchor" href="#types">
+   </a>
+   Types
+  </h2>
+  <div class="sectionbody">
+   <div class="sect2">
+    <h3 id="ExpirationPolicy">
+     <a class="anchor" href="#ExpirationPolicy">
+     </a>
+     Expiration Policy
+    </h3>
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col style="width: 20%;"/>
+      <col style="width: 25%;"/>
+      <col style="width: 30%;"/>
+      <col style="width: 15%;"/>
+      <col style="width: 10%;"/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-middle">
+        Field
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Type
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Description
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Default Value
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Required
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Max Idle Time
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Number
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         A scalar time value for the maximum amount of time a dynamic configuration instance should be allowed to be idle before it’s considered eligible for expiration
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Time Unit
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Enumeration, one of:
+          </p>
+         </div>
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             <code>
+              NANOSECONDS
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              MICROSECONDS
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              MILLISECONDS
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              SECONDS
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              MINUTES
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              HOURS
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              DAYS
+             </code>
+            </p>
+           </li>
+          </ul>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         A time unit that qualifies the maxIdleTime attribute
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+   <div class="sect2">
+    <h3 id="repeatable-in-memory-stream">
+     <a class="anchor" href="#repeatable-in-memory-stream">
+     </a>
+     Repeatable In Memory Stream
+    </h3>
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col style="width: 20%;"/>
+      <col style="width: 25%;"/>
+      <col style="width: 30%;"/>
+      <col style="width: 15%;"/>
+      <col style="width: 10%;"/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-middle">
+        Field
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Type
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Description
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Default Value
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Required
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Initial Buffer Size
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Number
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         This is the amount of memory that will be allocated in order to consume the stream and provide random access to it. If the stream contains more data than can be fit into this buffer, then it will be expanded by according to the
+         <code>
+          bufferSizeIncrement
+         </code>
+         attribute, with an upper limit of
+         <code>
+          maxInMemorySize
+         </code>
+         .
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Buffer Size Increment
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Number
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         This is by how much will be buffer size by expanded if it exceeds its initial size. Setting a value of zero or lower will mean that the buffer should not expand, meaning that a
+         <code>
+          STREAM_MAXIMUM_SIZE_EXCEEDED
+         </code>
+         error will be raised when the buffer gets full.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Max Buffer Size
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Number
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         This is the maximum amount of memory that will be used. If more than that is used then a
+         <code>
+          STREAM_MAXIMUM_SIZE_EXCEEDED
+         </code>
+         error will be raised. A value lower or equal to zero means no limit.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Buffer Unit
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Enumeration, one of:
+          </p>
+         </div>
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             <code>
+              BYTE
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              KB
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              MB
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              GB
+             </code>
+            </p>
+           </li>
+          </ul>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         The unit in which all these attributes are expressed
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+   <div class="sect2">
+    <h3 id="repeatable-file-store-stream">
+     <a class="anchor" href="#repeatable-file-store-stream">
+     </a>
+     Repeatable File Store Stream
+    </h3>
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col style="width: 20%;"/>
+      <col style="width: 25%;"/>
+      <col style="width: 30%;"/>
+      <col style="width: 15%;"/>
+      <col style="width: 10%;"/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-middle">
+        Field
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Type
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Description
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Default Value
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Required
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Max In Memory Size
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Number
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Defines the maximum memory that the stream should use to keep data in memory. If more than that is consumed then it will start to buffer the content on disk.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Buffer Unit
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Enumeration, one of:
+          </p>
+         </div>
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             <code>
+              BYTE
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              KB
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              MB
+             </code>
+            </p>
+           </li>
+           <li>
+            <p>
+             <code>
+              GB
+             </code>
+            </p>
+           </li>
+          </ul>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         The unit in which maxInMemorySize is expressed
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+   <div class="sect2">
+    <h3 id="PgpAsymmetricKeyInfo">
+     <a class="anchor" href="#PgpAsymmetricKeyInfo">
+     </a>
+     Pgp Asymmetric Key Info
+    </h3>
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col style="width: 20%;"/>
+      <col style="width: 25%;"/>
+      <col style="width: 30%;"/>
+      <col style="width: 15%;"/>
+      <col style="width: 10%;"/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-middle">
+        Field
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Type
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Description
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Default Value
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Required
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Key Id
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           String
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Internal key ID for referencing from operations.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         x
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Key Pair Identifier
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <a href="#PgpAsymmetricKeyIdentifier">
+            PGP Asymmetric Key Identifier
+           </a>
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         A way to identify the key inside the keystore.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         x
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Passphrase
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           String
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         The password for unlocking the secret part of the key.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+   <div class="sect2">
+    <h3 id="PgpAsymmetricKeyIdentifier">
+     <a class="anchor" href="#PgpAsymmetricKeyIdentifier">
+     </a>
+     PGP Asymmetric Key Identifier
+    </h3>
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col style="width: 20%;"/>
+      <col style="width: 25%;"/>
+      <col style="width: 30%;"/>
+      <col style="width: 15%;"/>
+      <col style="width: 10%;"/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-middle">
+        Field
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Type
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Description
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Default Value
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Required
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Fingerprint
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           String
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         The Fingerprint of the configured key
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Principal
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           String
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         A combination of name and email specified while generating the key. When you use this field, you use the primary key.
+Do not use this field when you are using keys with different algorithms to sign and encrypt (for example, DSA and Elgamal); specify the proper key by using the
+         <code>
+          fingerprint
+         </code>
+         property instead.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+   <div class="sect2">
+    <h3 id="PgpKeySelection">
+     <a class="anchor" href="#PgpKeySelection">
+     </a>
+     PGP Key Selection
+    </h3>
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col style="width: 20%;"/>
+      <col style="width: 25%;"/>
+      <col style="width: 30%;"/>
+      <col style="width: 15%;"/>
+      <col style="width: 10%;"/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-middle">
+        Field
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Type
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Description
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Default Value
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Required
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Key is
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           String
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Internal key ID for referencing from operations
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         Pgp Key info
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           One of:
+          </p>
+         </div>
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             <a href="#PgpAsymmetricKeyInfo">
+              Pgp Asymmetric Key Info
+             </a>
+            </p>
+           </li>
+          </ul>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <p class="tableblock">
+         An inline key definition.
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+       <td class="tableblock halign-left valign-middle">
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+  </div>
+ </div>
+</article>

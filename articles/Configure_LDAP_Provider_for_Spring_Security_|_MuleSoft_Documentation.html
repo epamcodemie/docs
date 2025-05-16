@@ -1,0 +1,277 @@
+<article class="doc">
+ <h1 class="page">
+  Configure LDAP Provider for Spring Security
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In Mule 4, you can either use a Spring Security LDAP provider to perform component authorization, or use it as a Mule security provider via the Spring module. Before you configure the LDAP provider, obtain the Spring JAR files and declare Spring beans.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="obtain-jar-files">
+   <a class="anchor" href="#obtain-jar-files">
+   </a>
+   Obtain JAR Files
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The Mule software distribution provides the Spring JAR files you need in the
+     <code>
+      &lt;distribution&gt;/lib/opt
+     </code>
+     directory:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <code>
+        spring-ldap-core-2.3.2.RELEASE.jar
+       </code>
+      </p>
+     </li>
+     <li>
+      <p>
+       <code>
+        spring-security-config-4.2.6.RELEASE.jar
+       </code>
+      </p>
+     </li>
+     <li>
+      <p>
+       <code>
+        spring-security-core-4.2.6.RELEASE.jar
+       </code>
+      </p>
+     </li>
+     <li>
+      <p>
+       <code>
+        spring-security-ldap-4.2.6.RELEASE.jar
+       </code>
+      </p>
+     </li>
+     <li>
+      <p>
+       <code>
+        spring-security-web-4.2.6.RELEASE.jar
+       </code>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="declare-spring-beans">
+   <a class="anchor" href="#declare-spring-beans">
+   </a>
+   Declare Spring Beans
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The
+     <a href="https://docs.spring.io/spring-security/site/docs/4.0.x/apidocs/org/springframework/security/ldap/DefaultSpringSecurityContextSource.html">
+      DefaultSpringSecurityContextSource
+     </a>
+     class is the access point for obtaining an LDAP context.
+     <br/>
+     You must declare the Spring bean for
+     <code>
+      DefaultSpringSecurityContextSource
+     </code>
+     in a separate
+     <code>
+      beans.xml
+     </code>
+     file in your resources folder.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     For example, you must set up an LDAP context source for use by the Spring Security authentication provider to search and authenticate your users. Also, you need to define an
+     <code>
+      authentication-manager
+     </code>
+     interface with an embedded
+     <code>
+      ldap-authentication-provider
+     </code>
+     class as in the following code sample:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">	&lt;beans xmlns="http://www.springframework.org/schema/beans"
+	  xmlns:context="http://www.springframework.org/schema/context"
+	  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	  xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	  xmlns:ss="http://www.springframework.org/schema/security"
+	  xsi:schemaLocation="http://www.springframework.org/schema/beans
+	  ...
+	  http://www.springframework.org/schema/security/spring-security-4.2.xsd"&gt;
+
+		&lt;bean id="ldapContextSource" class="org.springframework.security.ldap.DefaultSpringSecurityContextSource"&gt;
+	        &lt;constructor-arg value="ldap://localhost:389"/&gt;
+	        &lt;property name="userDn" value="cn=admin,dc=example,dc=org"/&gt;
+	        &lt;property name="password" value="admin"/&gt;
+	    &lt;/bean&gt;
+
+	    &lt;ss:authentication-manager alias="ldapAuthManager"&gt;
+			&lt;ss:ldap-authentication-provider
+				server-ref="ldapContextSource"
+				user-search-base="DC=example,DC=org"
+				user-search-filter="(uid={0})"
+				group-search-base="DC=example,DC=org"
+				group-search-filter="({0})"
+				group-role-attribute="ou"
+			/&gt;
+	    &lt;/ss:authentication-manager&gt;
+
+	&lt;/beans&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="configure-the-mule-security-provider">
+   <a class="anchor" href="#configure-the-mule-security-provider">
+   </a>
+   Configure the Mule Security Provider
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The
+     <code>
+      SpringSecurityProviderAdapter
+     </code>
+     delegates to an
+     <code>
+      AuthenticationProvider
+     </code>
+     such as the
+     <code>
+      LdapAuthenticationProvider
+     </code>
+     . To configure the Mule security provider review the following example configuration that shows how you can achieve in Mule connector-level security and other security features that require one or more security providers.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">	&lt;spring:config name="Spring_Config" files="beans.xml" /&gt;
+
+	&lt;spring:security-manager&gt;
+ 		&lt;spring:delegate-security-provider name="ldap-provider" delegate-ref="ldapAuthManager" /&gt;
+	&lt;/spring:security-manager&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The following example configuration references a basic HTTP security filter:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">	&lt;http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config"&gt;
+		&lt;http:listener-connection host="0.0.0.0" port="8081" /&gt;
+	&lt;/http:listener-config&gt;
+
+	&lt;spring:config name="Spring_Config"  files="beans.xml" /&gt;
+
+	&lt;spring:security-manager&gt;
+		&lt;spring:delegate-security-provider name="ldap-provider" delegate-ref="ldapAuthManager" /&gt;
+	&lt;/spring:security-manager&gt;
+
+	&lt;flow name="secureFlow"&gt;
+		&lt;http:listener doc:name="Listener" config-ref="HTTP_Listener_config" path="/test" /&gt;
+
+		&lt;http:basic-security-filter doc:name="Basic security filter" securityProviders="#[['ldap-provider']]" realm="mule-realm"/&gt;
+
+		&lt;ee:transform doc:name="Transform Message"&gt;
+			&lt;ee:message&gt;
+				&lt;ee:set-payload&gt;&lt;![CDATA[%dw 2.0
+					output application/json
+					---
+					{
+						"status": "ok"
+					}]]&gt;&lt;/ee:set-payload&gt;
+			&lt;/ee:message&gt;
+		&lt;/ee:transform&gt;
+	&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="configure-the-component-authorization">
+   <a class="anchor" href="#configure-the-component-authorization">
+   </a>
+   Configure the Component Authorization
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To configure the component authorization, declare the
+     <code>
+      authorization-filter
+     </code>
+     field as follows:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">	&lt;spring:authorization-filter requiredAuthorities="ROLE_TESTERS" /&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../spring-module/latest/">
+        Spring Module
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="component-authorization-using-spring-security">
+        Component Authorization Using Spring Security
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="https://docs.spring.io/spring-security/site/docs/3.1.x/reference/ldap.html">
+        LDAP Spring Security
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="https://docs.spring.io/spring-security/site/docs/4.0.1.RELEASE/reference/html/">
+        Spring Security Reference
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

@@ -1,0 +1,316 @@
+<article class="doc">
+ <h1 class="page">
+  On-Premises Deployment Model
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Mule application deployment consists of two main aspects:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       The Mule runtime engine instance
+      </p>
+     </li>
+     <li>
+      <p>
+       The Mule applications deployed to that Mule instance
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     When you deploy applications to CloudHub or to Anypoint Runtime Fabric, these services take care of the Mule runtime engine instances needed to run applications.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     When you deploy applications on-premises, you are responsible for the installation and configuration of the Mule runtime engine instances that run your Mule applications. Because you have complete control of the on-premise instance (unlike with CloudHub or Runtime Fabric deployments), you must understand the characteristics specific to on-premises deployments.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="running-multiple-applications-in-one-mule-instance">
+   <a class="anchor" href="#running-multiple-applications-in-one-mule-instance">
+   </a>
+   Running Multiple Applications in One Mule Instance
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     One instance of Mule runtime engine can run multiple applications, enabling you to include the same namespaces within different applications that neither collide nor share information, which provides additional advantages such as:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       You can break down a complex application into several Mule apps with their specific logic, and then deploy those several Mule apps in one Mule instance.
+      </p>
+     </li>
+     <li>
+      <p>
+       You can share configurations across multiple applications by using domains.
+      </p>
+     </li>
+     <li>
+      <p>
+       Applications can depend on different library versions.
+      </p>
+     </li>
+     <li>
+      <p>
+       Multiple versions of an application can run within the same Mule instance.
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="application-package-and-deployment">
+   <a class="anchor" href="#application-package-and-deployment">
+   </a>
+   Application Package and Deployment
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Mule runtime engine unpacks all applications at runtime, removes the original
+     <code>
+      .jar
+     </code>
+     files inside the
+     <code>
+      /apps
+     </code>
+     directory, creates a new folder for each application, and names each folder with the same name as the application file (minus the
+     <code>
+      .jar
+     </code>
+     extension).
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     To confirm successful deployment, verify the following:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       The status of the application in the console is
+       <code>
+        DEPLOYED
+       </code>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       An unpacked application folder exists in the
+       <code>
+        /apps
+       </code>
+       directory of your Mule instance: for example, for
+       <code>
+        stockTrader.jar
+       </code>
+       ,
+       <code>
+        $MULE_HOME/apps/stockTrader
+       </code>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       An anchor file exists for a running app: for example,
+       <code>
+        $MULE_HOME/apps/stockTrader-anchor.txt
+       </code>
+       .
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     If you want to store your applications in a different location, you can store them on Unix-based systems by creating a symlink to your application directory from
+     <code>
+      $MULE_HOME/apps
+     </code>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="application-and-domain-deployment">
+   <a class="anchor" href="#application-and-domain-deployment">
+   </a>
+   Application and Domain Deployment
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     All applications are deployed together within a
+     <em>
+      domain
+     </em>
+     . By default, your application references the
+     <code>
+      default
+     </code>
+     domain, and no further configuration is required. You can see that the domain is deployed with the Mule app in the console:
+    </p>
+   </div>
+   <div class="imageblock">
+    <div class="content">
+     <img alt="A domain with deployed applications and their status" src="_images/deploy-domain.png"/>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     If you’re deploying multiple applications to the same Mule instance, and the applications must share the same resources, you can create a common
+     <em>
+      domain
+     </em>
+     to define configurations that can be referenced by multiple projects. This practice enables you to expose different services in different projects through the same HTTP host and port without causing conflicts.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="application-hot-deployment">
+   <a class="anchor" href="#application-hot-deployment">
+   </a>
+   Application Hot Deployment
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You can modify your Mule application’s configuration files and custom classes and reload the app without having to restart Mule. The system property
+     <code>
+      mule.deployment.forceParseConfigXmls
+     </code>
+     must be set to
+     <code>
+      true
+     </code>
+     to pull the changes from the Mule application’s configuration files. Note that if you modify your Mule application’s configuration files to force a redeploy, the validations that happen when the application is packaged aren’t executed.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Every three seconds, Mule checks for updated configuration files in the
+     <code>
+      $MULE_HOME/apps
+     </code>
+     directory and, when it finds one, Mule reloads the configuration file and the JAR files in that application’s
+     <code>
+      java
+     </code>
+     source directory.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     If you start Mule and specify an app using the
+     <code>
+      mule.deploy.applications
+     </code>
+     property, the hot deployment process works only for the specified app.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     To reload an application, you can:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <code>
+        touch
+       </code>
+       the anchor file of that application.
+      </p>
+     </li>
+     <li>
+      <p>
+       <code>
+        touch
+       </code>
+       or update any of the Mule configuration files declared in the
+       <code>
+        mule-artifact.json
+       </code>
+       file.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     For example, if you want to modify one of your custom classes, make your changes to the custom class, copy the updated class to the java directory, and then
+     <code>
+      touch
+     </code>
+     the anchor file.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="communication-between-mule-instances-and-the-management-plane">
+   <a class="anchor" href="#communication-between-mule-instances-and-the-management-plane">
+   </a>
+   Communication Between Mule Instances and the Management Plane
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Mule instances run independently from the Management pane to execute integration logic and serve API requests. This architecture enables you to deploy Mule runtime engine strategically and ensures that it is not a bottleneck to communications.
+     <br/>
+     When an event occurs that causes the Mule instances to become disconnected from the Management pane, the instances continue to run as designed to execute integration and serve APIs without interruption. However, new or updated policies are not pulled and updated until the connection is reestablished.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="shared-resources">
+        Shared Resources
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="mule-standalone">
+        Run Mule Runtime Engine On-Premises
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

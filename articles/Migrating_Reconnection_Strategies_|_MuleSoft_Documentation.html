@@ -1,0 +1,168 @@
+<article class="doc">
+ <h1 class="page">
+  Migrating Reconnection Strategies
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     From a syntax point of view, reconnection hasn’t changed much between Mule 3 and Mule 4. However, there are significant behavior differences.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     In Mule 3, reconnection strategies were specified on each connector’s config element. These strategies had two purposes:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       To reconnect when a running application loses connection to an endpoint
+      </p>
+     </li>
+     <li>
+      <p>
+       To validate all connections when the application is being deployed.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     So, suppose an application which connects to a mysql Database. If that connection cannot be established at deployment time, the deployment will fail. This was to guarantee that all deployed apps are in a functioning state.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Examples: Reconnection Settings (for a MySQL database)
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;db:mysql-config ...&gt;
+  &lt;reconnect frequency="4000" count="4"/&gt;`
+&lt;/db:mysql-config&gt;
+
+&lt;db:mysql-config ...&gt;
+  &lt;reconnect-forever frequency="4000"/&gt;`
+&lt;/db:mysql-config&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     However, there are use cases in which you don’t necessarily want the deployment to fail if connectivity fails. For example, your application might have a flow that reaches an external SFTP server only once a day at 3:00 AM. If the app is being deployed at 8:00 AM, there’s no reason for the deployment to fail if the SFTP server is down. You still have all day to make sure the server is up when it’s actually needed.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     To achieve this with Mule 3, you had to use the
+     <code>
+      blocking="false"
+     </code>
+     option, so that reconnection happens asynchronously and deployment is not aborted.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Examples: Asynchronous reconnection Settings (for a MySQL database)
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;db:mysql-config ...&gt;
+  &lt;reconnect frequency="4000" count="4" blocking="false"/&gt;`
+&lt;/db:mysql-config&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     In Mule 4 you can simply specify if deployment should fail or not if connectivity testing fails:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Examples: Reconnection Settings (for a SQL database)
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;!-- fail deployment is connection cannot be established --&gt;
+&lt;db:mssql-connection ...&gt;
+  &lt;reconnection failsDeployment="true"&gt;
+    &lt;reconnect frequency="4000" count="4"/&gt;
+  &lt;/reconnection&gt;
+&lt;/db:mssql-connection&gt;
+
+&lt;!-- don't fail deployment is connection cannot be established --&gt;
+&lt;db:mssql-connection ...&gt;
+  &lt;reconnection &gt;
+    &lt;reconnect-forever frequency="4000" /&gt;
+  &lt;/reconnection&gt;
+&lt;/db:mssql-connection&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     By default, a failure to establish connection will only generate a warning in the logs.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="operation-level-reconnection-strategy">
+   <a class="anchor" href="#operation-level-reconnection-strategy">
+   </a>
+   Operation level reconnection strategy
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In Mule 3, the same reconnection strategy at the config element was used both at deployment time and at runtime. For example, if connectivity to the Database is lost which executing a flow, the same reconnection strategy will be used.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     In Mule 4 this behavior is kept by default, but you also get the chance to specify a different strategy at the operation or event source level:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Examples: Reconnection Settings (for an HTTP request)
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="reconnectionDemo"&gt;
+  &lt;http:listener path="test" config-ref="httpListener"&gt;
+    &lt;reconnect count="1" frequency="5000"/&gt;
+    &lt;http:response&gt;
+      &lt;http:body&gt;#[{'my': 'map'}]&lt;/http:body&gt;
+      &lt;http:headers&gt;
+          #[{{'content-type' : 'text/plain'}}]
+      &lt;/http:headers&gt;
+    &lt;/http:response&gt;
+  &lt;/http:listener&gt;
+
+  &lt;http:request path="unreliable/endpoint" config-ref="httpRequester" method="GET"&gt;
+    &lt;reconnect count="1" frequency="1000"/&gt;
+  &lt;/http:request&gt;
+
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="migration-connectors">
+        Migrating Connectors
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

@@ -1,0 +1,496 @@
+<article class="doc">
+ <h1 class="page">
+  Migrating the File Connector
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The File transport was completely rewritten. It evolved away from the Mule 3 transport model into an operation based connector. This enables many new capabilities:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       The ability to read files or fully list directory contents on demand, unlike the old transport, which only provided a polling inbound endpoint.
+      </p>
+     </li>
+     <li>
+      <p>
+       Top-level support for common file system operations such as copying, moving, renaming, deleting, creating directories, and more.
+      </p>
+     </li>
+     <li>
+      <p>
+       Support for locking files at the file system level.
+      </p>
+     </li>
+     <li>
+      <p>
+       Advanced file matching functionality.
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="whats_covered_here">
+   <a class="anchor" href="#whats_covered_here">
+   </a>
+   What’s Covered Here?
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a href="#file_configs">
+        Migrating File Connector Configurations
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#file_config_refs">
+        Referencing File Connection Configurations
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#file_listener">
+        Migrating an inbound endpoint
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#file_write">
+        Migrating an outbound endpoint
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="file_configs">
+   <a class="anchor" href="#file_configs">
+   </a>
+   Migrating File Connector Configurations
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In Mule 3, all transport configurations are set under a top-level element called
+     <code>
+      &lt;file:connector /&gt;
+     </code>
+     , and by default, the File connector sets auto-deletion, streaming, and validation of the connections to
+     <code>
+      true
+     </code>
+     .
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Example: Default File Configuration
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;file:connector name="file_config_default"
+ autoDelete="true"
+ streaming="true"
+ validateConnections="true" /&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The connector configuration also provides settings for reading, writing, and moving files, among many others. The next example shows most of the Mule 3 setting available to the File connector.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Example: Available File Connection Settings
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;file:connector name="file_config_most_settings"
+ outputPattern="FileNamePattern"
+ writeToDirectory="WriteToDirectory"
+ readFromDirectory="ReadFromDirectory"
+ workDirectory="WorkDirectory"
+ workFileNamePattern="WorkFileNamePattern"
+ autoDelete="true"
+ outputAppend="true"
+ streaming="true"
+ dispatcherPoolFactory-ref="MyBean"
+ recursive="true"
+ dynamicNotification="true"
+ validateConnections="true"
+ serialiseObjects="true"
+ pollingFrequency="4000" fileAge="800"
+ moveToPattern="MoveToPattern"
+ moveToDirectory="MoveToDirectory"
+ doc:name="File" doc:description="Notes"&gt;
+  &lt;file:expression-filename-parser/&gt;
+  &lt;spring:property name="Name" value="Value"/&gt;
+&lt;/file:connector&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     In Mule 4,
+     <code>
+      &lt;file:config /&gt;
+     </code>
+     is the top-level element for the file connection configuration, and
+     <code>
+      &lt;file:connection /&gt;
+     </code>
+     is a child element for connection-related settings.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Examples
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;file:config name="file_config" defaultWriteEncoding="UTF-8"&gt;
+  &lt;file:connection workingDir="/Users/me/path/to/files" /&gt;
+&lt;/file:config&gt;</code></pre>
+    </div>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <code>
+        workingDir
+       </code>
+       allows to specify a path to which all other paths are relative to. If not specified, the user’s home directory will be used. Note that in Mule 3,
+       <code>
+        workDirectory
+       </code>
+       is a similarly named attribute, but
+       <code>
+        workDirectory
+       </code>
+       is used when moving input files before processing them.)
+      </p>
+     </li>
+     <li>
+      <p>
+       <code>
+        defaultWriteEncoding
+       </code>
+       identifies the character encoding to use for writing. You can overwrite this global configuration with a File operation, such as Write.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     All other Mule 3 config parameters are no longer needed since they were either replaced by parameters in the new connector’s operations or they were render needless by the new connector model.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="file_config_refs">
+   <a class="anchor" href="#file_config_refs">
+   </a>
+   Referencing File Connection Configurations
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In Mule 3, all operations are set as inbound or outbound endpoints that use
+     <code>
+      connector-ref
+     </code>
+     to point to a name File connector configuration.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Example: File Connection as Inbound Endpoint
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;file:inbound-endpoint path="/tmp/input"
+  connector-ref="file_config"
+  responseTimeout="10000" ... /&gt;</code></pre>
+    </div>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Example: File Connection as Outbound Endpoint
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;file:outbound-endpoint path="/tmp/output" connector-ref="file_config" responseTimeout="10000" /&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="file_listener">
+   <a class="anchor" href="#file_listener">
+   </a>
+   Migrating an inbound endpoint
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In Mule 3, a
+     <code>
+      &lt;file:inbound-endpoint&gt;
+     </code>
+     message source was used to poll a directory for files. For each file found, a new message was triggered. The message would hold the file’s content in the payload and a number of file attributes as system properties. To avoid picking the same files over and over,
+     <code>
+      autoDelete
+     </code>
+     and
+     <code>
+      moveTo
+     </code>
+     parameters were provided so that the files would leave the polled directory after being picked.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Mule 4 offers an improved way of doing that. The
+     <code>
+      &lt;file:listener&gt;
+     </code>
+     component (called
+     <code>
+      On New File
+     </code>
+     in the Studio palette) polls a directory and triggers a new message just like its predecessor did. However, it has the following added capabilities:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       You can use a
+       <code>
+        &lt;file:matcher&gt;
+       </code>
+       to only accept files that match certain criteria.
+      </p>
+     </li>
+     <li>
+      <p>
+       The listening
+       <code>
+        directory
+       </code>
+       has to be created before the app starts, or a reconnection strategy must be configured. In Mule 3.x, the directory was created if it did not exist when the app started.
+      </p>
+     </li>
+     <li>
+      <p>
+       You are no longer forced to either delete or move the file, although the option to do that is still available.
+      </p>
+     </li>
+     <li>
+      <p>
+       In 3.x, deleting or moving the input file did not take place if an error occurred and a transaction was rolled back, but it was done if there was no transaction. In Mule 4, an error prevents the deletion or move operation from occurring regardless of whether there is a transaction or not.
+      </p>
+     </li>
+     <li>
+      <p>
+       You can use any of the connector’s operations to change processed files in such a way that they no longer meet the matching criteria.
+      </p>
+     </li>
+     <li>
+      <p>
+       Watermark is automatically supported, allowing you to optionally filter automatically by creation or modification timestamp.
+      </p>
+     </li>
+     <li>
+      <p>
+       Mule 3 used the canonical path of the read file to add its metadata into the message inbound properties. Mule 4 uses the absolute path.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Example: Inbound endpoint
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="listener"&gt;
+  &lt;file:inbound-endpoint path="${workingDirectory}/test-data/in" autoDelete="true"
+    pollingFrequency="1000"/&gt;
+
+  &lt;flow-ref name="processFile" /&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Example: On New File
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;file:config name="file"&gt;
+  &lt;file:connection workingDir="${workingDir}"/&gt;
+&lt;/file:config&gt;
+
+&lt;flow name="onNewFile"&gt;
+    &lt;file:listener config-ref="file" directory="test-data/in" autoDelete="true"&gt;
+      &lt;scheduling-strategy&gt;
+        &lt;fixed-frequency frequency="1000"/&gt;
+      &lt;/scheduling-strategy&gt;
+    &lt;/file:listener&gt;
+
+    &lt;flow-ref name="processFile" /&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="file_write">
+   <a class="anchor" href="#file_write">
+   </a>
+   Migrating an outbound endpoint
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The Mule 3 transport uses the
+     <code>
+      &lt;file:outbound-endpoint&gt;
+     </code>
+     component to write the current payload to a file. The Mule 4 connector uses the
+     <code>
+      &lt;file:write&gt;
+     </code>
+     operation instead.
+The most important differences are:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       The
+       <code>
+        &lt;file:outbound-endpoint&gt;
+       </code>
+       component was asynchronous, which means that the actual writing happened in the background, while the next message processor in the flow was concurrently executed. The
+       <code>
+        &lt;file:write&gt;
+       </code>
+       operation in the other hand, is synchronous, which means that the next message processor will not be executed until this one finishes. If you want the asynchronous behavior, just wrap the
+       <code>
+        &lt;file:write&gt;
+       </code>
+       operation in an
+       <code>
+        &lt;async&gt;
+       </code>
+       block
+      </p>
+     </li>
+     <li>
+      <p>
+       The
+       <code>
+        &lt;file:outbound-endpoint&gt;
+       </code>
+       required the content to be written to be in the message payload at the moment of executing. The
+       <code>
+        &lt;file:write&gt;
+       </code>
+       operation allows embedding a DataWeave transformation which generates the content to be written.
+      </p>
+     </li>
+     <li>
+      <p>
+       The Mule 3 transport has the
+       <code>
+        outputAppend
+       </code>
+       parameter set at the config level, while the
+       <code>
+        &lt;file:write&gt;
+       </code>
+       operation has a mode parameter
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Example: Outbound endpoint
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;file:connector name="file" outputAppend="true" /&gt;
+
+&lt;flow name="greetings"&gt;
+  &lt;http:listener path="greet" method="POST"/&gt;
+  &lt;set-payload value="Hello #[payload.name]" /&gt;
+  &lt;file:outbound-endpoint path="greet.txt" connector-ref="file" /&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Example: Write Operation
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="greetings"&gt;
+  &lt;http:listener path="greet" method="POST"/&gt;
+  &lt;file:write path="greet.txt" mode="APPEND"&gt;
+    &lt;file:content&gt;#['Hello $(payload.name)']&lt;/file:content&gt;
+  &lt;/file:write&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     To use the File connector, simply add it to your application using the Studio palette or add the following dependency in your
+     <code>
+      pom.xml
+     </code>
+     file:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.mule.connectors&lt;/groupId&gt;
+    &lt;artifactId&gt;mule-file-connector&lt;/artifactId&gt;
+    &lt;version&gt;1.1.0&lt;/version&gt; &lt;!-- or newer --&gt;
+    &lt;classifier&gt;mule-plugin&lt;/classifier&gt;
+&lt;/dependency&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../file-connector/latest/">
+        File Connector Documentation
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

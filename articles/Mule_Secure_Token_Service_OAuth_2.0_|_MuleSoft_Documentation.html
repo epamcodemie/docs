@@ -1,0 +1,69 @@
+<article class="doc">
+ <h1 class="page">
+  Mule Secure Token Service OAuth 2.0
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The Mule runtime engine supports the OAuth 2.0 protocol. The way to configure OAuth 2.0 authorization differs, depending on the OAuth role and your objective:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Configure authentication in your client Mule app when sending requests to a service that requires authentication, such as the Github OAuth2 server. Use the
+       <a class="xref page" href="../../oauth-module/latest/oauth-module-reference">
+        OAuth Module
+       </a>
+       for the OAuth2 configuration.
+      </p>
+     </li>
+     <li>
+      <p>
+       Use the
+       <a class="xref page" href="../../oauth2-provider-module/latest/oauth2-provider-module-reference">
+        Mule OAuth2 Provider Connector
+       </a>
+       to create a Mule application that grants and validates the tokens needed to access a protected resource.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     To protect your API or app from receiving unauthorized requests, use an API Manager policy, such as the
+     <code>
+      OAuth 2.0 Access Token Enforcement Using External Provider
+     </code>
+     policy. To expose a web service protected by OAuth 2.0 security, see the
+     <a class="xref page" href="../../api-manager/latest/mule-oauth-provider-landing-page">
+      API Manager documentation
+     </a>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="authorization-grant-types">
+        OAuth Authorization Grant Types
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

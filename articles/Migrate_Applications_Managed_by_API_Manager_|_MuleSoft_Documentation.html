@@ -1,0 +1,522 @@
+<article class="doc">
+ <h1 class="page">
+  Migrate Applications Managed by API Manager
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You migrate your existing Mule 3 applications that are managed by API Manager to Mule 4 using the following steps:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       <a href="#prepare-migration">
+        Prepare for your migration
+       </a>
+      </p>
+      <div class="paragraph">
+       <p>
+        Based on how your existing Mule 3 application is configured, carefully review the prerequisites to prepare for your migration.
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       <a href="#determine-migration-approach">
+        Determine your migration approach
+       </a>
+      </p>
+      <div class="paragraph">
+       <p>
+        Based on several factors, such as whether the migration requires taking downtime, removing applied policies, migrating contracts, or creating an instance for the migration.
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       <a href="#perform-migration">
+        Perform the migration
+       </a>
+      </p>
+      <div class="paragraph">
+       <p>
+        Migrate your application.
+       </p>
+      </div>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="prepare-migration">
+   <a class="anchor" href="#prepare-migration">
+   </a>
+   Prepare to Migrate Your Mule 3 Applications
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Before you migrate your existing API-managed Mule 3 applications to Mule 4, carefully review the following guidelines and determine:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       How your Mule 3 application is managed: basic endpoint, integration application, or complex proxy
+      </p>
+      <div class="paragraph">
+       <p>
+        To migrate your application in this scenario, first
+        <a class="xref page" href="migration-api-gateways">
+         review how to migrate API gateways
+        </a>
+        to prepare, and then
+        <a class="xref page" href="migration-intro">
+         migrate to Mule 4
+        </a>
+        .
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       How your application is secured: default or custom policies
+      </p>
+      <div class="paragraph">
+       <p>
+        If you applied custom policies to your Mule 3 API, follow
+        <a class="xref page" href="migration-api-gateways-policies">
+         Migrating API Policies
+        </a>
+        . If you have applied an out-of-the-box proxy, you can recreate the proxy by using the API Manager UI.
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       Whether you have classified your API
+      </p>
+      <div class="paragraph">
+       <p>
+        If you have not classified your API, first
+        <a class="xref page" href="../../api-manager/latest/classify-api-task">
+         classify an API Instance into an Environment
+        </a>
+        .
+       </p>
+      </div>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="determine-migration-approach">
+   <a class="anchor" href="#determine-migration-approach">
+   </a>
+   Determine Your Migration Approach
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You migrate your API Manager-managed Mule 3 application by creating a new API instance. Before migrating to Mule 4, carefully consider the following factors to determine the approach that best suits your requirements:
+    </p>
+   </div>
+   <table class="tableblock frame-all grid-all fit-content spread">
+    <colgroup>
+     <col/>
+     <col/>
+    </colgroup>
+    <thead>
+     <tr>
+      <th class="tableblock halign-left valign-top">
+       Migration Factor
+      </th>
+      <th class="tableblock halign-left valign-top">
+       Create API Instance
+      </th>
+     </tr>
+    </thead>
+    <tbody>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Requires downtime
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          No
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Requires removing applied policies
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          No
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Requires migrating contracts
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Yes
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Provides API metrics continuity on API Instance
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          No
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+    </tbody>
+   </table>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="perform-migration">
+   <a class="anchor" href="#perform-migration">
+   </a>
+   Perform the Migration
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You can migrate your Mule 3 application using:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a href="#migrate-with-new-api">
+        A New API Instance
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="sect2">
+    <h3 id="migrate-with-new-api">
+     <a class="anchor" href="#migrate-with-new-api">
+     </a>
+     Migrate Using a New API Instance
+    </h3>
+    <div class="paragraph">
+     <p>
+      Use the high-level proposal illustrated in the following diagram to use a new API instance for configuring an independent Mule runtime instance on Mule 4:
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      <span class="image">
+       <img alt="A diagram showing migration from Mule 3 to Mule 4 with components like proxies and load balancers" src="_images/new-instance-migration-mule4.png"/>
+      </span>
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      If your Mule application is not a proxy, this same proposal applies to your migration procedure, without the backend component.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      To migrate your Mule 3 API to Mule 4 using a new API instance:
+     </p>
+    </div>
+    <div class="olist arabic">
+     <ol class="arabic">
+      <li>
+       <p>
+        From the
+        <strong>
+         API Administration
+        </strong>
+        page in API Manager, select
+        <strong>
+         Manage API
+        </strong>
+        &gt;
+        <strong>
+         Create new API
+        </strong>
+        .
+       </p>
+       <div class="paragraph">
+        <p>
+         Use an instance label to identify this new API instance.
+        </p>
+       </div>
+      </li>
+      <li>
+       <p>
+        On the
+        <strong>
+         Endpoint Configuration
+        </strong>
+        window, select
+        <code>
+         Mule 4
+        </code>
+        in
+        <strong>
+         Mule version
+        </strong>
+        and save.
+       </p>
+      </li>
+      <li>
+       <p>
+        From the left navigation pane in API Manager, apply alerts, SLA tiers, and policies to your API.
+       </p>
+      </li>
+      <li>
+       <p>
+        If your API uses contract-based policies, for example Client ID Enforcement policy,
+        <a href="#migrate-contracts">
+         migrate the contracts
+        </a>
+        of the API instance.
+       </p>
+      </li>
+      <li>
+       <p>
+        If you completed configuring your API, start your Mule 4 application and try sending it requests.
+       </p>
+      </li>
+      <li>
+       <p>
+        After successfully validating your application, undeploy your Mule 3 application.
+       </p>
+      </li>
+     </ol>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="migrate-contracts">
+     <a class="anchor" href="#migrate-contracts">
+     </a>
+     Migrate Contracts
+    </h3>
+    <div class="paragraph">
+     <p>
+      Before migrating your application by creating a new API instance, migrate existing API contracts to your new Mule 4 environment.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      <strong>
+       Task Prerequisite
+      </strong>
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      Before you migrate your contracts, ensure that you have the following roles:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        Organization Administrator of the root organization
+       </p>
+      </li>
+      <li>
+       <p>
+        Application Owner of every application that has a contract with the source API
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="paragraph">
+     <p>
+      To migrate contracts using the Anypoint Platform UI:
+     </p>
+    </div>
+    <div class="olist loweralpha">
+     <ol class="loweralpha" type="a">
+      <li>
+       <p>
+        Go to
+        <strong>
+         API Manager
+        </strong>
+        &gt;
+        <strong>
+         Client Applications
+        </strong>
+        and select the application.
+       </p>
+       <div class="paragraph">
+        <p>
+         Ensure that the
+         <code>
+          API
+         </code>
+         option is selected in the
+         <strong>
+          Contracts
+         </strong>
+         field.
+        </p>
+       </div>
+      </li>
+      <li>
+       <p>
+        On the right navigation, scroll down to the
+        <strong>
+         Owners
+        </strong>
+        field and add your name.
+       </p>
+      </li>
+      <li>
+       <p>
+        From
+        <strong>
+         Exchange
+        </strong>
+        , select your API instance and request access.
+       </p>
+      </li>
+      <li>
+       <p>
+        From
+        <strong>
+         API Manager
+        </strong>
+        , grant yourself the access.
+       </p>
+      </li>
+     </ol>
+    </div>
+    <div class="paragraph">
+     <p>
+      To automate the request approval process:
+     </p>
+    </div>
+    <div class="olist arabic">
+     <ol class="arabic">
+      <li>
+       <p>
+        Add owners for the application:
+       </p>
+       <div class="listingblock">
+        <div class="content">
+         <pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">curl 'https://anypoint.mulesoft.com/apiplatform/repository/v2/organizations/&lt;ROOT_ORG_ID&gt;/applications/&lt;CLIENT_APP_ID&gt;/owners' \
+  -H 'Content-Type: application/json;charset=UTF-8' \
+  -H 'Authorization: Bearer &lt;AUTH_TOKEN&gt;' \
+  --data-raw '{"id":"&lt;YOUR_USER_ID"}'</code></pre>
+        </div>
+       </div>
+      </li>
+      <li>
+       <p>
+        Request access to the API instance:
+       </p>
+       <div class="listingblock">
+        <div class="content">
+         <pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">curl 'https://anypoint.mulesoft.com/exchange/api/v2/organizations/&lt;ORG_ID&gt;/applications/&lt;CLIENT_APP_ID&gt;/contracts' \
+  -H 'authorization: bearer &lt;TOKEN&gt;' \
+  -H 'content-type: application/json' \
+  --data-raw '{"apiId":"&lt;API_INSTANCE_ID&gt;","environmentId":"&lt;ENVIRONMENT_ID&gt;","instanceType":"api","acceptedTerms":true,"organizationId":"&lt;ORG_ID&gt;","groupId":"&lt;GROUP_ID&gt;","assetId":"&lt;ASSET_ID&gt;","version":"&lt;ASSET_VERSION&gt;","versionGroup":"&lt;VERSION_GROUP&gt;"}'</code></pre>
+        </div>
+       </div>
+      </li>
+      <li>
+       <p>
+        Approve contracts:
+       </p>
+       <div class="listingblock">
+        <div class="content">
+         <pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">curl 'https://anypoint.mulesoft.com/apimanager/xapi/v1/organizations/&lt;ORGANIZATION_ID&gt;/environments/&lt;ENV_ID&gt;/apis/&lt;API_ID&gt;/contracts/&lt;CONTRACT_ID&gt;/approve' \
+  -H 'Authorization: Bearer &lt;TOKEN&gt;' \
+  -H 'Content-Type: application/json;charset=UTF-8' \
+  --data-raw '{}'</code></pre>
+        </div>
+       </div>
+      </li>
+     </ol>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="migrating-to-the-latest-mule-3-version">
+   <a class="anchor" href="#migrating-to-the-latest-mule-3-version">
+   </a>
+   Migrating to the Latest Mule 3 Version
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     If you are not ready to migrate to Mule 4 and you need to migrate to the latest version of Mule 3, see
+     <a class="xref page" href="../../release-notes/mule-runtime/updating-mule-versions">
+      Upgrading Mule Runtime Engine(Versions 3.x to 3.n)
+     </a>
+     .
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Carefully review the release notes for the Mule version to which you are migrating. When you start the new Mule runtime with the same application pointing to the same API instance, your existent API is instantly managed with the latest Mule 3.x version. You do not need to perform any additional steps in API Manager.
+    </p>
+   </div>
+  </div>
+ </div>
+</article>

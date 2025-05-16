@@ -1,0 +1,1883 @@
+<article class="doc">
+ <h1 class="page">
+  Mule Upgrade Tool
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The Mule upgrade tool is a command line utility for updating and upgrading standalone on-premise instances of Mule 4. Download the tool and integrate it with your existing automated processes and workflows by using scripts and cron jobs.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     If the Runtime Manager agent is installed in your current Mule instance, the upgrade tool also updates the agent version as part of the upgrade process.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Upgrading the Anypoint Monitoring agent isn’t supported. To proceed with an upgrade, you must first uninstall the agent, and reinstall it after the Mule instance upgrade is complete. See
+     <a class="xref page" href="../../monitoring/am-installing#update-the-anypoint-monitoring-agent">
+      Update the Anypoint Monitoring Agent
+     </a>
+     .
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The Mule upgrade tool supports upgrading clustered Mule instances by manually upgrading each node using the tool. For additional information on how to proceed with the upgrade, see
+     <a href="#upgrade_clustered_mule_instances">
+      Upgrading Clustered Mule Instances
+     </a>
+     . Though highly recommended, using the tool is not strictly necessary to upgrade your current Mule instance. For a completely manual upgrade, see
+     <a class="xref page" href="../../release-notes/mule-runtime/updating-mule-4-versions#mulerunvers">
+      Upgrading an On-Premises Mule Instance Managed Through Runtime Manager
+     </a>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="before-you-begin">
+   <a class="anchor" href="#before-you-begin">
+   </a>
+   Before You Begin
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Before starting your upgrade, ensure that you have:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../release-notes/mule-upgrade-tool/mule-upgrade-tool">
+        The latest available version of Mule upgrade tool
+       </a>
+       so that the tool runs with the latest fixes and security enhancements.
+      </p>
+      <div class="paragraph">
+       <p>
+        Download the Mule upgrade tool from the
+        <a href="https://help.mulesoft.com/s/" rel="noopener" target="_blank">
+         Help Center
+        </a>
+        .
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       A currently operational Mule 4 instance in
+       <em>
+        stopped
+       </em>
+       status to prepare for the upgrade.
+      </p>
+      <div class="paragraph">
+       <p>
+        For upgrades of Mule versions between 4.1.1 and 4.1.4 with the Mule upgrade tool, you must upgrade from any patch update released after January 20, 2022. Releases of versions 4.1.1 through 4.1.4
+        <em>
+         before
+        </em>
+        January 20, 2022 are not supported by the tool, and attempts to upgrade them produce an error message stating that the Mule version cannot be upgraded without first upgrading to a supported version (see
+        <a class="xref page" href="../../release-notes/mule-runtime/upgrade-update-mule">
+         Mule Upgrades and Patch Updates
+        </a>
+        ).
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       The latest Mule runtime engine distribution, downloaded and unpacked in your system.
+      </p>
+      <div class="paragraph">
+       <p>
+        The Mule upgrade tool requires the full distribution of the Mule runtime. Ensure you download a full Mule runtime distribution, identified by including the term
+        <code>
+         distribution
+        </code>
+        (and not the term
+        <code>
+         patch
+        </code>
+        ) in the file name, for example, for the full distribution of the 20220221 patch for Mule 4.4.0:
+        <code>
+         mule-ee-distribution-standalone-4.4.0-20220221.zip
+        </code>
+        .
+       </p>
+      </div>
+      <div class="paragraph">
+       <p>
+        Download Mule runtime distributions from the
+        <a href="https://help.mulesoft.com/s/" rel="noopener" target="_blank">
+         Help Center
+        </a>
+        .
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       At least 2 GB of available disk space on the file system and access privileges to install the new Mule distribution.
+      </p>
+     </li>
+     <li>
+      <p>
+       (For Windows environments) The execution policy for Powershell scripts set to
+       <strong>
+        Unrestricted
+       </strong>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       If Anypoint Monitoring agent is installed, uninstall it prior to the upgrade.
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="upgrade-or-update-mule">
+   <a class="anchor" href="#upgrade-or-update-mule">
+   </a>
+   Upgrade or Update Mule
+  </h2>
+  <div class="sectionbody">
+   <div class="admonitionblock important">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-important" title="Important">
+       </i>
+      </td>
+      <td class="content">
+       The parameter
+       <code>
+        &lt;newMuleDistributionAbsolutePath&gt;
+       </code>
+       refers to the temporary location where the new Mule runtime distribution is unpacked for the upgrade process. After the upgrade is successfully completed, this location is no longer required by the Upgrade Tool and can be safely deleted.
+      </td>
+     </tr>
+    </table>
+   </div>
+   <div class="paragraph">
+    <p>
+     To upgrade or update your clustered Mule instances to the latest version:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Navigate to the
+       <code>
+        $MULE_HOME/tools
+       </code>
+       directory, where you downloaded the Mule upgrade tool.
+      </p>
+     </li>
+     <li>
+      <p>
+       Run the
+       <code>
+        upgrade -n
+       </code>
+       subcommand, specifying as an argument the absolute path of the directory where the latest Mule runtime distribution is downloaded and unpacked, for example:
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$MULE_HOME/tools/upgrade-tool upgrade -n &lt;newMuleDistributionAbsolutePath&gt;</code></pre>
+       </div>
+      </div>
+      <div class="paragraph">
+       <p>
+        The script outputs the following:
+       </p>
+      </div>
+      <div class="listingblock">
+       <div class="content">
+        <pre>➜  tools ./upgrade-tool upgrade -n /Users/me/mule-download/upgrade/mule-enterprise-standalone-4.5.0/
+Mule Runtime Upgrade Tool
+─────────────────────────
+INFO: Initiating upgrade process...
+
+INFO: Upgrading distribution at path [/opt/mule/mule-enterprise-standalone-4.4.0-20221212]
+      with version: [4.4.0-20221212] to distribution at path
+      [/opt/mule/mule-enterprise-standalone-4.4.0-20230217] with version [4.4.0-20230217] ...
+
+Do you want to proceed with the upgrade?
+To confirm please, enter [yes, no] (default: no): yes
+
+WARN: Unknown file tools/mule-runtime-upgrade-tool-logs/mule-runtime-upgrade-tool-logs.log
+was found in the runtime installation, and will be kept.
+
+WARN: A version in your MULE_HOME directory name was detected:
+/opt/mule/mule-enterprise-standalone-4.4.0-20221212, beware it may not match the current
+installed version inside the directory.
+
+INFO: Upgrade process finished successfully.
+
+Verifying Mule Agent
+────────────────────
+INFO: Mule Agent not installed, skipping setup</pre>
+       </div>
+      </div>
+     </li>
+    </ol>
+   </div>
+   <div class="paragraph">
+    <p>
+     Now that your existing Mule instance is upgraded, you can delete the recently downloaded version (referenced in the example as
+     <code>
+      &lt;newMuleDistributionAbsolutePath&gt;
+     </code>
+     ) as the upgrade tool does not need it anymore.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="roll-back-an-upgrade-or-update">
+   <a class="anchor" href="#roll-back-an-upgrade-or-update">
+   </a>
+   Roll Back an Upgrade or Update
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Before starting an upgrade or update process, the Mule upgrade tool generates a backup of the clustered Mule instance you are upgrading or updating, which enables you to restore the upgraded or updated clustered Mule instance to its previous state. The backup is stored in the
+     <code>
+      $MULE_HOME/.upgrade-tool-backup
+     </code>
+     folder.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     To perform a rollback:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Navigate to the
+       <code>
+        $MULE_HOME/tools
+       </code>
+       directory, where you downloaded the Mule upgrade tool.
+      </p>
+     </li>
+     <li>
+      <p>
+       Run the
+       <code>
+        rollback
+       </code>
+       subcommand, for example:
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$MULE_HOME/tools/upgrade-tool rollback</code></pre>
+       </div>
+      </div>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="solving-file-conflicts">
+   <a class="anchor" href="#solving-file-conflicts">
+   </a>
+   Solving File Conflicts
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The Mule upgrade tool compares configuration files from the
+     <em>
+      current
+     </em>
+     Mule distribution and the
+     <em>
+      new
+     </em>
+     distribution to detect changes and prevent losing them. When the Mule upgrade tool detects changes in the
+     <em>
+      new
+     </em>
+     Mule distribution configuration files, it tries to resolve conflicts automatically and continue with the upgrade. If conflicts cannot be resolved automatically, the tool performs the following actions:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Fails the execution of the
+       <code>
+        upgrade
+       </code>
+       subcommand, showing an error message.
+      </p>
+     </li>
+     <li>
+      <p>
+       Logs the names of the Mule configuration files with conflicts into the log output.
+      </p>
+     </li>
+     <li>
+      <p>
+       Copies the configuration files with conflicts from the
+       <code>
+        ${MULE_HOME}/conf
+       </code>
+       directory of the current Mule distribution to
+       <code>
+        ${MULE_HOME}/upgrade-tool/mule-config-conflicts/to_review
+       </code>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       Copies the original content of the configuration files from the
+       <em>
+        new
+       </em>
+       Mule distribution to the
+       <code>
+        ${MULE_HOME}/upgrade-tool/mule-configs-conflicts/new-${MULE_HOME_NEW_FOLDER_NAME}
+       </code>
+       folder.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     If the upgrade process fails due to conflicts with the configuration files, follow the next steps to resolve the conflicts and continue the upgrade process.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="steps-to-solve-conflicts">
+     <a class="anchor" href="#steps-to-solve-conflicts">
+     </a>
+     Steps to Solve Conflicts with Mule Configuration Files
+    </h3>
+    <div class="paragraph">
+     <p>
+      Follow these steps to resolve conflicts during an upgrade:
+     </p>
+    </div>
+    <div class="olist arabic">
+     <ol class="arabic">
+      <li>
+       <p>
+        Inside the
+        <code>
+         ${MULE_HOME}/upgrade-tool/mule-config-conflicts/to_review/
+        </code>
+        folder of the current Mule distribution that you are upgrading, locate one of the files that has a conflict.
+       </p>
+      </li>
+      <li>
+       <p>
+        Use any file comparison or
+        <code>
+         diff
+        </code>
+        tool to compare the contents of the files in the following paths:
+       </p>
+       <div class="ulist">
+        <ul>
+         <li>
+          <p>
+           <code>
+            ${MULE_HOME}/upgrade-tool/mule-config-conflicts/to_review/fileWithConflicts.conf
+           </code>
+          </p>
+         </li>
+         <li>
+          <p>
+           <code>
+            ${MULE_HOME}/upgrade-tool/mule-configs-files/new-${MULE_HOME_NEW_FOLDER_NAME}/fileWithConflicts.conf
+           </code>
+          </p>
+         </li>
+        </ul>
+       </div>
+      </li>
+      <li>
+       <p>
+        After reviewing the differences, merge or discard the changes:
+       </p>
+       <div class="ulist">
+        <ul>
+         <li>
+          <p>
+           If you decide to merge the changes, modify the previous configuration file
+           <code>
+            ${MULE_HOME}/upgrade-tool/mule-config-conflicts/to_review/fileWithConflicts.conf
+           </code>
+           adding the desired changes from the new configuration file
+           <code>
+            ${MULE_HOME}/upgrade-tool/mule-config-conflicts/new-${MULE_HOME_NEW_FOLDER_NAME}/fileWithConflicts.conf
+           </code>
+           . Then, copy the merged file to the
+           <code>
+            ${MULE_HOME}/upgrade-tool/mule-config-conflicts/ready
+           </code>
+           folder.
+          </p>
+         </li>
+         <li>
+          <p>
+           If you decide to discard the changes maintaining your previous configuration, move the previous configuration file
+           <code>
+            ${MULE_HOME}/upgrade-tool/mule-config-conflicts/to_review/fileWithConflicts.conf
+           </code>
+           to the
+           <code>
+            ${MULE_HOME}/upgrade-tool/mule-config-conflicts/ready
+           </code>
+           folder.
+          </p>
+          <div class="paragraph">
+           <p>
+            Note that discarding the changes sometimes lead to using deprecated settings in the updated Mule distribution.
+           </p>
+          </div>
+         </li>
+        </ul>
+       </div>
+      </li>
+      <li>
+       <p>
+        Repeat steps 1 to 3 for each configuration file in the
+        <code>
+         ${MULE_HOME}/upgrade-tool/mule-config-conflicts/to_review
+        </code>
+        folder.
+       </p>
+      </li>
+      <li>
+       <p>
+        Retry running the
+        <code>
+         upgrade
+        </code>
+        subcommand.
+       </p>
+       <div class="paragraph">
+        <p>
+         When the upgrade finishes successfully, the tool deletes the
+         <code>
+          ${MULE_HOME}/upgrade-tool/mule-config-conflicts
+         </code>
+         folder to have a clean environment for future upgrades.
+        </p>
+       </div>
+      </li>
+     </ol>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="unattended-upgrades-or-updates">
+     <a class="anchor" href="#unattended-upgrades-or-updates">
+     </a>
+     Unattended Upgrades or Updates
+    </h3>
+    <div class="paragraph">
+     <p>
+      You can perform an unattended upgrade or update by resolving the conflicts in a different environment before running the upgrade in the target environment. This procedure works only if the
+      <em>
+       current
+      </em>
+      and
+      <em>
+       new
+      </em>
+      Mule distributions that you configure in the secondary environment match the versions of the
+      <em>
+       current
+      </em>
+      and
+      <em>
+       new
+      </em>
+      Mule distributions, respectively, that you have in the main environment:
+     </p>
+    </div>
+    <div class="olist arabic">
+     <ol class="arabic">
+      <li>
+       <p>
+        In an environment where user interaction is possible, review and resolve all the conflicts as explained in
+        <a href="#steps-to-solve-conflicts">
+         Steps to Solve Conflicts with Mule Configuration Files
+        </a>
+        .
+       </p>
+      </li>
+      <li>
+       <p>
+        In the target environment, copy the files from
+        <code>
+         ${MULE_HOME_WITH_USER_INTERACTION}/upgrade-tool/mule-config-conflicts/ready/
+        </code>
+        to
+        <code>
+         ${MULE_HOME_WITHOUT_USER_INTERACTION}/upgrade-tool/mule-config-conflicts/ready/
+        </code>
+        .
+       </p>
+      </li>
+      <li>
+       <p>
+        Run the
+        <code>
+         upgrade
+        </code>
+        subcommand in the target environment.
+       </p>
+      </li>
+     </ol>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="configure-logging-for-the-mule-upgrade-tool">
+   <a class="anchor" href="#configure-logging-for-the-mule-upgrade-tool">
+   </a>
+   Configure Logging for the Mule Upgrade Tool
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You can enable debug logging to add detailed information about each operation, change the folder where the tool stores the logs, and also use a customized log configuration file for the Mule upgrade tool.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="specify-a-custom-log4j-file">
+     <a class="anchor" href="#specify-a-custom-log4j-file">
+     </a>
+     Specify a Custom Log4j File
+    </h3>
+    <div class="paragraph">
+     <p>
+      By default, the Mule upgrade tool uses the
+      <code>
+       log4j2-upgrade-tool.xml
+      </code>
+      file that is located in the
+      <code>
+       $MULE_HOME/tools/upgrade-tool
+      </code>
+      folder.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      To use a custom Log4j file, use the
+      <code>
+       -l
+      </code>
+      parameter and specify the file name of the custom Log4j configuration file to use, for example:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$MULE_HOME/tools/upgrade-tool -l myLog4j2File.xml upgrade</code></pre>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="enable-debug-level-logs">
+     <a class="anchor" href="#enable-debug-level-logs">
+     </a>
+     Enable DEBUG Level Logs
+    </h3>
+    <div class="paragraph">
+     <p>
+      To enable debug logging:
+     </p>
+    </div>
+    <div class="olist arabic">
+     <ol class="arabic">
+      <li>
+       <p>
+        Open the Log4j file you are using with the tool.
+       </p>
+      </li>
+      <li>
+       <p>
+        Replace the
+        <code>
+         level
+        </code>
+        property value
+        <code>
+         INFO
+        </code>
+        with
+        <code>
+         DEBUG
+        </code>
+        , in the following line of the Log4j file:
+       </p>
+       <div class="listingblock">
+        <div class="content">
+         <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;Logger level="INFO" name="com.mulesoft.runtime.upgrade.tool.service" additivity="false"&gt;</code></pre>
+        </div>
+       </div>
+      </li>
+     </ol>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="customize-the-logs-output">
+     <a class="anchor" href="#customize-the-logs-output">
+     </a>
+     Customize the Logs Output
+    </h3>
+    <div class="paragraph">
+     <p>
+      By default, the Mule upgrade tool stores logs in the
+      <code>
+       ./mule-runtime-upgrade-tool-logs directory
+      </code>
+      .
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      To change the file name, output path, and log pattern:
+     </p>
+    </div>
+    <div class="olist arabic">
+     <ol class="arabic">
+      <li>
+       <p>
+        Open the Log4j file you are using with the tool.
+       </p>
+      </li>
+      <li>
+       <p>
+        Specify the desired values for the
+        <code>
+         fileName
+        </code>
+        and
+        <code>
+         filePattern
+        </code>
+        properties:
+       </p>
+       <div class="listingblock">
+        <div class="content">
+         <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;RollingFile name="RollingFile"
+  fileName="./mule-runtime-upgrade-tool-logs/mule-runtime-upgrade-tool-logs.log"
+  filePattern="./mule-runtime-upgrade-tool-logs/$${date:yyyy-MM}/mule-runtime-upgrade-tool-logs-%d{-dd-MMMM-yyyy}-%i.log.gz" &gt;</code></pre>
+        </div>
+       </div>
+      </li>
+     </ol>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="mule-upgrade-tool-subcommands-and-options">
+   <a class="anchor" href="#mule-upgrade-tool-subcommands-and-options">
+   </a>
+   Mule Upgrade Tool Subcommands and Options
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The following table describes the subcommands and options you can use when running the Mule upgrade tool:
+    </p>
+   </div>
+   <table class="tableblock frame-all grid-all fit-content spread">
+    <colgroup>
+     <col/>
+     <col/>
+    </colgroup>
+    <thead>
+     <tr>
+      <th class="tableblock halign-left valign-middle">
+       Subcommand
+      </th>
+      <th class="tableblock halign-left valign-middle">
+       Description
+      </th>
+     </tr>
+    </thead>
+    <tbody>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           upgrade
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Upgrades the local Mule instance to the latest available version.
+          <br/>
+          The following are the supported options for this subcommand.
+         </p>
+        </div>
+        <table class="tableblock frame-all grid-all fit-content spread">
+         <colgroup>
+          <col/>
+          <col/>
+         </colgroup>
+         <thead>
+          <tr>
+           <th class="tableblock halign-left valign-middle">
+            Options
+           </th>
+           <th class="tableblock halign-left valign-middle">
+            Description
+           </th>
+          </tr>
+         </thead>
+         <tbody>
+          <tr>
+           <td class="tableblock halign-left valign-middle">
+            <div class="content">
+             <div class="paragraph">
+              <p>
+               <code>
+                -n &lt;newMuleDistributionPath&gt;
+               </code>
+              </p>
+             </div>
+            </div>
+           </td>
+           <td class="tableblock halign-left valign-middle">
+            <div class="content">
+             <div class="paragraph">
+              <p>
+               Upgrades the local Mule instance to the distribution that is downloaded and unpacked in your file system. Parameter
+               <code>
+                &lt;newMuleDistribution&gt;
+               </code>
+               specifies the path to the new Mule distribution, for example:
+               <br/>
+               <code>
+                $ ./upgrade-tool upgrade -n /&lt;newMuleDistributionPath&gt;
+               </code>
+              </p>
+             </div>
+            </div>
+           </td>
+          </tr>
+          <tr>
+           <td class="tableblock halign-left valign-middle">
+            <div class="content">
+             <div class="paragraph">
+              <p>
+               <code>
+                -o &lt;localMuleInstancePath&gt;
+               </code>
+              </p>
+             </div>
+            </div>
+           </td>
+           <td class="tableblock halign-left valign-middle">
+            <div class="content">
+             <div class="paragraph">
+              <p>
+               Upgrades the local Mule instance located in path
+               <code>
+                &lt;localMuleInstancePath&gt;
+               </code>
+               . This option enables you to upgrade a different Mule instance than the one located in the same
+               <code>
+                $MULE_HOME
+               </code>
+               path as the upgrade tool, for example:
+               <br/>
+               <code>
+                $ ./upgrade-tool upgrade -o /&lt;localMuleInstancePath&gt;
+               </code>
+              </p>
+             </div>
+            </div>
+           </td>
+          </tr>
+          <tr>
+           <td class="tableblock halign-left valign-middle">
+            <div class="content">
+             <div class="paragraph">
+              <p>
+               <code>
+                -d
+               </code>
+              </p>
+             </div>
+            </div>
+           </td>
+           <td class="tableblock halign-left valign-middle">
+            <div class="content">
+             <div class="paragraph">
+              <p>
+               Simulates the upgrade process without performing any permanent changes to the current Mule instance.
+              </p>
+             </div>
+            </div>
+           </td>
+          </tr>
+          <tr>
+           <td class="tableblock halign-left valign-middle">
+            <div class="content">
+             <div class="paragraph">
+              <p>
+               <code>
+                -f
+               </code>
+              </p>
+             </div>
+            </div>
+           </td>
+           <td class="tableblock halign-left valign-middle">
+            <div class="content">
+             <div class="paragraph">
+              <p>
+               Performs the upgrade without requesting user confirmation for destructive operations like overwriting a backup or removing applied patches.
+              </p>
+             </div>
+            </div>
+           </td>
+          </tr>
+          <tr>
+           <td class="tableblock halign-left valign-middle">
+            <div class="content">
+             <div class="paragraph">
+              <p>
+               <code>
+                -h
+               </code>
+              </p>
+             </div>
+            </div>
+           </td>
+           <td class="tableblock halign-left valign-middle">
+            <div class="content">
+             <div class="paragraph">
+              <p>
+               Displays the help message for this subcommand.
+              </p>
+             </div>
+            </div>
+           </td>
+          </tr>
+         </tbody>
+        </table>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           rollback
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Restores the Mule instance to its previous state. This subcommand works only after performing a successful upgrade with the tool.
+          <br/>
+          The following are the supported options for this subcommand.
+         </p>
+        </div>
+        <table class="tableblock frame-all grid-all fit-content spread">
+         <colgroup>
+          <col/>
+          <col/>
+         </colgroup>
+         <thead>
+          <tr>
+           <th class="tableblock halign-left valign-middle">
+            Options
+           </th>
+           <th class="tableblock halign-left valign-middle">
+            Description
+           </th>
+          </tr>
+         </thead>
+         <tbody>
+          <tr>
+           <td class="tableblock halign-left valign-middle">
+            <div class="content">
+             <div class="paragraph">
+              <p>
+               <code>
+                -o &lt;localMuleInstancePath&gt;
+               </code>
+              </p>
+             </div>
+            </div>
+           </td>
+           <td class="tableblock halign-left valign-middle">
+            <div class="content">
+             <div class="paragraph">
+              <p>
+               Restores the local Mule instance located in path
+               <code>
+                &lt;localMuleInstancePath&gt;
+               </code>
+               . This option enables you to restore a different Mule instance than the one located in the same
+               <code>
+                $MULE_HOME
+               </code>
+               path as the upgrade tool, for example:
+               <br/>
+               <code>
+                $ ./upgrade-tool rollback -o /&lt;localMuleInstancePath&gt;
+               </code>
+              </p>
+             </div>
+            </div>
+           </td>
+          </tr>
+          <tr>
+           <td class="tableblock halign-left valign-middle">
+            <div class="content">
+             <div class="paragraph">
+              <p>
+               <code>
+                -d
+               </code>
+              </p>
+             </div>
+            </div>
+           </td>
+           <td class="tableblock halign-left valign-middle">
+            <div class="content">
+             <div class="paragraph">
+              <p>
+               Simulates the rollback process without performing any permanent changes to the current Mule instance.
+              </p>
+             </div>
+            </div>
+           </td>
+          </tr>
+          <tr>
+           <td class="tableblock halign-left valign-middle">
+            <div class="content">
+             <div class="paragraph">
+              <p>
+               <code>
+                -f
+               </code>
+              </p>
+             </div>
+            </div>
+           </td>
+           <td class="tableblock halign-left valign-middle">
+            <div class="content">
+             <div class="paragraph">
+              <p>
+               Restores the Mule instance without requesting user confirmation.
+              </p>
+             </div>
+            </div>
+           </td>
+          </tr>
+          <tr>
+           <td class="tableblock halign-left valign-middle">
+            <div class="content">
+             <div class="paragraph">
+              <p>
+               <code>
+                -h
+               </code>
+              </p>
+             </div>
+            </div>
+           </td>
+           <td class="tableblock halign-left valign-middle">
+            <div class="content">
+             <div class="paragraph">
+              <p>
+               Displays the help message for this subcommand.
+              </p>
+             </div>
+            </div>
+           </td>
+          </tr>
+         </tbody>
+        </table>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           status
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Provides information about the current Mule instance, including:
+         </p>
+        </div>
+        <div class="ulist">
+         <ul>
+          <li>
+           <p>
+            The Mule runtime engine version
+           </p>
+          </li>
+          <li>
+           <p>
+            A message confirming that the current Mule instance meets conditions to upgrade or roll back
+           </p>
+          </li>
+          <li>
+           <p>
+            Any existing backup and its location
+           </p>
+          </li>
+          <li>
+           <p>
+            The integrity of the backup, if it exists
+           </p>
+          </li>
+         </ul>
+        </div>
+       </div>
+      </td>
+     </tr>
+    </tbody>
+   </table>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="troubleshooting-common-errors">
+   <a class="anchor" href="#troubleshooting-common-errors">
+   </a>
+   Troubleshooting Common Errors
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The following are some of the most common error messages from the upgrade tool and include the error description and a proposed solution.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="missing-required-subcommand">
+     <a class="anchor" href="#missing-required-subcommand">
+     </a>
+     Missing required subcommand
+    </h3>
+    <div class="listingblock">
+     <div class="content">
+      <pre>./upgrade-tool
+
+Mule Runtime Upgrade Tool
+─────────────────────────
+
+Missing required subcommand
+Usage: upgrade-tool [-hV] [COMMAND]
+Try 'upgrade-tool --help' for more information.</pre>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="cause">
+      <a class="anchor" href="#cause">
+      </a>
+      Cause
+     </h4>
+     <div class="paragraph">
+      <p>
+       This error indicates that the specified subcommand is either unknown or missing. The only supported subcommands are
+       <code>
+        upgrade
+       </code>
+       ,
+       <code>
+        rollback
+       </code>
+       , or
+       <code>
+        status
+       </code>
+       .
+      </p>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="solution">
+      <a class="anchor" href="#solution">
+      </a>
+      Solution
+     </h4>
+     <div class="paragraph">
+      <p>
+       Ensure you are running the
+       <code>
+        upgrade-tool
+       </code>
+       command and specifying any of the supported subcommands:
+       <code>
+        upgrade
+       </code>
+       ,
+       <code>
+        rollback
+       </code>
+       , or
+       <code>
+        status
+       </code>
+       .
+      </p>
+     </div>
+     <div class="paragraph">
+      <p>
+       The
+       <code>
+        -h
+       </code>
+       or
+       <code>
+        --help
+       </code>
+       options enable you to get additional details for a certain subcommand, for example:
+      </p>
+     </div>
+     <div class="listingblock">
+      <div class="content">
+       <pre>$ ./upgrade-tool rollback --help</pre>
+      </div>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="missing-required-option">
+     <a class="anchor" href="#missing-required-option">
+     </a>
+     Missing required option
+    </h3>
+    <div class="listingblock">
+     <div class="content">
+      <pre>./upgrade-tool upgrade
+
+Mule Runtime Upgrade Tool
+─────────────────────────
+
+Missing required option: '--new-mule-distro=&lt;newMuleDistro&gt;'
+Usage: upgrade-tool upgrade [-dfh] -n=&lt;newMuleDistro&gt; [-o=&lt;oldMuleDistro&gt;]
+Try 'upgrade-tool upgrade --help' for more information.</pre>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="cause-2">
+      <a class="anchor" href="#cause-2">
+      </a>
+      Cause
+     </h4>
+     <div class="paragraph">
+      <p>
+       This error indicates that the chosen subcommand needs more arguments, for example, when upgrading, the argument
+       <code>
+        --new-mule-distro
+       </code>
+       is required.
+      </p>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="solution-2">
+      <a class="anchor" href="#solution-2">
+      </a>
+      Solution
+     </h4>
+     <div class="paragraph">
+      <p>
+       Run the following command to get information about which arguments are required for a specific subcommand:
+      </p>
+     </div>
+     <div class="listingblock">
+      <div class="content">
+       <pre>./upgrade-tool upgrade --help</pre>
+      </div>
+     </div>
+     <div class="paragraph">
+      <p>
+       After running the command, the tool outputs additional information:
+      </p>
+     </div>
+     <div class="listingblock">
+      <div class="content">
+       <pre>Mule Runtime Upgrade Tool
+─────────────────────────
+
+Usage: upgrade-tool upgrade [-dfh] -n=&lt;newMuleDistro&gt; [-o=&lt;oldMuleDistro&gt;]
+Upgrades a Mule Runtime to a newer version
+  -d, --dry-run   Simulate upgrade process without performing any permanent
+                    changes to the current Mule Runtime Distribution.
+  -f, --force     Perform all the destructive operations like overwriting the
+                    backup or removing the applied patches without user
+                    confirmation
+  -h, --help      Display this help message
+  -n, --new-mule-distro=&lt;newMuleDistro&gt;
+                  File path of the newer Mule Runtime distribution used for the
+                    upgrade
+  -o, --old-mule-distro=&lt;oldMuleDistro&gt;
+                  File path of Mule Runtime distribution to upgrade</pre>
+      </div>
+     </div>
+     <div class="paragraph">
+      <p>
+       The
+       <code>
+        Usage:
+       </code>
+       line specifies which options and arguments are optional by enclosing them in square brackets (
+       <code>
+        [
+       </code>
+       ,
+       <code>
+        ]
+       </code>
+       ). Options and arguments without square brackets are mandatory.
+      </p>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="no-space-left-on-device">
+     <a class="anchor" href="#no-space-left-on-device">
+     </a>
+     No space left on device
+    </h3>
+    <div class="listingblock">
+     <div class="content">
+      <pre>$ ./upgrade-tool upgrade -n /tmp/mule-enterprise-standalone-4.4.0-20211104
+
+Mule Runtime Upgrade Tool
+─────────────────────────
+
+INFO: Initiating upgrade process...
+INFO: Upgrading distribution at path [/opt/mule-enterprise-standalone-4.4.0-20211026] with version: [4.4.0-20211104] to distribution at path [/tmp/mule-enterprise-standalone-4.4.0-20211104] with version [4.4.0-20211104] ...
+ERROR: Version of new Mule distribution 4.4.0-20211104 should be newer than old Mule distribution: 4.4.0-20211104
+ERROR: There's not enough disk space for performing the upgrade.
+ERROR: No space left on device
+No space left on device</pre>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="cause-3">
+      <a class="anchor" href="#cause-3">
+      </a>
+      Cause
+     </h4>
+     <div class="paragraph">
+      <p>
+       This error indicates that there is no available disk space to run the upgrade.
+      </p>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="solution-3">
+      <a class="anchor" href="#solution-3">
+      </a>
+      Solution
+     </h4>
+     <div class="paragraph">
+      <p>
+       The tool requires at least 2 GB of space available in the file system in which the Mule instance is running. Ensure that your system has
+enough disk space available and that any other requirements are met.
+      </p>
+     </div>
+     <div class="paragraph">
+      <p>
+       On Linux environments, use the
+       <code>
+        df
+       </code>
+       command to check available disk space:
+      </p>
+     </div>
+     <div class="listingblock">
+      <div class="content">
+       <pre>$ df -h /opt
+Filesystem              Size  Used Avail Use% Mounted on
+/dev/mapper/vg-opt      419G  205G  193G  52% /opt</pre>
+      </div>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="version-should-be-newer">
+     <a class="anchor" href="#version-should-be-newer">
+     </a>
+     Version should be newer
+    </h3>
+    <div class="listingblock">
+     <div class="content">
+      <pre>./upgrade-tool upgrade -n /tmp/mule-enterprise-standalone-4.4.0-20211104
+
+Mule Runtime Upgrade Tool
+─────────────────────────
+
+INFO: Initiating upgrade process...
+INFO: Upgrading distribution at path [/opt/mule-enterprise-standalone-4.4.0-20211026] with version: [4.4.0-20211104] to distribution at path [/tmp/mule-enterprise-standalone-4.4.0-20211104] with version [4.4.0-20211104] ...
+ERROR: Version of new Mule distribution 4.4.0-20211104 should be newer than old Mule distribution: 4.4.0-20211104</pre>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="cause-4">
+      <a class="anchor" href="#cause-4">
+      </a>
+      Cause
+     </h4>
+     <div class="paragraph">
+      <p>
+       This error occurs when the upgrade command specifies a new Mule distribution that is in the same version as the current Mule instance.
+      </p>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="solution-4">
+      <a class="anchor" href="#solution-4">
+      </a>
+      Solution
+     </h4>
+     <div class="paragraph">
+      <p>
+       Verify that the downloaded Mule distribution is in a later version than your current Mule instance. If you continue to receive this error message during the upgrade, it means that the current Mule instance is already updated or running the latest available version.
+      </p>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="missing-reading-permissions">
+     <a class="anchor" href="#missing-reading-permissions">
+     </a>
+     Missing reading permissions
+    </h3>
+    <div class="listingblock">
+     <div class="content">
+      <pre>./upgrade-tool upgrade -n /tmp/mule-enterprise-standalone-4.4.0-20211104
+
+Mule Runtime Upgrade Tool
+─────────────────────────
+
+INFO: Initiating upgrade process...
+INFO: Upgrading distribution at path [/opt/mule-enterprise-standalone-4.4.0-20211026] with version: [4.4.0-20211026] to distribution at path [/tmp/mule-enterprise-standalone-4.4.0-20211104] with version [4.4.0-20211104] ...
+ERROR: Error validating required reading permissions under Mule distribution [/tmp/mule-enterprise-standalone-4.4.0-20211104]
+java.nio.file.AccessDeniedException: /tmp/mule-enterprise-standalone-4.4.0-20211104/lib/mule/mule-module-cache-ee-4.4.0-20211104.jar
+[...]</pre>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="cause-5">
+      <a class="anchor" href="#cause-5">
+      </a>
+      Cause
+     </h4>
+     <div class="paragraph">
+      <p>
+       Read permissions in the new Mule distribution are required but not set for the user who is performing the upgrade, so that user cannot read the file referenced in the stack trace.
+      </p>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="solution-5">
+      <a class="anchor" href="#solution-5">
+      </a>
+      Solution
+     </h4>
+     <div class="paragraph">
+      <p>
+       Obtain read permission for files that the upgrade identifies as unreadable. Contact your system administrator for assistance, if necessary.
+      </p>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="missing-writing-permissions">
+     <a class="anchor" href="#missing-writing-permissions">
+     </a>
+     Missing writing permissions
+    </h3>
+    <div class="listingblock">
+     <div class="content">
+      <pre>./upgrade-tool upgrade -n /tmp/mule-enterprise-standalone-4.4.0-20211104
+
+Mule Runtime Upgrade Tool
+─────────────────────────
+
+INFO: Initiating upgrade process...
+INFO: Upgrading distribution at path [/opt/mule-enterprise-standalone-4.4.0-20211026] with version: [4.4.0-20211026] to distribution at path [/tmp/mule-enterprise-standalone-4.4.0-20211104] with version [4.4.0-20211104] ...
+ERROR: Error validating required writing permissions under Mule distribution [/opt/mule-enterprise-standalone-4.4.0-20211026]
+java.nio.file.AccessDeniedException: /opt/mule-enterprise-standalone-4.4.0-20211026/lib/boot/libwrapper-linux-ppcle-64.so
+[...]</pre>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="cause-6">
+      <a class="anchor" href="#cause-6">
+      </a>
+      Cause
+     </h4>
+     <div class="paragraph">
+      <p>
+       Write permissions in the old Mule distribution are required but not set for the user who is performing the upgrade, so that user cannot write to the file referenced in the stack trace.
+      </p>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="solution-6">
+      <a class="anchor" href="#solution-6">
+      </a>
+      Solution
+     </h4>
+     <div class="paragraph">
+      <p>
+       Obtain write permission to files that the upgrade tool identifies. Contact your system administrator for assistance, if necessary.
+      </p>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="mule-runtime-should-be-stopped">
+     <a class="anchor" href="#mule-runtime-should-be-stopped">
+     </a>
+     Mule Runtime should be stopped
+    </h3>
+    <div class="listingblock">
+     <div class="content">
+      <pre>./upgrade-tool upgrade -n /tmp/mule-enterprise-standalone-4.4.0-20211104
+
+Mule Runtime Upgrade Tool
+─────────────────────────
+
+INFO: Initiating upgrade process...
+INFO: Upgrading distribution at path [/opt/mule-enterprise-standalone-4.4.0-20211026] with version: [4.4.0-20211026] to distribution at path [/tmp/mule-enterprise-standalone-4.4.0-20211104] with version [4.4.0-20211104] ...
+ERROR: Mule Runtime should be stopped.
+ERROR: Not all preconditions are met to perform the upgrade. Review the log for details.
+Not all preconditions are met to perform the upgrade. Review the log for details.</pre>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="cause-7">
+      <a class="anchor" href="#cause-7">
+      </a>
+      Cause
+     </h4>
+     <div class="paragraph">
+      <p>
+       The upgrade tool detected that Mule is running.
+      </p>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="solution-7">
+      <a class="anchor" href="#solution-7">
+      </a>
+      Solution
+     </h4>
+     <div class="paragraph">
+      <p>
+       Stop Mule before starting the upgrade process. To check the current status, use the command
+       <code>
+        ${MULE_HOME}/bin/mule status
+       </code>
+       .
+      </p>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="mule-version-is-not-supported-for-an-upgrade">
+     <a class="anchor" href="#mule-version-is-not-supported-for-an-upgrade">
+     </a>
+     Mule version is not supported for an upgrade
+    </h3>
+    <div class="listingblock">
+     <div class="content">
+      <pre>./upgrade-tool upgrade -n /tmp/mule-enterprise-standalone-4.4.0-20211104
+
+Mule Runtime Upgrade Tool
+─────────────────────────
+
+INFO: Initiating upgrade process...
+INFO: Upgrading distribution at path [/tmp/mule-enterprise-standalone-4.1.1-20211222] with version: [4.1.1] to distribution at path [/tmp/mule-enterprise-standalone-4.4.0-20211026] with version [4.4.0-20211026] ...
+ERROR: Your Mule version cannot be upgraded to the new one, you need to upgrade to a version greater than 4.1.5, or for versions between 4.1.1 to 4.1.4, then packages released after January 20, 2022.
+ERROR: Not all preconditions are met to perform the upgrade. Review the log for details.
+Not all preconditions are met to perform the upgrade. Review the log for details.</pre>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="cause-8">
+      <a class="anchor" href="#cause-8">
+      </a>
+      Cause
+     </h4>
+     <div class="paragraph">
+      <p>
+       The Mule upgrade tool requires both the current Mule instance and the new Mule instance (
+       <code>
+        /new-${MULE_HOME_NEW_FOLDER_NAME}
+       </code>
+       ) to be running version 4.1.5 or later.
+      </p>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="solution-8">
+      <a class="anchor" href="#solution-8">
+      </a>
+      Solution
+     </h4>
+     <div class="paragraph">
+      <p>
+       Perform a manual upgrade to ensure that the current and new Mule instances are in version 4.1.5 or later before attempting to upgrade using the Mule upgrade tool.
+      </p>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="upgrade_clustered_mule_instances">
+   <a class="anchor" href="#upgrade_clustered_mule_instances">
+   </a>
+   Upgrading Clustered Mule Instances
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To upgrade clustered Mule instances, use the Mule upgrade tool to automate the upgrade process of your local Mule instances by manually upgrading each node.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="before-you-begin-2">
+     <a class="anchor" href="#before-you-begin-2">
+     </a>
+     Before You Begin
+    </h3>
+    <div class="paragraph">
+     <p>
+      Before starting your upgrade, ensure that you have:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        The new Mule runtime distribution (target version) and the Mule upgrade tool copied to each node that you are upgrading, to reduce downtime.
+       </p>
+      </li>
+      <li>
+       <p>
+        <a class="xref page" href="../../release-notes/mule-upgrade-tool/mule-upgrade-tool">
+         The latest available version of Mule upgrade tool
+        </a>
+        so that the tool runs with the latest fixes and security enhancements.
+       </p>
+       <div class="paragraph">
+        <p>
+         Download the Mule upgrade tool from the
+         <a href="https://help.mulesoft.com/s/" rel="noopener" target="_blank">
+          Help Center
+         </a>
+         .
+        </p>
+       </div>
+      </li>
+      <li>
+       <p>
+        A currently operational Mule 4 instance in
+        <em>
+         stopped
+        </em>
+        status to prepare for the upgrade.
+       </p>
+       <div class="paragraph">
+        <p>
+         For upgrades of Mule versions between 4.1.1 and 4.1.4 with the Mule upgrade tool, you must upgrade from any patch update released after January 20, 2022. Releases of versions 4.1.1 through 4.1.4
+         <em>
+          before
+         </em>
+         January 20, 2022 are not supported by the tool, and attempts to upgrade them produce an error message stating that the Mule version cannot be upgraded without first upgrading to a supported version (see
+         <a class="xref page" href="../../release-notes/mule-runtime/upgrade-update-mule">
+          Mule Upgrades and Patch Updates
+         </a>
+         ).
+        </p>
+       </div>
+      </li>
+      <li>
+       <p>
+        The latest Mule runtime engine distribution, downloaded and unpacked in your system.
+       </p>
+       <div class="paragraph">
+        <p>
+         The Mule upgrade tool requires the full distribution of the Mule runtime. Ensure you download a full Mule runtime distribution, identified by including the term
+         <code>
+          distribution
+         </code>
+         (and not the term
+         <code>
+          patch
+         </code>
+         ) in the file name, for example, for the full distribution of the 20220221 patch for Mule 4.4.0:
+         <code>
+          mule-ee-distribution-standalone-4.4.0-20220221.zip
+         </code>
+         .
+        </p>
+       </div>
+       <div class="paragraph">
+        <p>
+         Download Mule runtime distributions from the
+         <a href="https://help.mulesoft.com/s/" rel="noopener" target="_blank">
+          Help Center
+         </a>
+         .
+        </p>
+       </div>
+      </li>
+      <li>
+       <p>
+        At least 2 GB of available disk space on the file system and access privileges to install the new Mule distribution.
+       </p>
+      </li>
+      <li>
+       <p>
+        (For Windows environments) The execution policy for Powershell scripts set to
+        <strong>
+         Unrestricted
+        </strong>
+        .
+       </p>
+      </li>
+      <li>
+       <p>
+        If Anypoint Monitoring agent is installed, uninstall it prior to the upgrade.
+       </p>
+      </li>
+     </ul>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="upgrade-or-update-mule-2">
+     <a class="anchor" href="#upgrade-or-update-mule-2">
+     </a>
+     Upgrade or Update Mule
+    </h3>
+    <div class="admonitionblock important">
+     <table>
+      <tr>
+       <td class="icon">
+        <i class="fa icon-important" title="Important">
+        </i>
+       </td>
+       <td class="content">
+        The parameter
+        <code>
+         &lt;newMuleDistributionAbsolutePath&gt;
+        </code>
+        refers to the temporary location where the new Mule runtime distribution is unpacked for the upgrade process. After the upgrade is successfully completed, this location is no longer required by the Upgrade Tool and can be safely deleted.
+       </td>
+      </tr>
+     </table>
+    </div>
+    <div class="paragraph">
+     <p>
+      To upgrade or update your clustered Mule instances to the latest version:
+     </p>
+    </div>
+    <div class="olist arabic">
+     <ol class="arabic">
+      <li>
+       <p>
+        Navigate to the
+        <code>
+         $MULE_HOME/tools
+        </code>
+        directory, where you downloaded the Mule upgrade tool.
+       </p>
+      </li>
+      <li>
+       <p>
+        Run the
+        <code>
+         upgrade -n
+        </code>
+        subcommand, specifying as an argument the absolute path of the directory where the latest Mule runtime distribution is downloaded and unpacked, for example:
+       </p>
+       <div class="listingblock">
+        <div class="content">
+         <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$MULE_HOME/tools/upgrade-tool upgrade -n &lt;newMuleDistributionAbsolutePath&gt;</code></pre>
+        </div>
+       </div>
+       <div class="paragraph">
+        <p>
+         The script outputs the following:
+        </p>
+       </div>
+       <div class="listingblock">
+        <div class="content">
+         <pre>➜  tools ./upgrade-tool upgrade -n /Users/me/mule-download/upgrade/mule-enterprise-standalone-4.5.0/
+Mule Runtime Upgrade Tool
+─────────────────────────
+INFO: Initiating upgrade process...
+
+INFO: Upgrading distribution at path [/opt/mule/mule-enterprise-standalone-4.4.0-20221212]
+      with version: [4.4.0-20221212] to distribution at path
+      [/opt/mule/mule-enterprise-standalone-4.4.0-20230217] with version [4.4.0-20230217] ...
+
+Do you want to proceed with the upgrade?
+To confirm please, enter [yes, no] (default: no): yes
+
+WARN: Unknown file tools/mule-runtime-upgrade-tool-logs/mule-runtime-upgrade-tool-logs.log
+was found in the runtime installation, and will be kept.
+
+WARN: A version in your MULE_HOME directory name was detected:
+/opt/mule/mule-enterprise-standalone-4.4.0-20221212, beware it may not match the current
+installed version inside the directory.
+
+INFO: Upgrade process finished successfully.
+
+Verifying Mule Agent
+────────────────────
+INFO: Mule Agent not installed, skipping setup</pre>
+        </div>
+       </div>
+      </li>
+     </ol>
+    </div>
+    <div class="paragraph">
+     <p>
+      Now that your existing Mule instance is upgraded, you can delete the recently downloaded version (referenced in the example as
+      <code>
+       &lt;newMuleDistributionAbsolutePath&gt;
+      </code>
+      ) as the upgrade tool does not need it anymore.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      Note that every node must be upgraded or updated to the same Mule runtime version to work.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="roll-back-an-upgrade-or-update-2">
+     <a class="anchor" href="#roll-back-an-upgrade-or-update-2">
+     </a>
+     Roll Back an Upgrade or Update
+    </h3>
+    <div class="paragraph">
+     <p>
+      Before starting an upgrade or update process, the Mule upgrade tool generates a backup of the clustered Mule instance you are upgrading or updating, which enables you to restore the upgraded or updated clustered Mule instance to its previous state. The backup is stored in the
+      <code>
+       $MULE_HOME/.upgrade-tool-backup
+      </code>
+      folder.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      To perform a rollback:
+     </p>
+    </div>
+    <div class="olist arabic">
+     <ol class="arabic">
+      <li>
+       <p>
+        Navigate to the
+        <code>
+         $MULE_HOME/tools
+        </code>
+        directory, where you downloaded the Mule upgrade tool.
+       </p>
+      </li>
+      <li>
+       <p>
+        Run the
+        <code>
+         rollback
+        </code>
+        subcommand, for example:
+       </p>
+       <div class="listingblock">
+        <div class="content">
+         <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$MULE_HOME/tools/upgrade-tool rollback</code></pre>
+        </div>
+       </div>
+      </li>
+     </ol>
+    </div>
+    <div class="paragraph">
+     <p>
+      Note that every node must be rolled back to the same Mule runtime version to work.
+     </p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../release-notes/mule-runtime/upgrade-update-mule">
+        Mule Upgrades and Patch Updates
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

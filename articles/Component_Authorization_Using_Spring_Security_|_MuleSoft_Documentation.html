@@ -1,0 +1,123 @@
+<article class="doc">
+ <h1 class="page">
+  Component Authorization Using Spring Security
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Learn how to configure authorization using Spring Security features on your Mule components, so that users with different roles can only invoke certain methods.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="configure-spring-security-authentication-manager">
+   <a class="anchor" href="#configure-spring-security-authentication-manager">
+   </a>
+   Configure Spring Security Authentication Manager
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The Spring Security interface Authentication Manager is responsible for passing requests through a chain of Authentication Provider objects. To secure calls to flow components, you must add the configured
+     <code>
+      authenticationManager
+     </code>
+     to the application context.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The following example defines roles with different levels of access to protected processors:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">  &lt;ss:authentication-manager alias="authenticationManager"&gt;
+    &lt;ss:authentication-provider&gt;
+      &lt;ss:user-service id="userService"&gt;
+        &lt;ss:user name="admin" password="admin" authorities="ROLE_ADMIN" /&gt;
+        &lt;ss:user name="joe" password="secret" authorities="ROLE_ADMIN" /&gt;
+        &lt;ss:user name="anon" password="anon" authorities="ROLE_ANON" /&gt;
+        &lt;ss:user name="user" password="password" authorities="ROLE_ANON" /&gt;
+        &lt;ss:user name="ross" password="ross" authorities="ROLE_ANON" /&gt;
+        &lt;ss:user name="marie" password="marie" authorities="ROLE_ANON" /&gt;
+      &lt;/ss:user-service&gt;
+    &lt;/ss:authentication-provider&gt;
+  &lt;/ss:authentication-manager&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The following example references the previously defined
+     <code>
+      authenticationManager
+     </code>
+     to allow only users with
+     <code>
+      ROLE_ADMIN
+     </code>
+     roles in the
+     <code>
+      requiredAuthorities
+     </code>
+     field to access the operation:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">	&lt;spring:security-manager&gt;
+		&lt;spring:delegate-security-provider name="memory-provider" delegate-ref="authenticationManager" /&gt;
+	&lt;/spring:security-manager&gt;
+
+	&lt;flow name="protectedFlow"&gt;
+		&lt;http:listener doc:name="Listener" config-ref="HTTP_Listener_config" path="/" /&gt;
+		&lt;http:basic-security-filter doc:name="Basic security filter" realm="mule" /&gt;
+		&lt;spring:authorization-filter requiredAuthorities="ROLE_ADMIN" /&gt;
+
+		&lt;ee:transform doc:name="Transform Message"&gt;
+			&lt;ee:message&gt;
+				&lt;ee:set-payload&gt;&lt;![CDATA[%dw 2.0
+				output application/json
+				---
+				{
+					"status": "ok"
+				}]]&gt;
+				&lt;/ee:set-payload&gt;
+			&lt;/ee:message&gt;
+		&lt;/ee:transform&gt;
+	&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="configure-secure-components-in-asynchronous-systems">
+   <a class="anchor" href="#configure-secure-components-in-asynchronous-systems">
+   </a>
+   Configure Secure Components in Asynchronous Systems
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Spring Security is useful for asynchronous systems because to set the authentication on more than one thread you have to add a security property to the security provider.
+In the following example, the value
+     <code>
+      MODE_GLOBAL
+     </code>
+     is the security property added:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">    &lt;mule-ss:security-manager&gt;
+        &lt;mule-ss:delegate-security-provider name="memory-dao" delegate-ref="authenticationManager"&gt;
+            &lt;mule-ss:security-property name="securityMode" value="MODE_GLOBAL"/&gt;
+        &lt;/mule-ss:delegate-security-provider&gt;
+    &lt;/mule-ss:security-manager&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+</article>

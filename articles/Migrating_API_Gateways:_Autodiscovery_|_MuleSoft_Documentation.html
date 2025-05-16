@@ -1,0 +1,123 @@
+<article class="doc">
+ <h1 class="page">
+  Migrating API Gateways: Autodiscovery
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The Autodiscovery element was updated after Mule 4 release.
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       APIs are referenced by an ID instead of a name and version.
+      </p>
+     </li>
+     <li>
+      <p>
+       Creation of APIs from the runtime is no longer possible.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     Simple Mule app with an HTTP listener and an Autodiscovery element defined:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Example: All Configurable Attributes
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:api-platform-gw="http://www.mulesoft.org/schema/mule/api-platform-gw"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xsi:schemaLocation="
+       http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+       http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+       http://www.mulesoft.org/schema/mule/api-platform-gw http://www.mulesoft.org/schema/mule/api-platform-gw/current/mule-api-platform-gw.xsd"&gt;
+
+    &lt;api-platform-gw:api id="apiId" create="true" apiName="name" version="1.0.0" flowRef="flow_api"&gt;
+        &lt;api-platform-gw:description&gt;This is a test API&lt;/api-platform-gw:description&gt;
+        &lt;api-platform-gw:tag&gt;tag1&lt;/api-platform-gw:tag&gt;
+        &lt;api-platform-gw:tag&gt;tag2&lt;/api-platform-gw:tag&gt;
+    &lt;/api-platform-gw:api&gt;
+
+    &lt;http:listener-config name="httpConfig" host="localhost" port="${port}" /&gt;
+
+    &lt;flow name="flow_api"&gt;
+        &lt;http:listener config-ref="httpConfig" path="api" /&gt;
+        &lt;logger message="Executing empty" level="INFO"/&gt;
+    &lt;/flow&gt;
+
+&lt;/mule&gt;</code></pre>
+    </div>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Example: All Configurable Attributes
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway"
+      xsi:schemaLocation="
+       http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+       http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+       http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd"&gt;
+
+    &lt;api-gateway:autodiscovery apiId="1" flowRef="flow_api" /&gt;
+
+    &lt;http:listener-config name="httpConfig" basePath="api"&gt;
+        &lt;http:listener-connection host="localhost" port="${port}"/&gt;
+    &lt;/http:listener-config&gt;
+
+    &lt;flow name="flow_api"&gt;
+        &lt;http:listener config-ref="httpConfig" path="api" /&gt;
+        &lt;logger message="Executing empty" level="INFO"/&gt;
+    &lt;/flow&gt;
+
+&lt;/mule&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     <a class="xref page" href="migration-api-gateways">
+      Migrating API Gateways
+     </a>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     <a class="xref page" href="migration-api-gateways-policies">
+      Migrating API Gateways: Policies
+     </a>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     <a class="xref page" href="migration-api-gateways-runtime-config">
+      Migrating API Gateways: Mule Runtime Configuration
+     </a>
+    </p>
+   </div>
+  </div>
+ </div>
+</article>

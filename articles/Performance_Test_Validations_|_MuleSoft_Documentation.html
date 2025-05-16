@@ -1,0 +1,336 @@
+<article class="doc">
+ <h1 class="page">
+  Performance Test Validations
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To validate your application’s performance:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Learn testing prerequisites.
+      </p>
+     </li>
+     <li>
+      <p>
+       Follow best practices.
+      </p>
+     </li>
+     <li>
+      <p>
+       Execute performance testing.
+      </p>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="performance-test-validation-prerequisites">
+   <a class="anchor" href="#performance-test-validation-prerequisites">
+   </a>
+   Performance Test Validation Prerequisites
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Before executing performance testing:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Confirm that your Mule app and its functions work as expected because a wrong flow can give false-positive data.
+      </p>
+     </li>
+     <li>
+      <p>
+       Establish performance test criteria by asking yourself the following questions:
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          What are the expected average and peak workloads?
+         </p>
+        </li>
+        <li>
+         <p>
+          What specific need does your use case address?:
+         </p>
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             Throughput, when handling a large volume of transactions is a high priority.
+            </p>
+           </li>
+           <li>
+            <p>
+             Response time or latency, if spikes in activity negatively affect user experience.
+            </p>
+           </li>
+           <li>
+            <p>
+             Concurrency, if it is necessary to support a large number of users connecting at the same time.
+            </p>
+           </li>
+           <li>
+            <p>
+             Managing large messages, when the application is transferring, caching, storing, or processing a payload bigger than 1 MB.
+            </p>
+           </li>
+          </ul>
+         </div>
+        </li>
+        <li>
+         <p>
+          What is the minimum acceptable throughput?
+         </p>
+        </li>
+        <li>
+         <p>
+          What is the maximum acceptable response time?
+         </p>
+        </li>
+       </ul>
+      </div>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="performance-test-validations-best-practices">
+   <a class="anchor" href="#performance-test-validations-best-practices">
+   </a>
+   Performance Test Validations Best Practices
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Testing best practices require you to consider your testing environment, your testing tools, component isolation, and representative workloads.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="use-a-controlled-environment">
+     <a class="anchor" href="#use-a-controlled-environment">
+     </a>
+     Use a Controlled Environment
+    </h3>
+    <div class="paragraph">
+     <p>
+      Use a self-controlled environment to obtain repeatable, reliable, and consistent data:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        Use an infrastructure made by a triplet:
+       </p>
+       <div class="ulist">
+        <ul>
+         <li>
+          <p>
+           Use a dedicated host for the Mule application to isolate app information, preventing other running processes from interfering with the results in case of on-premises tests.
+          </p>
+         </li>
+         <li>
+          <p>
+           Use a separate dedicated host for running load client tools that can drive the load without becoming a bottleneck.
+          </p>
+         </li>
+         <li>
+          <p>
+           Use a separate dedicated host to run backend services like the database, Tomcat, JMS, ActiveMQ, and so on. Test using the same host that the application uses in production.
+          </p>
+         </li>
+         <li>
+          <p>
+           For on-premises tests, run the load client, runtime server, and backend in the same Anypoint Virtual Private Cloud (Anypoint VPC) to decrease network latency.
+          </p>
+         </li>
+         <li>
+          <p>
+           For CloudHub tests, run the load client and backend server on dedicated machine that is separate from but in the same region as the CloudHub worker to decrease network latency.
+          </p>
+         </li>
+        </ul>
+       </div>
+      </li>
+      <li>
+       <p>
+        Use a wired stable network.
+       </p>
+      </li>
+      <li>
+       <p>
+        Don’t use your laptop because it may outperform the same application deployed to a customer’s environment, particularly if it is virtualized.
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="imageblock">
+     <div class="content">
+      <img alt="A test infrastructure setup including Load Client, Mule, and backend services" src="_images/mruntime-tuning-test-infrastructure.png"/>
+     </div>
+     <div class="title">
+      Figure 1. Performance test infrastructure (Separate host avoid interference)
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="choose-the-right-components-tools">
+     <a class="anchor" href="#choose-the-right-components-tools">
+     </a>
+     Choose the Right Components Tools
+    </h3>
+    <div class="paragraph">
+     <p>
+      The components used for testing can make a big difference for your use case. To get realistic performance data, use the most suitable load injector and a backend service configured with the same setup as your customer environment. Then choose the load-test tool that best matches your use case. The MuleSoft Performance team uses Apache JMeter, but you can use any of many available enterprise and open-source load test tools for a variety of different implementations, such as single-threaded, multithreaded, nonblocking, and so on.
+After you choose the right testing tools and begin to use them, continue to use them so that you obtain consistent test results. If you decide that the tools you have are not the right ones for your use case and you change them, you must execute all of the tests again.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="isolate-the-components-of-the-test">
+     <a class="anchor" href="#isolate-the-components-of-the-test">
+     </a>
+     Isolate the Components of the Test
+    </h3>
+    <div class="paragraph">
+     <p>
+      Because performance is an iterative process during which any of many variables can negatively affect the results, it is important that you be able to identify and isolate the variables causing a problem. To do this, split your application into several small pieces, each targeting a specific component or connector in the flow. This helps you to identify the bottlenecks and direct optimization efforts towards a specific flow element.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="use-representative-workloads">
+     <a class="anchor" href="#use-representative-workloads">
+     </a>
+     Use Representative Workloads
+    </h3>
+    <div class="paragraph">
+     <p>
+      When you test your application, it is important to imitate realistic customer use cases. To do so, gather information about the following characteristics of actual customer scenarios:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        User behavior
+       </p>
+      </li>
+      <li>
+       <p>
+        Workload (number of virtual users, number of messages, and so on)
+       </p>
+      </li>
+      <li>
+       <p>
+        Payloads (types, sizes and complexity)
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="paragraph">
+     <p>
+      Using this information, you can then create different repeatable, common, and high-load scenarios that test the performance limits of Mule without causing failure. To imitate actual customer behavior, introduce variables such as think time between requests and latency to the backend service.
+     </p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="execute-performance-test-validations">
+   <a class="anchor" href="#execute-performance-test-validations">
+   </a>
+   Execute Performance Test Validations
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Before you start the test execution, ideally remove the ramp-up, tear down, and error percentage settings that can affect the throughput calculation results. Considering the best practices from the previous section, execute the testing:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Apply performance testing to spot and validate the bottlenecks of the applications.
+      </p>
+     </li>
+     <li>
+      <p>
+       Use an iterative approach for tuning issues that you find:
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          For a CloudHub application, tune Mule flows and configurations
+         </p>
+        </li>
+        <li>
+         <p>
+          For on-premises applications:
+         </p>
+         <div class="olist loweralpha">
+          <ol class="loweralpha" type="a">
+           <li>
+            <p>
+             Tune Mule flows and configurations.
+            </p>
+           </li>
+           <li>
+            <p>
+             Tune the JVM, GC, and so on.
+            </p>
+            <div class="paragraph">
+             <p>
+              For application performance, see
+              <a class="xref page" href="../../general/java-support#application-performance">
+               Application Performance
+              </a>
+              .
+             </p>
+            </div>
+           </li>
+           <li>
+            <p>
+             Tune operating system variables.
+            </p>
+           </li>
+          </ol>
+         </div>
+        </li>
+       </ul>
+      </div>
+     </li>
+     <li>
+      <p>
+       Execute the test several times for trustworthy results. Make one
+       <a class="xref page" href="tuning-recommendations">
+        Tuning Recommendation
+       </a>
+       change at a time and then retest.
+      </p>
+     </li>
+     <li>
+      <p>
+       Check the test results.
+      </p>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+</article>

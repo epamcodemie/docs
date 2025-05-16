@@ -1,0 +1,1791 @@
+<article class="doc">
+ <h1 class="page">
+  Migrating the Database Connector
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The main changes to the Database connector from Mule 3 to Mule 4 include:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       All database operations (such as Select, Insert, Update, Delete, and others) have been refactored into separate operations. There are also new, dedicated bulk operations for Mule 4.
+      </p>
+     </li>
+     <li>
+      <p>
+       Use of DataWeave: Database operations, such as Insert and Update, support DataWeave version 2 transformations. You can construct the data sets that insert or update the database without message side effects, and you no longer use message enrichers.
+      </p>
+     </li>
+     <li>
+      <p>
+       You can perform dynamic and static queries in similar ways.
+      </p>
+     </li>
+     <li>
+      <p>
+       The Mule streaming framework is automatically configured for your operations. You can execute a select statement and process the results asynchronously without worrying about leaking connections.
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="whats_covered_here">
+   <a class="anchor" href="#whats_covered_here">
+   </a>
+   What’s Covered Here?
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a href="#database_configuration">
+        Database Connection Configurations
+       </a>
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          <a href="#data_source_ref">
+           Data Source Reference
+          </a>
+         </p>
+        </li>
+        <li>
+         <p>
+          <a href="#connector_config_detail">
+           Examples: Detailed Connector Configurations
+          </a>
+         </p>
+        </li>
+       </ul>
+      </div>
+     </li>
+     <li>
+      <p>
+       <a href="#database_dynamic_queries">
+        Migrating Dynamic Queries
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#database_streaming">
+        Streaming Large Results
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#database_operation_bulk">
+        Migrating Bulk Operations
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#database_bulk_execute">
+        Migrating the Bulk Execute Operation
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#tx_actions">
+        Transactional Actions
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#output_target">
+        Output Target
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="database_configuration">
+   <a class="anchor" href="#database_configuration">
+   </a>
+   Database Connection Configurations
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The Database connectors for Mule 3 and Mule 4 support Derby, MySQL, Oracle, and generic database configurations. For Mule 4, Microsoft SQL Server and Data Source Reference connections are also supported.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The XML for these connection configurations has changed in Mule 4:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Mule 3: Database elements such as
+       <code>
+        &lt;db:derby-config /&gt;
+       </code>
+       are the top-level elements.
+      </p>
+     </li>
+     <li>
+      <p>
+       Mule 4:
+       <code>
+        &lt;db:config /&gt;
+       </code>
+       is the top-level element for all database connection configurations in Mule 4, and specific database configurations are nested under separate
+       <code>
+        &lt;db:config /&gt;
+       </code>
+       elements:
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          Derby:
+          <code>
+           &lt;db:derby-connection /&gt;
+          </code>
+         </p>
+        </li>
+        <li>
+         <p>
+          Microsoft SQL Server:
+          <code>
+           &lt;db:mssql-connection /&gt;
+          </code>
+         </p>
+        </li>
+        <li>
+         <p>
+          MySQL:
+          <code>
+           &lt;db:my-sql-connection /&gt;
+          </code>
+         </p>
+        </li>
+        <li>
+         <p>
+          Oracle:
+          <code>
+           &lt;db:oracle-connection /&gt;
+          </code>
+         </p>
+        </li>
+        <li>
+         <p>
+          Generic:
+          <code>
+           &lt;db:generic-connection /&gt;
+          </code>
+         </p>
+        </li>
+        <li>
+         <p>
+          Data Source Reference Connection:
+          <code>
+           &lt;db:data-source-connection /&gt;
+          </code>
+         </p>
+        </li>
+       </ul>
+      </div>
+     </li>
+    </ul>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Example: Derby Connection Configuration
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;db:derby-config name="DerbyConfig" url="derbydatabase.com/MydatabaseTest"/&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Notice that
+     <code>
+      &lt;db:derby-config /&gt;
+     </code>
+     in the Mule 3 example above changes to
+     <code>
+      &lt;db:config /&gt;
+     </code>
+     in the Mule 4 example below, and the attribute for the URL to the database changes from
+     <code>
+      url
+     </code>
+     to
+     <code>
+      database
+     </code>
+     in Mule 4. The
+     <code>
+      &lt;db:derby-connection /&gt;
+     </code>
+     child element is new in Mule 4.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Examples: Derby Connection Configuration
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;db:config name="DerbyConfig"&gt;
+  &lt;db:derby-connection database="derbydatabase.com/MydatabaseTest" /&gt;
+&lt;/db:config&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Also note that in Mule 4, additional
+     <code>
+      &lt;db:derby-connection /&gt;
+     </code>
+     settings (XML attributes) are available:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <code>
+        create="true|false"
+       </code>
+       : Whether to create the database if it does not exist.
+      </p>
+     </li>
+     <li>
+      <p>
+       <code>
+        subsubProtocol="directory"
+       </code>
+       : Type of SubsubProtocol to be used by Derby. The available options are
+       <code>
+        directory
+       </code>
+       ,
+       <code>
+        memory
+       </code>
+       ,
+       <code>
+        classpath
+       </code>
+       and
+       <code>
+        jar
+       </code>
+       .
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     The next section describes connection configurations for other databases.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="data_source_ref">
+     <a class="anchor" href="#data_source_ref">
+     </a>
+     Data Source Reference
+    </h3>
+    <div class="paragraph">
+     <p>
+      These topics provide Mule 4 XML examples for other database connections and include connector-specific settings:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        <a href="#example_data_source_db">
+         Mule 4 Example: Data Source Reference
+        </a>
+       </p>
+      </li>
+      <li>
+       <p>
+        <a href="#example_generic_db">
+         Mule 4 Example: Generic
+        </a>
+       </p>
+      </li>
+      <li>
+       <p>
+        <a href="#example_mssql_db">
+         Mule 4 Example: Microsoft SQL Server
+        </a>
+       </p>
+      </li>
+      <li>
+       <p>
+        <a href="#example_mysql_db">
+         Mule 4 Example: MySQL
+        </a>
+       </p>
+      </li>
+      <li>
+       <p>
+        <a href="#example_oracle_db">
+         Mule 4 Example: Oracle JDBC Database
+        </a>
+       </p>
+      </li>
+      <li>
+       <p>
+        <a href="#example_mssql_db">
+         Mule 4 Example: Microsoft SQL Server
+        </a>
+       </p>
+      </li>
+      <li>
+       <p>
+        <a href="#example_driver">
+         Example: Maven dependency setting for a Microsoft SQL Server driver
+        </a>
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="paragraph">
+     <p>
+      Note that the Mule 3 example for Derby in the previous section shows most of the main differences between Mule 3 and Mule 4 for database connection configurations, including My SQL, Oracle, and so on. It also shows the main migration pattern from Mule 3 to Mule 4 database connections:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        Derby:
+        <a href="#database_configuration">
+         Database Connection Configurations
+        </a>
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="sect3">
+     <h4 id="example_data_source_db">
+      <a class="anchor" href="#example_data_source_db">
+      </a>
+      Mule 4 Example: Data Source Reference
+     </h4>
+     <div class="paragraph">
+      <p>
+       To use a Data Source Reference you need to:
+      </p>
+     </div>
+     <div class="paragraph">
+      <p>
+       1 - Create a XML Spring Beans file creating the Spring Bean representing the
+       <code>
+        DataSource
+       </code>
+      </p>
+     </div>
+     <div class="listingblock">
+      <div class="title">
+       datasource-spring-beans.xml
+      </div>
+      <div class="content">
+       <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="
+               http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd"&gt;
+
+    &lt;bean id="jdbcDataSource" class="org.enhydra.jdbc.standard.StandardDataSource" destroy-method="shutdown"&gt;
+        &lt;property name="driverName" value="org.apache.derby.jdbc.EmbeddedDriver"/&gt;
+        &lt;property name="url" value="jdbc:derby:muleEmbeddedDB;create=true"/&gt;
+    &lt;/bean&gt;
+
+&lt;/beans&gt;</code></pre>
+      </div>
+     </div>
+     <div class="admonitionblock warning">
+      <table>
+       <tr>
+        <td class="icon">
+         <i class="fa icon-warning" title="Warning">
+         </i>
+        </td>
+        <td class="content">
+         Is required to configure the Maven dependency which contains the DataSource implementation.
+For this example,
+         <code>
+          org.enhydra.jdbc.standard.StandardDataSource
+         </code>
+         , the required dependency is:
+         <br/>
+         <br/>
+         <code>
+          &lt;dependency&gt;
+         </code>
+         <br/>
+         <code>
+          &lt;groupId&gt;com.experlog&lt;/groupId&gt;
+         </code>
+         <br/>
+         <code>
+          &lt;artifactId&gt;xapool&lt;/artifactId&gt;
+         </code>
+         <br/>
+         <code>
+          &lt;version&gt;1.5.0&lt;/version&gt;
+         </code>
+         <br/>
+         <code>
+          &lt;/dependency&gt;
+         </code>
+        </td>
+       </tr>
+      </table>
+     </div>
+     <div class="paragraph">
+      <p>
+       2 - Create Data Source Connection
+      </p>
+     </div>
+     <div class="colist calloutlist">
+      <table>
+       <tr>
+        <td>
+         <i class="conum" data-value="1">
+         </i>
+         <b>
+          1
+         </b>
+        </td>
+        <td>
+         Import the
+         <code>
+          datasource-spring-beans.xml
+         </code>
+         file using the
+         <strong>
+          Mule Spring Module
+         </strong>
+         [link to Spring Module]
+        </td>
+       </tr>
+       <tr>
+        <td>
+         <i class="conum" data-value="2">
+         </i>
+         <b>
+          2
+         </b>
+        </td>
+        <td>
+         Create the DB Config with the DataSource Connection, and add as
+         <code>
+          dataSourceRef
+         </code>
+         the Spring Bean ID of the
+DataSource Bean created in
+         <code>
+          datasource-spring-beans.xml
+         </code>
+         .
+        </td>
+       </tr>
+      </table>
+     </div>
+     <div class="listingblock">
+      <div class="content">
+       <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;spring:config name="spring-beans" files="datasource-spring-beans.xml"/&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+
+&lt;db:config name="db-datasource"&gt;
+    &lt;db:data-source-connection dataSourceRef="jdbcDataSource"&gt; <i class="conum" data-value="2"></i><b>(2)</b>
+        &lt;reconnection failsDeployment="true"&gt;
+            &lt;reconnect frequency="4000" count="4"/&gt;
+        &lt;/reconnection&gt;
+        &lt;db:column-types&gt;
+            &lt;db:column-type id="124"
+                            typeName="column_type"
+                            className="class_name"/&gt;
+        &lt;/db:column-types&gt;
+        &lt;db:pooling-profile maxPoolSize="6" minPoolSize="1"
+                            acquireIncrement="2" preparedStatementCacheSize="6"
+                            maxWait="1" maxWaitUnit="MINUTES"/&gt;
+    &lt;/db:data-source-connection&gt;
+&lt;/db:config&gt;</code></pre>
+      </div>
+     </div>
+     <div class="paragraph">
+      <p>
+       This setting is unique to Data Source Reference:
+      </p>
+     </div>
+     <div class="ulist">
+      <ul>
+       <li>
+        <p>
+         <code>
+          dataSourceRef="my_ref_here"
+         </code>
+         : Reference to a JDBC DataSource object. This object is typically created using Spring. When using XA transactions, an XADataSource object must be provided.
+        </p>
+       </li>
+      </ul>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="example_generic_db">
+      <a class="anchor" href="#example_generic_db">
+      </a>
+      Mule 4 Example: Generic
+     </h4>
+     <div class="listingblock">
+      <div class="content">
+       <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;db:config name="generic_connection"&gt;
+  &lt;db:generic-connection url="url_here" driverClassName="driver_class_name_here"
+    transactionIsolation="READ_COMMITTED" useXaTransactions="true"/&gt;
+&lt;/db:config&gt;</code></pre>
+      </div>
+     </div>
+     <div class="paragraph">
+      <p>
+       These setting are unique to a Generic database:
+      </p>
+     </div>
+     <div class="ulist">
+      <ul>
+       <li>
+        <p>
+         <code>
+          url="url_here"
+         </code>
+         for the JDBC URL to be used to connect to the database.
+        </p>
+       </li>
+       <li>
+        <p>
+         <code>
+          driverClassName="driver_class_name_here"
+         </code>
+         for the fully-qualified name of the database driver class.
+        </p>
+       </li>
+      </ul>
+     </div>
+     <div class="admonitionblock warning">
+      <table>
+       <tr>
+        <td class="icon">
+         <i class="fa icon-warning" title="Warning">
+         </i>
+        </td>
+        <td class="content">
+         The Maven dependency which contains the Class referenced in the
+         <code>
+          driverClassName
+         </code>
+         parameter should be configured in the Mule Application.
+         <br/>
+         Also, due to new Mule 4 ClassLoading mechanism, this dependency must be declared as a Shared Library to be
+exported to the DB Connector.
+        </td>
+       </tr>
+      </table>
+     </div>
+     <div class="paragraph">
+      <p>
+       See also,
+       <a href="#db_transactions">
+        Database Transactions
+       </a>
+       .
+      </p>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="example_mssql_db">
+      <a class="anchor" href="#example_mssql_db">
+      </a>
+      Mule 4 Example: Microsoft SQL Server
+     </h4>
+     <div class="listingblock">
+      <div class="content">
+       <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;db:config name="Microsoft_SQL_Server"&gt;
+  &lt;db:mssql-connection host="my_host" user="myuser" password="mypassword" databaseName="mydatabase" &gt;
+  &lt;/db:mssql-connection&gt;
+&lt;/db:config&gt;</code></pre>
+      </div>
+     </div>
+     <div class="paragraph">
+      <p>
+       See also,
+       <a href="#db_transactions">
+        Database Transactions
+       </a>
+       .
+      </p>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="example_mysql_db">
+      <a class="anchor" href="#example_mysql_db">
+      </a>
+      Mule 4 Example: MySQL
+     </h4>
+     <div class="listingblock">
+      <div class="content">
+       <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;db:config name="MySQL"&gt;
+  &lt;db:my-sql-connection host="myhost" user="myuser" password="mypassword" database="mydatabase" &gt;
+  &lt;/db:my-sql-connection&gt;
+&lt;/db:config&gt;</code></pre>
+      </div>
+     </div>
+     <div class="paragraph">
+      <p>
+       See also,
+       <a href="#db_transactions">
+        Database Transactions
+       </a>
+       .
+      </p>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="example_oracle_db">
+      <a class="anchor" href="#example_oracle_db">
+      </a>
+      Mule 4 Example: Oracle JDBC Database
+     </h4>
+     <div class="listingblock">
+      <div class="content">
+       <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;db:config name="Oracle_Connection"&gt;
+  &lt;db:oracle-connection host="myhost" user="myuser" password="mypassword" instance="myinstance" &gt;
+  &lt;/db:oracle-connection&gt;
+  &lt;expiration-policy /&gt;
+&lt;/db:config&gt;</code></pre>
+      </div>
+     </div>
+     <div class="paragraph">
+      <p>
+       See also,
+       <a href="#db_transactions">
+        Database Transactions
+       </a>
+       .
+      </p>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="example_driver">
+      <a class="anchor" href="#example_driver">
+      </a>
+      Example: Maven dependency setting for a Microsoft SQL Server driver
+     </h4>
+     <div class="paragraph">
+      <p>
+       Microsoft SQL Server, MySQL, Derby, Oracle configurations require a driver.
+      </p>
+     </div>
+     <div class="listingblock">
+      <div class="content">
+       <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;dependency&gt;
+  &lt;groupId&gt;com.microsoft.sqlserver&lt;/groupId&gt;
+  &lt;artifactId&gt;mssql-jdbc&lt;/artifactId&gt;
+  &lt;version&gt;6.2.2.jre8&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+      </div>
+     </div>
+     <div class="admonitionblock warning">
+      <table>
+       <tr>
+        <td class="icon">
+         <i class="fa icon-warning" title="Warning">
+         </i>
+        </td>
+        <td class="content">
+         Because of the new Mule 4 ClassLoading mechanism, this dependency must be declared as a Shared Library to be
+exported to the DB Connector. Using Studio, this will be automatically configured.
+        </td>
+       </tr>
+      </table>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="connector_config_detail">
+     <a class="anchor" href="#connector_config_detail">
+     </a>
+     Examples: Detailed Connector Configurations
+    </h3>
+    <div class="paragraph">
+     <p>
+      In Mule 4, you can add child elements for these settings under the database connection configurations (such as
+      <code>
+       &lt;db:mysql-config /&gt;
+      </code>
+      ):
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        <a href="#db_transactions">
+         Database Transactions
+        </a>
+       </p>
+       <div class="ulist">
+        <ul>
+         <li>
+          <p>
+           <a href="#tx_actions">
+            Transactional Actions
+           </a>
+          </p>
+         </li>
+         <li>
+          <p>
+           <a href="#tx_isolation">
+            Transaction Isolation
+           </a>
+          </p>
+         </li>
+         <li>
+          <p>
+           <a href="#xa_tx">
+            XA Transactions
+           </a>
+          </p>
+         </li>
+        </ul>
+       </div>
+      </li>
+      <li>
+       <p>
+        <a href="#connection_properties">
+         Connection Properties
+        </a>
+       </p>
+      </li>
+      <li>
+       <p>
+        <a href="#column_types">
+         Column Types
+        </a>
+       </p>
+      </li>
+      <li>
+       <p>
+        <a href="#pooling_profile">
+         Pooling Profile
+        </a>
+       </p>
+      </li>
+      <li>
+       <p>
+        <a href="#reconnection_strategies">
+         Reconnection Strategies
+        </a>
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="sect3">
+     <h4 id="db_transactions">
+      <a class="anchor" href="#db_transactions">
+      </a>
+      Database Transactions
+     </h4>
+     <div class="sect4">
+      <h5 id="tx_isolation">
+       <a class="anchor" href="#tx_isolation">
+       </a>
+       Transaction Isolation
+      </h5>
+      <div class="paragraph">
+       <p>
+        Transactions are for the transaction isolation level to set on the driver when connecting the database.
+       </p>
+      </div>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          <strong>
+           NOT_CONFIGURED
+          </strong>
+          (Default)
+         </p>
+        </li>
+        <li>
+         <p>
+          <strong>
+           READ_COMMITTED
+          </strong>
+          (
+          <code>
+           transactionIsolation="READ_COMMITTED"
+          </code>
+          )
+         </p>
+        </li>
+        <li>
+         <p>
+          <strong>
+           READ_UNCOMMITTED
+          </strong>
+          (
+          <code>
+           transactionIsolation="READ_UNCOMMITTED"
+          </code>
+          )
+         </p>
+        </li>
+        <li>
+         <p>
+          <strong>
+           REPEATABLE_READ
+          </strong>
+          (
+          <code>
+           transactionIsolation="REPEATABLE_READ"
+          </code>
+          )
+         </p>
+        </li>
+        <li>
+         <p>
+          <strong>
+           SERIALIZABLE
+          </strong>
+          (
+          <code>
+           transactionIsolation="SERIALIZABLE"
+          </code>
+          )
+         </p>
+        </li>
+       </ul>
+      </div>
+      <div class="listingblock">
+       <div class="title">
+        Mule 3 Example: Transaction Isolation
+       </div>
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;db:mysql-config name="db_config" host="0.0.0.0" port="3306" transactionIsolation="READ_COMMITTED"/&gt;</code></pre>
+       </div>
+      </div>
+      <div class="listingblock">
+       <div class="title">
+        Mule 4 Example: Transaction Isolation
+       </div>
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;db:config name="db_config" &gt;
+  &lt;db:my-sql-connection host="0.0.0.0" port="3306" transactionIsolation="READ_COMMITTED"/&gt;
+&lt;/db:config&gt;</code></pre>
+       </div>
+      </div>
+     </div>
+     <div class="sect4">
+      <h5 id="xa_tx">
+       <a class="anchor" href="#xa_tx">
+       </a>
+       XA Transactions
+      </h5>
+      <div class="paragraph">
+       <p>
+        Connections can be configured to work in XA Transactions, in both
+        <strong>
+         Mule 3
+        </strong>
+        and
+        <strong>
+         Mule 4
+        </strong>
+        this can be configured in the connection configuration setting
+        <code>
+         useXaTransactions="true"
+        </code>
+       </p>
+      </div>
+      <div class="listingblock">
+       <div class="title">
+        Mule 3 Example: XA Transactions
+       </div>
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;db:mysql-config name="db_config" host="0.0.0.0" port="3306" useXaTransactions="true"/&gt;</code></pre>
+       </div>
+      </div>
+      <div class="listingblock">
+       <div class="title">
+        Mule 4 Example: XA Transactions
+       </div>
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;db:config name="db_config" &gt;
+  &lt;db:my-sql-connection host="0.0.0.0" port="3306" useXaTransactions="true"/&gt;
+&lt;/db:config&gt;</code></pre>
+       </div>
+      </div>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="connection_properties">
+      <a class="anchor" href="#connection_properties">
+      </a>
+      Connection Properties
+     </h4>
+     <div class="paragraph">
+      <p>
+       <strong>
+        MySQL
+       </strong>
+       and
+       <strong>
+        Microsoft SQL Server
+       </strong>
+       database configurations provide connection property settings,
+these properties are injected to the JDBC Connection as additional properties.
+      </p>
+     </div>
+     <div class="listingblock">
+      <div class="title">
+       Mule 3 Example: Connection Properties
+      </div>
+      <div class="content">
+       <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;db:mysql-config name="db_config" host="0.0.0.0" port="3306" user="root" password="my-secret-pw"&gt;
+    &lt;db:connection-properties&gt;
+        &lt;db:property key="userId" value="123123"/&gt;
+        &lt;db:property key="permissions" value="SYS"/&gt;
+    &lt;/db:connection-properties&gt;
+&lt;/db:mysql-config&gt;</code></pre>
+      </div>
+     </div>
+     <div class="listingblock">
+      <div class="title">
+       Mule 4 Example: Connection Properties
+      </div>
+      <div class="content">
+       <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;db:config name="db_config" &gt;
+  &lt;db:my-sql-connection host="0.0.0.0" port="3306" user="root" password="my-secret-pw"&gt;
+    &lt;db:connection-properties &gt;
+      &lt;db:connection-property key="userId" value="123123" /&gt;
+      &lt;db:connection-property key="permissions" value="SYS" /&gt;
+    &lt;/db:connection-properties&gt;
+  &lt;/db:my-sql-connection&gt;
+&lt;/db:config&gt;</code></pre>
+      </div>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="column_types">
+      <a class="anchor" href="#column_types">
+      </a>
+      Column Types
+     </h4>
+     <div class="ulist">
+      <ul>
+       <li>
+        <p>
+         Column types (
+         <code>
+          &lt;db:column-types/&gt;
+         </code>
+         ) for non-standard column types.
+        </p>
+       </li>
+      </ul>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="pooling_profile">
+      <a class="anchor" href="#pooling_profile">
+      </a>
+      Pooling Profile
+     </h4>
+     <div class="ulist">
+      <ul>
+       <li>
+        <p>
+         Pooling profile (
+         <code>
+          &lt;db:pooling-profile/&gt;
+         </code>
+         ) for JDBC Data Sources capable of connection pooling connections. It’s almost identical to Connection Pooling in Mule 3.
+        </p>
+       </li>
+      </ul>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="reconnection_strategies">
+      <a class="anchor" href="#reconnection_strategies">
+      </a>
+      Reconnection Strategies
+     </h4>
+     <div class="paragraph">
+      <p>
+       Reconnection strategy settings are similar in Mule 3 and Mule 4. However, custom reconnection strategies are not available in Mule 4.
+      </p>
+     </div>
+     <div class="paragraph">
+      <p>
+       The examples below show changes to the XML for these settings:
+      </p>
+     </div>
+     <div class="ulist">
+      <ul>
+       <li>
+        <p>
+         <strong>
+          None
+         </strong>
+         : Default. Same as Do Not Use A Reconnection Strategy in Mule 3.
+        </p>
+       </li>
+       <li>
+        <p>
+         <strong>
+          Standard
+         </strong>
+         : Same as Standard Reconnection in Mule 3. Both have the same options: Frequency (ms), Reconnection Attempts
+        </p>
+       </li>
+       <li>
+        <p>
+         <strong>
+          Forever
+         </strong>
+         : Same as Reconnect Forever in Mule 3.
+        </p>
+        <div class="listingblock">
+         <div class="title">
+          Mule 3 Examples: Reconnection Settings
+         </div>
+         <div class="content">
+          <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;db:mysql-config ...&gt;
+  &lt;reconnect frequency="4000" count="4"/&gt;`
+&lt;/db:mysql-config&gt;
+
+&lt;db:mysql-config ...&gt;
+  &lt;reconnect-forever frequency="4000"/&gt;`
+&lt;/db:mysql-config&gt;</code></pre>
+         </div>
+        </div>
+        <div class="listingblock">
+         <div class="title">
+          Mule 4 Examples: Reconnection Settings
+         </div>
+         <div class="content">
+          <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;db:mssql-connection ...&gt;
+  &lt;reconnection failsDeployment="true"&gt;
+    &lt;reconnect frequency="4000" count="4"/&gt;
+  &lt;/reconnection&gt;
+&lt;/db:mssql-connection&gt;
+
+&lt;db:mssql-connection ...&gt;
+  &lt;reconnection &gt;
+    &lt;reconnect-forever frequency="4000" /&gt;
+  &lt;/reconnection&gt;
+&lt;/db:mssql-connection&gt;</code></pre>
+         </div>
+        </div>
+       </li>
+      </ul>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="database_operations_overview">
+   <a class="anchor" href="#database_operations_overview">
+   </a>
+   Database Connector Operations
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Query for SQL query text and input parameters
+      </p>
+     </li>
+     <li>
+      <p>
+       Streaming strategy settings (as shown here in
+       <a href="#database_streaming">
+        Streaming Large Results
+       </a>
+       )
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#tx_actions">
+        Transactional Actions
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       Query settings
+      </p>
+     </li>
+     <li>
+      <p>
+       Error mapping for errors, including DB:BAD_SQL_SYNTAX, DB:QUERY_EXECUTION
+      </p>
+     </li>
+     <li>
+      <p>
+       Mule 4 input and output metadata for attributes, payload, and variables
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="sect2">
+    <h3 id="database_parameterized_queries">
+     <a class="anchor" href="#database_parameterized_queries">
+     </a>
+     Migrating Parameterized Queries
+    </h3>
+    <div class="paragraph">
+     <p>
+      In Both
+      <strong>
+       Mule 3
+      </strong>
+      and
+      <strong>
+       Mule 4
+      </strong>
+      input parameters are supplied as key-value pairs.
+Those keys are used with the semicolon character (:) to reference a parameter value by name,
+this means that written SQL parameterized queries in
+      <strong>
+       Mule 3
+      </strong>
+      doesn’t need changes to be used
+in
+      <strong>
+       Mule 4
+      </strong>
+      .
+This approach is recommended to avoid SQL injection attacks, and it allows the connector
+to perform optimizations that improve the overall performance of the Mule app.
+     </p>
+    </div>
+    <div class="sect3">
+     <h4 id="input-parameters">
+      <a class="anchor" href="#input-parameters">
+      </a>
+      Input Parameters
+     </h4>
+     <div class="ulist">
+      <ul>
+       <li>
+        <p>
+         In
+         <strong>
+          Mule 3
+         </strong>
+         each Input Parameter was defined as a
+         <code>
+          &lt;db:in-param/&gt;
+         </code>
+         element inside the
+         <code>
+          &lt;db:select/&gt;
+         </code>
+         operation
+which had an
+         <code>
+          name
+         </code>
+         attribute for the parameter name, and a
+         <code>
+          value
+         </code>
+         attribute which holds the parameter value.
+        </p>
+       </li>
+       <li>
+        <p>
+         In
+         <strong>
+          Mule 4
+         </strong>
+         , the input parameters are defined as Map
+         <code>
+          &lt;db:input-parameters&gt;
+         </code>
+         , where the key is the name of the parameter, and the value
+as the parameter value. This map can only be created using DataWeave.
+        </p>
+       </li>
+      </ul>
+     </div>
+     <div class="listingblock">
+      <div class="title">
+       Mule 3 Example: Parameterized SELECT Query
+      </div>
+      <div class="content">
+       <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;db:select config-ref="databaseConfig"&gt;
+    &lt;db:parameterized-query&gt;
+       SELECT * FROM employees WHERE last_name = :last_name
+    &lt;/db:parameterized-query&gt;
+    &lt;db:in-param name="last_name" value="#[flowVars.lastName]"/&gt;
+&lt;/db:select&gt;</code></pre>
+      </div>
+     </div>
+     <div class="listingblock">
+      <div class="title">
+       Mule 4 Example: Parameterized SELECT Query
+      </div>
+      <div class="content">
+       <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;db:select config-ref="databaseConfig"&gt;
+  &lt;db:sql&gt;
+    SELECT * FROM employees WHERE last_name = :last_name
+  &lt;/db:sql&gt;
+  &lt;db:input-parameters&gt;
+    #[
+      {
+        last_name : vars.lastName
+      }
+    ]
+  &lt;/db:input-parameters&gt;
+&lt;/db:select&gt;</code></pre>
+      </div>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="database_dynamic_queries">
+     <a class="anchor" href="#database_dynamic_queries">
+     </a>
+     Migrating Dynamic Queries
+    </h3>
+    <div class="paragraph">
+     <p>
+      Sometimes, you not only need to parameterize the WHERE clause, but also parameterize parts of the query itself. Example use cases for this would be queries which need to hit online/historic tables depending on a condition, or complex queries where the project columns need to vary.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      In Mule 3, the concept of select was split in parameterized and dynamic queries, and you couldn’t use both at the same time. You had to choose between having a dynamic query or having the advantages of using parameters (SQL Injection protection, PreparedStatement optimization, etc.). Furthermore, the syntax to do one or the other was different, so you had to learn two different ways of doing the same thing.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      But with the new Database Connector in Mule 4, you can now use both methods at the same time by using expressions in the query:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 3 Example: Dynamic SELECT Query
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;db:select config-ref="databaseConfig"&gt;
+  &lt;db:dynamic-query&gt;
+    SELECT * FROM #[flowVars.table] WHERE name = #[flowVars.name]
+  &lt;/db:dynamic-query&gt;
+&lt;/db:select&gt;</code></pre>
+     </div>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 4 Example: Dynamic SELECT Query
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;db:select config-ref="databaseConfig"&gt;
+  &lt;db:sql&gt;
+    #['SELECT * FROM $(vars.table) WHERE name = $(vars.name)']
+  &lt;/db:sql&gt;
+&lt;/db:select&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      GOTCHA: The Mule 3 example is less performant and vulnerable to SQL Injection attacks since the entire query is being treated as a string instead of using PreparedStatements
+     </p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="database_streaming">
+   <a class="anchor" href="#database_streaming">
+   </a>
+   Streaming Large Results
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Streaming can handle results queries to big database tables, which might return tens of thousands of records, especially for integration use cases. Streaming is a great solution for this.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="enabling-streaming">
+     <a class="anchor" href="#enabling-streaming">
+     </a>
+     Enabling Streaming
+    </h3>
+    <div class="paragraph">
+     <p>
+      In
+      <strong>
+       Mule 3
+      </strong>
+      , streaming is disabled by default, so you have to enable it to use it.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      In
+      <strong>
+       Mule 4
+      </strong>
+      , streaming is always on but you can configure the strategy through which the runtime will achieve repeatable streaming. For more information on this, please refer to the
+      <a class="xref page" href="streaming-about">
+       streaming documentation page
+      </a>
+      .
+     </p>
+    </div>
+    <div class="literalblock">
+     <div class="content">
+      <pre>TIP: Note that disabling repeatable streaming will prevent DataWeave and other components to process the a stream many times, even in parallel.</pre>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="database_operation_bulk">
+     <a class="anchor" href="#database_operation_bulk">
+     </a>
+     Migrating Bulk Operations
+    </h3>
+    <div class="sect3">
+     <h4 id="enabling-bulk-mode">
+      <a class="anchor" href="#enabling-bulk-mode">
+      </a>
+      Enabling Bulk Mode
+     </h4>
+     <div class="paragraph">
+      <p>
+       In
+       <strong>
+        Mule 3
+       </strong>
+       , you set bulk functionality through a
+       <code>
+        bulkMode="true"
+       </code>
+       setting on
+       <strong>
+        Insert, Update, and Delete
+       </strong>
+       operations.
+      </p>
+     </div>
+     <div class="paragraph">
+      <p>
+       In
+       <strong>
+        Mule 4
+       </strong>
+       , you use dedicated Bulk Insert (
+       <code>
+        &lt;db:bulk-insert&gt;
+       </code>
+       ), Bulk Update (
+       <code>
+        &lt;db:bulk-update&gt;
+       </code>
+       ), and Bulk Delete (
+       <code>
+        &lt;db:bulk-delete&gt;
+       </code>
+       ) database, instead. This means that operations no longer change their behavior depending on the received payload.
+      </p>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="consuming-bulk-data">
+      <a class="anchor" href="#consuming-bulk-data">
+      </a>
+      Consuming bulk data
+     </h4>
+     <div class="paragraph">
+      <p>
+       In
+       <strong>
+        Mule 3
+       </strong>
+       , in a bulk query, the connector worked similar to the
+       <code>
+        &lt;for-each/&gt;
+       </code>
+       component, it took the current payload value,
+ expecting to be a collection of items, and executes the
+       <code>
+        &lt;db:in-param /&gt;
+       </code>
+       expressions with each value of the collection.
+      </p>
+     </div>
+     <div class="paragraph">
+      <p>
+       In
+       <strong>
+        Mule 4
+       </strong>
+       , is slightly different, instead of consuming the payload and executing expressions for each element in a collection,
+is required to inject a collection of entries.
+      </p>
+     </div>
+     <div class="sect4">
+      <h5 id="examples">
+       <a class="anchor" href="#examples">
+       </a>
+       Examples:
+      </h5>
+      <div class="listingblock">
+       <div class="title">
+        Mule 3 Example: Select with a Parameterized Query
+       </div>
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;db:insert config-ref="db_config" bulkMode="true"&gt;
+    &lt;db:parameterized-query&gt;
+      INSERT INTO customers (id, name, lastName)
+      VALUES (:id, :name, :lastName)
+    &lt;/db:parameterized-query&gt;
+    &lt;db:in-param name="id" value="#[payload.id]"/&gt;
+    &lt;db:in-param name="name" value="#[payload.name]"/&gt;
+    &lt;db:in-param name="lastName" value="#[payload.lastName]"/&gt;
+&lt;/db:insert&gt;</code></pre>
+       </div>
+      </div>
+      <div class="listingblock">
+       <div class="title">
+        Mule 4 Example: Using the Bulk Operation to Get Different Values
+       </div>
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;db:bulk-insert config-ref="db_config" &gt;
+  &lt;db:sql&gt;
+    INSERT INTO customers (id, name, lastName)
+    VALUES (:id, :name, :lastName)
+  &lt;/db:sql&gt;
+  &lt;db:bulk-input-parameters&gt;
+  #[[{
+      id: 2,
+      name: 'George',
+      lastName: 'Costanza'
+    },
+    {
+      id: 3,
+      name: 'Cosmo',
+      lastName: 'Kramer'
+    }]]
+  &lt;/db:bulk-input-parameters&gt;
+&lt;/db:bulk-insert&gt;</code></pre>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="database_bulk_execute">
+     <a class="anchor" href="#database_bulk_execute">
+     </a>
+     Migrating the Bulk Execute Operation
+    </h3>
+    <div class="paragraph">
+     <p>
+      The
+      <code>
+       &lt;db:bulk-execute&gt;
+      </code>
+      operation from the Mule 3 connector is replaced by the
+      <code>
+       &lt;db:execute-script&gt;
+      </code>
+      operation.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      It’s important to note that even though the Mule 3 version uses the word
+      <code>
+       bulk
+      </code>
+      , it is not an actual bulk operation as in the examples above. Instead, it executes many individual statements using the same connection, but it does not create bulk prepared statements. So, in Mule 4, the operation is named
+      <code>
+       execute-script
+      </code>
+      to better describe what it is doing.
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 4 Example: Using the
+      <code>
+       execute-script
+      </code>
+      operation
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;db:execute-script config-ref="dbConfig"&gt;
+    &lt;db:sql&gt;
+        update PLANET set NAME='Mercury' where POSITION=0;
+        update PLANET set NAME='Mercury' where POSITION=4
+    &lt;/db:sql&gt;
+&lt;/db:execute-script&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      You can also extract the statements to an external file:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 4 Example: Using the
+      <code>
+       execute-script
+      </code>
+      operation with an external file
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;db:execute-script config-ref="dbConfig" file="bulk-script.sql" /&gt;</code></pre>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="tx_actions">
+     <a class="anchor" href="#tx_actions">
+     </a>
+     Transactional Actions
+    </h3>
+    <div class="paragraph">
+     <p>
+      When database operations are executed inside a transaction, they can determine how to
+interact with the transaction.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      Available Transactional Actions:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        <strong>
+         ALWAYS_JOIN
+        </strong>
+       </p>
+      </li>
+      <li>
+       <p>
+        <strong>
+         JOIN_IF_POSSIBLE
+        </strong>
+       </p>
+      </li>
+      <li>
+       <p>
+        <strong>
+         NOT_SUPPORTED
+        </strong>
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 3 Example: Transactional Action
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;db:select config-ref="db_config" transactionalAction="ALWAYS_JOIN"&gt;
+   &lt;db:parameterized-query&gt;
+     SELECT * FROM people
+   &lt;/db:parameterized-query&gt;
+&lt;/db:select&gt;</code></pre>
+     </div>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 4 Example: Transactional Action
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;db:select config-ref="db_config" transactionalAction="ALWAYS_JOIN"&gt;
+  &lt;db:sql&gt;
+    SELECT * FROM people
+  &lt;/db:sql&gt;
+&lt;/db:select&gt;</code></pre>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="output_target">
+     <a class="anchor" href="#output_target">
+     </a>
+     Output Target
+    </h3>
+    <div class="paragraph">
+     <p>
+      In
+      <strong>
+       Mule 3
+      </strong>
+      the DB Connector had the capability of save the execution output in a desired
+target variable. In
+      <strong>
+       Mule 4
+      </strong>
+      , this can still be done, but with a few differences.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      In
+      <strong>
+       Mule 3
+      </strong>
+      what was considered as output was just the execution result, so when
+configuring, for example:
+      <code>
+       target="#[flowVars.targetVar]"
+      </code>
+      this meant that the query
+execution will be saved in the flow variable
+      <code>
+       targetVar
+      </code>
+      .
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      In
+      <strong>
+       Mule 4
+      </strong>
+      is very similar, you have a
+      <code>
+       target
+      </code>
+      parameter which is the name of the
+target Flow Variable, this can’t be an expression, and the new parameter in
+      <strong>
+       Mule 4
+      </strong>
+      is
+      <code>
+       targetValue
+      </code>
+      , this is an expression that is evaluated against the operation
+result. For example this can be:
+      <code>
+       #[payload]
+      </code>
+      , to save the entire payload, or
+      <code>
+       #[payload[0]]
+      </code>
+      to just save the first row of a Select Query.
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 3 Example: Output Target
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;db:select config-ref="db_config" target="#[flowVars.targetVar]"&gt;
+    &lt;db:parameterized-query&gt;
+      SELECT * FROM People
+    &lt;/db:parameterized-query&gt;
+&lt;/db:select&gt;</code></pre>
+     </div>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 4 Example: Output Target
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;db:select config-ref="db_config" target="targetVar" targetValue="#[payload]"&gt;
+  &lt;db:sql&gt;
+    SELECT * from People
+  &lt;/db:sql&gt;
+&lt;/db:select&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      To use the Database connector, simply add it to your application using the Studio palette or add the following dependency in your
+      <code>
+       pom.xml
+      </code>
+      file:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.mule.connectors&lt;/groupId&gt;
+    &lt;artifactId&gt;mule-db-connector&lt;/artifactId&gt;
+    &lt;version&gt;1.2.0&lt;/version&gt; &lt;!-- or newer --&gt;
+    &lt;classifier&gt;mule-plugin&lt;/classifier&gt;
+&lt;/dependency&gt;</code></pre>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../db-connector/latest/">
+        Database Connector Overview
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="streaming-about">
+        Streaming in Mule 4.0
+       </a>
+       .
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

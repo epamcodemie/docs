@@ -1,0 +1,156 @@
+<article class="doc">
+ <h1 class="page">
+  Hardening your Mule Installation
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     As distinct from Security, hardening refers to the steps one must perform in order to bring an application from development into production. These are elaborate procedures one must go through in order to deploy something in the IT space after you complete the development cycle.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Normally, an IT organization already has control of keeping open ports to a minimum, restricting access to administrative applications, minimizing the number of applications, and other measures to ensure quality. We recommend using secure files to configure Mule, as well as using secure configuration files.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="hardening-checklist">
+   <a class="anchor" href="#hardening-checklist">
+   </a>
+   Hardening Checklist
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To begin hardening a Mule installation that you are hosting on premises:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Run Mule as a non-privileged User.
+      </p>
+     </li>
+     <li>
+      <p>
+       Install Mule as a Service.
+      </p>
+     </li>
+     <li>
+      <p>
+       Configure Mule to write logs or temporary files within appropriate locations. Configure logs, passwords, and keystore files.
+      </p>
+     </li>
+     <li>
+      <p>
+       In some situations, you must configure usernames, passwords, and keystores on Mule. Usually, these settings are made available externally, so that DevOps can change these settings.
+      </p>
+     </li>
+     <li>
+      <p>
+       Manage certificates in a keystore file.
+      </p>
+     </li>
+     <li>
+      <p>
+       Use a separate property file to store usernames and passwords, and secure it using file system permissions.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     For instructions specific to Runtime Fabric, see
+     <a class="xref page" href="../../runtime-fabric/latest/configure-hardening">
+      Hardening Mule Runtime on Runtime Fabric
+     </a>
+     .
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="about-running-mule-as-a-non-privileged-user">
+     <a class="anchor" href="#about-running-mule-as-a-non-privileged-user">
+     </a>
+     About Running Mule as a Non-Privileged User
+    </h3>
+    <div class="paragraph">
+     <p>
+      On Linux and Unix, you can run Mule as any user with the following caveats:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        You need write permissions to logs directory
+       </p>
+      </li>
+      <li>
+       <p>
+        Without root you cannot use ports below 1024
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="paragraph">
+     <p>
+      On Windows, you need to be in admin user’s group to run Mule.
+     </p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="hardening-in-layers">
+   <a class="anchor" href="#hardening-in-layers">
+   </a>
+   Hardening in Layers
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     By its nature, you can situate Mule in a variety of configurations. The suggested approach to hardening involves hardening in layers beginning with the operating system, then working up the stack. The Center for Internet Security (CIS) publishes configuration benchmarks that are widely used in whole or in part as system hardening guides.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Commercial configuration management and integrity management tools can help you automate management to the CIS benchmarks. Also, Mule documentation includes a good deal of information on configuring security. If your application deals in sensitive data, consider using SSL Transport (HTTPS) to protect it.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     On the network security side, security experts recommend using a good stateful inspection network firewall with a default-deny rule set and exceptions only for justified business needs. Also, any internet facing server belongs in a DMZ with strong default-deny egress rules on the firewall to prevent data exfiltration. Furthermore, you can use a network IDS/IPS to monitor and prevent known attacks. Putting the database on an internal network - not the DMZ - also helps to harden your installation.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Be sure your software developers are familiar with secure web application coding techniques. At the very least, they should be familiar with best practices to avoid common web app pitfalls, such as those listed in OWASP’s top 10 Project.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="securing">
+        Security
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

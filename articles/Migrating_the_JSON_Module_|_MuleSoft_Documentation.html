@@ -1,0 +1,290 @@
+<article class="doc">
+ <h1 class="page">
+  Migrating the JSON Module
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     A new JSON module in Mule 4 replaces the one that was bundled in with Mule 3 for schema validation.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     To migrate transformations involving JSON, MuleSoft recommends that you use DataWeave.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="transformers">
+   <a class="anchor" href="#transformers">
+   </a>
+   Migrating Transformers
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In Mule 3, many components required the payload to be a POJO so that its fields could be accessed. In Mule 4, DataWeave can be used as a query language directly on the JSON payload, which completely avoids the need to convert the payload to a POJO as an intermediate step.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="json-to-object-transformer">
+     <a class="anchor" href="#json-to-object-transformer">
+     </a>
+     JSON to Object Transformer
+    </h3>
+    <div class="paragraph">
+     <p>
+      For mapping rules that are configured for the
+      <code>
+       json:json-to-object-transformer
+      </code>
+      , you can express the rules in DataWeave.
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        In Mule 3:
+       </p>
+       <div class="paragraph">
+        <p>
+         Example: Mixin used in the Mapper Configuration
+        </p>
+       </div>
+       <div class="listingblock">
+        <div class="content">
+         <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public abstract class AppleMixin
+{
+    AppleMixin(@JsonProperty("bitten") boolean wasBitten)
+    {
+        super();
+    }
+
+}</code></pre>
+        </div>
+       </div>
+       <div class="paragraph">
+        <p>
+         Example: Transformer Referencing the Mapper
+        </p>
+       </div>
+       <div class="listingblock">
+        <div class="content">
+         <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;json:mapper name="myMapper"&gt;
+    &lt;json:mixin mixinClass="org.mule.module.json.transformers.AppleMixin"
+                    targetClass="org.mule.tck.testmodels.fruit.Apple"/&gt;
+&lt;/json:mapper&gt;
+
+&lt;flow name="flow"&gt;
+    &lt;json:json-to-object-transformer returnClass="org.mule.tck.testmodels.fruit.Apple"
+                                     mapper-ref="myMapper"/&gt;
+&lt;/flow&gt;</code></pre>
+        </div>
+       </div>
+      </li>
+      <li>
+       <p>
+        In Mule 4:
+       </p>
+       <div class="paragraph">
+        <p>
+         Example: Using DataWeave as the Mapper
+        </p>
+       </div>
+       <div class="listingblock">
+        <div class="content">
+         <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="flow"&gt;
+    &lt;ee:transform&gt;
+        &lt;ee:message&gt;
+            &lt;ee:set-payload&gt;
+                &lt;![CDATA[%dw 2.0
+                    type apple = Object { class: "org.mule.tck.testmodels.fruit.Apple"}
+                    output application/java
+                    ---
+                    {
+                        wasBitten = bitten
+                    } as apple
+                ]]&gt;
+            &lt;/ee:set-payload&gt;
+        &lt;/ee:message&gt;
+    &lt;/ee:transform&gt;
+&lt;/flow&gt;</code></pre>
+        </div>
+       </div>
+      </li>
+     </ul>
+    </div>
+    <div class="paragraph">
+     <p>
+      You don’t have to define a mapper or a mixin class in Mule 4. The mapping rules are defined using DataWeave code.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="object-to-json-transformer">
+     <a class="anchor" href="#object-to-json-transformer">
+     </a>
+     Object to JSON Transformer
+    </h3>
+    <div class="paragraph">
+     <p>
+      The mapping rules for the
+      <code>
+       json:object-to-json-transformer
+      </code>
+      are also expressed using DataWeave:
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      In Mule 3:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        Example: Transformer with Mixins
+       </p>
+       <div class="listingblock">
+        <div class="content">
+         <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="flow"&gt;
+    &lt;json:object-to-json-transformer returnClass="org.mule.tck.testmodels.fruit.Apple"&gt;
+        &lt;json:serialization-mixin mixinClass="org.mule.module.json.transformers.AppleMixin"
+                                  targetClass="org.mule.tck.testmodels.fruit.Apple"/&gt;
+
+    &lt;/json:object-to-json-transformer&gt;
+&lt;/flow&gt;</code></pre>
+        </div>
+       </div>
+      </li>
+     </ul>
+    </div>
+    <div class="paragraph">
+     <p>
+      In Mule 4:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        Example: Using DataWeave as the Mapper
+       </p>
+       <div class="listingblock">
+        <div class="content">
+         <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="flow"&gt;
+    &lt;ee:transform&gt;
+        &lt;ee:message&gt;
+            &lt;ee:set-payload&gt;
+                &lt;![CDATA[%dw 2.0
+                    output application/json
+                    ---
+                    {
+                        bitten = wasBitten
+                    }
+                ]]&gt;
+            &lt;/ee:set-payload&gt;
+        &lt;/ee:message&gt;
+    &lt;/ee:transform&gt;
+&lt;/flow&gt;</code></pre>
+        </div>
+       </div>
+      </li>
+     </ul>
+    </div>
+    <div class="paragraph">
+     <p>
+      In Mule 4 you can set the output format in the transformation. In this case, the expression defines the output as
+      <code>
+       application/json
+      </code>
+      , so the transformation function returns a JSON payload.
+     </p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="xslt">
+   <a class="anchor" href="#xslt">
+   </a>
+   Migrating XSLT Operations
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In Mule 4, the JSON module does not provide a component that transforms the JSON based on an XSLT mapping. Possible ways to handle this case are:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Migrate the XSLT to a DataWeave transformation (recommended)
+      </p>
+     </li>
+     <li>
+      <p>
+       Use XSLT support of the XML module, first converting the payload to XML.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Example: Using XSLT to Transform JSON
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="flow"&gt;
+    ...
+	&lt;xml-module:xslt-transform&gt;
+	    &lt;xml-module:content&gt;#[output application/xml --- payload]&lt;/xml-module:content&gt;
+	    &lt;xml-module:xslt&gt;
+	        (the XSLT transformation) ...
+	    &lt;/xml-module:xslt&gt;
+	&lt;/xml-module:xslt-transform&gt;
+	...
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../json-module/latest/">
+        JSON Module
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="dataweave">
+        DataWeave Language
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../xml-module/latest/">
+        XML Module
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

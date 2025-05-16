@@ -1,0 +1,325 @@
+<article class="doc">
+ <h1 class="page">
+  Introduction to Mule 4: DataWeave 2.0
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     DataWeave 2 is largely unchanged from DataWeave 1. However, MuleSoft made many improvements to make it easier to learn and added new capabilities.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="operators-are-functions">
+   <a class="anchor" href="#operators-are-functions">
+   </a>
+   Operators Are Functions
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In DataWeave 2, all operators are now functions. While this can involve more parentheses, it is less ambiguous and more friendly to learn through auto-completion features. The previous syntax continues to work for functions with two parameters, providing a shorter syntax for power users.
+    </p>
+   </div>
+   <table class="tableblock frame-all grid-all stretch">
+    <colgroup>
+     <col style="width: 33.3333%;"/>
+     <col style="width: 33.3333%;"/>
+     <col style="width: 33.3334%;"/>
+    </colgroup>
+    <tbody>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        DataWeave 1
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        <code>
+         sizeOf payload filter $.age &gt; 30
+        </code>
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        DataWeave 2 - Function Syntax
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        <code>
+         sizeOf(filter(payload, (value) → value.age &gt; 30)))
+        </code>
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        DataWeave 2 - Shortcut Syntax
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        <code>
+         sizeOf(payload filter $.age &gt; 30)
+        </code>
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+      </td>
+     </tr>
+    </tbody>
+   </table>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="traits-are-functions">
+   <a class="anchor" href="#traits-are-functions">
+   </a>
+   Traits Are Functions
+  </h2>
+  <div class="sectionbody">
+   <table class="tableblock frame-all grid-all stretch">
+    <colgroup>
+     <col style="width: 33.3333%;"/>
+     <col style="width: 33.3333%;"/>
+     <col style="width: 33.3334%;"/>
+    </colgroup>
+    <tbody>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        DataWeave 1
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        <code>
+         payload is :empty
+        </code>
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        DataWeave 2
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        <code>
+         isEmpty(payload)
+        </code>
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+      </td>
+     </tr>
+    </tbody>
+   </table>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="type-names">
+   <a class="anchor" href="#type-names">
+   </a>
+   Type Names
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     DataWeave 2 uses a type name syntax, which removes the
+     <code>
+      :
+     </code>
+     from the name.
+    </p>
+   </div>
+   <table class="tableblock frame-all grid-all stretch">
+    <colgroup>
+     <col style="width: 33.3333%;"/>
+     <col style="width: 33.3333%;"/>
+     <col style="width: 33.3334%;"/>
+    </colgroup>
+    <tbody>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        DataWeave 1
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        <code>
+         payload.foo as :string
+        </code>
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        DataWeave 2
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <p class="tableblock">
+        <code>
+         payload.foo as String
+        </code>
+       </p>
+      </td>
+      <td class="tableblock halign-left valign-top">
+      </td>
+     </tr>
+    </tbody>
+   </table>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="xml-format">
+   <a class="anchor" href="#xml-format">
+   </a>
+   XML Format
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The default for the reader property
+     <code>
+      nullValueOn
+     </code>
+     is
+     <code>
+      empty
+     </code>
+     for DataWeave 2.0.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     For DataWeave 1.0 (which is compatible with Mule 3.x), the value is
+     <code>
+      none
+     </code>
+     , for example:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     DataWeave Script
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-dataweave hljs" data-lang="dataweave">%dw 1.0
+%output application/xml nullValueOn="none"
+---
+payload</code></pre>
+    </div>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Input
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;book&gt;
+  &lt;name&gt;&lt;/name&gt;
+&lt;/book&gt;</code></pre>
+    </div>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Output
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;book/&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="new-capabilities">
+   <a class="anchor" href="#new-capabilities">
+   </a>
+   New Capabilities
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     There are also many new capabilities, including:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Typing for reusable functions
+      </p>
+     </li>
+     <li>
+      <p>
+       Multi-line comments
+      </p>
+     </li>
+     <li>
+      <p>
+       Ability to call out to Java code
+      </p>
+     </li>
+     <li>
+      <p>
+       Multipart, URL-encoded, and text readers and writers
+      </p>
+     </li>
+     <li>
+      <p>
+       Modules and imports
+      </p>
+     </li>
+     <li>
+      <p>
+       and more
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     <a class="xref page" href="migration-dataweave">
+      Migrating from DataWeave 1.0 to 2.x
+     </a>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     <a class="xref page" href="dataweave">
+      DataWeave Language
+     </a>
+    </p>
+   </div>
+  </div>
+ </div>
+</article>

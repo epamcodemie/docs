@@ -1,0 +1,337 @@
+<article class="doc">
+ <h1 class="page">
+  Migrating Watermarks
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Watermarking is typically used to perform data synchronization, for example, when polling a legacy resource to retrieve new data and to sync it with another destination endpoint. The watermarking technique stores and retrieves the point at which a periodic synchronization resumes the next time it executes. Watermarking is a typically used alongside ObjectStore.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     For the Mule 3 approach, see this MuleSoft blog:
+     <a href="https://blogs.mulesoft.com/dev/anypoint-platform-dev/data-synchronizing-made-easy-with-mule-watermarks/">
+      Data Synchronizing made easy with Watermarks
+     </a>
+     .
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Here’s the Mule 3 watermark example from that blog:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Example: Polling Salesforce contacts using watermark
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="syncWithWatermark" processingStrategy="synchronous"&gt;
+  &lt;poll&gt;
+    &lt;fixed-frequency-scheduler frequency="1" timeUnit="HOURS" /&gt;
+      &lt;watermark variable="timestamp"
+       default-expression="#[server.dateTime.format(&amp;quot;yyyy-MM-dd'T'HH:mm:ss.SSS'Z'&amp;quot;)]"
+       selector="MAX"
+			 selector-expression="#[payload.LastModifiedDate]" /&gt;
+    &lt;sfdc:query config-ref="Salesforce" query="select Id, LastModifiedDate from Contact where LastModifiedDate &amp;amp;gt; #[flowVars['timestamp']]" /&gt;
+  &lt;/poll&gt;
+  &lt;flow-ref name="doYourSyncMagic" /&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     As the Anypoint Platform grew and our use cases became more complicated, limitations started to appear in the Mule 3 approach:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Although the old
+       <code>
+        &lt;watermark&gt;
+       </code>
+       component did allow for setting a custom ObjectStore, there was no easy way to create it. This is a problem we already addressed in this document and know the new ObjectStore connector fixes
+      </p>
+     </li>
+     <li>
+      <p>
+       The
+       <code>
+        &lt;watermark&gt;
+       </code>
+       element required the
+       <code>
+        &lt;poll&gt;
+       </code>
+       component (now replaced with
+       <code>
+        &lt;scheduler&gt;
+       </code>
+       ) to return an iterable payload. Furthermore, you were required to fully iterate over that payload to obtain the new watermark value. Failure to do so resulted in the value being wrongfully updated or not updated at all.
+      </p>
+     </li>
+     <li>
+      <p>
+       There was no way to update the watermark with a contingency value in case of the flow throwing an error.
+      </p>
+     </li>
+     <li>
+      <p>
+       How and when the value got updated was not completely clear to non expert users.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     When we sat down to figure out how to improve this use case, we realized that the real root of the problem was that in reality the &lt;watermark&gt; shouldn’t be necessary at all. It’s existence was just a consequence of limitations in other components:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       The watermark’s artificial iteration was just a way to compensate for the fact that many data sets could only be iterated once, specially when dealing with binary streams or with connectors doing auto paging. This problem is now fixed in Mule 4 thanks to the repeatable streaming feature
+      </p>
+     </li>
+     <li>
+      <p>
+       The component’s automatic handling of the ObjectStore was just to compensate for UX problems on the old ObjectStore support. If the new connector were to provide easier semantics, it wouldn’t be needed at all.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     In Mule 4, you can perform the use case described in the Mule 3 blog post above like this:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;os:object-store name="watermarkStore" persistent="true"/&gt;
+
+&lt;flow name="watermark"&gt;
+  &lt;os:retrieve key="watermark" objectStore="watermarkStore" target="watermark"&gt;
+    &lt;os:default-value&gt;2017-09-11T00:00:00.000Z&lt;/os:default-value&gt;
+  &lt;/os:retrieve&gt;
+  &lt;sfdc:query config-ref="config"&gt;
+    &lt;sfdc:salesforce-query&gt;
+      &lt;![CDATA[
+        #["Select Id, Name, BillingCity,Phone,Website,LastModifiedDate from account WHERE LastModifiedDate &gt; " ++ vars.watermark]
+      ]]&gt;
+    &lt;/sfdc:salesforce-query&gt;
+  &lt;/sfdc:query&gt;
+  &lt;flow-ref name="doYourIntegrationLogic" /&gt;
+  &lt;os:store key="watermark" failIfPresent="false" failOnNullValue="false" objectStore="watermarkStore"&gt;
+    &lt;os:value&gt;#[max(payload map $.LastModifiedDate)]&lt;/os:value&gt;
+  &lt;/os:store&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Let’s break the example down step by step:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       First, this flow is generic. It doesn’t require to be triggered in any specific way. It could be invoked from another flow, you could add a
+       <code>
+        &lt;scheduler&gt;
+       </code>
+       to it, it doesn’t matter. You can now achieve watermark semantics without forcing any type of trigger.
+      </p>
+     </li>
+     <li>
+      <p>
+       This configuration starts by defining a custom ObjectStore for the watermark. This is not needed. You could not define an ObjectStore and just use the one that every application has implicit. But just for the sake of the example, we’ll use our own here.
+      </p>
+     </li>
+     <li>
+      <p>
+       The flow starts with a retrieve operation to get the last watermark value. Notice that:
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          The retrieve operation specifies a default value. This is so that when the flow runs for the first time and no watermark was calculated yet, you still get a usable value. This avoids the need for a
+          <code>
+           &lt;choice&gt;
+          </code>
+          →
+          <code>
+           &lt;contains&gt;
+          </code>
+          kind of pattern.
+         </p>
+        </li>
+        <li>
+         <p>
+          The Target (
+          <code>
+           target
+          </code>
+          ) parameter is used to tell the connector not to override the message payload with the watermark, but instead put it in a variable. Because this has no side effect on the message, the flow is now reusable and easier to maintain, since you could add any kind of operation before the retrieve operation, nothing would break.
+         </p>
+        </li>
+       </ul>
+      </div>
+     </li>
+     <li>
+      <p>
+       Then we perform the query, in which we use the watermark to filter the obtained results
+      </p>
+     </li>
+     <li>
+      <p>
+       Then we do whatever processing is needed. This can be anything from sending to another system, transforming, it doesn’t matter.
+      </p>
+     </li>
+     <li>
+      <p>
+       And finally, we update the watermark value. There’s a lot to be said about this step too:
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          The new watermark value should be the maximum updated timestamp. We use a DataWeave expression to obtain that value
+         </p>
+        </li>
+        <li>
+         <p>
+          Notice that thanks to the repeatable streaming feature, we now don’t care about what the integration logic was. Even if the query operation is auto paged (which it is!), this feature guarantees that we can still iterate the resultset again.
+         </p>
+        </li>
+        <li>
+         <p>
+          The
+          <code>
+           failIfPresent
+          </code>
+          parameter is set to false. Otherwise, the operation would only work the first time and fail if the watermark were already in the object store. By setting it to false, the value will be updated if present
+         </p>
+        </li>
+        <li>
+         <p>
+          And finally, the
+          <code>
+           failOnNullValue
+          </code>
+          parameter was set to false. Why? Because if the query comes back empty, the DW expression which looks for the max value will return null, because there’s no value. By setting this to true, the connector will automatically skip null values saving the user from using a
+          <code>
+           &lt;choice&gt;
+          </code>
+          router to check the condition
+         </p>
+        </li>
+       </ul>
+      </div>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="automatic-watermark">
+   <a class="anchor" href="#automatic-watermark">
+   </a>
+   Automatic Watermark
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The above is great and more powerful than what we had in Mule 3, but we wanted to make it even simpler. That’s why some connectors already include event sources capable of doing watermarking automatically, without the need for you to take any of the steps above. At the moment of writing this document, the File, Ftp, Sftp, Database and Salesforce connectors have this capability, but we will continue to add support for this in other connectors.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Let’s use the file connector to see an example of how this works:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Example: Automatic watermark in the file connector
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="onNewInvoice"&gt;
+  &lt;file:listener config-ref="file" directory="invoices" autoDelete="false" watermarkMode="CREATED_TIMESTAMP"&gt;
+      &lt;scheduling-strategy&gt;
+          &lt;fixed-frequency frequency="1000"/&gt;
+      &lt;/scheduling-strategy&gt;
+  &lt;/file:listener&gt;
+  &lt;flow-ref name="onNewInvoice"/&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     In this example, we get automatic watermarking using the file’s creation time as a filtering criteria. The
+     <code>
+      watermarkMode
+     </code>
+     parameter can also be set to
+     <code>
+      MODIFIED_TIMESTAMP
+     </code>
+     if we wanted to listen for modified files instead or even to
+     <code>
+      DISABLED
+     </code>
+     if we don’t want any watermarking at all.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     We only recommend to take "the long way" described in the first example when:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Your use case is very custom
+      </p>
+     </li>
+     <li>
+      <p>
+       You are using a connector which doesn’t support automatic watermarking.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     In any other case, we recommend automatic watermarking as the best way of dealing with these use cases.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../object-store-connector/latest/">
+        Object Store connector documentation
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

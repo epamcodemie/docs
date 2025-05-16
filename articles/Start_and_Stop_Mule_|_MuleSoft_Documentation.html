@@ -1,0 +1,587 @@
+<article class="doc">
+ <h1 class="page">
+  Start and Stop Mule
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Learn how to start and stop Mule runtime engine to deploy Mule applications. To take full advantage of managing and monitoring features, you can deploy to the same Mule instance via the Anypoint Runtime Manager.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Mule uses the Java Service Wrapper to control the Java Virtual Machine (JVM) from your native OS. The wrapper provides many options and features, including the ability to run Mule as a Unix daemon or install or remove Mule as a Windows Service. The wrapper can handle system signals and start parameters, and overall provides much better interaction between the JVM and the underlying OS.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="startup-and-shutdown-script">
+   <a class="anchor" href="#startup-and-shutdown-script">
+   </a>
+   Startup and Shutdown Script
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The wrapper is called by a script in
+     <code>
+      $MULE_HOME/bin
+     </code>
+     .
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The following table lists all the parameters that the script accepts:
+    </p>
+   </div>
+   <table class="tableblock frame-all grid-all stretch">
+    <colgroup>
+     <col style="width: 30%;"/>
+     <col style="width: 70%;"/>
+    </colgroup>
+    <thead>
+     <tr>
+      <th class="tableblock halign-left valign-top">
+       Parameter
+      </th>
+      <th class="tableblock halign-left valign-top">
+       Description
+      </th>
+     </tr>
+    </thead>
+    <tbody>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           start
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Starts Mule in the terminal background.
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           stop
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Stops Mule. Inbound endpoints process in-flight messages before Mule shuts down. However, after the timeout period, inflight messages that haven’t completed are abandoned and Mule shuts down.
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           restart
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Restarts Mule.
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           status
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <strong>
+           (Linux/Unix only.)
+          </strong>
+          Displays the status of the Mule server (
+          <code>
+           running
+          </code>
+          or
+          <code>
+           not running
+          </code>
+          ) and the process PID if running.
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           dump
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <strong>
+           (Linux/Unix only.)
+          </strong>
+          Dumps the Mule wrapper’s core to
+          <code>
+           $MULE_HOME/log/mule_ee.log
+          </code>
+          .
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           console
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Start Mule in the terminal foreground (console mode). Same as running
+          <code>
+           mule
+          </code>
+          with no parameters.
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           install
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Install Mule as a Windows Service or Linux/Unix Daemon.
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           remove
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Remove Mule from your Windows Services or Linux/Unix Daemons.
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+    </tbody>
+   </table>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="start-mule">
+   <a class="anchor" href="#start-mule">
+   </a>
+   Start Mule
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Start Mule from a command line by changing the directory to where you unzipped the Mule software distribution and then changing to the bin directory. Run the following commands:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       On Windows environments:
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-powershell hljs" data-lang="powershell">$ $MULE_HOME\bin\mule.bat</code></pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       On Linux/Unix environments:
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ $MULE_HOME/bin/mule</code></pre>
+       </div>
+      </div>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     These commands run Mule in foreground mode, and the startup script displays information on the terminal’s standard output. You can’t issue further commands on the terminal as long as Mule is running.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     To stop Mule, press
+     <code>
+      CTRL-C
+     </code>
+     in the terminal in which the script is running.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="start-mule-as-a-windows-service">
+   <a class="anchor" href="#start-mule-as-a-windows-service">
+   </a>
+   Start Mule as a Windows Service
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To run Mule as a Windows service, you need to install it first by running:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-powershell hljs" data-lang="powershell">$ $MULE_HOME\bin\mule.bat install</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Once installed, you can run Mule as a service:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-powershell hljs" data-lang="powershell">$ $MULE_HOME\bin\mule.bat start</code></pre>
+    </div>
+   </div>
+   <div class="admonitionblock note">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-note" title="Note">
+       </i>
+      </td>
+      <td class="content">
+       <div class="paragraph">
+        <p>
+         When Windows restarts, the Mule service stops the same way as using the
+         <code>
+          mule stop
+         </code>
+         command.
+The only situation where this could be different is if Windows kills the process due to a timeout.
+        </p>
+       </div>
+      </td>
+     </tr>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="start-mule-as-a-linuxunix-daemon">
+   <a class="anchor" href="#start-mule-as-a-linuxunix-daemon">
+   </a>
+   Start Mule as a Linux/Unix Daemon
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To run Mule as a Linux-Unix Daemon, you need to install it first by running:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ $MULE_HOME/bin/mule install</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Once installed, you can run Mule as a daemon:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ $MULE_HOME/bin/mule start</code></pre>
+    </div>
+   </div>
+   <div class="admonitionblock note">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-note" title="Note">
+       </i>
+      </td>
+      <td class="content">
+       <div class="paragraph">
+        <p>
+         You can also start Mule without executing the installation step, which starts Mule in the background of the current user session.
+        </p>
+       </div>
+      </td>
+     </tr>
+    </table>
+   </div>
+   <div class="paragraph">
+    <p>
+     The following example starts Mule from a Unix console:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ $MULE_HOME/bin/mule start
+MULE_HOME is set to ~/Downloads/mule-enterprise-standalone-4.3.0
+MULE_BASE is set to ~/Downloads/mule-enterprise-standalone-4.3.0
+Starting Mule Enterprise Edition...
+Waiting for Mule Enterprise Edition.................
+running: PID:87318</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="start-mule-from-a-script">
+   <a class="anchor" href="#start-mule-from-a-script">
+   </a>
+   Start Mule from a Script
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To start Mule from a script or from your IDE without using the Java Service Wrapper, you can use the
+     <code>
+      org.mule.MuleServer
+     </code>
+     class. This class accepts a couple of parameters.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre>org.mule.MuleServer -config mule-config.xml</pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     or
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre>org.mule.MuleServer -builder &lt;fully qualified classname&gt; -config appContext.xml</pre>
+    </div>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <strong>
+        -config
+       </strong>
+       specifies one or more configuration files to use. If this argument is omitted, it will look for and use
+       <code>
+        mule-config.xml
+       </code>
+       if it exists.
+      </p>
+     </li>
+     <li>
+      <p>
+       <strong>
+        -builder
+       </strong>
+       is a fully qualified classname of the configuration builder to use. If this is not set, the default
+       <code>
+        org.mule.config.builders.AutoConfigurationBuilder
+       </code>
+       is used, which will try to auto-detect configuration files based on available builders. In the most common scenario, this will resolve to
+       <code>
+        org.mule.config.spring.SpringXmlConfigurationBuilder
+       </code>
+       .
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     The easiest way to set the classpath is to include all JARs in the
+     <code>
+      ./lib/mule
+     </code>
+     and
+     <code>
+      ./lib/opt
+     </code>
+     directories of the distribution. You can look at the dependency report for the server and each of the modules to see exactly which JARs are required for a particular module.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="stop-mule">
+   <a class="anchor" href="#stop-mule">
+   </a>
+   Stop Mule
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Run the
+     <code>
+      stop
+     </code>
+     command to stop Mule.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The following example stops Mule from a Unix console:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ $MULE_HOME/bin/mule stop
+MULE_HOME is set to /Applications/mule-enterprise-standalone-4.3.0
+MULE_BASE is set to /Applications/mule-enterprise-standalone-4.3.0
+Stopping Mule Enterprise Edition...
+Stopped Mule Enterprise Edition.</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="runtime-installation-task">
+        Download, Install, Configure, and Upgrade Mule
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="deploying">
+        Deploy Mule Applications
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../monitoring/am-installing">
+        Anypoint Monitoring
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../runtime-manager/">
+        Runtime Manager
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../runtime-manager/deployment-strategies">
+        Deployment Strategies
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="mule-app-properties-system#set-properties">
+        Set System Properties when Starting Mule
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

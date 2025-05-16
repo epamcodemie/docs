@@ -1,0 +1,415 @@
+<article class="doc">
+ <h1 class="page">
+  Migrating to the Email connector
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The POP3, IMAP and SMTP transports were completely rewritten. They evolved away from the Mule 3 transport
+model into a single operation-based connector.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     This change enables many new capabilities:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       The ability to list emails contents on demand, unlike the old IMAP and POP3 transports, which only provided a polling inbound endpoint.
+      </p>
+     </li>
+     <li>
+      <p>
+       Simplified experience to send emails.
+      </p>
+     </li>
+     <li>
+      <p>
+       Simplified experience to get the data of incoming emails.
+      </p>
+     </li>
+     <li>
+      <p>
+       Consistency between all mule connectors.
+      </p>
+     </li>
+     <li>
+      <p>
+       Advanced email matching functionality.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     They were merged to a bring similar experience either you want to receive or send and
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="migrating-imap-pop3-or-smtp-server-configurations">
+   <a class="anchor" href="#migrating-imap-pop3-or-smtp-server-configurations">
+   </a>
+   Migrating IMAP, POP3 or SMTP Server Configurations
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Here you can see examples on how to migrate each one of the email transports configurations that
+were in mule 3 to the new mule 4 email connector.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     In the following Mule 4 configuration examples you’ll see that most of the parameters that were
+declared in the
+     <code>
+      inbound-endpoint
+     </code>
+     or
+     <code>
+      outbound-endpoint
+     </code>
+     such as
+     <code>
+      user
+     </code>
+     ,
+     <code>
+      password
+     </code>
+     ,
+     <code>
+      host
+     </code>
+     ,
+     <code>
+      port
+     </code>
+     between others
+have been moved to the
+     <code>
+      connection
+     </code>
+     element.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="migrating-a-pop3-inbound-endpoint">
+     <a class="anchor" href="#migrating-a-pop3-inbound-endpoint">
+     </a>
+     Migrating a POP3 Inbound Endpoint
+    </h3>
+    <div class="listingblock">
+     <div class="title">
+      Mule 3 Example: POP3 Inbound Configuration with Polling
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;pop3:connector name="pop3"/&gt;
+
+&lt;flow name="list"&gt;
+    &lt;pop3:inbound-endpoint checkFrequency="100" user="bob" password="password" host="pop.example.com" port="995"/&gt;
+    ...
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 4 Example: POP3 Configuration
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;email:pop3-config name="pop3"&gt;
+  &lt;email:pop3-connection connector-ref="pop3" host="pop.example.com" port="995" user="bob" password="password"/&gt;
+&lt;/email:pop3-config&gt;
+
+&lt;flow name="list"&gt;
+  &lt;scheduler&gt;
+    &lt;scheduling-strategy&gt;&lt;fixed-frequency frequency="100"&gt;&lt;/scheduling-strategy&gt;
+  &lt;/scheduler&gt;
+  &lt;email:list-pop3 config-ref="pop3"/&gt;
+  ...
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="admonitionblock note">
+     <table>
+      <tr>
+       <td class="icon">
+        <i class="fa icon-note" title="Note">
+        </i>
+       </td>
+       <td class="content">
+        the list-pop3 operation does not perform the polling, an scheduler is in charge to trigger the flow.
+       </td>
+      </tr>
+     </table>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="migrating-an-imap-inbound-endpoint">
+     <a class="anchor" href="#migrating-an-imap-inbound-endpoint">
+     </a>
+     Migrating an IMAP Inbound Endpoint
+    </h3>
+    <div class="listingblock">
+     <div class="title">
+      Mule 3 Example: IMAP Inbound Configuration with Polling
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;imap:connector name="imap" checkFrequency="100"/&gt;
+
+&lt;flow name="retrieve-emails"&gt;
+  &lt;imap:inbound-endpoint user="bob" password="password" host="pop.example.com" port="995"/&gt;
+  ...
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 4 Example: POP3 Configuration
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;email:imap-config name="imap"&gt;
+  &lt;email:imap-connection connector-ref="imap" host="pop.example.com" port="995" user="bob" password="password"/&gt;
+&lt;/email:imap-config&gt;
+
+&lt;flow name="list"&gt;
+  &lt;scheduler&gt;
+    &lt;scheduling-strategy&gt;&lt;fixed-frequency frequency="100"&gt;&lt;/scheduling-strategy&gt;
+  &lt;/scheduler&gt;
+  &lt;email:list-imap config-ref="imap"/&gt;
+  ...
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="admonitionblock note">
+     <table>
+      <tr>
+       <td class="icon">
+        <i class="fa icon-note" title="Note">
+        </i>
+       </td>
+       <td class="content">
+        the list-imap operation does not perform the polling, an scheduler is in charge to trigger the flow.
+       </td>
+      </tr>
+     </table>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="inbound-email-attachments">
+     <a class="anchor" href="#inbound-email-attachments">
+     </a>
+     Inbound Email Attachments
+    </h3>
+    <div class="paragraph">
+     <p>
+      In Mule 3, attachments in the received email were set on the
+      <code>
+       inboundAttachments
+      </code>
+      field of the Message. In the Email connector for Mule 4, the
+attachments are a field of the message payload, modeled as a Map and
+accessible through DataWeave. For instance, to reference an attachment called
+      <code>
+       photo_png
+      </code>
+      , the expression is
+      <code>
+       #[payload.attachments['photo_png']]
+      </code>
+      .
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="migrating-an-smtp-outbound-endpoint">
+     <a class="anchor" href="#migrating-an-smtp-outbound-endpoint">
+     </a>
+     Migrating an SMTP Outbound Endpoint
+    </h3>
+    <div class="listingblock">
+     <div class="title">
+      Mule 3 Example: SMTP Outbound Configuration.
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;smtp:connector name="smtp"/&gt;
+
+&lt;flow name="send-email"&gt;
+  ...
+  &lt;smtp:outbound-endpoint connector-ref="smtp" host="smtp.example.com" user="bob" password="password"
+                          port="587" subject="Hello Ale!" from="bob@mulesoft.com" to="ale@mulesoft.com" /&gt;
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 4 Example: SMTP Configuration
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;email:smtp-config name="smtp"&gt;
+    &lt;email:smtp-connection host="smtp.example.com" port="587" user="bob" password="password"/&gt;
+&lt;/email:smtp-config&gt;
+
+&lt;flow name="send"&gt;
+    &lt;email:send config-ref="smtp" subject="Hello Ale!" from="bob@mulesoft.com"&gt;
+        &lt;email:to-addresses&gt;
+            &lt;email:to-address value="ale@mulesoft.com"/&gt;
+        &lt;/email:to-addresses&gt;
+        &lt;email:body&gt;
+            &lt;email:content&gt;#[payload]&lt;/email:content&gt;
+        &lt;/email:body&gt;
+    &lt;/email:send&gt;
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      In the Mule 3 transport, the properties of the outgoing email (subject,
+addresses, and so on) could be configured through outbound properties set in the event,
+before the execution of the outbound SMTP endpoint. In that case, the outbound
+properties took precedence over the values configured in the endpoint or
+connector themselves.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      Unlike Mule 3, attachments to be sent with an email must be configured
+explicitly on the
+      <code>
+       email:send
+      </code>
+      operation, rather that obtained from the
+      <code>
+       outboundAttachments
+      </code>
+      field of the Message. A suggested pattern for sending
+attachments is set them as variables in the flow and then reference those
+variables in the
+      <code>
+       email:send
+      </code>
+      operation to send those attachments.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="migrating-ssltls-secured-connections">
+     <a class="anchor" href="#migrating-ssltls-secured-connections">
+     </a>
+     Migrating SSL/TLS Secured Connections
+    </h3>
+    <div class="paragraph">
+     <p>
+      In Mule 3, each transport/connector had its own TLS element. In Mule 4,
+the TLS context is the common element for configuring TLS across modules.
+In the next example we can see a Mule 3 example and how can it be migrated to
+Mule 4.
+     </p>
+    </div>
+    <div class="admonitionblock note">
+     <table>
+      <tr>
+       <td class="icon">
+        <i class="fa icon-note" title="Note">
+        </i>
+       </td>
+       <td class="content">
+        the example uses an SMTP configuration but is the same for the
+IMAP and POP3 configurations.
+       </td>
+      </tr>
+     </table>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 3 Example
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;smtps:connector name="tls"&gt;
+    &lt;smtps:tls-client path="aKeystore" storePassword="password"/&gt;
+    &lt;smtps:tls-trust-store path="aTruststore" storePassword="changeit"/&gt;
+&lt;/smtps:connector&gt;</code></pre>
+     </div>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 4 Example
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;email:smtp-config name="tls"&gt;
+    &lt;email:smtps-connection host="${port}" port="${port}"&gt;
+        &lt;tls:context enabledProtocols="TLSv1.2,SSLv3"&gt;
+            &lt;tls:key-store path="aKeystore" password="password"/&gt;
+            &lt;tls:trust-store path="aTruststore.jks" password="changeit"/&gt;
+        &lt;/tls:context&gt;
+    &lt;/email:smtps-connection&gt;
+&lt;/email:smtp-config&gt;</code></pre>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="adding-the-mule-4-connector-to-a-project">
+   <a class="anchor" href="#adding-the-mule-4-connector-to-a-project">
+   </a>
+   Adding the Mule 4 Connector to a Project
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Now that the transport are not bounded with Mule, you need to add it
+to your app using the Studio palette or add the following dependency in your
+     <code>
+      pom.xml
+     </code>
+     file
+in order to use it
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.mule.connectors&lt;/groupId&gt;
+    &lt;artifactId&gt;mule-email-connector&lt;/artifactId&gt;
+    &lt;version&gt;1.1.0&lt;/version&gt; &lt;!-- or newer --&gt;
+    &lt;classifier&gt;mule-plugin&lt;/classifier&gt;
+&lt;/dependency&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../email-connector/latest/">
+        Email Connector
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../email-connector/latest/email-gmail">
+        Connecting with Gmail in Mule 4 Using the Email Connector
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

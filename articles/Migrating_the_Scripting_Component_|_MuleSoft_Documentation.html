@@ -1,0 +1,146 @@
+<article class="doc">
+ <h1 class="page">
+  Migrating the Scripting Component
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The
+     <code>
+      &lt;scripting&gt;
+     </code>
+     component in Mule 3 is replaced with a new
+     <code>
+      &lt;scripting&gt;
+     </code>
+     module. This new module is pretty similar in functionality, with just some syntax changes:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Example: Scripting
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml"> &lt;flow name="greedy"&gt;
+    &lt;choice&gt;
+        &lt;when expression="#[flowVars['currency'] == 'USD']"&gt;
+            &lt;scripting:component&gt;
+                &lt;scripting:script file="greedy.groovy"&gt;
+                    &lt;property key="currency" value="USD"/&gt;
+                &lt;/scripting:script&gt;
+            &lt;/scripting:component&gt;
+            &lt;/when&gt;
+        &lt;when expression="#[flowVars['currency'] == 'GBP']"&gt;
+            &lt;scripting:component&gt;
+                &lt;scripting:script file="greedy.py"&gt;
+                    &lt;property key="currency" value="GBP"/&gt;
+                &lt;/scripting:script&gt;
+            &lt;/scripting:component&gt;
+            &lt;/when&gt;
+    &lt;/choice&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     +
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Example: Scripting
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml"> &lt;flow name="greedy"&gt;
+    &lt;scripting:execute engine="groovy"&gt;
+        &lt;scripting:code&gt;${file::greedy.groovy}&lt;/scripting:code&gt;
+        &lt;scripting:parameters&gt;
+            #[{currency: vars.currency}]
+        &lt;/scripting:parameters&gt;
+    &lt;/scripting:execute&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     As you can see, the main difference here is that now you can use DataWeave to generate the input parameters.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="accessing-variables-from-the-script">
+   <a class="anchor" href="#accessing-variables-from-the-script">
+   </a>
+   Accessing Variables from the Script
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The previous example uses a variable to show how to pass parameters into the script, it’s best to keep the script decoupled from the rest of the flow, so that changes to the Mule applications don’t require changes to the script.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     However, you can still access the variables from the script using the
+     <code>
+      vars
+     </code>
+     keyword. For example:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Example: Accessing variables directly
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="greedy"&gt;
+    &lt;scripting:execute engine="groovy"&gt;
+        &lt;scripting:code&gt;return "currency is " + vars.currency&lt;/scripting:code&gt;
+    &lt;/scripting:execute&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     To use the Scripting Module, simply add it to your application using the Studio palette or add the following dependency in your
+     <code>
+      pom.xml
+     </code>
+     file:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;dependency&gt;
+  &lt;groupId&gt;org.mule.modules&lt;/groupId&gt;
+  &lt;artifactId&gt;mule-scripting-module&lt;/artifactId&gt;
+  &lt;version&gt;1.1.0&lt;/version&gt; &lt;!-- or newer --&gt;
+  &lt;classifier&gt;mule-plugin&lt;/classifier&gt;
+&lt;/dependency&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../scripting-module/latest/">
+        Scripting Module Documentation
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

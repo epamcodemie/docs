@@ -1,0 +1,271 @@
+<article class="doc">
+ <h1 class="page">
+  Tuning Recommendations
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Mule 4 provides self-tuning execution, which adjusts itself for optimal performance according to the underlying operating conditions of the environment where you deploy Mule runtime engine (Mule).
+     <br/>
+     Self-tuning allows you to focus on the specifics of your application rather than Mule internals, which eases the optimization process. Additionally, Mule comes to you already tuned for optimal performance for most common use cases, and changing any parameter is advised against unless you fully understand the implications of doing so.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     There are tuning recommendations that you can apply at the application level and benefit your specific use case.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="repeatable-vs-non-repeatable-streaming">
+   <a class="anchor" href="#repeatable-vs-non-repeatable-streaming">
+   </a>
+   Repeatable vs Non-repeatable Streaming
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Understand which streaming strategy results in the best flow performance for your use case:
+     <br/>
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       A repeatable stream (read payload more than once)
+      </p>
+     </li>
+     <li>
+      <p>
+       A non-repeatable stream (read payload only once)
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     See
+     <a class="xref page" href="tuning-repeatable-nonrepeatable">
+      Repeatable vs Non-repeatable Streaming
+     </a>
+     for details.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="back-pressure-and-maxconcurrency">
+   <a class="anchor" href="#back-pressure-and-maxconcurrency">
+   </a>
+   Back-Pressure and MaxConcurrency
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Understand back-pressure and learn how to use the
+     <code>
+      maxConcurrency
+     </code>
+     parameter to tune the number of concurrent messages sent to your flow.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     See
+     <a class="xref page" href="tuning-backpressure-maxconcurrency">
+      Back-Pressure and MaxConcurrency
+     </a>
+     for details.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="backend-server-response-time">
+   <a class="anchor" href="#backend-server-response-time">
+   </a>
+   Backend Server Response Time
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Understand if the average latency and throughput of backend servers is limiting the scalability or performance of your application.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     See
+     <a class="xref page" href="tuning-backend-server">
+      Backend Server Response Time
+     </a>
+     for details.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="caching">
+   <a class="anchor" href="#caching">
+   </a>
+   Caching
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Understand when to use cache and which cache-strategy to follow, based on key aspects of your data. Mule offers some customizable mechanisms, such as Cache Scope and the HTTP Caching API Gateway policy, to enable cache according to your needs.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     See
+     <a class="xref page" href="tuning-caching">
+      Caching
+     </a>
+     for details.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="pooling-profiles">
+   <a class="anchor" href="#pooling-profiles">
+   </a>
+   Pooling Profiles
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Pooling components helps process simultaneous incoming requests. Understand how to add
+     <code>
+      pooling-profile
+     </code>
+     to connectors when performance tests show that it is necessary.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     See
+     <a class="xref page" href="tuning-pooling-profiles">
+      Pooling Profiles
+     </a>
+     for details.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="domains">
+   <a class="anchor" href="#domains">
+   </a>
+   Domains
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Using domains provides a central repository for all the shared resources, facilitating the class-loading process. Domains enhance performance when you deploy multiple services on the same on-premises instance of Mule runtime engine.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     See
+     <a class="xref page" href="shared-resources">
+      Domains
+     </a>
+     for details.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="logging">
+   <a class="anchor" href="#logging">
+   </a>
+   Logging
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Understand why asynchronous logging performs better than synchronous logging.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     See
+     <a class="xref page" href="tuning-logging">
+      Logging
+     </a>
+     for details.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="batch-processing">
+   <a class="anchor" href="#batch-processing">
+   </a>
+   Batch Processing
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Mule can process messages in batches, but batch processing requires having enough available memory to process the threads in parallel, which means moving the records from persistent storage into RAM in a fixed-size block. Understand how to configure the batch block size property for your application.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     See
+     <a class="xref page" href="tuning-batch-processing">
+      Batch Processing
+     </a>
+     for details.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="application-design-best-practices">
+   <a class="anchor" href="#application-design-best-practices">
+   </a>
+   Application Design Best Practices
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Following certain practices at the design phase helps you to achieve better performance for your Mule apps.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     See
+     <a class="xref page" href="tuning-app-design">
+      Application Design
+     </a>
+     for details.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="tuning-guide">
+        Performance Tuning Guide
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

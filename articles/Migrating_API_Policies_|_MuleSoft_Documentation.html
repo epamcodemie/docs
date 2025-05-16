@@ -1,0 +1,1138 @@
+<article class="doc">
+ <h1 class="page">
+  Migrating API Policies
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In Mule 4, policies underwent major changes. A full explanation of them is available in
+     <a href="https://docs.mulesoft.com/api-manager/custom-policy-4-reference">
+      Custom Policy General Reference (Nov 2017)
+     </a>
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="defining-policy-behavior">
+   <a class="anchor" href="#defining-policy-behavior">
+   </a>
+   Defining Policy Behavior
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In 3.x, the logic inside a particular policy is split in two blocks, one that is executed before the next policy or flow, the other executed after it.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Example
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;policy online="false"
+        xmlns="http://www.mulesoft.org/schema/mule/policy"
+        xmlns:mule="http://www.mulesoft.org/schema/mule/core"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:api-platform-gw="http://www.mulesoft.org/schema/mule/api-platform-gw"
+        xsi:schemaLocation="http://www.mulesoft.org/schema/mule/policy http://www.mulesoft.org/schema/mule/policy/current/mule-policy.xsd
+              http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+              http://www.mulesoft.org/schema/mule/api-platform-gw http://www.mulesoft.org/schema/mule/api-platform-gw/current/mule-api-platform-gw.xsd"&gt;
+
+    &lt;before&gt;
+        &lt;mule:set-payload value="(pre)"/&gt;
+    &lt;/before&gt;
+
+    &lt;after&gt;
+        &lt;mule:set-payload value="(post)"/&gt;
+    &lt;/after&gt;
+
+    &lt;pointcut&gt;
+        &lt;api-platform-gw:api-pointcut apiName="sampleApi" apiVersion="1.0.0"/&gt;
+    &lt;/pointcut&gt;
+
+&lt;/policy&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     In Mule 4, policies are no longer separated in a
+     <code>
+      before
+     </code>
+     and
+     <code>
+      after
+     </code>
+     block.
+They now work as a flow with an explicit jump to the next policy or flow that has to be defined in it.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Same behavior can be achieved in Mule 4 with the following config:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Example
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:http-policy="http://www.mulesoft.org/schema/mule/http-policy"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+               http://www.mulesoft.org/schema/mule/http-policy http://www.mulesoft.org/schema/mule/http-policy/current/mule-http-policy.xsd"&gt;
+
+    &lt;http-policy:proxy name="policy-deployment"&gt;
+        &lt;http-policy:source propagateMessageTransformations="true"&gt;
+
+            &lt;set-payload value="(pre)"/&gt;
+
+            &lt;http-policy:execute-next/&gt;
+
+            &lt;set-payload value="(post)"/&gt;
+
+        &lt;/http-policy:source&gt;
+    &lt;/http-policy:proxy&gt;
+&lt;/mule&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     A few things to notice:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Logic is placed in the same block. Injecting behavior before the flow can be achieved just by putting logic before the
+       <code>
+        execute-next
+       </code>
+       element. To injecting behavior after the flow, you put logic after that element.
+      </p>
+     </li>
+     <li>
+      <p>
+       <code>
+        propagateMessageTransformations
+       </code>
+       attribute in the
+       <code>
+        http-policy:source
+       </code>
+       element: Starting in Mule 4, changes to the Mule message (payload or attributes) before executing
+the flow are not propagated to it by default. To enable this,
+       <code>
+        propagateMessageTransformations
+       </code>
+       has to be set to
+       <code>
+        true
+       </code>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       <code>
+        pointcut
+       </code>
+       elements are no longer defined in the policy config file. Now, they are resolved by the API Gateway
+when policies are fetched from API Manager.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     Endpoint and App
+     <code>
+      pointcut
+     </code>
+     elements are no longer available, and there is no replacement to them.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="uploading-policy-template-to-exchange">
+   <a class="anchor" href="#uploading-policy-template-to-exchange">
+   </a>
+   Uploading Policy Template to Exchange
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In 3.x, once the policy is defined, the result is an XML file that has to be uploaded to API Manager.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     In Mule 4, once the policy behavior is defined, the policy has to be packaged into a policy template JAR and uploaded to Exchange to make it available in API Manager.
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       How to create a Maven project to generate the policy template JAR is explained in the
+       <a class="xref page" href="../../mule-gateway/policies-custom-package">
+        Packaging a Custom Policy
+       </a>
+       article.
+      </p>
+     </li>
+     <li>
+      <p>
+       How to upload the JAR to Exchange is explained in the
+       <a class="xref page" href="../../mule-gateway/policies-custom-upload-to-exchange">
+        Uploading a Custom Policy to Exchange
+       </a>
+       article.
+      </p>
+     </li>
+    </ol>
+   </div>
+   <div class="paragraph">
+    <p>
+     Just like before, once the policy template JAR is in Exchange, it will appear in API Manager for APIs that belong
+to the same organization where the JAR was uploaded.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="performing_migration">
+   <a class="anchor" href="#performing_migration">
+   </a>
+   Perform a Policy Migration
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To perform a policy migration, this example uses the Mule Migration Assistant (MMA), an open source project on GitHub. The procedure requires that you meet the
+     <a href="https://github.com/mulesoft/mule-migration-assistant/blob/master/docs/user-docs/migration-tutorial.adoc#prerequisites">
+      Prerequisites
+     </a>
+     for the tool. For complete user documentation on MMA, see
+     <a href="https://github.com/mulesoft/mule-migration-assistant/blob/master/docs/migration-intro.adoc">
+      Migration to Mule 4 (on GitHub)
+     </a>
+     .
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The MMA command for migrating policies differs from the typical
+     <a href="https://github.com/mulesoft/mule-migration-assistant/blob/master/docs/user-docs/migration-tool-procedure.adoc#options">
+      command-line options (on GitHub)
+     </a>
+     for migrating
+a Mule app in one important way:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       MMA expects the
+       <code>
+        -projectBasePath
+       </code>
+       to have both the policy XML and YAML files
+in the same directory. The following example assumes that policy files are under
+       <code>
+        src/main/policy
+       </code>
+       .
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Command-line Invocation:
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">$ java -jar mule-migration-assistant-runner-0.5.1.jar \
+ -projectBasePath /Users/me/AnypointStudio/workspace-studio/my-mule3-policy/src/main/policy \
+ -muleVersion 4.1.5 \
+ -destinationProjectBasePath /Users/me/my-dir/my-migrated-policy</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Note that the MMA creates the directory for the migrated project through
+the
+     <code>
+      -destinationProjectBasePath
+     </code>
+     option. The
+     <code>
+      my-migrated-policy
+     </code>
+     must
+     <em>
+      not
+     </em>
+     exist before you invoke the command. If you point to a folder that exists
+already, the migration fails with an error like this:
+     <code>
+      Exception: Destination folder already exists.
+     </code>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     When the migrator runs successfully, you see a message like this:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Successful Migration
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">Executing migration...
+...
+========================================================
+MIGRATION SUCCESS
+========================================================
+Total time: 11.335 s
+Migration report:
+/Users/me/my-dir/my-migrated-policy/report/summary.html</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     After migration completes successfully, the destination folder contains:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       A policy POM file.
+      </p>
+     </li>
+     <li>
+      <p>
+       The policy YAML file, renamed to the
+       <code>
+        artifactId
+       </code>
+       value found in the POM file.
+      </p>
+     </li>
+     <li>
+      <p>
+       The
+       <code>
+        report
+       </code>
+       directory containing the
+       <a href="https://github.com/mulesoft/mule-migration-assistant/blob/master/docs/user-docs/migration-report.adoc">
+        Mule Migration Report (on GitHub)
+       </a>
+       (
+       <code>
+        summary.html
+       </code>
+       ).
+Note that the same information provided in the report can be found as comments
+in the policy XML file.
+      </p>
+     </li>
+     <li>
+      <p>
+       The
+       <code>
+        mule-artifact.json
+       </code>
+       file, with a
+       <code>
+        minMuleVersion
+       </code>
+       value that matches the
+       <code>
+        -muleVersion
+       </code>
+       value set in the MMA command.
+      </p>
+     </li>
+     <li>
+      <p>
+       The
+       <code>
+        src
+       </code>
+       directory, which contains the migrated content.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     The
+     <code>
+      src
+     </code>
+     directory contains directories
+     <code>
+      main
+     </code>
+     and
+     <code>
+      test
+     </code>
+     . Inside
+     <code>
+      main
+     </code>
+     , the
+     <code>
+      mule
+     </code>
+     directory contains the policy XML file, renamed to
+     <code>
+      template.xml
+     </code>
+     . At
+the same level as the
+     <code>
+      mule
+     </code>
+     directory, MMA might create a
+     <code>
+      resources
+     </code>
+     directory
+that contains DataWeave files or other files that the migrated policy needs.
+The
+     <code>
+      test
+     </code>
+     directory contains test configuration files.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     After a successful migration, you need to modify the POM file as explained in
+     <a href="#pom_migration">
+      POM Migration
+     </a>
+     . Once the POM file has the correct organization ID, you can
+compile with
+     <code>
+      mvn clean install
+     </code>
+     . If the compilation is successful, you can
+upload the migrated policy to Exchange using
+     <code>
+      maven clean deploy
+     </code>
+     . You can find
+a more detailed explanation of uploading a custom policy in
+     <a class="xref page" href="../../mule-gateway/policies-custom-upload-to-exchange">
+      Uploading a Custom Policy to Exchange
+     </a>
+     .
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="pom_migration">
+     <a class="anchor" href="#pom_migration">
+     </a>
+     POM Migration
+    </h3>
+    <div class="paragraph">
+     <p>
+      The POM file migration modifies the file to include the elements necessary for
+uploading the custom policy to Exchange.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      After the migration:
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      Replace the
+      <code>
+       {orgId}
+      </code>
+      value in the
+      <code>
+       &lt;groupId/&gt;
+      </code>
+      and
+      <code>
+       &lt;exchange.url/&gt;
+      </code>
+      elements with the organization ID found in Anypoint Platform.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      For more information on how to obtain the organization ID, see
+      <a class="xref page" href="../../mule-gateway/policies-custom-upload-to-exchange">
+       Uploading a Custom Policy to Exchange
+      </a>
+      .
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      By default, the Exchange URL is set to the production environment.
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;groupId&gt;{orgId}&lt;/groupId&gt;
+
+&lt;properties&gt;
+ &lt;exchange.url&gt;https://maven.anypoint.mulesoft.com/api/v1/organizations/{orgId}/maven&lt;/exchange.url&gt;
+&lt;/properties&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      Note that for the EU version of the URL, you need to set the URL manually
+after the migration:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        URL template for EU:
+        <code>
+         https://maven.eu1.anypoint.mulesoft.com/api/v1/organizations/{orgId}/maven
+        </code>
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="paragraph">
+     <p>
+      If the MMA does not find a POM file for the policy, MMA will create a new POM
+file. In this file, the
+      <code>
+       artifactId
+      </code>
+      for the policy will be the name of the
+parent directory for the policy XML file. For example, for a policy in
+      <code>
+       src/main/mytestpolicy/policy.xml
+      </code>
+      , the
+      <code>
+       artifactId
+      </code>
+      is
+      <code>
+       mytestpolicy
+      </code>
+      .
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="dependency_and_plugin_versions">
+     <a class="anchor" href="#dependency_and_plugin_versions">
+     </a>
+     Dependency and Plugin Versions
+    </h3>
+    <div class="paragraph">
+     <p>
+      Dependency and plugin versions are set by default by the MMA, and you can change
+manually, as needed.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="not_migrated_elements">
+     <a class="anchor" href="#not_migrated_elements">
+     </a>
+     Un-Migrated Elements
+    </h3>
+    <div class="paragraph">
+     <p>
+      Several elements are not migrated from Mule 3 to Mule 4:
+     </p>
+    </div>
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col style="width: 28.5714%;"/>
+      <col style="width: 71.4286%;"/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-top">
+        Element
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Reason
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          policy:before-exception
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Unable to recreate the behavior in Mule 4.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          policy:pointcut
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Resource and API pointcuts are resolved by the Mule runtime engine automatically. App and Endpoint pointcuts do not have an equivalent in Mule 4.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          policy:data
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         The behavior is resolved by the Mule runtime engine automatically.
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+    <div class="paragraph">
+     <p>
+      For each of these elements, the child elements are removed, as well.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="elements_migrated_to_other_structures">
+     <a class="anchor" href="#elements_migrated_to_other_structures">
+     </a>
+     Elements Migrated to Other Structures
+    </h3>
+    <div class="paragraph">
+     <p>
+      The throttling element
+      <code>
+       fixed-time-frame-algorithm
+      </code>
+      is migrated to the
+Rate Limit format if multiple
+      <code>
+       rate-limit
+      </code>
+      elements are found as child elements
+of the
+      <code>
+       delay-response
+      </code>
+      element.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      In addition, because Throttling SLA policy is no longer supported, if a
+      <code>
+       delay-response
+      </code>
+      element is found as a child of a
+      <code>
+       sla-based-algorithm
+      </code>
+      element,
+the policy is migrated to Rate Limit SLA format.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="common_migration_issues">
+     <a class="anchor" href="#common_migration_issues">
+     </a>
+     Common Migration Issues
+    </h3>
+    <div class="paragraph">
+     <p>
+      If policy files are not found during the migration, the MMA prints a message
+like this one:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Unsuccessful Migration
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-console hljs" data-lang="console">Executing migration...
+...
+===============================================================================
+MIGRATION FAILED
+===============================================================================
+Total time: 3.008 s
+Exception: Cannot read mule project. Is it a Mule Studio project?
+com.mulesoft.tools.migration.engine.exception.MigrationJobException: Cannot read mule project. Is it a Mule Studio project?
+	at com.mulesoft.tools.migration.engine.project.MuleProjectFactory.getMuleProject(MuleProjectFactory.java:50)
+	at com.mulesoft.tools.migration.engine.MigrationJob.generateSourceApplicationModel(MigrationJob.java:116)
+	at com.mulesoft.tools.migration.engine.MigrationJob.execute(MigrationJob.java:80)
+	at com.mulesoft.tools.migration.MigrationRunner.main(MigrationRunner.java:83)
+
+===============================================================================</code></pre>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="pom_migration_issues">
+     <a class="anchor" href="#pom_migration_issues">
+     </a>
+     POM Migration Issues
+    </h3>
+    <div class="paragraph">
+     <p>
+      If the MMA does not find the POM model for the policy, the MMA will
+either generate the model from an existing POM in Mule 3, or if there is no
+Mule 3 POM, the MMA will create the model. If MMA uses an existing POM, any
+incorrect POM definition that the MMA encounters will cause POM model creation
+process to fail. For information about a POM model failure, you need to
+check for any preceding error messages regarding MMA steps on modifying the
+POM model.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="yaml_migration_issues">
+     <a class="anchor" href="#yaml_migration_issues">
+     </a>
+     YAML Migration Issues
+    </h3>
+    <div class="paragraph">
+     <p>
+      The following issues can occur:
+     </p>
+    </div>
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col style="width: 28.5714%;"/>
+      <col style="width: 71.4286%;"/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-top">
+        Case
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Reason
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Error editing YAML
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Use stack trace in the MMA for more information.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Multiple YAMLs found
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         MMA expects only one YAML file in the project base
+                          path, which is interpreted as the policy YAML.
+                          If you need more than one YAML in the project, the
+                          extra YAML files must be stored in another directory.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         No YAML found
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         MMA expects a YAML file in the project base path
+                          when migration starts. If none is found, it is
+                          possible that a separate error occurred earlier in
+                          the migration process.
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+   <div class="sect2">
+    <h3 id="threat_protection_migration_issues">
+     <a class="anchor" href="#threat_protection_migration_issues">
+     </a>
+     Threat Protection Migration Issues
+    </h3>
+    <div class="paragraph">
+     <p>
+      The following issues can occur:
+     </p>
+    </div>
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col style="width: 28.5714%;"/>
+      <col style="width: 71.4286%;"/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-top">
+        Case
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Reason
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Could not determine if policy is XML or JSON threat protection type
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         In threat protection policies, the elements
+         <code>
+          xml-policy
+         </code>
+         and
+         <code>
+          json-policy
+         </code>
+         determine which type of threat protection to migrate. Only one of them must
+  be present. If none are present, the error message will appear in the
+  migration report.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Element
+         <code>
+          structure
+         </code>
+         could not be found
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         In threat protection policies, the
+         <code>
+          xml-policy
+         </code>
+         element needs to have child
+  element,
+         <code>
+          structure
+         </code>
+         .
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Element
+         <code>
+          values
+         </code>
+         could not be found
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         In threat protection policies, the
+         <code>
+          xml-policy
+         </code>
+         element needs to have child
+  element,
+         <code>
+          values
+         </code>
+         .
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+   <div class="sect2">
+    <h3 id="client_id_enforcement_migration_issues">
+     <a class="anchor" href="#client_id_enforcement_migration_issues">
+     </a>
+     Client Id Enforcement Migration Issue
+    </h3>
+    <div class="paragraph">
+     <p>
+      The following issue is possible:
+     </p>
+    </div>
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col style="width: 28.5714%;"/>
+      <col style="width: 71.4286%;"/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-top">
+        Case
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Reason
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Client Id Enforcement invalid migration element
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         If the
+         <code>
+          basicAuthEnabled
+         </code>
+         attribute in the
+         <code>
+          validate-client
+         </code>
+         element is
+ absent or equal to
+         <code>
+          false
+         </code>
+         , MMA expects
+         <code>
+          clientSecret
+         </code>
+         or
+         <code>
+          clientId
+         </code>
+         attributes
+ to be present in the
+         <code>
+          validate-client
+         </code>
+         element.
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+   <div class="sect2">
+    <h3 id="spring_limitations">
+     <a class="anchor" href="#spring_limitations">
+     </a>
+     Spring Limitations
+    </h3>
+    <div class="paragraph">
+     <p>
+      You must perform a manual migration of your Spring Beans even though MMA migrates
+      <code>
+       spring:bean
+      </code>
+      elements in Mule 3 policies to a
+      <code>
+       template-beans.xml
+      </code>
+      file in the
+      <code>
+       resources
+      </code>
+      directory and even though it adds to the custom policy a
+      <code>
+       spring-module:config
+      </code>
+      element that references
+      <code>
+       template-beans.xml
+      </code>
+      . Declaring the beans in a policy is unsupported in Mule 4 and causes the policy to fail to deploy.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="known_issues">
+     <a class="anchor" href="#known_issues">
+     </a>
+     Known Issues
+    </h3>
+    <div class="paragraph">
+     <p>
+      Known issues for MMA are:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        Policies that have policy YAML files with the
+        <code>
+         .yml
+        </code>
+        extension are not detected.
+       </p>
+      </li>
+      <li>
+       <p>
+        Policy YAML files are not autocompleted with mandatory fields.
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         mule:processor
+        </code>
+        element is not migrated.
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         byte-array-to-string-transformer
+        </code>
+        element is not migrated.
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         expression-component
+        </code>
+        element is not migrated.
+       </p>
+      </li>
+      <li>
+       <p>
+        <code>
+         mulexml:object-to-xml-transformer
+        </code>
+        element is not migrated.
+       </p>
+      </li>
+      <li>
+       <p>
+        The migrated element
+        <code>
+         ee:transform
+        </code>
+        does not add a schema location URI.
+       </p>
+      </li>
+      <li>
+       <p>
+        DataWeave expressions that start with an underscore are not quoted, which causes the policy to fail.
+       </p>
+      </li>
+     </ul>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     <a class="xref page" href="migration-api-gateways">
+      Migrating API Gateways
+     </a>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     <a class="xref page" href="migration-api-gateways-autodiscovery">
+      Migrating API Gateways: Autodiscovery
+     </a>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     <a class="xref page" href="migration-api-gateways-runtime-config">
+      Migrating API Gateways: Mule Runtime Configuration
+     </a>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     <a class="xref page" href="migration-core">
+      Core Components Migration
+     </a>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     <a href="https://docs.mulesoft.com/api-manager/2.x/rate-limiting-and-throttling">
+      Rate Limit and Throttling Policy
+     </a>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     <a href="https://docs.mulesoft.com/api-manager/2.x/rate-limiting-and-throttling-sla-based-policies">
+      Rate Limit SLA Based Policies
+     </a>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     <a href="https://docs.mulesoft.com/api-manager/2.x/custom-policy-uploading-to-exchange">
+      Uploading a Custom Policy to Exchange
+     </a>
+    </p>
+   </div>
+  </div>
+ </div>
+</article>

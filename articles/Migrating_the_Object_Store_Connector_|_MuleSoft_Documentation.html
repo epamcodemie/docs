@@ -1,0 +1,716 @@
+<article class="doc">
+ <h1 class="page">
+  Migrating the Object Store Connector
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The Object Store Connector in Mule 4 is very similar to the one in Mule 3. The main
+differences between these major versions are:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       How custom Object Stores are created: on Mule 4 creation of a Custom Object Store
+does not require the usage of Spring or the knowledge of the existence of certain java classes.
+      </p>
+     </li>
+     <li>
+      <p>
+       Keys must always be Strings: the Object Store Connector used to accept any
+       <code>
+        Serializable
+       </code>
+       as keys.
+On Mule 4 all keys must be of type
+       <code>
+        String
+       </code>
+       .
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="whats-covered-in-this-section">
+   <a class="anchor" href="#whats-covered-in-this-section">
+   </a>
+   What’s covered in this section:
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a href="#namespace">
+        Namespace Change
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#configs-object-stores">
+        Using Top Level Objects
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#custom-object-store">
+        Creating Custom Object Stores
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#change-on-keys">
+        Changes to Keys
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#storing-values">
+        Storing a value
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#persistent-default-value">
+        Default Value to Persistent Attribute
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#dispose-clear">
+        Cleaning an Object Store
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#dual-store">
+        Removal of the Dual Store Operation
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#remove-behavior">
+        Remove Operation Behavior
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="namespace">
+   <a class="anchor" href="#namespace">
+   </a>
+   Namespace Change
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     On the Mule 3 ObjectStore Connector the namespace used was
+     <code>
+      objectstore
+     </code>
+     . This namespace
+has change to
+     <code>
+      os
+     </code>
+     on the new Mule 4 Connector.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 example
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;objectstore:contains config-ref="ObjectStoreConnector" key="#[flowVars.userId]"/&gt;</code></pre>
+    </div>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 example
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;os:contains key="#[vars.userId]" objectStore="customObjectStore"/&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="configs-object-stores">
+   <a class="anchor" href="#configs-object-stores">
+   </a>
+   Using Top Level Objects
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You may have noticed in the previous example that the
+     <code>
+      config-ref
+     </code>
+     parameter was removed, and
+instead an
+     <code>
+      objectStore
+     </code>
+     parameter appears. This is because on Mule 3 most of the connector
+operations require a
+     <em>
+      Connector Configuration reference
+     </em>
+     , while on Mule 4 most
+operations will instead receive a reference to an
+     <em>
+      Object Store top level element
+     </em>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="custom-object-store">
+   <a class="anchor" href="#custom-object-store">
+   </a>
+   Creating Custom Object Stores
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Custom Object Stores are global definitions of an OS that you can reference by name
+to use it in an operation, allowing you to tweak and configure the
+Object Store behavior to your needs.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     On Mule 3, in order to create a new ObjectStore you needed to create a spring bean and
+know the specific java classes used for the ObjectStore. On Mule 4 this is much easier,
+you just have to create a global element that declares the ObjectStore using the
+     <code>
+      os:object-store
+     </code>
+     component.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     This are examples of how this was done on Mule 3 and how it is done now on Mule 4 for
+a simple case where
+     <code>
+      store
+     </code>
+     and
+     <code>
+      retrieve
+     </code>
+     are exposed through HTTP endpoints using
+persistent custom object stores:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 example
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;spring:beans&gt;
+  &lt;spring:bean id="myCustomObjectStore" class="org.mule.util.store.SimpleMemoryObjectStore"/&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+&lt;/spring:beans&gt;
+
+&lt;objectstore:config name="ObjectStoreConnector" objectStore-ref="myCustomObjectStore"  partition="users" entryTtl="3600000" expirationInterval="10000" maxEntries="1000" persistent="true"/&gt; <i class="conum" data-value="2"></i><b>(2)</b>
+&lt;http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="8080"/&gt;
+
+&lt;flow name="storeBook"&gt;
+  &lt;http:listener config-ref="HTTP_Listener_Configuration" path="/store"/&gt;
+  &lt;dw:transform-message&gt;
+    &lt;dw:set-payload&gt;&lt;![CDATA[%dw 1.0 <i class="conum" data-value="3"></i><b>(3)</b>
+%output application/java
+---
+{
+	id: inboundProperties.'http.query.params'.id,
+	book: inboundProperties.'http.query.params'.book,
+	author: inboundProperties.'http.query.params'.author
+}]]&gt;&lt;/dw:set-payload&gt;
+  &lt;/dw:transform-message&gt;
+  &lt;objectstore:store config-ref="ObjectStoreConnector" key="#[payload.id]" value-ref="#[payload]"/&gt; <i class="conum" data-value="4"></i><b>(4)</b>
+&lt;/flow&gt;
+
+&lt;flow name="retrieveBook"&gt;
+  &lt;http:listener config-ref="HTTP_Listener_Configuration" path="/retrieve"/&gt;
+  &lt;objectstore:retrieve config-ref="ObjectStoreConnector" key="#[message.inboundProperties.'http.query.params'.id]"/&gt;
+  &lt;json:object-to-json-transformer/&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     In this snippet a couple of things are to be noted:
+    </p>
+   </div>
+   <div class="colist arabic">
+    <table>
+     <tr>
+      <td>
+       <i class="conum" data-value="1">
+       </i>
+       <b>
+        1
+       </b>
+      </td>
+      <td>
+       Creates the custom object store using Spring beans and a reference to a java class.
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="2">
+       </i>
+       <b>
+        2
+       </b>
+      </td>
+      <td>
+       References the custom object store in a configuration.
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="3">
+       </i>
+       <b>
+        3
+       </b>
+      </td>
+      <td>
+       Before using the store operation, a DataWeave transformation is used to set on the
+payload what is going to be stored.
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="4">
+       </i>
+       <b>
+        4
+       </b>
+      </td>
+      <td>
+       The payload is stored in the object store.
+      </td>
+     </tr>
+    </table>
+   </div>
+   <div class="paragraph">
+    <p>
+     Implementing the same app in Mule 4 would look like this:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 example
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;http:listener-config name="HTTP_Listener_config"&gt;
+  &lt;http:listener-connection host="localhost" port="8080" /&gt;
+&lt;/http:listener-config&gt;
+
+&lt;os:object-store name="booksObjectStore" maxEntries="1000" entryTtl="1" entryTtlUnit="HOURS" expirationIntervalUnit="SECONDS" expirationInterval="10"/&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+
+&lt;flow name="storeBook"&gt;
+  &lt;http:listener config-ref="HTTP_Listener_config" path="/store"/&gt;
+  &lt;os:store key="#[attributes.queryParams.id]" objectStore="booksObjectStore" failIfPresent="true"&gt; <i class="conum" data-value="2"></i><b>(2)</b>
+    &lt;os:value&gt;
+    #[{
+      id: attributes.queryParams.id,
+      book: attributes.queryParams.book,
+      author: attributes.queryParams.author
+    }]
+    &lt;/os:value&gt;
+  &lt;/os:store&gt;
+&lt;/flow&gt;
+
+&lt;flow name="retrieveBook"&gt;
+  &lt;http:listener config-ref="HTTP_Listener_config" path="/retrieve"/&gt;
+  &lt;os:retrieve key="#[attributes.queryParams.id]" objectStore="booksObjectStore"/&gt;
+  &lt;set-payload value="#[output application/json --- payload]"&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     As you may see, main differences are:
+    </p>
+   </div>
+   <div class="colist arabic">
+    <table>
+     <tr>
+      <td>
+       <i class="conum" data-value="1">
+       </i>
+       <b>
+        1
+       </b>
+      </td>
+      <td>
+       A new object store is created without any knowledge of spring beans nor java classes. Note that
+what is being defined here is no a configuration, but rather an object store top level element.
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="2">
+       </i>
+       <b>
+        2
+       </b>
+      </td>
+      <td>
+       Without the need to store a value on a variable or the payload, an inline expression
+defines what is going to be stores in the object store.
+      </td>
+     </tr>
+    </table>
+   </div>
+   <div class="paragraph">
+    <p>
+     Note that on Mule 3 you used to have to specify a partition of the Object Store. On
+Mule 4 you no longer have to specify a partition, instead you just use another Object Store.
+Also, you can specify the time units for both the entry time to live and the
+frequency on which you will check if entries have expired or exceed the maximum amount of
+entries.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="change-on-keys">
+   <a class="anchor" href="#change-on-keys">
+   </a>
+   Changes to Keys
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     On Mule 3 the keys used to reference values on an object store could be any
+     <code>
+      Serializable
+     </code>
+     . On Mule 4
+only
+     <code>
+      String
+     </code>
+     objects are used for this purpose.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     In case that you are using a
+     <code>
+      Serializable
+     </code>
+     that is not a
+     <code>
+      String
+     </code>
+     as keys, you should convert
+it into
+     <code>
+      String
+     </code>
+     values.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="storing-values">
+   <a class="anchor" href="#storing-values">
+   </a>
+   Storing a value
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     On Mule 4 the value parameter now is taken as a content parameter, this means that
+it should be defined inline. This was configured as an attribute on Mule 3.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Also, the way to update a value on an object store had a minor change. On Mule 3 you had a
+flag called
+     <code>
+      overwrite
+     </code>
+     that by default comes as false. On Mule 4 you have a flag
+called
+     <code>
+      failIfPresent
+     </code>
+     that by default comes as false. This means that now when using the store
+operation with an already used key, the default behavior is to overwrite the value.
+    </p>
+   </div>
+   <div class="admonitionblock warning">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-warning" title="Warning">
+       </i>
+      </td>
+      <td class="content">
+       In Mule 4, when the key already exists and the flag
+       <code>
+        failIfPresent
+       </code>
+       is set to true, the error
+OS:KEY_ALREADY_EXISTS will be thrown.
+      </td>
+     </tr>
+    </table>
+   </div>
+   <div class="paragraph">
+    <p>
+     When migrating pay close attention to how flags are configure, since the default behaviors
+are different.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 example
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;http:listener-config name="HTTP_Listener_Configuration" host="0.0.0.0" port="8080"/&gt;
+&lt;objectstore:config name="ObjectStoreConnector" partition="users"/&gt;
+
+&lt;flow name="storeClient"&gt;
+  &lt;http:listener config-ref="HTTP_Listener_Configuration" path="/put"/&gt;
+  &lt;dw:transform-message&gt;
+    &lt;dw:set-variable variableName="client"&gt;&lt;![CDATA[%dw 1.0
+      %output application/java
+      ---
+      {
+        id: payload.id,
+        name: payload.name,
+        lname: payload.lname
+      }]]&gt;&lt;/dw:set-variable&gt;
+    &lt;/dw:transform-message&gt;
+  &lt;objectstore:store config-ref="ObjectStoreConnector" key="#[flowVars.client.id]" value-ref="#[flowVars.client]"/&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="colist arabic">
+    <table>
+     <tr>
+      <td>
+       <i class="conum" data-value="1">
+       </i>
+       <b>
+        1
+       </b>
+      </td>
+      <td>
+       Since on Mule 3 you cannot insert the DataWeave expression inline, your options are to
+to either save the content on a variable or modify the payload. In this it was assigned to
+the client variable.
+      </td>
+     </tr>
+    </table>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 example
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;http:listener-config name="HTTP_Listener_config"&gt;
+  &lt;http:listener-connection host="localhost" port="8080" /&gt;
+&lt;/http:listener-config&gt;
+
+&lt;os:object-store name="Object_store" persistent="false"/&gt;
+
+&lt;flow name="storeClient"&gt;
+  &lt;http:listener config-ref="HTTP_Listener_config" path="/put"/&gt;
+  &lt;os:store key="#[payload.id]" objectStore="Object_store" failIfPresent="true"&gt;
+    &lt;os:value &gt;#[{ <i class="conum" data-value="1"></i><b>(1)</b>
+      id: payload.id,
+      name: payload.name,
+      lname: payload.lname,
+      age: payload.age
+    }]&lt;/os:value&gt;
+  &lt;/os:store&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="colist arabic">
+    <table>
+     <tr>
+      <td>
+       <i class="conum" data-value="1">
+       </i>
+       <b>
+        1
+       </b>
+      </td>
+      <td>
+       On Mule 4 you can insert the content to store inline. After this operation the
+payload remains unchanged.
+      </td>
+     </tr>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="persistent-default-value">
+   <a class="anchor" href="#persistent-default-value">
+   </a>
+   Default Value to Persistent Attribute
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     On Mule 4 object stores are persistent by default, while on the Mule 3 connector they
+are stored on-memory by default. Because of this you will have to be careful when
+migrating your implementation. Not saying explicitly the persistence of the object store
+will mean different things.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     This example shows how after migrating, the persistent attribute had to be explicitly added:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 example
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;objectstore:config name="ObjectStoreConnector" partition="users"/&gt;</code></pre>
+    </div>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 example
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;os:object-store name="customObjectStore" persistent="false"/&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="dispose-clear">
+   <a class="anchor" href="#dispose-clear">
+   </a>
+   Cleaning an Object Store
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The dispose operation on Mule 3 was used to clear a specific partition of an object store.
+On Mule 4 we have the clear operation that clears a whole object store. There is no
+notion of partition anymore.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 example
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;objectstore:dispose-store config-ref="ObjectStoreConnector" partitionName="users"/&gt;</code></pre>
+    </div>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 example
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;os:clear objectStore="customObjectStore"/&gt;</code></pre>
+    </div>
+   </div>
+   <div class="admonitionblock warning">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-warning" title="Warning">
+       </i>
+      </td>
+      <td class="content">
+       On Mule 4 the clear operation will clear the whole Object Store.
+      </td>
+     </tr>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="dual-store">
+   <a class="anchor" href="#dual-store">
+   </a>
+   Removal of the Dual Store Operation
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The Mule 3 Object Store Connector had an operation
+     <code>
+      dual-store
+     </code>
+     that stored a value using key and
+also stored the same key using value. As key is restricted to be a
+     <code>
+      String
+     </code>
+     , on Mule 4 this operation
+would not make sense, so it was removed.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="remove-behavior">
+   <a class="anchor" href="#remove-behavior">
+   </a>
+   Remove Operation Behavior
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     On Mule 3 the
+     <code>
+      remove
+     </code>
+     operation had a flag named
+     <code>
+      ignoreNotExists
+     </code>
+     which defaults to false
+that indicated whether the operation should fail if the key that was going to be removed did not
+exist. On Mule 4 if the key does not exist, the error
+     <code>
+      OS:KEY_NOT_FOUND
+     </code>
+     will be thrown and the you
+can handle it however you want on the error handling.
+    </p>
+   </div>
+  </div>
+ </div>
+</article>

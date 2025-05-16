@@ -1,0 +1,337 @@
+<article class="doc">
+ <h1 class="page">
+  Deploy Mule Applications
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     All Mule applications require deployment to a Mule runtime engine instance to run. MuleSoft supports three different deployment targets: CloudHub, Anypoint Runtime Fabric, and on-premises Mule instances.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     When you deploy applications to CloudHub or to Anypoint Runtime Fabric, these services automatically manage the Mule runtime engine instances needed to run the applications.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     If you deploy applications on-premises, the installation of Mule runtime engine is required.
+     <br/>
+     See
+     <a class="xref page" href="mule-deployment-model">
+      On-Premises Deployment Model
+     </a>
+     for more information about characteristics specific to on-premises deployments.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     In addition, different tools are available to deploy applications to each of the deployment targets:
+    </p>
+   </div>
+   <table class="tableblock frame-all grid-all stretch">
+    <colgroup>
+     <col style="width: 16.6666%;"/>
+     <col style="width: 33.3333%;"/>
+     <col style="width: 50.0001%;"/>
+    </colgroup>
+    <thead>
+     <tr>
+      <th class="tableblock halign-left valign-top">
+       Deployment Target
+      </th>
+      <th class="tableblock halign-left valign-top">
+       Available Deployment Tools
+      </th>
+      <th class="tableblock halign-left valign-top">
+       Mule Runtime Engine Installation
+      </th>
+     </tr>
+    </thead>
+    <tbody>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          CloudHub
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="ulist">
+         <ul>
+          <li>
+           <p>
+            Anypoint Studio
+           </p>
+          </li>
+          <li>
+           <p>
+            Anypoint Runtime Manager
+           </p>
+          </li>
+          <li>
+           <p>
+            Anypoint Platform CLI
+           </p>
+          </li>
+          <li>
+           <p>
+            Mule Maven plugin
+           </p>
+          </li>
+         </ul>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="ulist">
+         <ul>
+          <li>
+           <p>
+            No installation of Mule runtime engine is required, because CloudHub workers start Mule instances as part of the deployment process.
+           </p>
+          </li>
+         </ul>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          CloudHub 2.0
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="ulist">
+         <ul>
+          <li>
+           <p>
+            Anypoint Studio
+           </p>
+          </li>
+          <li>
+           <p>
+            Anypoint Runtime Manager
+           </p>
+          </li>
+          <li>
+           <p>
+            Anypoint Platform CLI
+           </p>
+          </li>
+          <li>
+           <p>
+            Mule Maven plugin
+           </p>
+          </li>
+         </ul>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="ulist">
+         <ul>
+          <li>
+           <p>
+            No installation of Mule runtime engine is required, because CloudHub 2.0 replicas start Mule instances as part of the deployment process.
+           </p>
+          </li>
+         </ul>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Anypoint Runtime Fabric
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="ulist">
+         <ul>
+          <li>
+           <p>
+            Anypoint Runtime Manager
+           </p>
+          </li>
+          <li>
+           <p>
+            Runtime Manager in Anypoint Platform Private Cloud Edition
+           </p>
+          </li>
+          <li>
+           <p>
+            Mule Maven plugin
+           </p>
+          </li>
+         </ul>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="ulist">
+         <ul>
+          <li>
+           <p>
+            No installation of Mule runtime engine is required, because Anypoint Runtime Fabric internally starts Mule instances as part of the deployment process.
+           </p>
+          </li>
+          <li>
+           <p>
+            Installation of Anypoint Runtime Fabric in your desired infrastructure is required
+           </p>
+          </li>
+         </ul>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          On-premises
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="ulist">
+         <ul>
+          <li>
+           <p>
+            Anypoint Studio
+           </p>
+          </li>
+          <li>
+           <p>
+            Anypoint Runtime Manager
+           </p>
+          </li>
+          <li>
+           <p>
+            Runtime Manager in Anypoint Platform Private Cloud Edition
+           </p>
+          </li>
+          <li>
+           <p>
+            Anypoint Platform CLI
+           </p>
+          </li>
+          <li>
+           <p>
+            Mule Maven plugin
+           </p>
+          </li>
+         </ul>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-top">
+       <div class="content">
+        <div class="ulist">
+         <ul>
+          <li>
+           <p>
+            Installation of Mule runtime engine in your desired infrastructure is required.
+           </p>
+          </li>
+          <li>
+           <p>
+            You are responsible for the installation and configuration of your Mule instances.
+           </p>
+          </li>
+         </ul>
+        </div>
+       </div>
+      </td>
+     </tr>
+    </tbody>
+   </table>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../cloudhub/">
+        CloudHub
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../cloudhub-2/">
+        CloudHub 2.0
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../runtime-fabric/latest/">
+        Anypoint Runtime Fabric
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../runtime-manager/">
+        Anypoint Runtime Manager
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../private-cloud/latest/">
+        Anypoint Platform Private Cloud Edition
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="shared-resources">
+        Shared Resources
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="mule-high-availability-ha-clusters">
+        Mule High Availability Clusters
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

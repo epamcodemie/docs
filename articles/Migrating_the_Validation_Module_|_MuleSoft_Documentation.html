@@ -1,0 +1,461 @@
+<article class="doc">
+ <h1 class="page">
+  Migrating the Validation Module
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The Validation Module in Mule 4 is very similar to the one in Mule 3. The most
+impacted areas between these mayor versions were error handling and support in expressions.
+Error handling is different because Mule 4 Extensions have a different way to declare
+errors through error types. Regarding expressions, Mule 4 only supports MEL expressions
+within the compatibility module, all other expressions must be DataWeave expressions.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     What’s covered in this section:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a href="#errors">
+        Error Types
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#functions">
+        From functions in MEL Expressions to functions in DataWeave
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#all_scope">
+        The use of the All scope
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="#custom_validator">
+        Build a custom Validator
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="errors">
+   <a class="anchor" href="#errors">
+   </a>
+   Error Types
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In the Mule 3 Validation Module, any failure during a validation will throw the same exception or a
+ configured one and you are able to customize the message depending on the error. On the other
+ hand, in Mule 4, modules declare their own error types. In the case of this
+ module, validation operations have different error types which implies the type
+ of validation that have failed. In the case of the
+     <code>
+      all
+     </code>
+     scope, the type is
+     <strong>
+      VALIDATION:MULTIPLE
+     </strong>
+     regardless of the validation or validations that failed inside
+ the
+     <code>
+      all
+     </code>
+     scope. You can still customize the error message or use a default one.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The examples below show validators that will fail if the variable email is not
+ a possible valid email.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 example
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;validation:is-email email="#[flowVars.email]" message="The value is not a valid email"/&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     If this validation fails, a
+     <strong>
+      ValidationException
+     </strong>
+     will be thrown.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 example
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;validation:is-email email="#[vars.email]" message="The value is not a valid email"/&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     If this validation fails, the error will be of type
+     <strong>
+      VALIDATION:INVALID_EMAIL
+     </strong>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="functions">
+   <a class="anchor" href="#functions">
+   </a>
+   From functions in MEL Expressions to functions in DataWeave
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In the same way that in Mule 3 you could execute validation in expressions, you can do that in Mule 4.
+The difference is that in Mule 4, these validations are called within DataWeave expressions instead of MEL expressions.
+This is the list of supported functions in Mule 4 :
+     <code>
+      isEmail
+     </code>
+     ,
+     <code>
+      matchesRegex
+     </code>
+     ,
+     <code>
+      isTime
+     </code>
+     ,
+     <code>
+      isNumber
+     </code>
+     ,
+     <code>
+      isIp
+     </code>
+     and
+     <code>
+      isUrl
+     </code>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     In the examples below we can see how to execute different operations depending if the
+content on a variable named unknownVariable is: a valid email, a valid Url or neither of those.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 example
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;choice&gt;
+  &lt;when expression="#[validator.validateEmail(flowVars.unknownVariable)]"&gt;
+    &lt;set-payload value="#[flowVars.unknownVariable + &amp;quot; is a valid email.&amp;quot;]"/&gt;
+  &lt;/when&gt;
+  &lt;when expression="#[validator.validateUrl(flowVars.unknownVariable)]"&gt;
+    &lt;set-payload value="#[flowVars.unknownVariable+ &amp;quot; is a valid URL.&amp;quot;]"/&gt;
+  &lt;/when&gt;
+  &lt;otherwise&gt;
+    &lt;set-payload value="#[flowVars.unknownVariable + &amp;quot; is a not a valid email or a valid url.&amp;quot;]"/&gt;
+  &lt;/otherwise&gt;
+&lt;/choice&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Inside the MEL expression we used validator to access to the validation methods.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 example
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;choice&gt;
+  &lt;when expression="#[Validation::isEmail(vars.unknownVariable)]" &gt;
+    &lt;set-payload value='#[vars.unknownVariable ++ " is a valid email."]'/&gt;
+  &lt;/when&gt;
+  &lt;when expression="#[Validation::isUrl(vars.unknownVariable)]" &gt;
+    &lt;set-payload value='#[vars.unknownVariable ++ " is a valid URL."]'/&gt;
+  &lt;/when&gt;
+  &lt;otherwise &gt;
+    &lt;set-payload value='#[vars.unknownVariable ++ " is a not a valid email or a valid url."]'/&gt;
+  &lt;/otherwise&gt;
+&lt;/choice&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     In the Validation module, there are functions declared to be called from within DataWeave expressions.
+Like any other function in Mule 4, they are invoked using ExtensionName::functionName , in this case
+     <code>
+      Validation::isEmail(vars.email)
+     </code>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="all_scope">
+   <a class="anchor" href="#all_scope">
+   </a>
+   The use of the All scope
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In Mule 4 You can still group a set of validation the same way you did in Mule 3, only a minor part of the dsl has changed.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 example
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;validation:all&gt;
+  &lt;validation:validations&gt;
+    &lt;validation:is-email email="#[flowVars.email]"/&gt;
+    &lt;validation:matches-regex value="#[flowVars.email]" regex="^.*\.com$"/&gt;
+    &lt;validation:validate-size value="#[flowVars.email]" min="5" max="20"/&gt;
+  &lt;/validation:validations&gt;
+&lt;/validation:all&gt;</code></pre>
+    </div>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 example
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;validation:all&gt;
+  &lt;validation:is-email email="#[vars.email]"/&gt;
+  &lt;validation:matches-regex value="#[vars.email]" regex="^.*\.com$"/&gt;
+  &lt;validation:validate-size value="#[vars.email]" min="5" max="20"/&gt;
+&lt;/validation:all&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="custom_validator">
+   <a class="anchor" href="#custom_validator">
+   </a>
+   Build a custom Validator
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Custom Validators were replaced with the Extension Validators, these Validators are
+just like operations with the difference that they always return void. In order to signal that
+the validation have failed, the java method should throw a
+     <code>
+      ModuleException
+     </code>
+     with the
+respective error type. Through the usage of these Validators we can create our own
+error types that better explain the validation that failed and the user experience of
+using them is just like using any other operation. For more depth of what extension
+validators are, see the Extension Validators Documentation.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     <strong>
+      Note:
+     </strong>
+     these validators can also be used inside the
+     <code>
+      all
+     </code>
+     validation scope.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Let’s see how to migrate a Mule 3 Custom Validator into Mule 4. In the examples below,
+we can see that we used to get the whole event, and from it we took the information that we needed for the
+validation.
+In the Mule 4 example, we give the Validator only with the desired parameters.
+    </p>
+   </div>
+   <div class="paragraph">
+    <div class="title">
+     Mule 3 example
+    </div>
+    <p>
+     This is how the Custom Validator used to look in the dsl.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;validation:custom-validator class="BalanceValidator"/&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     This is how the Validator interface was implemented, see that the information you took for the validation
+had to be on specific parts of the message, in this case the flow variables price and balance.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class BalanceValidator implements Validator {
+  @Override
+  public ValidationResult validate(MuleEvent event) {
+    Integer price = new Integer((String) event.getMessage().getInvocationProperty("price"));
+    Integer balance = new Integer((String) event.getMessage().getInvocationProperty("balance"));
+    return new ValidationResult() {
+      @Override
+      public boolean isError() {
+        return price &gt; balance;
+      }
+      @Override
+      public String getMessage() {
+        return "There is not enough money to make the transaction";
+      }
+    };
+  }
+}</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <div class="title">
+     Mule 4 example
+    </div>
+    <p>
+     This is how you use Extension Validators in Mule 4, we can see that the namespace and tag name
+are more descriptive to what we are validating. Also, the parameters here are part of the dsl and
+we can put the expression here instead of having to set it to a variable before.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;balance:has-sufficient-funds balance="#[vars.balance]" price="#[vars.price]"/&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     To achieve this we create a simple extension named
+     <code>
+      balance
+     </code>
+     :
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Operations({BalanceOperations.class})
+@Extension(name = "balance")
+@ErrorTypes(BalanceError.class)
+public class BalanceExtension {
+
+}</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     In the
+     <code>
+      BalanceOperations
+     </code>
+     class we add our validation method and we annotate it with
+     <code>
+      @Validator
+     </code>
+     . The
+method needs to throw an error type which comes from the generic validation error type.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class BalanceOperations {
+  @Validator
+  @Throws(BalanceErrorsProvider.class)
+  public void hasSufficientFunds(Integer balance, Integer price) throws Exception {
+    if (price &gt; balance){
+      throw new ModuleException(BalanceError.INSUFFICIENT_FUNDS, new IllegalArgumentException("There is not enough money to make the transaction"));
+    }
+  }
+}</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Here we create the error that will be thrown if the validation fails. See that is has a
+name according to the validations failure.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public enum BalanceError implements ErrorTypeDefinition&lt;BalanceError&gt; {
+  INSUFFICIENT_FUNDS(MuleErrors.VALIDATION);
+
+  private ErrorTypeDefinition&lt;? extends Enum&lt;?&gt;&gt; parent;
+
+  BalanceError(ErrorTypeDefinition&lt;? extends Enum&lt;?&gt;&gt; parent) {
+    this.parent = parent;
+  }
+
+  @Override
+  public Optional&lt;ErrorTypeDefinition&lt;? extends Enum&lt;?&gt;&gt;&gt; getParent() {
+    return Optional.ofNullable(parent);
+  }
+}</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The Validator method needs an
+     <code>
+      ErrorTypeProvider
+     </code>
+     that knows all the error types
+the validation can throw, in this case we create an
+     <code>
+      ErrorTypeProvider
+     </code>
+     that says that the
+only error the method can throw is of type
+     <strong>
+      BALANCE:INSUFFICIENT_FUNDS
+     </strong>
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class BalanceErrorsProvider implements ErrorTypeProvider {
+  @Override
+  public Set&lt;ErrorTypeDefinition&gt; getErrorTypes() {
+    HashSet&lt;ErrorTypeDefinition&gt; errors = new HashSet&lt;&gt;();
+    errors.add(BalanceError.INSUFFICIENT_FUNDS);
+    return errors;
+  }
+}</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+</article>

@@ -1,0 +1,717 @@
+<article class="doc">
+ <h1 class="page">
+  Maven Reference
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="admonitionblock warning">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-warning" title="Warning">
+       </i>
+      </td>
+      <td class="content">
+       Mule Maven plugin versions 3.0.0, 3.1.0, 3.1.1, 3.1.2, 3.1.3, 3.1.4, 3.1.5, 3.1.6, 3.1.7, and 3.8.3 are deprecated.
+      </td>
+     </tr>
+    </table>
+   </div>
+   <div class="paragraph">
+    <p>
+     This page summarizes reference information that helps you work when using Maven with Mule. Refer to
+     <a class="xref page" href="using-maven-with-mule">
+      Maven Support in Mule
+     </a>
+     for an introduction and overview.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="pom-xml-file">
+   <a class="anchor" href="#pom-xml-file">
+   </a>
+   pom.xml File
+  </h2>
+  <div class="sectionbody">
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;project root&gt;/pom.xml</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Project Object Model file that defines settings for a Maven project describing an application. It includes all settings necessary to build the application such as build plugin configurations. Note that the
+     <code>
+      pom.xml
+     </code>
+     exists on a per-project basis and is distributed along with a project.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="settings-xml-file">
+   <a class="anchor" href="#settings-xml-file">
+   </a>
+   settings.xml File
+  </h2>
+  <div class="sectionbody">
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;system-wide Maven directory&gt;/settings.xml
+&lt;user home directory&gt;/.m2/settings.xml</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Contains global settings for your Maven installation. Unlike a project’s
+     <code>
+      pom.xml
+     </code>
+     , it defines system-wide settings and is not distributed with a project, since it can contain confidential information such as authentication credentials.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The
+     <code>
+      settings.xml
+     </code>
+     file can reside in two locations:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       In a system-wide settings folder:
+      </p>
+      <div class="paragraph">
+       <p>
+        In this case, it is a
+        <em>
+         global
+        </em>
+        <code>
+         settings.xml
+        </code>
+        file that defines the settings for all Maven installations on the system, regardless of user. For example:
+       </p>
+      </div>
+      <div class="listingblock">
+       <div class="content">
+        <pre>/etc/maven2/settings.xml</pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       In a user-specific settings folder:
+      </p>
+      <div class="paragraph">
+       <p>
+        In this case, it is a
+        <em>
+         user
+        </em>
+        <code>
+         settings.xml
+        </code>
+        file that is relevant only for a specific user’s Maven installation. The default location is the
+        <code>
+         .m2
+        </code>
+        directory in the user’s home directory:
+       </p>
+      </div>
+      <div class="listingblock">
+       <div class="content">
+        <pre>/home/joe/.m2/settings.xml</pre>
+       </div>
+      </div>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     On a system with both global and user
+     <code>
+      settings.xml
+     </code>
+     files, the settings from both files become merged. In case there are duplicate settings, the user’s settings take precedence over the global settings.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="configure-mule-repositories">
+   <a class="anchor" href="#configure-mule-repositories">
+   </a>
+   MuleSoft Repositories
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     When you create a new Mule project in Anypoint Studio, the required MuleSoft repositories are automatically added to the project. If you create the Mule project outside Studio, you have to manually add the repositories to the
+     <code>
+      pom.xml
+     </code>
+     file and also configure your credentials for Maven to access the enterprise repository.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="configure-mulesoft-public-repositories">
+     <a class="anchor" href="#configure-mulesoft-public-repositories">
+     </a>
+     Configure MuleSoft Public Repositories
+    </h3>
+    <div class="paragraph">
+     <p>
+      To configure the public MuleSoft repositories, add the following to your project’s
+      <code>
+       pom.xml
+      </code>
+      file:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;repositories&gt;
+    &lt;repository&gt;
+        &lt;id&gt;anypoint-exchange&lt;/id&gt;
+        &lt;name&gt;Anypoint Exchange&lt;/name&gt;
+        &lt;url&gt;https://maven.anypoint.mulesoft.com/api/v3/maven&lt;/url&gt;
+        &lt;layout&gt;default&lt;/layout&gt;
+    &lt;/repository&gt;
+    &lt;repository&gt;
+        &lt;id&gt;mulesoft-releases&lt;/id&gt;
+        &lt;name&gt;MuleSoft Releases Repository&lt;/name&gt;
+        &lt;url&gt;https://repository.mulesoft.org/releases/&lt;/url&gt;
+        &lt;layout&gt;default&lt;/layout&gt;
+    &lt;/repository&gt;
+    &lt;repository&gt;
+        &lt;id&gt;mulesoft-public&lt;/id&gt;
+        &lt;name&gt;MuleSoft Public Repository&lt;/name&gt;
+        &lt;url&gt;https://repository.mulesoft.org/nexus/content/repositories/public/&lt;/url&gt;
+        &lt;layout&gt;default&lt;/layout&gt;
+    &lt;/repository&gt;
+&lt;/repositories&gt;
+&lt;pluginRepositories&gt;
+    &lt;pluginRepository&gt;
+        &lt;id&gt;mulesoft-releases&lt;/id&gt;
+        &lt;name&gt;MuleSoft Releases Repository&lt;/name&gt;
+        &lt;layout&gt;default&lt;/layout&gt;
+        &lt;url&gt;https://repository.mulesoft.org/releases/&lt;/url&gt;
+        &lt;snapshots&gt;
+            &lt;enabled&gt;false&lt;/enabled&gt;
+        &lt;/snapshots&gt;
+    &lt;/pluginRepository&gt;
+&lt;/pluginRepositories&gt;</code></pre>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="configure-mulesoft-enterprise-repository">
+     <a class="anchor" href="#configure-mulesoft-enterprise-repository">
+     </a>
+     Configure MuleSoft Enterprise Repository
+    </h3>
+    <div class="paragraph">
+     <p>
+      To add access to the enterprise repository to your project, you must obtain and install an Enterprise license, acquire access to the repository, and configure the repository in your project.
+     </p>
+    </div>
+    <div class="sect3">
+     <h4 id="obtain-and-install-an-enterprise-license">
+      <a class="anchor" href="#obtain-and-install-an-enterprise-license">
+      </a>
+      Obtain and Install an Enterprise License
+     </h4>
+     <div class="paragraph">
+      <p>
+       See
+       <a class="xref page" href="installing-an-enterprise-license">
+        Install an Enterprise License
+       </a>
+       , for instructions to acquire or install an Enterprise license
+      </p>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="acquire-access-to-enterprise-repositories">
+      <a class="anchor" href="#acquire-access-to-enterprise-repositories">
+      </a>
+      Acquire Access to Enterprise Repositories
+     </h4>
+     <div class="paragraph">
+      <p>
+       If you are a MuleSoft customer and do not have credentials to access the
+       <a href="https://repository.mulesoft.org/nexus-ee/content/repositories/releases-ee/" rel="noopener" target="_blank">
+        MuleSoft Enterprise repository
+       </a>
+       , contact Support and request Nexus enterprise credentials.
+      </p>
+     </div>
+    </div>
+    <div class="sect3">
+     <h4 id="configure-maven-to-access-mulesoft-enterprise-repository">
+      <a class="anchor" href="#configure-maven-to-access-mulesoft-enterprise-repository">
+      </a>
+      Configure Maven to Access MuleSoft Enterprise Repository
+     </h4>
+     <div class="paragraph">
+      <p>
+       To configure Maven to access the enterprise repository:
+      </p>
+     </div>
+     <div class="olist arabic">
+      <ol class="arabic">
+       <li>
+        <p>
+         Navigate to
+         <code>
+          &lt;USER_HOME&gt;/.m2/settings.xml
+         </code>
+         .
+        </p>
+       </li>
+       <li>
+        <p>
+         Open
+         <code>
+          settings.xml
+         </code>
+         on all workstations that require access. If the
+         <code>
+          settings.xml
+         </code>
+         file does not exist, create it.
+        </p>
+        <div class="paragraph">
+         <p>
+          Read more about the
+          <code>
+           settings.xml
+          </code>
+          file in the
+          <a href="http://maven.apache.org/settings.html" rel="noopener" target="_blank">
+           Maven documentation
+          </a>
+          .
+         </p>
+        </div>
+       </li>
+       <li>
+        <p>
+         Add the following syntax to the
+         <code>
+          servers
+         </code>
+         section in each
+         <code>
+          settings.xml
+         </code>
+         file:
+        </p>
+        <div class="listingblock">
+         <div class="content">
+          <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;servers&gt;
+...
+    &lt;server&gt;
+
+        &lt;id&gt;MuleRepository&lt;/id&gt;
+        &lt;username&gt;YOUR_ID&lt;/username&gt;
+        &lt;password&gt;YOUR_PASSWORD&lt;/password&gt;
+
+    &lt;/server&gt;
+...
+&lt;/servers&gt;</code></pre>
+         </div>
+        </div>
+       </li>
+       <li>
+        <p>
+         Add the following syntax to the
+         <code>
+          profile
+         </code>
+         section in each
+         <code>
+          settings.xml
+         </code>
+         file:
+        </p>
+        <div class="listingblock">
+         <div class="content">
+          <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;profiles&gt;
+...
+    &lt;profile&gt;
+
+        &lt;id&gt;Mule&lt;/id&gt;
+        &lt;activation&gt;
+            &lt;activeByDefault&gt;true&lt;/activeByDefault&gt;
+        &lt;/activation&gt;
+        &lt;repositories&gt;
+            &lt;repository&gt;
+                &lt;id&gt;MuleRepository&lt;/id&gt;
+                &lt;name&gt;MuleRepository&lt;/name&gt;
+                &lt;url&gt;https://repository.mulesoft.org/nexus-ee/content/repositories/releases-ee/&lt;/url&gt;
+                &lt;layout&gt;default&lt;/layout&gt;
+                &lt;releases&gt;
+                    &lt;enabled&gt;true&lt;/enabled&gt;
+                &lt;/releases&gt;
+                &lt;snapshots&gt;
+                    &lt;enabled&gt;true&lt;/enabled&gt;
+                &lt;/snapshots&gt;
+            &lt;/repository&gt;
+        &lt;/repositories&gt;
+
+    &lt;/profile&gt;
+...
+&lt;/profiles&gt;</code></pre>
+         </div>
+        </div>
+       </li>
+      </ol>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="useful-commands">
+   <a class="anchor" href="#useful-commands">
+   </a>
+   Useful Commands
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The following set of commands enables you to retrieve information about your Maven installation and to perform project-related tasks.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="locate-the-maven-binary-and-other-files-unix">
+     <a class="anchor" href="#locate-the-maven-binary-and-other-files-unix">
+     </a>
+     Locate the Maven binary and other files (Unix)
+    </h3>
+    <div class="listingblock">
+     <div class="content">
+      <pre>whereis mvn</pre>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="locate-maven-files-such-as-global-configuration-files-unix">
+     <a class="anchor" href="#locate-maven-files-such-as-global-configuration-files-unix">
+     </a>
+     Locate Maven files such as global configuration files (Unix)
+    </h3>
+    <div class="listingblock">
+     <div class="content">
+      <pre>locate maven</pre>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="obtain-maven-version">
+     <a class="anchor" href="#obtain-maven-version">
+     </a>
+     Obtain Maven version
+    </h3>
+    <div class="listingblock">
+     <div class="content">
+      <pre>mvn --version</pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      This also provides other information such as the Java home directory, locale and processor architecture.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="obtain-a-list-of-maven-commands-and-options">
+     <a class="anchor" href="#obtain-a-list-of-maven-commands-and-options">
+     </a>
+     Obtain a List of Maven Commands and Options
+    </h3>
+    <div class="listingblock">
+     <div class="content">
+      <pre>mvn -h</pre>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="check-the-manual-page-for-maven-unix">
+     <a class="anchor" href="#check-the-manual-page-for-maven-unix">
+     </a>
+     Check the Manual Page for Maven (Unix)
+    </h3>
+    <div class="listingblock">
+     <div class="content">
+      <pre>man mvn</pre>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="create-a-project">
+     <a class="anchor" href="#create-a-project">
+     </a>
+     Create a Project
+    </h3>
+    <div class="listingblock">
+     <div class="content">
+      <pre>mvn archetype:generate -DgroupId=com.company.app -DartifactId=myapp -DarchetypeArtifactId=myarchetypeid -DinteractiveMode=false</pre>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="build-a-project">
+     <a class="anchor" href="#build-a-project">
+     </a>
+     Build a Project
+    </h3>
+    <div class="listingblock">
+     <div class="content">
+      <pre>mvn package</pre>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="clean-a-project">
+     <a class="anchor" href="#clean-a-project">
+     </a>
+     Clean a Project
+    </h3>
+    <div class="listingblock">
+     <div class="content">
+      <pre>mvn clean</pre>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="generate-a-site">
+     <a class="anchor" href="#generate-a-site">
+     </a>
+     Generate a Site
+    </h3>
+    <div class="listingblock">
+     <div class="content">
+      <pre>mvn site</pre>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="obtain-a-list-of-jar-files-included-in-your-artifact">
+     <a class="anchor" href="#obtain-a-list-of-jar-files-included-in-your-artifact">
+     </a>
+     Obtain a List of JAR Files Included in Your Artifact
+    </h3>
+    <div class="listingblock">
+     <div class="content">
+      <pre>mvn dependency:build-classpath</pre>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="obtain-the-dependency-tree-for-your-artifact">
+     <a class="anchor" href="#obtain-the-dependency-tree-for-your-artifact">
+     </a>
+     Obtain the Dependency Tree for Your Artifact
+    </h3>
+    <div class="listingblock">
+     <div class="content">
+      <pre>mvn dependency:tree</pre>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="deploying-mule-artifacts-to-a-central-maven-repository">
+   <a class="anchor" href="#deploying-mule-artifacts-to-a-central-maven-repository">
+   </a>
+   Deploying Mule Artifacts to a Central Maven Repository
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Using a central repository can save users' time when building applications. To deploy to a central repository, you need to deploy the Mule
+     <code>
+      POM
+     </code>
+     files and
+     <code>
+      JAR
+     </code>
+     artifacts to the desired repository.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The deploy plugin is primarily used during the deploy phase, to add your artifacts to a remote repository for sharing with other developers and projects.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="deploying-pom-xml">
+     <a class="anchor" href="#deploying-pom-xml">
+     </a>
+     Deploying pom.xml
+    </h3>
+    <div class="paragraph">
+     <p>
+      To deploy the
+      <code>
+       pom.xml
+      </code>
+      to a remote repository, use the following command:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">mvn deploy:deploy-file
+-DgroupId=${project.groupId}
+-DartifactId=${project.artifactId}
+-Dversion=${version}
+-Dpackaging=pom
+-Dfile=${localPom.canonicalPath}
+-Durl=http://&lt;your_repository_ip&gt;/nexus/content/repositories/releases
+-DrepositoryId=releases</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      For the
+      <code>
+       -Durl
+      </code>
+      parameter, replace
+      <code>
+       &lt;your_repository_ip&gt;
+      </code>
+      with the correct IP address. Also, the
+      <code>
+       -DrepositoryId
+      </code>
+      needs to match with the credentials defined in the
+      <code>
+       settings.xml
+      </code>
+      file.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="deploying-the-jar-files">
+     <a class="anchor" href="#deploying-the-jar-files">
+     </a>
+     Deploying the JAR files
+    </h3>
+    <div class="paragraph">
+     <p>
+      To deploy a
+      <code>
+       JAR
+      </code>
+      file to a remote repository, use the following command:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">mvn deploy:deploy-file
+-DgroupId=${pomProps.groupId}
+-DartifactId=${pomProps.artifactId}
+-Dversion=${pomProps.version}
+-Dpackaging=jar
+-Dfile=${f.canonicalPath}
+-DpomFile=${localPom.canonicalPath}
+-Durl=http://${your_repository_ip}/nexus/content/repositories/releases
+-DrepositoryId=releases</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      For the
+      <code>
+       -Durl
+      </code>
+      parameter, replace
+      <code>
+       your_repository_ip
+      </code>
+      with the correct IP address. Also, the
+      <code>
+       -DrepositoryId
+      </code>
+      needs to match with the credentials defined in the
+      <code>
+       settings.xml
+      </code>
+      file.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      If you wish to both install the
+      <code>
+       JAR
+      </code>
+      files locally and deploy them remotely, you can keep both locations in the argument definition.
+     </p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="external-resources">
+   <a class="anchor" href="#external-resources">
+   </a>
+   External Resources
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a href="https://maven.apache.org/index.html">
+        Apache Maven Home Page
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="https://maven.apache.org/guides/getting-started/index.html">
+        Maven Getting Started Guide
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="https://maven.apache.org/plugins/maven-deploy-plugin">
+        Maven Deploy Plugin Reference
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="https://maven.apache.org/pom.html">
+        POM Reference
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="https://maven.apache.org/settings.html">
+        Settings Reference
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

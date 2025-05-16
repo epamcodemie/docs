@@ -1,0 +1,143 @@
+<article class="doc">
+ <h1 class="page">
+  Introduction to Mule 4: Execution Engine Threads and Concurrency
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Mule 4 has an improved execution engine that simplifies the development and scaling of Mule apps. The underlying engine is based on a reactive, non-blocking architecture. This task-oriented execution model allows you to take advantage of non-blocking IO calls and avoid performance problems due to incorrect processing strategy configurations.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     From a development point of view, there are a few major changes:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Exchange patterns no longer exist. All connectors receive responses. If you want to process a message asynchronously, use the Async component.
+      </p>
+     </li>
+     <li>
+      <p>
+       Every flow always uses a non-blocking processing strategy, and there is no need to configure processing strategies anymore.
+      </p>
+     </li>
+     <li>
+      <p>
+       There is a single, global thread pool for all flows. For details, see
+       <a class="xref page" href="execution-engine">
+        Execution Engine
+       </a>
+       .
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="controlling_concurrency">
+   <a class="anchor" href="#controlling_concurrency">
+   </a>
+   Controlling Concurrency
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Mule 4 decouples thread configuration from concurrency management. To control concurrency on a flow or any component that supports it, use the
+     <code>
+      maxConcurrency
+     </code>
+     attribute to set the number of simultaneous invocations that component can receive an any given time.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow maxConcurrency=“1”&gt;
+  &lt;http:listener&gt;
+  &lt;scatter-gather maxConcurrency=“3”&gt;
+    &lt;route/&gt;
+    &lt;route/&gt;
+  &lt;/scatter-gather&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="thread_pools_and_tuning">
+   <a class="anchor" href="#thread_pools_and_tuning">
+   </a>
+   Thread Pools and Tuning apps
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Starting in Mule 4.3, Mule contains one unique thread pool, called the UBER pool. This thread pool is managed by Mule and shared across all apps in the same Mule instance. At startup, Mule introspects the available resources (such as memory and CPU cores) in the system and tunes automatically for the environment where Mule is running. This algorithm was established through performance testing and found optimal values for most scenarios.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The single thread pool allows Mule to be efficient, requiring significantly fewer threads (and their inherent memory footprint) to handle a given workload when compared to Mule 3.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Mule Event processors indicate to Mule whether they are CPU intensive, CPU light, or IO intensive operations. These workload types help Mule tune for different workloads, so you don’t need to manage thread pools manually to achieve optimum performance. Instead, Mule introspects the available resources (such as memory and CPU cores) in the system to tune thread pools automatically.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     See
+     <a class="xref page" href="execution-engine">
+      Execution Engine
+     </a>
+     for complete details about the new threading model and upgrade instructions.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="upgrading-from-mule-4-24-1">
+   <a class="anchor" href="#upgrading-from-mule-4-24-1">
+   </a>
+   Upgrading from Mule 4.2/4.1
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     When upgrading from Mule 4.2.x or 4.1.x to Mule 4.3.x or later, take the following actions:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       If there are no custom threading settings applied (either through the
+       <code>
+        scheduler-pools.conf
+       </code>
+       file or directly in the Mule app), then no action is required.
+      </p>
+     </li>
+     <li>
+      <p>
+       If there are custom threading configurations applied, test your Mule applications with the default configuration.
+       <br/>
+       Because of the UBER pool strategy and other performance updates implemented in Mule 4.3, you might not need custom threading configurations.
+      </p>
+     </li>
+     <li>
+      <p>
+       If tests confirm that a custom configuration is still necessary, a problem might exist with resource management in the application, one of the application dependencies, or the Mule instance. Using a custom configuration can lead to inefficient use of resources and might hide underlying issues.
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

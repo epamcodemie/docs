@@ -1,0 +1,670 @@
+<article class="doc">
+ <h1 class="page">
+  Migrating the XML Module
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     A new XML module in Mule 4 replaces the one that was bundled in with Mule 3. The main changes are:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Removal of components and expressions, functions, and evaluators that were deprecated in Mule 3.6:
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          jxpath-filter
+         </p>
+        </li>
+        <li>
+         <p>
+          jaxen-filter
+         </p>
+        </li>
+        <li>
+         <p>
+          jxpath-extractor-transformer
+         </p>
+        </li>
+        <li>
+         <p>
+          is-xml-filter
+         </p>
+        </li>
+        <li>
+         <p>
+          xpath-filter
+         </p>
+        </li>
+       </ul>
+      </div>
+     </li>
+     <li>
+      <p>
+       Changes to XPath, XSLT, and XQuery components to be consistent with the new Mule 4 components, mainly around:
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          DSL namespace prefix changed from
+          <code>
+           mxml
+          </code>
+          to
+          <code>
+           xml-module
+          </code>
+         </p>
+        </li>
+        <li>
+         <p>
+          Consistency of return types
+         </p>
+        </li>
+        <li>
+         <p>
+          Syntax and UX changes
+         </p>
+        </li>
+       </ul>
+      </div>
+     </li>
+     <li>
+      <p>
+       <code>
+        xpath()
+       </code>
+       and
+       <code>
+        xpath3()
+       </code>
+       functions replaced by a new
+       <code>
+        XmlModule::xpath()
+       </code>
+       function
+      </p>
+     </li>
+     <li>
+      <p>
+       Improved error reporting for the schema validator
+      </p>
+     </li>
+     <li>
+      <p>
+       <code>
+        schema-validation-filter
+       </code>
+       now replaced with
+       <code>
+        schema-validator
+       </code>
+      </p>
+     </li>
+     <li>
+      <p>
+       No longer tied to Java: It no longer uses SAX, StaX, or DOM types. Mule 4 is now strongly typed and we have mime type information about which data is in XML format. The runtime does the rest. All XML documents are represented as either Strings or streams. This means the following no longer exist (and are no longer needed):
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          dom-to-xml-transformer
+         </p>
+        </li>
+        <li>
+         <p>
+          dom-to-output-handler-transformer
+         </p>
+        </li>
+        <li>
+         <p>
+          xml-to-dom-transformer
+         </p>
+        </li>
+        <li>
+         <p>
+          xml-prettyprinter-transformer
+         </p>
+        </li>
+        <li>
+         <p>
+          jaxb-object-to-xml-transformer
+         </p>
+        </li>
+        <li>
+         <p>
+          jaxb-xml-to-object-transformer
+         </p>
+        </li>
+        <li>
+         <p>
+          jaxb-context
+         </p>
+        </li>
+        <li>
+         <p>
+          object-to-xml-transformer
+         </p>
+        </li>
+        <li>
+         <p>
+          xml-to-object-transformer
+         </p>
+        </li>
+       </ul>
+      </div>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="migrating-xslt-operations">
+   <a class="anchor" href="#migrating-xslt-operations">
+   </a>
+   Migrating XSLT Operations
+  </h2>
+  <div class="sectionbody">
+   <div class="sect2">
+    <h3 id="use-an-xsl-style-sheet-in-an-external-file">
+     <a class="anchor" href="#use-an-xsl-style-sheet-in-an-external-file">
+     </a>
+     Use an XSL Style Sheet in an External File
+    </h3>
+    <div class="listingblock">
+     <div class="title">
+      Mule 3 Example: To use an XSL sheet in an external file
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;mulexml:xslt-transformer xsl-file="cities-xslt.xsl" /&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      In Mule 4:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 4 Example: To use an XSL sheet in an external file
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;xml-module:xslt-transform&gt;
+    &lt;xml-module:xslt&gt;${file:::cities.xslt}&lt;/xml-module:xslt&gt;
+&lt;/xml-module:xslt-transform&gt;</code></pre>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="use-context-properties">
+     <a class="anchor" href="#use-context-properties">
+     </a>
+     Use Context Properties
+    </h3>
+    <div class="listingblock">
+     <div class="title">
+      Mule 3 Example: To set context properties
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;mulexml:xslt-transformer xsl-file="cities-result-document-xslt.xsl"&gt;
+    &lt;mulexml:context-property key="output_location" value="#[flowVars['outputFile']" /&gt;
+    &lt;mulexml:context-property key="user_id" value="#[flowVars['userId']" /&gt;
+&lt;/mulexml:xslt-transformer&gt;</code></pre>
+     </div>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 4 Example: To set context properties
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;xml-module:xslt-transform&gt;
+    &lt;xml-module:xslt&gt;${file::cities.xslt}&lt;/xml-module:xslt&gt;
+    &lt;xml-module:context-properties&gt;#[{'output_location': vars.outputFile, 'user_id': vars.userId}]&lt;/xml-module:context-properties&gt;
+&lt;/xml-module:xslt-transform&gt;</code></pre>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="migrating-xpath-operations-and-expressions">
+   <a class="anchor" href="#migrating-xpath-operations-and-expressions">
+   </a>
+   Migrating XPath Operations and Expressions
+  </h2>
+  <div class="sectionbody">
+   <div class="sect2">
+    <h3 id="use-the-xpath-extractor-transformer">
+     <a class="anchor" href="#use-the-xpath-extractor-transformer">
+     </a>
+     Use the XPath Extractor Transformer
+    </h3>
+    <div class="paragraph">
+     <p>
+      The XPath extractor no longer supports custom
+      <code>
+       resultType
+      </code>
+      parameter. It will now always return a List of Strings with all the matching elements.
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 3 Example: To use the XPath extractor
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;mule-xml:xpath-extractor-transformer expression="//book" resultType="STRING"/&gt;</code></pre>
+     </div>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 4 Example: To use the XPath extractor
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;xml-module:xpath-extract xpath="//book" /&gt;</code></pre>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="use-the-xpath-expression-function">
+     <a class="anchor" href="#use-the-xpath-expression-function">
+     </a>
+     Use the XPath Expression Function
+    </h3>
+    <div class="paragraph">
+     <p>
+      Mule 3 originally had an
+      <code>
+       xpath()
+      </code>
+      MEL function. In Mule 3.6, it was deprecated in favor of a new
+      <code>
+       xpath3()
+      </code>
+      function. Now, both functions are replaced by a new
+      <code>
+       XmlModule::xpath()
+      </code>
+      DataWeave function, which becomes available when the module is added to an application.
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 3 Example: Using the xpath3 function
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;set-payload value="#[xpath3('//book', payload, 'NODESET')]" /&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      Mule 3’s
+      <code>
+       xpath3()
+      </code>
+      function allowed you to specify the XPath expression and the input value, and it gave different options in terms of the expected output:
+      <code>
+       BOOLEAN
+      </code>
+      ,
+      <code>
+       STRING
+      </code>
+      ,
+      <code>
+       NUMBER
+      </code>
+      ,
+      <code>
+       NODESET
+      </code>
+      or
+      <code>
+       NODE
+      </code>
+      , where
+      <code>
+       NODESET
+      </code>
+      and
+      <code>
+       NODE
+      </code>
+      required understanding of Java’s representation of a DOM tree.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      The new function also accepts the XPath expression and the input, but differs in these ways:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        It adds support for custom context properties.
+       </p>
+      </li>
+      <li>
+       <p>
+        It does not allow specification of the output type. It will always return a List of Strings, just as
+        <code>
+         &lt;xml-module:xpath-extract&gt;
+        </code>
+        does.
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 4 Example: Using the xpath function
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;set-payload value="#[XmlModule::xpath('//book', payload, {})]" /&gt;</code></pre>
+     </div>
+    </div>
+    <div class="admonitionblock tip">
+     <table>
+      <tr>
+       <td class="icon">
+        <i class="fa icon-tip" title="Tip">
+        </i>
+       </td>
+       <td class="content">
+        You can use this function inside any DataWeave transformation.
+       </td>
+      </tr>
+     </table>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="use-xpath-with-custom-namespaces">
+     <a class="anchor" href="#use-xpath-with-custom-namespaces">
+     </a>
+     Use XPath with Custom Namespaces
+    </h3>
+    <div class="paragraph">
+     <p>
+      In Mule 3, a
+      <code>
+       &lt;mxml:namespace-manager&gt;
+      </code>
+      is needed to map custom namespaces prefixes:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 3 Example: Using custom namespaces
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml"> &lt;mulexml:namespace-manager includeConfigNamespaces="true"&gt;
+      &lt;mulexml:namespace prefix="soap" uri="http://schemas.xmlsoap.org/soap/envelope/"/&gt;
+      &lt;mulexml:namespace prefix="mule" uri="http://simple.component.mule.org/"/&gt;
+  &lt;/mulexml:namespace-manager&gt;
+
+  &lt;flow name="xpathWithNamespace"&gt;
+      &lt;expression-transformer expression="xpath3('/soap:Envelope/soap:Body/mule:echo/mule:echo')" /&gt;
+  &lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      This approach has the limitation that only one namespace-manager could be used per application. In Mule 4, you can declare as many
+      <code>
+       namespace-directory
+      </code>
+      elements as you want, and then reference the one you need on each operation:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 4 Example: Using custom namespaces
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;xml-module:namespace-directory name="fullNs"&gt;
+    &lt;xml-module:namespaces&gt;
+        &lt;xml-module:namespace prefix="soap" uri="http://schemas.xmlsoap.org/soap/envelope/"/&gt;
+        &lt;xml-module:namespace prefix="mule" uri="http://simple.component.mule.org/"/&gt;
+    &lt;/xml-module:namespaces&gt;
+&lt;/xml-module:namespace-directory&gt;
+
+&lt;flow name="xpathWithFullNs"&gt;
+    &lt;xml-module:xpath-extract xpath="/soap:Envelope/soap:Body/mule:echo/mule:echo" namespaceDirectory="fullNs"/&gt;
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      Additionally, you could even choose not to declare a 'namespace-directory' and instead just map the namespace inline:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 4 Example: Inline custom namespaces mapping
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="xpathWithFullNs"&gt;
+    &lt;xml-module:xpath-extract xpath="/soap:Envelope/soap:Body/mule:echo/mule:echo"&gt;
+      &lt;xml-module:namespaces&gt;
+          &lt;xml-module:namespace prefix="soap" uri="http://schemas.xmlsoap.org/soap/envelope/"/&gt;
+          &lt;xml-module:namespace prefix="mule" uri="http://simple.component.mule.org/"/&gt;
+      &lt;/xml-module:namespaces&gt;
+    &lt;/xml-module:xpath-extract&gt;
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="migrating-xquery-operations">
+   <a class="anchor" href="#migrating-xquery-operations">
+   </a>
+   Migrating XQuery Operations
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The main difference is that in Mule 3, the output type of this transformer would depend on the result of the transformation:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       If the transformation generates many elements, a List is returned.
+      </p>
+     </li>
+     <li>
+      <p>
+       Depending on the transformation, the elements of that list could be String or some generic Java representation, such as a
+       <code>
+        Node
+       </code>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       If the transformation generates only one element, it returns that element.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     In Mule 4, this will always return a List of Strings.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Other than that, changes are around syntax only:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Example: Using XQuery transformer
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;mxml:xquery-transformer&gt;
+    &lt;mxml:context-property key="books" value="#[flowVars['books']]" /&gt;
+    &lt;mxml:context-property key="cities" value="#[flowVars['cities']]" /&gt;
+    &lt;mxml:xquery-text&gt;
+        &lt;![CDATA[
+            xquery version "3.0";
+            declare variable $document external;
+            declare variable $cities external;
+            declare variable $books external;
+            &lt;mixes&gt;
+            {
+                for $b in $books/BOOKLIST/BOOKS/ITEM,
+                    $c in $cities/cities/city
+
+                return &lt;mix title="{$b/TITLE/text()}" city="{$c/@name}" /&gt;
+            }
+            &lt;/mixes&gt;
+        ]]&gt;
+    &lt;/mxml:xquery-text&gt;
+&lt;/mxml:xquery-transformer&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     In Mule 4:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Example: Using XQuery transformer
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;xml-module:xquery-transform&gt;
+    &lt;xml-module:xquery&gt;
+        &lt;![CDATA[
+            xquery version "3.0";
+            declare variable $document external;
+            declare variable $cities external;
+            declare variable $books external;
+            &lt;mixes&gt;
+            {
+                for $b in fn:doc($books)/BOOKLIST/BOOKS/ITEM,
+                    $c in fn:doc($cities)/cities/city
+
+                return &lt;mix title="{$b/TITLE/text()}" city="{$c/@name}" /&gt;
+            }
+            &lt;/mixes&gt;
+        ]]&gt;
+    &lt;/xml-module:xquery&gt;
+    &lt;xml-module:context-properties&gt;#[{'books' : vars.books, 'cities': vars.cities}] &lt;/xml-module:context-properties&gt;
+&lt;/xml-module:xquery-transform&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="validating-xml-against-a-schema">
+   <a class="anchor" href="#validating-xml-against-a-schema">
+   </a>
+   Validating XML Against a Schema
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In Mule 3, a filter was used to validate schemas:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Example: Schema validation filter
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;mxml:schema-validation-filter schemaLocations="schema1.xsd, schema2.xsd"/&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     If the validation fails, the message is dropped.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     In Mule 4, we replaced filters with validators:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Example: Schema validator
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;xml-module:validate-schema schemas="schema1.xsd, schema2.xsd"/&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     This validator will raise an
+     <code>
+      XML-MODULE:SCHEMA_NOT_HONOURED
+     </code>
+     error.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="installing-the-xml-module">
+   <a class="anchor" href="#installing-the-xml-module">
+   </a>
+   Installing the XML Module
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To use the XML module, simply add it to your application using the Studio palette, or add the following dependency in your
+     <code>
+      pom.xml
+     </code>
+     file:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.mule.modules&lt;/groupId&gt;
+    &lt;artifactId&gt;mule-xml-module&lt;/artifactId&gt;
+    &lt;version&gt;1.1.0&lt;/version&gt; &lt;!-- or newer --&gt;
+    &lt;classifier&gt;mule-plugin&lt;/classifier&gt;
+&lt;/dependency&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../xml-module/latest/">
+        XML Module
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

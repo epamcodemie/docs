@@ -1,0 +1,148 @@
+<article class="doc">
+ <h1 class="page">
+  Migrating Transformers
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Mule 4 does not require
+     <code>
+      transformers
+     </code>
+     anymore. Now that DataWeave is the default expression language and the repeatable streams feature is supported, most (if not all) scenarios that required a transformer no longer exist.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="migrating-type-transformers">
+   <a class="anchor" href="#migrating-type-transformers">
+   </a>
+   Migrating Type Transformers
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In Mule 3, the same data can be represented using different types. For instance, a JSON can be stored using a
+     <code>
+      String
+     </code>
+     ,
+     <code>
+      InputStream
+     </code>
+     ,
+     <code>
+      OutputHandler
+     </code>
+     , or
+     <code>
+      ByteArray
+     </code>
+     . In the same way, an XML can be represented with those same types or in a Java DOM document.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     In Mule 4, every format that is not binary is handled automatically by Mule. So you do not need to be concerned about the type that is carrying the content.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="inputstream-to-string-transformations">
+     <a class="anchor" href="#inputstream-to-string-transformations">
+     </a>
+     InputStream to String Transformations
+    </h3>
+    <div class="paragraph">
+     <p>
+      In Mule 3, the
+      <code>
+       &lt;object-to-string-transformer&gt;
+      </code>
+      was commonly used so that data held by an
+      <code>
+       InputStream
+      </code>
+      could be consumed by more than one processor. Because Mule 4 has the concept of repeatable streams, this is no longer required.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="object-model-representation-for-json-and-xml">
+     <a class="anchor" href="#object-model-representation-for-json-and-xml">
+     </a>
+     Object Model Representation for JSON and XML
+    </h3>
+    <div class="paragraph">
+     <p>
+      To access the content of an XML or JSON document in Mule 3, a conversion to a Java object representation model was needed so that Java code or MEL could be used later. In Mule 4, the expression language of the runtime completely supports JSON and XML (and many other formats), so this conversion is no longer needed. You simply use a DataWeave expression to access the data.
+     </p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="migrating-custom-transformers">
+   <a class="anchor" href="#migrating-custom-transformers">
+   </a>
+   Migrating Custom Transformers
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Most likely, any custom transformers you used to handle supported data formats are no longer needed, so they can be migrated to use the expression language. The DataWeave script can be externalized to a file if the same transformation needs to be occur in several places.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     For cases where you transform data in ways that DataWeave does not support, you should use the Java module or the Scripting module and use custom code to perform the transformation.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     <a class="xref page" href="dataweave">
+      DataWeave Language
+     </a>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     <a class="xref page" href="../../scripting-module/latest/">
+      Scripting Module
+     </a>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     <a class="xref page" href="../../java-module/latest/">
+      Java Module
+     </a>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     <a class="xref page" href="streaming-about">
+      Streaming in Mule Apps
+     </a>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     <a href="https://blogs.mulesoft.com/dev/mule-dev/why-dataweave-main-expression-language-mule-4/">
+      Why DataWeave is the Main Expression Language in Mule 4 Beta
+     </a>
+    </p>
+   </div>
+  </div>
+ </div>
+</article>

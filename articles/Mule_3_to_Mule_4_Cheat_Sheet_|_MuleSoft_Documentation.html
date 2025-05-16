@@ -1,0 +1,229 @@
+<article class="doc">
+ <h1 class="page">
+  Mule 3 to Mule 4 Cheat Sheet
+ </h1>
+ <div class="paragraph">
+  <p>
+   To help you move from Mule 3 to Mule 4, we built this index to help you find the Mule 4 equivalent of the most common Mule 3 use cases.
+  </p>
+ </div>
+ <div class="paragraph">
+  <p>
+   <strong>
+    IMPORTANT:
+   </strong>
+   Keep in mind that this index is only intended to act as a quick entry to the most common migration scenarios. It doesn’t contain the entire migration guide. For the full set of migration articles, please visit our Mule
+   <a class="xref page" href="index-migration">
+    Mule 4 for Mule 3 Users
+   </a>
+   page.
+  </p>
+ </div>
+ <div class="ulist">
+  <ul>
+   <li>
+    <p>
+     <a class="xref page" href="configuring-properties">
+      Configuration Properties
+     </a>
+     : There’s a new way of handling configuration properties in Mule 4
+    </p>
+   </li>
+   <li>
+    <p>
+     <a class="xref page" href="migration-secure-properties-placeholder">
+      Using Secure Properties
+     </a>
+     : Secure placeholders are now a Runtime feature and no longer part of the Security Module
+    </p>
+   </li>
+   <li>
+    <p>
+     <a class="xref page" href="migration-connectors-http">
+      Using the HTTP Connector
+     </a>
+     : The new HTTP connector has some differences with Mule 3, especially when it comes to handling multipart and form requests.
+    </p>
+   </li>
+   <li>
+    <p>
+     <a class="xref page" href="migration-mel">
+      From MEL to DataWeave
+     </a>
+     : DataWeave 2.0 is now the expression language. Here’s how to adapt your MEL expressions to DataWeave.
+    </p>
+   </li>
+   <li>
+    <p>
+     <a class="xref page" href="migration-dataweave">
+      From DataWeave 1.0 to DataWeave 2.0
+     </a>
+     : A new version of DataWeave is available in Mule 4
+    </p>
+   </li>
+   <li>
+    <p>
+     Where are the explicit transformers?: Transformers like
+     <code>
+      &lt;object-to-string /&gt;
+     </code>
+     or
+     <code>
+      &lt;object-to-json&gt;
+     </code>
+     are no longer necessary. Mule handles this automatically under the covers
+    </p>
+   </li>
+   <li>
+    <p>
+     <a class="xref page" href="../../object-store-connector/latest/object-store-to-define-a-new-os">
+      Define a custom Object Store
+     </a>
+     : Custom Object Stores are now defined through the new connector
+    </p>
+   </li>
+   <li>
+    <p>
+     <a class="xref page" href="migration-patterns-watermark">
+      Use watermarks
+     </a>
+     : Watermarks have been simplified. You can also do it manually now allowing for more complex use cases.
+    </p>
+   </li>
+   <li>
+    <p>
+     <a class="xref page" href="migration-message-properties">
+      Accessing the Mule Message
+     </a>
+     : The Mule Message has a new structure and it’s accessed differently. Here’s a quick overview.
+    </p>
+   </li>
+   <li>
+    <p>
+     Using Java: Interoperability with Java is now done through the
+     <a class="xref page" href="../../java-module/latest/">
+      Java module
+     </a>
+     . Optionally you can also try the
+     <a class="xref page" href="migration-module-scripting">
+      Scripting module
+     </a>
+     or the
+     <a class="xref page" href="../../mule-sdk/latest/">
+      Mule SDK
+     </a>
+    </p>
+   </li>
+   <li>
+    <p>
+     <a class="xref page" href="migration-module-spring">
+      Using Spring
+     </a>
+     : Instead of defining Spring beans directly in your application, you can now use the
+     <a class="xref page" href="../../spring-module/latest/">
+      Spring Module
+     </a>
+     .
+    </p>
+   </li>
+   <li>
+    <p>
+     <a class="xref page" href="migration-patterns-reconnection-strategies">
+      Using reconnection strategies
+     </a>
+     : There are some small but important differences around reconnection in Mule 4.
+    </p>
+   </li>
+   <li>
+    <p>
+     <a class="xref page" href="about-classloading-isolation">
+      Classloading isolation
+     </a>
+     : Classloading isolation changes the way resources and classes are shared. Read this article to learn more.
+    </p>
+   </li>
+   <li>
+    <p>
+     <a class="xref page" href="migration-core">
+      Core Components Migration
+     </a>
+     : A comprehensive list of the changes that were made to the core language elements
+    </p>
+   </li>
+   <li>
+    <p>
+     <a class="xref page" href="migration-connectors">
+      Using the new connectors
+     </a>
+     : A comprehensive list of the changes that were made to the main connectors.
+    </p>
+   </li>
+   <li>
+    <p>
+     <a class="xref page" href="migration-aes">
+      Using the Security Module (AES)
+     </a>
+     : Anypoint Enterprise Security module was split into different modules explained here.
+    </p>
+   </li>
+   <li>
+    <p>
+     <a class="xref page" href="migration-api-gateways">
+      Migrating Gateways
+     </a>
+     : This section covers the migration of API Gateway related features.
+    </p>
+   </li>
+   <li>
+    <p>
+     <a class="xref page" href="migration-example-complex">
+      Migrating ApiKit apps
+     </a>
+     : Covers the necessary steps to successfully migrate APIkit-based applications.
+    </p>
+   </li>
+   <li>
+    <p>
+     Migrating custom components: You can use the
+     <a class="xref page" href="../../mule-sdk/latest/">
+      Mule SDK
+     </a>
+     to create your own reusable components
+    </p>
+   </li>
+   <li>
+    <p>
+     Migrating DevKit based components: There’s a
+     <a class="xref page" href="../../mule-sdk/latest/dmt">
+      DevKit Migration Tool
+     </a>
+     that helps to migrate DevKit projects for Mule 3 into Mule SDK ones.
+    </p>
+   </li>
+   <li>
+    <p>
+     <a class="xref page" href="migration-transports">
+      Transport service overrides
+     </a>
+     : Covers how to migrate from generic transports.
+    </p>
+   </li>
+   <li>
+    <p>
+     <a class="xref page" href="mule-high-availability-ha-clusters#configure-the-performance-profile">
+      mule-high-availability-ha-clusters.adoc#configure-the-performance-profile
+     </a>
+     : At a container level, change the property from
+     <code>
+      mule.clusterPartitioningMode=OPTIMIZE_PERFORMANCE
+     </code>
+     to
+     <code>
+      mule.cluster.storeprofile=performance
+     </code>
+     . At an individual application level, you can configure the store profile for a specific Mule application.
+    </p>
+   </li>
+  </ul>
+ </div>
+</article>

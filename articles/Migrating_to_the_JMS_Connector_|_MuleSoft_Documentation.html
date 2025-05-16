@@ -1,0 +1,1194 @@
+<article class="doc">
+ <h1 class="page">
+  Migrating to the JMS Connector
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The JMS transport was completely reshaped and evolved away from the Mule 3 transport model into an operation based connector with a simplified UX and fully DataSense enabled Message information.
+This means not only that using JMS now provides the same experience regarding connection and configuration that any other connector, but also that producing and consuming messages is simpler based on the structured Message information.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Also, the new version of JMS Connector provides support for the much desired JMS 2.0 spec, with all the new capabilities like shared subscriptions.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="ConfiguringTheConnector">
+   <a class="anchor" href="#ConfiguringTheConnector">
+   </a>
+   Configuring The Connector
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Moving from a 3.x transport configuration to a JMS Connector configuration in Mule 4 implies basically using the same exact parameters, but declaring them in a more cohesive way.
+This means for example that parameters that are used for consuming Messages are declared in a 'consumer-config' group, while general authentication parameters are configured in the General group. Also, a separation has been made between the parameters that affect the behavior of the connector (present in the config) from those that affect only how the connection is established (present at connection level):
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Example: Configuring The Connector
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;jms:connector name="JMS_Config"
+     acknowledgementMode="DUPS_OK_ACKNOWLEDGE"
+     clientId="myClient"
+     durable="true"
+     noLocal="true"
+     persistentDelivery="true"
+     maxRedelivery="5"
+     cacheJmsSessions="true"
+     eagerConsumer="false"
+     specification="1.1"
+     numberOfConsumers="7"
+     username="myuser"
+     password="mypass" /&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     This same configuration is achieved in Mule 4 setting the same parameters in the context where they actually apply, like 'noLocal' or 'durable' affecting only the 'topic-consumer':
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Example: Configuring The Connector
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;jms:config name="JMS_Config"&gt;
+  &lt;jms:active-mq-connection specification="JMS_1_1" clientId="myClient" username="myuser" password="mypass"&gt;
+      &lt;jms:factory-configuration maxRedelivery="5"/&gt;
+  &lt;/jms:active-mq-connection&gt;
+  &lt;jms:consumer-config ackMode="DUPS_OK"&gt;
+      &lt;jms:consumer-type&gt;
+          &lt;jms:topic-consumer noLocal="true" durable="true"/&gt;
+      &lt;/jms:consumer-type&gt;
+  &lt;/jms:consumer-config&gt;
+  &lt;jms:producer-config persistentDelivery="true"/&gt;
+&lt;/jms:config&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="ConnectingToABroker">
+   <a class="anchor" href="#ConnectingToABroker">
+   </a>
+   Connecting To A Broker
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In the JMS Connector for Mule 4, the distinction between a generic JMS connection and the simplified ActiveMQ connection still exists, but with a much more focused set of parameters that are associated only to the connection. We’ll see first how to configure this simplified connection and then move on to the generic approach.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="connecting-to-activemq">
+     <a class="anchor" href="#connecting-to-activemq">
+     </a>
+     Connecting To ActiveMQ
+    </h3>
+    <div class="paragraph">
+     <p>
+      Using the transport, the only way to configure ActiveMQ specific parameters was defining the ConfigurationFactory as an spring bean and then passing on each property:
+.Mule 3 Example: Connecting To ActiveMQ
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;spring:bean name="connectionFactory"
+             class="org.apache.activemq.ActiveMQConnectionFactory"&gt;
+    &lt;property name="brokerURL"
+              value="tcp://activemqserver:61616"/&gt;
+
+    &lt;property name="redeliveryPolicy"&gt;
+        &lt;spring:bean class="org.apache.activemq.RedeliveryPolicy"&gt;
+            &lt;property name="initialRedeliveryDelay"
+                      value="20000"/&gt;
+            &lt;property name="redeliveryDelay"
+                      value="20000"/&gt;
+            &lt;property name="maximumRedeliveries"
+                      value="10"/&gt;
+       &lt;/spring:bean&gt;
+    &lt;/property&gt;
+&lt;/spring:bean&gt;
+
+
+&lt;jms:activemq-connector name="jmsConnector" connectionFactory-ref="connectionFactory"/&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      With the new JMS Connector, this properties can be configured directly in the activemq connection:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 4 Example: Connecting To ActiveMQ
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;jms:config name="JMS_Config"&gt;
+  &lt;jms:active-mq-connection&gt;
+      &lt;jms:factory-configuration brokerUrl="tcp://activemqserver:61616"
+                                 initialRedeliveryDelay="20000" redeliveryDelay="20000"  maxRedelivery="10"/&gt;
+  &lt;/jms:active-mq-connection&gt;
+&lt;/jms:config&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      If you need to migrate a transport configuration that is using a Connection Factory not yet supported out of the box in the JMS Connector, you can still do use the 'connectionFactory' attribute in the 'activemq-connection' to pass a reference to any Connection Factory bean.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="using-a-different-broker">
+     <a class="anchor" href="#using-a-different-broker">
+     </a>
+     Using A Different Broker
+    </h3>
+    <div class="paragraph">
+     <p>
+      Both Mule 3 JMS transport and Mule 4 JMS Connector allow you to define a generic connection to any Connection Factory that you need.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      We have two ways of doing this, the first one is creating a Connection Factory using spring beans and then referencing it as the Connection Factory:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 3 Example: Generic Connection Using Spring Beans
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;spring:bean name="connectionFactory" class="com.foo.CustomConnectionFactory"/&gt;
+
+&lt;jms:connector name="jmsConnector" connectionFactory-ref="connectionFactory" /&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      Mule 4’s version is almost identical:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 4 Example: Generic Connection Using Spring Beans
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;spring:bean name="connectionFactory" class="com.foo.CustomConnectionFactory"/&gt;
+
+&lt;jms:config name="JMS_Config"&gt;
+  &lt;jms:generic-connection connectionFactory="customConnectionFactory"/&gt;
+&lt;/jms:config&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      Another way of creating a generic connection is using a Connection Factory that is discovered using JNDI. In this case, the functionality remains the same, but syntax changes from transport to connector:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 3 Example: Generic Connection Using JNDI
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;beans&gt;
+    &lt;util:properties id="providerProperties"&gt;
+        &lt;prop key="queue.jndi-queue-in"&gt;in&lt;/prop&gt;
+        &lt;prop key="topic.jndi-topic-in"&gt;in&lt;/prop&gt;
+    &lt;/util:properties&gt;
+&lt;/beans&gt;
+
+
+&lt;jms:connector name="jmsConnector"
+    jndiInitialFactory="com.sun.jndi.ldap.LdapCtxFactory"
+    jndiProviderUrl="ldap://localhost:10389/"
+    jndiProviderProperties-ref="providerProperties"
+    connectionFactoryJndiName="cn=ConnectionFactory,dc=example,dc=com"
+    jndiDestinations="true"
+    forceJndiDestinations="false"/&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      In Mule 4’s version you can do this configuring the JNDI inline:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 4 Example: Generic Connection Using Spring Beans
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;jms:config name="JMS_Config"&gt;
+    &lt;jms:generic-connection&gt;
+        &lt;jms:connection-factory&gt;
+            &lt;jms:jndi-connection-factory connectionFactoryJndiName="cn=ConnectionFactory,dc=example,dc=com"
+                                         lookupDestination="TRY_ALWAYS"&gt;
+                &lt;jms:name-resolver-builder
+                        jndiInitialContextFactory="com.sun.jndi.ldap.LdapCtxFactory"
+                        jndiProviderUrl="ldap://localhost:10389/"&gt;
+                  &lt;jms:provider-properties&gt;
+                      &lt;jms:provider-property key="queue.jndi-queue-in" value="in"/&gt;
+                      &lt;jms:provider-property key="topic.jndi-topic-in" value="in"/&gt;
+                  &lt;/jms:provider-properties&gt;
+                &lt;/jms:name-resolver-builder&gt;
+            &lt;/jms:jndi-connection-factory&gt;
+        &lt;/jms:connection-factory&gt;
+    &lt;/jms:generic-connection&gt;
+&lt;/jms:config&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      Three main differences arise from this example:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        Properties are now declared inline, no need for spring bean utils to be used.
+       </p>
+      </li>
+      <li>
+       <p>
+        Enforcing the lookup of destinations using JNDI is now configured as a single parameter named 'lookupDestination', which unifies the previous two parameters 'jndiDestinations' and 'forceJndiDestinations'.
+       </p>
+      </li>
+      <li>
+       <p>
+        Parameters are now present in the context for which they are relevant, like the 'jndiProviderUrl' being part of the 'name-resolver'.
+       </p>
+      </li>
+     </ul>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="SendingMessages">
+   <a class="anchor" href="#SendingMessages">
+   </a>
+   Sending Messages
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     JMS Transport relied in the payload to contain the body of a JMS Message, and used Mule’s outbound properties to customize the JMS Properties and Headers. With the new Mule 4 approach, the JMS 'publish' operation relies only on its input parameters to completely build the JMS Message to be published.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     For example, if we wanted to send a high priority JMS Message with only a part of the payload in the body, and associate that Message to a group, we’ll need to:
+&lt;1&gt;) Use
+     <code>
+      transform
+     </code>
+     to set the payload to what the Message body is expected to be.
+&lt;2&gt;) Convert the resulting stream into a String to send it as a text message.
+&lt;3&gt;) Set an outbound message property with
+     <code>
+      priority
+     </code>
+     as key to set the JMSPriority.
+&lt;4&gt;) Set an outbound message property with
+     <code>
+      JMSXGroupID
+     </code>
+     as key to set the JMSXGroupID.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Example: Sending a prioritized Message as part of a Group
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="JmsTransportOutbound"&gt;
+    &lt;http:listener config-ref="HTTP_Listener_Configuration" path="/orders"/&gt;
+    &lt;dw:transform-message&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+        &lt;dw:set-payload&gt;&lt;![CDATA[%dw 1.0
+%output application/json
+---
+{
+order_id: payload.id,
+supplier: payload.warehouse
+}]]&gt;&lt;/dw:set-payload&gt;
+    &lt;/dw:transform-message&gt;
+    &lt;object-to-string-transformer/&gt; <i class="conum" data-value="2"></i><b>(2)</b>
+    &lt;jms:outbound-endpoint queue="storage" connector-ref="Active_MQ"&gt;
+      &lt;message-properties-transformer scope="outbound"&gt;
+          &lt;add-message-property key="JMSXGroupID" value="#[message.inboundProperties."http.query.params".packageGroup]"/&gt; <i class="conum" data-value="3"></i><b>(3)</b>
+          &lt;add-message-property key="priority" value="9"/&gt; <i class="conum" data-value="4"></i><b>(4)</b>
+      &lt;/message-properties-transformer&gt;
+    &lt;/jms:outbound-endpoint&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The same results can be achieved in Mule 4 using the JMS Connector with the following configuration:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Example: Sending a prioritized Message as part of a Group
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="JMSConnectorPublish"&gt;
+		&lt;http:listener config-ref="HTTP_Listener_config" path="/orders"/&gt;
+    <i class="conum" data-value="2"></i><b>(2)</b>
+		&lt;jms:publish config-ref="JMS_Config" destination="storage" priority="9"&gt; <i class="conum" data-value="3"></i><b>(3)</b>
+			&lt;jms:message&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+				&lt;jms:body&gt;#[output application/json ---
+        {
+          order_id: payload.id,
+          supplier: payload.warehouse
+        }]&lt;/jms:body&gt;
+				&lt;jms:jmsx-properties jmsxGroupID="#[attributes.queryParams.packageGroup]"/&gt; <i class="conum" data-value="4"></i><b>(4)</b>
+			&lt;/jms:message&gt;
+		&lt;/jms:publish&gt;
+	&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Differences to be noted:
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     1) There’s no need of the
+     <code>
+      transform
+     </code>
+     component, since the
+     <code>
+      body
+     </code>
+     of the Message is created inline, thus the payload remains unmodified.
+2) The
+     <code>
+      object-to-string
+     </code>
+     transformer was also removed, since the Connector can handle automatically the transformation output.
+3) Priority is set as a parmeter of the
+     <code>
+      publish
+     </code>
+     operation and doesn’t rely on the user knowing the exact key.
+4) Group is set as part of the Message JMSX properties and doesn’t rely on the user knowing the exact header name.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     As a summary, when publishing a Message in 3.x with the JMS transport, we relied on the MuleMessage payload, and outbound properties to configure the creation of the JMS Message, which meant a deeper knowledge of how the transport worked. In 4.x, the JMS Connector exposes every configurable element as a parameter in the scope were it belongs, thus exposing all the JMS functionality in a clearer way.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="ListeningForNewMessages">
+   <a class="anchor" href="#ListeningForNewMessages">
+   </a>
+   Listening For New Messages
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The JMS transport
+     <code>
+      inbound-endpoint
+     </code>
+     allows you to wait for new Messages on a given topic or queue. The output of this listener will contain the body of the message in the payload, and all the JMS headers and properties as
+     <code>
+      inboundProperties
+     </code>
+     .
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Example: Listening For Messages With Filtering by Selector
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="JmsTransportInbound"&gt;
+  &lt;jms:inbound-endpoint connector-ref="Active_MQ" queue="in"&gt;
+    &lt;jms:selector expression="JMSPriority=9"/&gt;   <i class="conum" data-value="1"></i><b>(1)</b>
+  &lt;/jms:inbound-endpoint&gt;
+  &lt;dw:transform-message&gt; <i class="conum" data-value="2"></i><b>(2)</b>
+      &lt;dw:set-payload&gt;&lt;![CDATA[%dw 1.0
+        %output application/json
+        ---
+        {
+        items: payload,
+        costumer: message.inboundProperties.'costumer_id',
+        type: message.inboundProperties.'JMSType'
+        }]]&gt;&lt;/dw:set-payload&gt;
+  &lt;/dw:transform-message&gt;
+  &lt;object-to-string-transformer/&gt;  <i class="conum" data-value="3"></i><b>(3)</b>
+  &lt;jms:outbound-endpoint queue="v2/prime/orders" connector-ref="Active_MQ"/&gt;  <i class="conum" data-value="4"></i><b>(4)</b>
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     In this case, we are listening for high priority Messages and then adapting them to the new format required by version 2 of priority orders:
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     1) Filter incoming messages by priority.
+2) Transform the MuleMessage using the metadata contained in the inboundProperties so the payload matches the new JSON format we need for the new API.
+3) Convert the transformed payload to a JSON String.
+4) Publish the payload to the proxied queue.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Implementing the same in Mule 4 looks like this:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Example: Listening For Messages With Filtering by Selector
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="JMSConnectorPublish"&gt;
+  &lt;jms:listener config-ref="JMS_Config" destination="in" selector="JMSPriority=9"/&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+  &lt;jms:publish config-ref="JMS_Config" destination="v2/prime/orders"&gt; <i class="conum" data-value="2"></i><b>(2)</b>
+    &lt;jms:message&gt;
+      &lt;jms:body&gt;#[output application/json ---
+      {
+        items: payload,
+        costumer: attributes.properties.userProperties.costumer_id, <i class="conum" data-value="3"></i><b>(3)</b>
+        type: attributes.headers.type
+      }]&lt;/jms:body&gt;
+    &lt;/jms:message&gt;
+  &lt;/jms:publish&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Now, the flow has fewer components and is not required to modify the Message payload to publish with a different format:
+    </p>
+   </div>
+   <div class="colist arabic">
+    <table>
+     <tr>
+      <td>
+       <i class="conum" data-value="1">
+       </i>
+       <b>
+        1
+       </b>
+      </td>
+      <td>
+       Listening with a filter is done configuring the 'selector' in the listener.
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="2">
+       </i>
+       <b>
+        2
+       </b>
+      </td>
+      <td>
+       Definition of the new message is done inline, so it only creates the JSON for the new Message body.
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="3">
+       </i>
+       <b>
+        3
+       </b>
+      </td>
+      <td>
+       We use the message 'attributes' POJO instead of the 'inboundProperties', which now differentiate the 'headers' of the JMS Messsage from the 'properties'.
+      </td>
+     </tr>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="ConsumingMessages">
+   <a class="anchor" href="#ConsumingMessages">
+   </a>
+   Consuming Messages
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Consuming Messages mid-flow from a given destination was not supported by Mule’s 3 JMS transport, and the way to go was also adding the 'Mule Requester Module' to your application, which would then handle the mid-flow message consume.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     So, for example, if you wanted to expose your JMS Queue behind a new REST API, your application would be similar to this:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Example: Consuming Messages Mid-Flow
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;mulerequester:config name="Mule_Requester"/&gt;
+&lt;jms:activemq-connector name="Active_MQ" brokerURL="tcp://localhost:61616" specification="1.1"/&gt;
+
+&lt;flow name="ordersFromJMS"&gt;
+  &lt;http:inbound-endpoint exchange-pattern="request-response" path="orders" host="localhost" port="8081"/&gt;
+  &lt;mulerequester:request config-ref="Mule_Requester"
+                         resource="jms://Orders?selector=shipped%3D'#[message.inboundProperties.'shipped']'"/&gt;
+  &lt;logger level="INFO" message="CorrelationId: #[message.inboundProperties.'JMSCorrelationId']"/&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Some things to notice here are:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       All metadata regarding JMS Message is completely lost, so logging the CorrelationId relies on you knowing the syntax for obtaining the Header.
+      </p>
+     </li>
+     <li>
+      <p>
+       Dynamic filtering by 'selector' has to be done in the 'resource' url of the requester, so multiple arguments end up with an error prone configuration.
+      </p>
+     </li>
+     <li>
+      <p>
+       We need both the JMS and Mule Requester configurations.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     Mule 4 comes out of the box with the capability of consuming messages mid-flow by using thr 'consume' operation. This operation is very similar to the Listener we saw before, with the difference that it can be used anywhere in the flow:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Example:  Consuming Messages Mid-Flow
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="ordersFromJMS"&gt;
+  &lt;http:listener config-ref="HTTP_Listener_config" path="/orders"/&gt;
+  &lt;jms:consume destination="Orders" selector=#['shipped=' ++ attributes.queryParams.shipped]/&gt;
+  &lt;logger level="INFO" message="#['CorrelationId: ' ++ attributes.headers.correlationId]"/&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Now we only needed a the JMS Connector, configured the 'consume' operation with the 'selector' parameter using the metadata from the listener, and also were able to log the correlationId with metadata support in the Message attributes.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="HandlingTopicSubscriptions">
+   <a class="anchor" href="#HandlingTopicSubscriptions">
+   </a>
+   Handling Topic Subscriptions
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Topics used as inbound endpoints in 3.x allowed the user to configure if the subscription to the Topic had to be done as a
+     <code>
+      durable
+     </code>
+     subscription or not. There were different ways of doing so, and it had the issue of exposing the
+     <code>
+      durable
+     </code>
+     configuration for
+     <code>
+      queues
+     </code>
+     too, which made no sense.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     A Topic subscription in 3.x would look like this:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Example: Topic Subscriptions
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;jms:inbound-endpoint connector-ref="Active_MQ" topic="trackedEvents" durable="true" durableName="inboundEvents_1"/&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     For Mule 4, the subscription mechanism was reviewed, leaving the option of subscriptions scoped down to Topics only, and adding more functionality thanks to the support of JMS 2.0.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Same example as before, but in 4.x will be:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Example: Topic Subscriptions
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;jms:listener config-ref="JMS_Config" destination="trackedEvents"&gt;
+    &lt;jms:consumer-type&gt;
+        &lt;jms:topic-consumer durable="true" subscriptionName="inboundEvents_1"/&gt;
+    &lt;/jms:consumer-type&gt;
+&lt;/jms:listener&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     But in this case, the
+     <code>
+      topic-consumer
+     </code>
+     configuration allows us to also set a
+     <code>
+      shared
+     </code>
+     subscription (only if using a JMS 2.0 Connection) that allows the processing of messages from at topic subscription by multiple threads, connections or JVMs:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Example: Topic Subscriptions
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;jms:listener config-ref="JMS_Config" destination="trackedEvents"&gt;
+    &lt;jms:consumer-type&gt;
+        &lt;jms:topic-consumer durable="true" shared="true" subscriptionName="inboundEvents_1"/&gt;
+    &lt;/jms:consumer-type&gt;
+&lt;/jms:listener&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="RespondingToIncomingMessages">
+   <a class="anchor" href="#RespondingToIncomingMessages">
+   </a>
+   Responding To Incoming Messages
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     When the listener for new JMS Messages receives a Message with the 'JMSReplyTo' header configured, then it is expected that a response is emitted to the reply destination once the processing of the Message is completed.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     For Mule 3, this means configuring the transport with
+     <code>
+      exchange-pattern="request-response"`
+     </code>
+     , where the result of the flow will automatically become the payload of the response. Headers of the response Message were configured using the
+     <code>
+      outbound-properties
+     </code>
+     , while the body of the Message was taken from the
+     <code>
+      payload
+     </code>
+     at the end of the Flow.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Example: Responding To Incoming Messages
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="jmsBridge"&gt;
+  &lt;jms:inbound-endpoint queue="storage" exchange-pattern="request-response" connector-ref="PublicAMQ"&gt;
+    &lt;message-properties-transformer scope="outbound"&gt;
+      &lt;add-message-property key="timeToLive" value="2000"/&gt;
+      &lt;add-message-property key="timeToLive" value="2000"/&gt;
+    &lt;/message-properties-transformer&gt;
+  &lt;/jms:inbound-endpoint&gt;
+  &lt;http:request config-ref="HTTP_Request_Configuration" path="/storage" method="POST"/&gt;
+  &lt;set-payload value="BRIDGED"&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Mule 4 instead allows you to configure all the parameters associated to the response, directly inline as a part of the
+     <code>
+      listener
+     </code>
+     component, leaving behind the need of a transformation when reaching the end of the flow.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Example: Responding To Incoming Messages
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="jmsBridge"&gt;
+  &lt;jms:listener config-ref="config" destination="storage"&gt;
+    &lt;jms:response timeToLive="2" timeToLiveUnit="SECONDS"&gt;
+        &lt;jms:body&gt;#['BRIDGED']&lt;/jms:body&gt;
+    &lt;/jms:response&gt;
+  &lt;/jms:listener&gt;
+  &lt;http:request config-ref="HTTP_Request_Configuration" path="/storage" method="POST"&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="DoingRequestReply">
+   <a class="anchor" href="#DoingRequestReply">
+   </a>
+   Doing Request-Reply
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     JMS allows you to use the
+     <code>
+      JMSReplyTo
+     </code>
+     header to perform a synchronous communication. This can be done either with a temporary destination that is created on the fly by the client, or using an already existing destination.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="request-reply-with-temporary-destinations">
+     <a class="anchor" href="#request-reply-with-temporary-destinations">
+     </a>
+     Request Reply With Temporary Destinations
+    </h3>
+    <div class="paragraph">
+     <p>
+      In Mule 3, for the first case where the reply destination is a temporary queue that will be discarded once the message arrives, we have the "request-response" exchange-pattern in the outbound endpoint:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 3 Example: Doing Request-Reply With Temporary Reply Destination
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="jmsRequestReplyTemporaryDestination"&gt;
+  &lt;http:inbound-endpoint exchange-pattern="request-response" host="localhost" port="8080" path="invoices"/&gt;
+  &lt;dw:transform-message&gt;
+      &lt;dw:set-payload&gt;&lt;![CDATA[%dw 1.0
+        %output application/xml
+        ---
+        {
+        data: payload,
+        costumer: message.inboundProperties."http.query.params".costumer_id
+        }]]&gt;&lt;/dw:set-payload&gt;
+  &lt;/dw:transform-message&gt;
+  &lt;object-to-string-transformer/&gt;
+  &lt;jms:outbound-endpoint exchange-pattern="request-response" queue="invoiceProcessor" connector-ref="Active_MQ"/&gt;
+  &lt;logger level="INFO" message="Status: #[payload]"&gt;
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      Instead, in Mule 4 you have a brand new operation called
+      <code>
+       publish-consume
+      </code>
+      which aims to solve this specific use case:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 4 Example: Doing Request-Reply With Temporary Reply Destination
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="jmsRequestReplyTemporaryDestination"&gt;
+  &lt;http:listener config-ref="HTTP_Listener_config" path="/invoices"/&gt;
+  &lt;jms:publish-consume config-ref="JMS_Config" destination="invoiceProcessor"&gt;
+    &lt;jms:message&gt;
+      &lt;jms:body&gt;#[output application/xml ---
+      {
+        data: payload,
+        costumer: attributes.queryParams.costumer_id
+      }]&lt;/jms:body&gt;
+    &lt;/jms:message&gt;
+  &lt;/jms:publish-consume&gt;
+  &lt;logger level="INFO" message="#['Status: ' ++ payload]"&gt;
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      You may see that, again, the building of the Message is where inline of the operation, in the
+      <code>
+       message
+      </code>
+      element, and any transformation or configuration that affects the outgoing Message will be done as part of that element.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="request-reply-with-explicit-destinations">
+     <a class="anchor" href="#request-reply-with-explicit-destinations">
+     </a>
+     Request Reply With Explicit Destinations
+    </h3>
+    <div class="paragraph">
+     <p>
+      Doing a request-reply with an explicit
+      <code>
+       reply-to
+      </code>
+      destination was a little bit more tricky in 3.x, since a new component was required, the
+      <code>
+       request-reply
+      </code>
+      Scope:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 3 Example: Doing Request-Reply With Explicit Reply Destination
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="JMS-request-reply"&gt;
+  &lt;jms:inbound-endpoint queue="invoices" exchange-pattern="request-response" connector-ref="Active_MQ"/&gt;
+  &lt;dw:transform-message&gt;
+      &lt;dw:set-payload&gt;&lt;![CDATA[%dw 1.0
+        %output application/xml
+        ---
+        {
+        data: payload,
+        costumer: message.inboundProperties."http.query.params".costumer_id
+        }]]&gt;&lt;/dw:set-payload&gt;
+  &lt;/dw:transform-message&gt;
+  &lt;object-to-string-transformer/&gt;
+  &lt;request-reply&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+    &lt;jms:outbound-endpoint connector-ref="Active_MQ" exchange-pattern="one-way" queue="invoiceProcessor"/&gt;
+    &lt;jms:inbound-endpoint connector-ref="Active_MQ" exchange-pattern="one-way" topic="processedInvoiceEvents"/&gt;
+  &lt;/request-reply&gt;
+  &lt;logger level="INFO" message="#['Status: ' ++ payload]"&gt;
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      This scope (1) allowed you to set an inbound and outbound transport to do the request-reply pattern. This way, it would inject the
+      <code>
+       JMSReplyTo
+      </code>
+      header automatically in the outgoing Message and then started listening in the inbound endpoint
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      For the case of Mule’s 4 JMS Connector with the new
+      <code>
+       publish-consume
+      </code>
+      operation, it requires you to do almost no changes to the flow. If you want an specific destination for the reply to be sent, just configure the
+      <code>
+       reply-to
+      </code>
+      header in the Message builder directly, as you would in any other case of either a publish or a response:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 4 Example: Doing Request-Reply With Temporary Reply Destination
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="jmsRequestReplyTemporaryDestination"&gt;
+  &lt;http:listener config-ref="HTTP_Listener_config" path="/invoices"/&gt;
+  &lt;jms:publish-consume config-ref="JMS_Config" destination="invoiceProcessor"&gt;
+    &lt;jms:message&gt;
+      &lt;jms:body&gt;#[output application/xml ---
+      {
+        data: payload,
+        costumer: attributes.queryParams.costumer_id
+      }]&lt;/jms:body&gt;
+    &lt;/jms:message&gt;
+    &lt;jms:reply-to destination="processedInvoiceEvents" destinationType="TOPIC"/&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+  &lt;/jms:publish-consume&gt;
+  &lt;logger level="INFO" message="#['Status: ' ++ payload]"&gt;
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      In this example we set the reply destination header (&lt;1&gt;) to a well-known Topic, to illustrate that a known destination may be used by others to do things like event tracking or post-processing triggers.
+     </p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="UsingTransactions">
+   <a class="anchor" href="#UsingTransactions">
+   </a>
+   Using Transactions
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Transactions support is quite similar in its configuration when moving from 3.x to 4.x, with the expected change from it being configured in the
+     <code>
+      inbound-endpoint
+     </code>
+     and
+     <code>
+      outbound-endpoint
+     </code>
+     to the normalized Mule 4 approach for operations transactions:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Example: Using Transactions
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="transactedJmsFlow"&gt;
+    &lt;jms:inbound-endpoint queue="${in}"&gt;
+        &lt;jms:transaction action="ALWAYS_BEGIN" /&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+    &lt;/jms:inbound-endpoint&gt;
+    &lt;set-variable variableName="originalPayload" value="#[payload]"/&gt; <i class="conum" data-value="2"></i><b>(2)</b>
+    &lt;dw:transform-message&gt; <i class="conum" data-value="3"></i><b>(3)</b>
+        &lt;dw:set-payload&gt;&lt;![CDATA[%dw 1.0
+          %output application/xml
+          ---
+          payload
+          ]]&gt;&lt;/dw:set-payload&gt;
+    &lt;/dw:transform-message&gt;
+    &lt;object-to-string-transformer/&gt;
+    &lt;jms:outbound-endpoint queue="${out}"&gt; <i class="conum" data-value="4"></i><b>(4)</b>
+        &lt;jms:transaction action="ALWAYS_JOIN"/&gt;
+    &lt;/jms:outbound-endpoint&gt;
+    &lt;default-exception-strategy&gt;
+        &lt;commit-transaction exception-pattern="*"/&gt; <i class="conum" data-value="5"></i><b>(5)</b>
+        &lt;set-payload value="#[flowVars.originalPayload]"/&gt; <i class="conum" data-value="6"></i><b>(6)</b>
+        &lt;jms:outbound-endpoint queue="dead.letter"&gt; <i class="conum" data-value="7"></i><b>(7)</b>
+            &lt;jms:transaction action="JOIN_IF_POSSIBLE"/&gt;
+        &lt;/jms:outbound-endpoint&gt;
+    &lt;/default-exception-strategy&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Things to note are:
+    </p>
+   </div>
+   <div class="colist arabic">
+    <table>
+     <tr>
+      <td>
+       <i class="conum" data-value="1">
+       </i>
+       <b>
+        1
+       </b>
+      </td>
+      <td>
+       Transaction is initiated by the inbound endpoint with
+       <code>
+        ALWAYS_BEGIN
+       </code>
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="2">
+       </i>
+       <b>
+        2
+       </b>
+      </td>
+      <td>
+       We make sure not to loose the original payload
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="3">
+       </i>
+       <b>
+        3
+       </b>
+      </td>
+      <td>
+       Payload is transformed so it can be sent through the outbound endpoint
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="4">
+       </i>
+       <b>
+        4
+       </b>
+      </td>
+      <td>
+       The outbound endpoint is configured to
+       <code>
+        ALWAYS_JOIN
+       </code>
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="5">
+       </i>
+       <b>
+        5
+       </b>
+      </td>
+      <td>
+       We set up the exception strategy to catch all exceptions
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="6">
+       </i>
+       <b>
+        6
+       </b>
+      </td>
+      <td>
+       Original payload is restored so the original message is published to the dead.letter
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="7">
+       </i>
+       <b>
+        7
+       </b>
+      </td>
+      <td>
+       Finally we send the original message to the dead.letter attempting to join to the current transaction.
+      </td>
+     </tr>
+    </table>
+   </div>
+   <div class="paragraph">
+    <p>
+     Same scenario can be implemented in Mule 4 with the following approach:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Example: Using Transactions
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="transactedJmsFlow"&gt;
+    &lt;jms:listener config-ref="JMS_Config" destination="${in}" transactionalAction="ALWAYS_BEGIN"/&gt; <i class="conum" data-value="1"></i><b>(1)</b>
+    &lt;jms:publish config-ref="JMS_Config" destination="${out}" transactionalAction="ALWAYS_JOIN"&gt; <i class="conum" data-value="2"></i><b>(2)</b>
+        &lt;jms:message&gt;
+            &lt;jms:body&gt;#[output application/xml --- payload&lt;/jms:body&gt;
+        &lt;/jms:message&gt;
+    &lt;/jms:publish&gt;
+    &lt;error-handler&gt;
+        &lt;on-error-continue type="ANY"&gt; <i class="conum" data-value="3"></i><b>(3)</b>
+          &lt;jms:publish config-ref="JMS_Config" destination="dead.letter" transactionalAction="JOIN_IF_POSSIBLE"/&gt; <i class="conum" data-value="4"></i><b>(4)</b>
+        &lt;/on-error-continue&gt;
+    &lt;/error-handler&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="colist arabic">
+    <table>
+     <tr>
+      <td>
+       <i class="conum" data-value="1">
+       </i>
+       <b>
+        1
+       </b>
+      </td>
+      <td>
+       Transaction is initiated by the
+       <code>
+        listener
+       </code>
+       with
+       <code>
+        ALWAYS_BEGIN
+       </code>
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="2">
+       </i>
+       <b>
+        2
+       </b>
+      </td>
+      <td>
+       Publishing of the payload in XML format is done by the
+       <code>
+        publish
+       </code>
+       operation without modifying the current payload, also joining the transaction with
+       <code>
+        ALWAYS_JOIN
+       </code>
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="3">
+       </i>
+       <b>
+        3
+       </b>
+      </td>
+      <td>
+       An error handler that catches any error occurred is used to make sure the Message is not lost
+      </td>
+     </tr>
+     <tr>
+      <td>
+       <i class="conum" data-value="4">
+       </i>
+       <b>
+        4
+       </b>
+      </td>
+      <td>
+       Since the current payload is still the original Message received, we just publish it to the dead.letter using the
+       <code>
+        JOIN_IF_POSSIBLE
+       </code>
+       transactional action
+      </td>
+     </tr>
+    </table>
+   </div>
+  </div>
+ </div>
+</article>

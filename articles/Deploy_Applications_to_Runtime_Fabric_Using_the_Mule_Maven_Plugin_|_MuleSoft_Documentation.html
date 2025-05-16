@@ -1,0 +1,2308 @@
+<article class="doc">
+ <h1 class="page">
+  Deploy Applications to Runtime Fabric Using the Mule Maven Plugin
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="admonitionblock warning">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-warning" title="Warning">
+       </i>
+      </td>
+      <td class="content">
+       Mule Maven plugin versions 3.0.0, 3.1.0, 3.1.1, 3.1.2, 3.1.3, 3.1.4, 3.1.5, 3.1.6, 3.1.7, and 3.8.3 are deprecated.
+      </td>
+     </tr>
+    </table>
+   </div>
+   <div class="admonitionblock note">
+    <table>
+     <tr>
+      <td class="icon">
+       <i class="fa icon-note" title="Note">
+       </i>
+      </td>
+      <td class="content">
+       <div class="paragraph">
+        <p>
+         Where possible, we changed noninclusive terms to align with our company value of Equality. We maintained certain terms to avoid any effect on customer implementations.
+        </p>
+       </div>
+      </td>
+     </tr>
+    </table>
+   </div>
+   <div class="paragraph">
+    <p>
+     In addition to using Anypoint Runtime Manager, to deploy applications to Anypoint Runtime Fabric, you can also deploy applications by using the Mule Maven plugin. To do so, you must meet certain prerequisites, and configure your Runtime Fabric deployment strategy in your project’s
+     <code>
+      pom.xml
+     </code>
+     file.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     If you want to deploy applications to Runtime Fabric using a different method, see:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../runtime-fabric/latest/deploy-to-runtime-fabric">
+        Deploy Applications to Runtime Fabric Using Runtime Manager
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="prerequisites">
+   <a class="anchor" href="#prerequisites">
+   </a>
+   Prerequisites
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Ensure that the Mule Maven Plugin is added to your project
+      </p>
+      <div class="paragraph">
+       <p>
+        See
+        <a class="xref page" href="mmp-concept#add-mmp">
+         Add the Mule Maven Plugin to a Mule Project
+        </a>
+        for instructions.
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       You understand and have available the number of resources required to deploy to Runtime Fabric
+       <br/>
+       See
+       <a class="xref page" href="../../runtime-fabric/latest/deploy-resource-allocation-self-managed">
+        Allocating Resources for Application Deployment on Runtime Fabric
+       </a>
+       for more information.
+      </p>
+     </li>
+     <li>
+      <p>
+       The application is already published in Exchange
+       <br/>
+       See
+       <a class="xref page" href="../../exchange/to-publish-assets-maven">
+        Publish and Deploy Exchange Assets Using Maven
+       </a>
+       .
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="deploying-to-rtf">
+   <a class="anchor" href="#deploying-to-rtf">
+   </a>
+   Configure the Runtime Fabric Deployment Strategy
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Inside the
+     <code>
+      plugin
+     </code>
+     element, add a configuration for your Runtime Fabric deployment, replacing the following placeholder values with your Runtime Fabric information:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;plugin&gt;
+  &lt;groupId&gt;org.mule.tools.maven&lt;/groupId&gt;
+  &lt;artifactId&gt;mule-maven-plugin&lt;/artifactId&gt;
+  &lt;version&gt;3.7.1&lt;/version&gt;
+  &lt;extensions&gt;true&lt;/extensions&gt;
+  &lt;configuration&gt;
+    &lt;runtimeFabricDeployment&gt;
+      &lt;uri&gt;https://anypoint.mulesoft.com&lt;/uri&gt;
+      &lt;muleVersion&gt;4.3.0&lt;/muleVersion&gt;
+      &lt;username&gt;user&lt;/username&gt;
+      &lt;password&gt;pass&lt;/password&gt;
+      &lt;applicationName&gt;newapp&lt;/applicationName&gt;
+      &lt;target&gt;rtf&lt;/target&gt;
+      &lt;environment&gt;Sandbox&lt;/environment&gt;
+      &lt;provider&gt;MC&lt;/provider&gt;
+      &lt;replicas&gt;1&lt;/replicas&gt;
+      &lt;properties&gt;
+        &lt;key&gt;value&lt;/key&gt;
+      &lt;/properties&gt;
+      &lt;deploymentSettings&gt;
+        &lt;enforceDeployingReplicasAcrossNodes&gt;false&lt;/enforceDeployingReplicasAcrossNodes&gt;
+        &lt;updateStrategy&gt;recreate&lt;/updateStrategy&gt;
+        &lt;clustered&gt;false&lt;/clustered&gt;
+        &lt;forwardSslSession&gt;false&lt;/forwardSslSession&gt;
+        &lt;lastMileSecurity&gt;false&lt;/lastMileSecurity&gt;
+        &lt;resources&gt;
+          &lt;cpu&gt;
+            &lt;reserved&gt;20m&lt;/reserved&gt;
+            &lt;limit&gt;1500m&lt;/limit&gt;
+          &lt;/cpu&gt;
+          &lt;memory&gt;
+            &lt;reserved&gt;700Mi&lt;/reserved&gt;
+          &lt;/memory&gt;
+        &lt;/resources&gt;
+        &lt;http&gt;
+          &lt;inbound&gt;
+            &lt;publicUrl&gt;url&lt;/publicUrl&gt;
+          &lt;/inbound&gt;
+        &lt;/http&gt;
+      &lt;/deploymentSettings&gt;
+    &lt;/runtimeFabricDeployment&gt;
+  &lt;/configuration&gt;
+&lt;/plugin&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="deploy-to-runtime-fabric">
+   <a class="anchor" href="#deploy-to-runtime-fabric">
+   </a>
+   Deploy to Runtime Fabric
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     From the command line in your project’s folder, package the application and execute the deploy goal:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">mvn clean deploy -DmuleDeploy</code></pre>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="exchange-snapshot-assets">
+     <a class="anchor" href="#exchange-snapshot-assets">
+     </a>
+     Exchange Snapshot Assets
+    </h3>
+    <div class="paragraph">
+     <p>
+      You can also deploy Exchange snapshot assets into Runtime Fabric.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      By using
+      <code>
+       SNAPSHOT
+      </code>
+      version assets in Anypoint Exchange during the development and testing phase, you can avoid incrementing your application’s version number for small changes. After your
+      <code>
+       SNAPSHOT
+      </code>
+      version application has been overwritten in Anypoint Exchange, you can redeploy your
+      <code>
+       SNAPSHOT
+      </code>
+      version application to Runtime Fabric via the Mule Maven plugin to deploy the latest changes.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      To learn more about publishing snapshot assets to Anypoint Exchange, see
+      <a class="xref page" href="../../exchange/to-publish-assets-maven#asset-lifecycle-state">
+       Asset Lifecycle State
+      </a>
+      .
+     </p>
+    </div>
+    <div class="admonitionblock note">
+     <table>
+      <tr>
+       <td class="icon">
+        <i class="fa icon-note" title="Note">
+        </i>
+       </td>
+       <td class="content">
+        <div class="paragraph">
+         <p>
+          Each time you update your application’s snapshot, redeploy the application to refresh it with the latest snapshot binaries.
+         </p>
+        </div>
+        <div class="paragraph">
+         <p>
+          Because snapshot assets can change after deployment, avoid deploying them into your production environment.
+         </p>
+        </div>
+       </td>
+      </tr>
+     </table>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="redeploy-to-runtime-fabric">
+   <a class="anchor" href="#redeploy-to-runtime-fabric">
+   </a>
+   Redeploy to Runtime Fabric
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To redeploy the application, run the same command as you did to deploy.
+     <br/>
+     Runtime Fabric rewrites the application you had deployed.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="authentication-methods">
+   <a class="anchor" href="#authentication-methods">
+   </a>
+   Authentication Methods
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     When you deploy applications using Mule Maven plugin, you can use different methods to provide your credentials to authenticate against the deployment platform. Depending on the authentication method you use, the parameters to set in the deployment configuration differ:
+    </p>
+   </div>
+   <table class="tableblock frame-all grid-all fit-content spread">
+    <colgroup>
+     <col/>
+     <col/>
+     <col/>
+    </colgroup>
+    <thead>
+     <tr>
+      <th class="tableblock halign-left valign-middle">
+       Authentication Method
+      </th>
+      <th class="tableblock halign-left valign-middle">
+       Description
+      </th>
+      <th class="tableblock halign-left valign-middle">
+       Configuration Parameters
+      </th>
+     </tr>
+    </thead>
+    <tbody>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Username and password
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Use a Runtime Fabric username and password to authenticate.
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="ulist">
+         <ul>
+          <li>
+           <p>
+            <code>
+             username
+            </code>
+            <br/>
+           </p>
+          </li>
+          <li>
+           <p>
+            <code>
+             password
+            </code>
+           </p>
+          </li>
+         </ul>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Server
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Use credentials stored in a Maven server, configured inside the Maven
+          <code>
+           settings.xml
+          </code>
+          file.
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="ulist">
+         <ul>
+          <li>
+           <p>
+            <code>
+             server
+            </code>
+           </p>
+          </li>
+         </ul>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Authorization Token
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Use an authorization token to access the platform.
+          <br/>
+          See
+          <a class="xref page" href="../../access-management/external-identity">
+           Identity Management
+          </a>
+          for a list of supported single sign-on (SSO) types.
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="ulist">
+         <ul>
+          <li>
+           <p>
+            <code>
+             authToken
+            </code>
+           </p>
+          </li>
+         </ul>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Connected Apps
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Use a Connected App to perform the authentication programmatically by communicating with Anypoint Platform.
+          <br/>
+          Note that the Connected App credentials must have the
+          <code>
+           Design Center Developer
+          </code>
+          access scope.
+          <br/>
+          See
+          <a class="xref page" href="../../access-management/connected-apps-developers">
+           Connected Apps for Developers
+          </a>
+          for instructions about creating Connected Apps.
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="ulist">
+         <ul>
+          <li>
+           <p>
+            <code>
+             connectedAppClientId
+            </code>
+            <br/>
+           </p>
+          </li>
+          <li>
+           <p>
+            <code>
+             connectedAppClientSecret
+            </code>
+            <br/>
+           </p>
+          </li>
+          <li>
+           <p>
+            <code>
+             connectedAppGrantType
+            </code>
+           </p>
+          </li>
+         </ul>
+        </div>
+       </div>
+      </td>
+     </tr>
+    </tbody>
+   </table>
+   <div class="paragraph">
+    <p>
+     For a detailed description of the configuration parameters, see the
+     <a href="#rtf-deploy-reference">
+      Runtime Fabric Deployment Parameters Reference
+     </a>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="rtf-deploy-reference">
+   <a class="anchor" href="#rtf-deploy-reference">
+   </a>
+   Runtime Fabric Deployment Parameters Reference
+  </h2>
+  <div class="sectionbody">
+   <table class="tableblock frame-all grid-all fit-content spread">
+    <colgroup>
+     <col/>
+     <col/>
+     <col/>
+    </colgroup>
+    <thead>
+     <tr>
+      <th class="tableblock halign-left valign-middle">
+       Parameter
+      </th>
+      <th class="tableblock halign-left valign-middle">
+       Description
+      </th>
+      <th class="tableblock halign-left valign-middle">
+       Required
+      </th>
+     </tr>
+    </thead>
+    <tbody>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           runtimeFabricDeployment
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Top-Level Element
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Yes
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           uri
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Your Anypoint Platform URI.
+          <br/>
+          If not set, defaults to https://anypoint.mulesoft.com.
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          No
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           muleVersion
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          The Mule runtime engine version to run in your Runtime Fabric instance.
+          <br/>
+          Ensure that this value is equal to or higher than the earliest required Mule version of your application.  By default, the latest available Mule version is selected.
+          <br/>
+          Example values:
+          <code>
+           4.6.0
+          </code>
+          selects the last build where it defaults to Edge channel and Java 8. If you want to choose a different LTS or Edge selection or Java version, specify the full Mule version name as in
+          <code>
+           4.6.0:1e-java17
+          </code>
+          .
+          <br/>
+          When using Mule Maven plugin versions 3.8.0 and 4.0.0 for deployments, the
+          <code>
+           muleVersion
+          </code>
+          property doesn’t allow you to specify
+          <code>
+           releaseChannel
+          </code>
+          and
+          <code>
+           javaVersion
+          </code>
+          . To specify these properties, upgrade the plugin to version 4.1.1 or later.
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          No
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           releaseChannel
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Set the name of the release channel used to select the Mule image. Supported values are
+          <code>
+           NONE
+          </code>
+          ,
+          <code>
+           EDGE
+          </code>
+          , and
+          <code>
+           LTS
+          </code>
+          . By default, the value is set to
+          <code>
+           EDGE
+          </code>
+          . If the selected release channel doesn’t exist, an error occurs.
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          No
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           javaVersion
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Set the Java version used in the deploy. Supported values are
+          <code>
+           8
+          </code>
+          and
+          <code>
+           17
+          </code>
+          . By default, the value is set to
+          <code>
+           8
+          </code>
+          . If the selected Java version doesn’t exist, an error occurs.
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          No
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           username
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Your Anypoint Platform username
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Only when using Anypoint Platform credentials to login.
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           password
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Your Anypoint Platform password
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Only when using Anypoint Platform credentials to login.
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           applicationName
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          The application name displayed in Runtime Manager after the app deploys.
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Yes
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           target
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          The Runtime Fabric target name where to deploy the app.
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Yes
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           provider
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Provider MC (MuleSoft Control Plane) indicates that the deployment is managed through Anypoint Runtime Manager. Set to
+          <code>
+           MC
+          </code>
+          for Runtime Fabric.
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Yes
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           environment
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Target Anypoint Platform environment.
+          <br/>
+          This value must match an environment configured in your Anypoint Platform account, as shown here:
+          <br/>
+         </p>
+        </div>
+        <div class="listingblock">
+         <div class="content">
+          <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;environment&gt;Sandbox&lt;/environment&gt;</code></pre>
+         </div>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Yes
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           replicas
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Specifies the number of replicas, or instances, of the Mule application to deploy. The maximum number of replicas per application is 16.
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Yes
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           businessGroup
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          The Business group path of the deployment
+          <br/>
+          Specify the full hierarchical path from the parent organization to the target Business group, for example:
+         </p>
+        </div>
+        <div class="listingblock">
+         <div class="content">
+          <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;businessGroup&gt;ParentOrg\SubOrg1\myBusinessGroup&lt;/businessGroup&gt;</code></pre>
+         </div>
+        </div>
+        <div class="paragraph">
+         <p>
+          This value is omitted if
+          <code>
+           businessGroupId
+          </code>
+          is set. If
+          <code>
+           businessGroup
+          </code>
+          and
+          <code>
+           businessGroupId
+          </code>
+          are not set, the value defaults to the main business group of the user.
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          No
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           businessGroupId
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          The Business group ID of the deployment
+          <br/>
+          Instead of specifying the Business group path, you can specify the Business group ID to deploy your application. If
+          <code>
+           businessGroupId
+          </code>
+          and
+          <code>
+           businessGroup
+          </code>
+          are not set, the value defaults to the main business group of the user.
+          <br/>
+          The Business group ID is a mandatory parameter when you have access only to a specific Business group but not to the parent organization.
+          <br/>
+          This parameter is available in plugin version 3.2.7 and later.
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          No
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           deploymentTimeout
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          The allowed elapsed time, in milliseconds, between the start of the deployment process and the confirmation that the artifact has been deployed
+         </p>
+        </div>
+        <div class="paragraph">
+         <p>
+          The default value is
+          <code>
+           1000000
+          </code>
+          .
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          No
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           server
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Maven server with Anypoint Platform credentials
+          <br/>
+          This is only needed if you want to use your credentials stored in your Maven
+          <code>
+           settings.xml
+          </code>
+          file. This is not the Mule server name.
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          No
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           properties
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Top-Level element
+          <br/>
+          If you need to set properties for the Mule application you are deploying, you can use the
+          <code>
+           &lt;properties&gt;
+          </code>
+          top-level element:
+         </p>
+        </div>
+        <div class="listingblock">
+         <div class="content">
+          <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;properties&gt;
+  &lt;key&gt;value&lt;/key&gt;
+&lt;/properties&gt;</code></pre>
+         </div>
+        </div>
+        <div class="paragraph">
+         <p>
+          For example:
+         </p>
+        </div>
+        <div class="listingblock">
+         <div class="content">
+          <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;properties&gt;
+  &lt;http.port&gt;8081&lt;/http.port&gt;
+&lt;/properties&gt;</code></pre>
+         </div>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          No
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           secureProperties
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Top-Level element
+          <br/>
+          Use the
+          <code>
+           secureProperties
+          </code>
+          top-level element to set properties for the Mule application and instruct Runtime Fabric to encrypt the values before storing them:
+         </p>
+        </div>
+        <div class="listingblock">
+         <div class="content">
+          <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;secureProperties&gt;
+  &lt;key&gt;value&lt;/key&gt;
+&lt;/secureProperties&gt;</code></pre>
+         </div>
+        </div>
+        <div class="paragraph">
+         <p>
+          For example:
+         </p>
+        </div>
+        <div class="listingblock">
+         <div class="content">
+          <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;secureProperties&gt;
+  &lt;http.port&gt;8081&lt;/http.port&gt;
+&lt;/secureProperties&gt;</code></pre>
+         </div>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          No
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           skip
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          When set to
+          <code>
+           true
+          </code>
+          , skips the plugin deployment goal.
+          <br/>
+          Its default value is
+          <code>
+           false
+          </code>
+          .
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          No
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           skipDeploymentVerification
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          When set to
+          <code>
+           true
+          </code>
+          , skips the status verification of your deployed app.
+          <br/>
+          Its default value is
+          <code>
+           false
+          </code>
+          .
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          No
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           authToken
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Specifies the authorization token to access the platform. You can use this authentication method instead of setting username and password.
+          <br/>
+          See
+          <a class="xref page" href="../../access-management/external-identity">
+           Identity Management
+          </a>
+          for a list of supported single sign-on (SSO) types.
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Only when using an Authorization token to login.
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           connectedAppClientId
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Specifies the Connected App
+          <code>
+           clientID
+          </code>
+          value.
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Only when using Connected Apps credentials to login.
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           connectedAppClientSecret
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Specifies the Connected App secret key.
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Only when using Connected Apps credentials to login.
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           connectedAppGrantType
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Specifies the only supported connection type:
+          <code>
+           client_credentials
+          </code>
+          .
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Only when using Connected Apps credentials to login.
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+     <tr>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          <code>
+           deploymentSettings
+          </code>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          Any of the parameters documented in
+          <a href="#deployment-settings">
+           deploymentSettings Reference
+          </a>
+         </p>
+        </div>
+       </div>
+      </td>
+      <td class="tableblock halign-left valign-middle">
+       <div class="content">
+        <div class="paragraph">
+         <p>
+          No
+         </p>
+        </div>
+       </div>
+      </td>
+     </tr>
+    </tbody>
+   </table>
+   <div class="sect2">
+    <h3 id="deployment-settings">
+     <a class="anchor" href="#deployment-settings">
+     </a>
+     deploymentSettings Parameters Reference
+    </h3>
+    <table class="tableblock frame-all grid-all fit-content spread">
+     <colgroup>
+      <col/>
+      <col/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-middle">
+        Parameter
+       </th>
+       <th class="tableblock halign-left valign-middle">
+        Description
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <code>
+            enforceDeployingReplicasAcrossNodes
+           </code>
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Enforces the deployment of replicas across different nodes. The default value is
+           <code>
+            false
+           </code>
+           .
+          </p>
+         </div>
+         <div class="paragraph">
+          <p>
+           Configuration example:
+          </p>
+         </div>
+         <div class="listingblock">
+          <div class="content">
+           <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;deploymentSettings&gt;
+  &lt;enforceDeployingReplicasAcrossNodes&gt;false&lt;/enforceDeployingReplicasAcrossNodes&gt;
+&lt;/deploymentSettings&gt;</code></pre>
+          </div>
+         </div>
+        </div>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <code>
+            updateStrategy
+           </code>
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <table class="tableblock frame-all grid-all stretch">
+          <colgroup>
+           <col style="width: 25%;"/>
+           <col style="width: 75%;"/>
+          </colgroup>
+          <thead>
+           <tr>
+            <th class="tableblock halign-left valign-top">
+             Accepted values
+            </th>
+            <th class="tableblock halign-left valign-top">
+             Description
+            </th>
+           </tr>
+          </thead>
+          <tbody>
+           <tr>
+            <td class="tableblock halign-left valign-top">
+             <p class="tableblock">
+              <code>
+               rolling
+              </code>
+             </p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+             <p class="tableblock">
+              Maintains availability by updating replicas incrementally. Requires one additional replica’s worth of resources to succeed.
+              <br/>
+              If
+              <code>
+               enforceDeployingReplicasAcrossNodes
+              </code>
+              is enabled, the maximum number of replicas you can configure is one less than the total number of nodes.
+             </p>
+            </td>
+           </tr>
+           <tr>
+            <td class="tableblock halign-left valign-top">
+             <p class="tableblock">
+              <code>
+               recreate
+              </code>
+             </p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+             <p class="tableblock">
+              Terminates replicas before re-deployment. Re-deployment is quicker than
+              <code>
+               rolling
+              </code>
+              and doesn’t require additional resources.
+              <br/>
+              If
+              <code>
+               enforceDeployingReplicasAcrossNodes
+              </code>
+              is enabled, the maximum number of replicas you can configure is equal to the number of nodes.
+             </p>
+            </td>
+           </tr>
+          </tbody>
+         </table>
+         <div class="paragraph">
+          <p>
+           The default value is
+           <code>
+            rolling
+           </code>
+           .
+          </p>
+         </div>
+         <div class="paragraph">
+          <p>
+           Configuration example:
+          </p>
+         </div>
+         <div class="listingblock">
+          <div class="content">
+           <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;deploymentSettings&gt;
+  &lt;updateStrategy&gt;recreate&lt;/updateStrategy&gt;
+&lt;/deploymentSettings&gt;</code></pre>
+          </div>
+         </div>
+        </div>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <code>
+            forwardSslSession
+           </code>
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Enables SSL forwarding during a session. The default value is
+           <code>
+            false
+           </code>
+           .
+          </p>
+         </div>
+         <div class="paragraph">
+          <p>
+           Configuration example:
+          </p>
+         </div>
+         <div class="listingblock">
+          <div class="content">
+           <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;deploymentSettings&gt;
+  &lt;forwardSslSession&gt;true&lt;/forwardSslSession&gt;
+&lt;/deploymentSettings&gt;</code></pre>
+          </div>
+         </div>
+        </div>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <code>
+            clustered
+           </code>
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Enables clustering across two or more replicas of the application. The default value is
+           <code>
+            false
+           </code>
+           .
+           <br/>
+          </p>
+         </div>
+         <div class="paragraph">
+          <p>
+           Configuration example:
+          </p>
+         </div>
+         <div class="listingblock">
+          <div class="content">
+           <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;deploymentSettings&gt;
+    &lt;clustered&gt;true&lt;/clustered&gt;
+&lt;/deploymentSettings&gt;</code></pre>
+          </div>
+         </div>
+        </div>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <code>
+            lastMileSecurity
+           </code>
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Enable Last-Mile security to forward HTTPS connections to be decrypted by this application
+           <br/>
+           This requires an SSL certificate to be included in the Mule application, and also requires more CPU resources. The default value is
+           <code>
+            false
+           </code>
+           .
+           <br/>
+           Configuration example:
+          </p>
+         </div>
+         <div class="listingblock">
+          <div class="content">
+           <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;deploymentSettings&gt;
+    &lt;lastMileSecurity&gt;true&lt;/lastMileSecurity&gt;
+&lt;/deploymentSettings&gt;</code></pre>
+          </div>
+         </div>
+        </div>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <code>
+            resources
+           </code>
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <table class="tableblock frame-all grid-all stretch">
+          <colgroup>
+           <col style="width: 20%;"/>
+           <col style="width: 20%;"/>
+           <col style="width: 60%;"/>
+          </colgroup>
+          <tbody>
+           <tr>
+            <td class="tableblock halign-left valign-top" rowspan="2">
+             <p class="tableblock">
+              <code>
+               cpu
+              </code>
+             </p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+             <p class="tableblock">
+              <code>
+               reserved
+              </code>
+             </p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+             <p class="tableblock">
+              Specifies the number of cores to allocate for each application replica. The default value is 0.5 vCores.
+             </p>
+            </td>
+           </tr>
+           <tr>
+            <td class="tableblock halign-left valign-top">
+             <p class="tableblock">
+              <code>
+               limit
+              </code>
+             </p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+             <p class="tableblock">
+              Specifies the number of max cores to allocate for each replica of the application.
+              <br/>
+              If a
+              <code>
+               reserved
+              </code>
+              configuration is present, ensure that this value is equal or higher.
+             </p>
+            </td>
+           </tr>
+           <tr>
+            <td class="tableblock halign-left valign-top" rowspan="2">
+             <p class="tableblock">
+              <code>
+               memory
+              </code>
+             </p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+             <p class="tableblock">
+              <code>
+               reserved
+              </code>
+             </p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+             <p class="tableblock">
+              Specifies the amount of memory to allocate for each application replica. The default value is 700 MB.
+             </p>
+            </td>
+           </tr>
+           <tr>
+            <td class="tableblock halign-left valign-top">
+             <p class="tableblock">
+              <code>
+               limit
+              </code>
+             </p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+             <p class="tableblock">
+              Specifies the maximum memory allocated per application replica. If a
+              <code>
+               reserved
+              </code>
+              configuration is present, ensure that this value is equal or higher.
+             </p>
+            </td>
+           </tr>
+          </tbody>
+         </table>
+         <div class="paragraph">
+          <p>
+           Configuration example:
+          </p>
+         </div>
+         <div class="listingblock">
+          <div class="content">
+           <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;deploymentSettings&gt;
+  &lt;resources&gt;
+    &lt;cpu&gt;
+      &lt;reserved&gt;20m&lt;/reserved&gt;
+      &lt;limit&gt;1500m&lt;/limit&gt;
+    &lt;/cpu&gt;
+    &lt;memory&gt;
+      &lt;reserved&gt;700Mi&lt;/reserved&gt;
+    &lt;/memory&gt;
+  &lt;/resources&gt;
+&lt;/deploymentSettings&gt;</code></pre>
+          </div>
+         </div>
+        </div>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <code>
+            http
+           </code>
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <table class="tableblock frame-all grid-all stretch">
+          <colgroup>
+           <col style="width: 20%;"/>
+           <col style="width: 20%;"/>
+           <col style="width: 60%;"/>
+          </colgroup>
+          <tbody>
+           <tr>
+            <td class="tableblock halign-left valign-top" rowspan="2">
+             <p class="tableblock">
+              <code>
+               inbound
+              </code>
+             </p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+             <p class="tableblock">
+              <code>
+               publicURL
+              </code>
+             </p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+             <p class="tableblock">
+              URL of the deployed application.
+             </p>
+            </td>
+           </tr>
+          </tbody>
+         </table>
+         <div class="paragraph">
+          <p>
+           Configuration example using wildcard URL:
+          </p>
+         </div>
+         <div class="listingblock">
+          <div class="content">
+           <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;deploymentSettings&gt;
+  &lt;http&gt;
+    &lt;inbound&gt;
+      &lt;publicUrl&gt;myapp.example.com&lt;/publicUrl&gt;
+    &lt;/inbound&gt;
+  &lt;/http&gt;
+&lt;/deploymentSettings&gt;</code></pre>
+          </div>
+         </div>
+         <div class="paragraph">
+          <p>
+           Configuration example using single cert single URL:
+          </p>
+         </div>
+         <div class="listingblock">
+          <div class="content">
+           <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;deploymentSettings&gt;
+  &lt;http&gt;
+    &lt;inbound&gt;
+      &lt;publicUrl&gt;wwww.example.com/myapp&lt;/publicUrl&gt;
+    &lt;/inbound&gt;
+  &lt;/http&gt;
+&lt;/deploymentSettings&gt;</code></pre>
+          </div>
+         </div>
+         <div class="paragraph">
+          <p>
+           Configuration example for Runtime Fabric BYOK:
+          </p>
+         </div>
+         <div class="listingblock">
+          <div class="content">
+           <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;deploymentSettings&gt;
+  &lt;http&gt;
+    &lt;inbound&gt;
+      &lt;publicUrl&gt;https://www.example.com/myapp&lt;/publicUrl&gt;
+    &lt;/inbound&gt;
+  &lt;/http&gt;
+&lt;/deploymentSettings&gt;</code></pre>
+          </div>
+         </div>
+        </div>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <code>
+            persistentObjectStore
+           </code>
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Configures the Mule application to use a persistent object store. By default, it is set to
+           <code>
+            false
+           </code>
+           .
+          </p>
+         </div>
+        </div>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <code>
+            jvm
+           </code>
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <table class="tableblock frame-all grid-all stretch">
+          <colgroup>
+           <col style="width: 25%;"/>
+           <col style="width: 75%;"/>
+          </colgroup>
+          <tbody>
+           <tr>
+            <td class="tableblock halign-left valign-top">
+             <p class="tableblock">
+              <code>
+               args
+              </code>
+             </p>
+            </td>
+            <td class="tableblock halign-left valign-top">
+             <p class="tableblock">
+              Specifies JVM arguments to pass to Runtime Fabric when deploying the application. Use spaces to separate each argument.
+             </p>
+            </td>
+           </tr>
+          </tbody>
+         </table>
+         <div class="paragraph">
+          <p>
+           Configuration example:
+          </p>
+         </div>
+         <div class="listingblock">
+          <div class="content">
+           <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;deploymentSettings&gt;
+  &lt;jvm&gt;
+    &lt;args&gt;
+      -XX:MaxMetaspaceSize=500m -XX:MaxRAMPercentage=60.0
+    &lt;/args&gt;
+  &lt;/jvm&gt;
+&lt;/deploymentSettings&gt;</code></pre>
+          </div>
+         </div>
+        </div>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <code>
+            generateDefaultPublicUrl
+           </code>
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           When this parameter is set to true, Runtime Fabric generates a public URL for the deployed application.
+          </p>
+         </div>
+        </div>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           <code>
+            disableAmLogForwarding
+           </code>
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-left valign-middle">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Disables the application-level log forwarding to Anypoint Monitoring. By default, it is set to
+           <code>
+            false
+           </code>
+           .
+          </p>
+         </div>
+        </div>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="encrypt-credentials">
+   <a class="anchor" href="#encrypt-credentials">
+   </a>
+   Encrypt Credentials
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To use encrypted credentials when deploying, you need to set up your Maven master encrypted password and your
+     <code>
+      settings-security.xml
+     </code>
+     file.
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Create a master password for your Maven configuration.
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre>mvn --encrypt-master-password &lt;yourMasterPassword&gt;</pre>
+       </div>
+      </div>
+      <div class="paragraph">
+       <p>
+        Maven returns your master password encrypted:
+       </p>
+      </div>
+      <div class="listingblock">
+       <div class="content">
+        <pre>{l9vZ2uM5SdgHy+H12z4pX7LEOZn3Kbnqmt3kIquLjnQ=}</pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Create a
+       <code>
+        settings-security.xml
+       </code>
+       file in your ~/.m2 repository and add your encrypted master password:
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;settingsSecurity&gt;
+  &lt;master&gt;{l9vZ2uM5SdgHy+H12z4pX7LEOZn3Kbnqmt3kIquLjnQ=}&lt;/master&gt;
+&lt;/settingsSecurity&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Encrypt your Anypoint platform password:
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre>mvn --encrypt-password &lt;yourAnypointPlatformPassword&gt;</pre>
+       </div>
+      </div>
+      <div class="paragraph">
+       <p>
+        Maven returns your Anypoint platform password encrypted:
+       </p>
+      </div>
+      <div class="listingblock">
+       <div class="content">
+        <pre>{HTWFGH5BG9QmvJ1B=}</pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Add your encrypted Anypoint Platform password to your
+       <code>
+        settings.xml
+       </code>
+       file in the &lt;server&gt; section:
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;settings&gt;
+ ...
+  &lt;servers&gt;
+   ...
+    &lt;server&gt;
+      &lt;id&gt;my.anypoint.credentials&lt;/id&gt;
+      &lt;username&gt;my.anypoint.username&lt;/username&gt;
+      &lt;password&gt;{HTWFGH5BG9QmvJ1B=}&lt;/password&gt;
+    &lt;/server&gt;
+   ...
+  &lt;/servers&gt;
+ ...
+&lt;/settings&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       In your configuration deployment, reference the credentials injecting the server ID configured in your
+       <code>
+        settings.xml
+       </code>
+       file:
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;plugin&gt;
+  ...
+  &lt;configuration&gt;
+    ...
+    &lt;runtimeFabricDeployment&gt;
+      ...
+      &lt;server&gt;my.anypoint.credentials&lt;/server&gt;
+      ...
+    &lt;/runtimeFabricDeployment&gt;
+    ...
+  &lt;/configuration&gt;
+  ...
+&lt;plugin&gt;</code></pre>
+       </div>
+      </div>
+      <div class="admonitionblock note">
+       <table>
+        <tr>
+         <td class="icon">
+          <i class="fa icon-note" title="Note">
+          </i>
+         </td>
+         <td class="content">
+          Make sure that the username and password are not set in the deployment configuration, or they will overwrite the defined server ID.
+         </td>
+        </tr>
+       </table>
+      </div>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="mmp-concept">
+        Mule Maven Plugin
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

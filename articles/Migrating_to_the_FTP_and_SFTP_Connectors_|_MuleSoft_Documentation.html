@@ -1,0 +1,646 @@
+<article class="doc">
+ <h1 class="page">
+  Migrating to the FTP and SFTP Connectors
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The FTP and SFTP transports were completely rewritten. They evolved away from the Mule 3 transport model into an operation based connector. This enables many new capabilities:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       The ability to read files or fully list directory contents on demand, unlike the old transport, which only provided a polling inbound endpoint.
+      </p>
+     </li>
+     <li>
+      <p>
+       Top-level support for common file system operations such as copying, moving, renaming, deleting, creating directories, and more.
+      </p>
+     </li>
+     <li>
+      <p>
+       Support for locking files at the file system level.
+      </p>
+     </li>
+     <li>
+      <p>
+       Advanced file matching functionality.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     Furthermore, they were designed to be completely symmetrical. This means that, except for the connection configuration, they look and behave alike and have the exact same feature set. Furthermore, they also match the features and behavior of the File connector.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="config_ftp_sftp">
+   <a class="anchor" href="#config_ftp_sftp">
+   </a>
+   Connecting to an FTP or SFTP Server
+  </h2>
+  <div class="sectionbody">
+   <div class="sect2">
+    <h3 id="migrating-an-ftp-connection">
+     <a class="anchor" href="#migrating-an-ftp-connection">
+     </a>
+     Migrating an FTP Connection
+    </h3>
+    <div class="listingblock">
+     <div class="title">
+      Mule 3 Example: FTP Inbound Connection with Polling
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;ftp:inbound-endpoint host="localhost"
+ port="21" path="path/to/file"
+ user="myusername" password="maypassword"
+ pollingFrequency="4000" responseTimeout="10000"  metadata:id="5571009e-a278-4a01-ac1d-4102113b52ad"
+ doc:name="FTP"&gt;
+    &lt;reconnect-forever frequency="3000"/&gt;
+&lt;/ftp:inbound-endpoint&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      This example shows a simple Mule 4 FTP configuration.
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 4 Example: FTP Connection
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;ftp:config name="ftp"&gt;
+  &lt;ftp:connection username="anonymous"
+   password="password" host="localhost"
+   port="${ftpPort}" workingDir="${workingDir}"/&gt;
+&lt;/ftp:config&gt;</code></pre>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="migrating-and-sftp-connection">
+     <a class="anchor" href="#migrating-and-sftp-connection">
+     </a>
+     Migrating and SFTP Connection
+    </h3>
+    <div class="listingblock">
+     <div class="title">
+      Mule 3 Example: SFTP Inbound Endpoint
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;sftp:inbound-endpoint host="localhost"
+ port="22" path="path/to/file"
+ user="myuser" password="mypassword"
+ responseTimeout="10000"
+ pollingFrequency="2000" fileAge="50"
+ sizeCheckWaitTime="10" doc:name="SFTP"/&gt;</code></pre>
+     </div>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 4 Example: SFTP Connection Configuration
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;sftp:config name="sftp"&gt;
+  &lt;sftp:connection username="myusername"
+   password="mypassword"
+   host="localhost"
+   port="${sftpPort}"
+   workingDir="${workingDir}"/&gt;
+&lt;/sftp:config&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      The SFTP connection also supports a connection through a proxy.
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 4 Example: SFTP Connection through a Proxy
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;sftp:config name="sftp"&gt;
+  &lt;sftp:connection username="muletest1" password="muletest1"
+   host="127.0.0.100" port="${SFTP_PORT}" workingDir="${workingDir}"&gt;
+    &lt;sftp:sftp-proxy-config host="localhost" port="${proxyPort}" protocol="HTTP"/&gt;
+   &lt;/sftp:connection&gt;
+&lt;/sftp:config&gt;</code></pre>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="ftp_listener">
+   <a class="anchor" href="#ftp_listener">
+   </a>
+   Migrating an Inbound Endpoint
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In Mule 3 a
+     <code>
+      &lt;ftp:inbound-endpoint&gt;
+     </code>
+     and
+     <code>
+      &lt;sftp:inbound-endpoint&gt;
+     </code>
+     message sources were used to poll a directory for files. For each file found, a new message was triggered. The message would hold the file’s content in the payload plus a number of file attributes as system properties. To avoid picking the same files over and over,
+     <code>
+      autoDelete
+     </code>
+     and
+     <code>
+      moveTo
+     </code>
+     parameters were provided, so that the files would leave the polled directory after being picked.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Mule 4 offers an improved way of doing that. The
+     <code>
+      &lt;ftp:listener&gt;
+     </code>
+     and
+     <code>
+      &lt;sftp:listener&gt;
+     </code>
+     components (shown as
+     <code>
+      On New File
+     </code>
+     in the Studio palette) polls a directory and triggers a new message just like its predecessor did. However it has the following added capabilities:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       You can use a
+       <code>
+        &lt;ftp:matcher&gt;
+       </code>
+       and
+       <code>
+        &lt;sftp:matcher&gt;
+       </code>
+       to only accept files with match a certain criteria
+      </p>
+     </li>
+     <li>
+      <p>
+       You’re no longer forced to either delete or move the file, although the option to do that is still available.
+      </p>
+     </li>
+     <li>
+      <p>
+       You can use any of the connector’s operation to change processed files in such a way that they no longer meet the matching criteria.
+      </p>
+     </li>
+     <li>
+      <p>
+       Watermark is automatically supported, allowing you to optionally filter automatically based on the file’s timestamp.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Example: Inbound endpoint
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="listener"&gt;
+  &lt;ftp:inbound-endpoint address="ftp://anonymous:password@localhost:${port1}"
+    pollingFrequency="1000"/&gt;
+
+  &lt;flow-ref name="processFile" /&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Example: On New File
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;ftp:config name="ftp"&gt;
+  &lt;ftp:connection host="localhost" user="anonymous" password="password" workingDir="${workingDir}"/&gt;
+&lt;/file:config&gt;
+
+&lt;flow name="listenWithScheduler" initialState="stopped"&gt;
+    &lt;ftp:listener config-ref="ftp" directory="."&gt;
+      &lt;scheduling-strategy&gt;
+        &lt;fixed-frequency frequency="1000"/&gt;
+      &lt;/scheduling-strategy&gt;
+    &lt;/file:listener&gt;
+
+    &lt;flow-ref name="processFile" /&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="ftp_write">
+   <a class="anchor" href="#ftp_write">
+   </a>
+   Migrating an Outbound Endpoint
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The Mule 3 transport uses the
+     <code>
+      &lt;ftp:outbound-endpoint&gt;
+     </code>
+     component to write the current payload to a file. The Mule 4 connector uses the
+     <code>
+      &lt;ftp:write&gt;
+     </code>
+     operation instead.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The most important differences are:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       The
+       <code>
+        &lt;ftp:outbound-endpoint&gt;
+       </code>
+       required the content to be written in the message payload at the moment of execution. The
+       <code>
+        &lt;ftp:write&gt;
+       </code>
+       operation can embed a DataWeave transformation that generates the content to be written.
+      </p>
+     </li>
+     <li>
+      <p>
+       The Mule 3 transport has the
+       <code>
+        outputAppend
+       </code>
+       parameter set at the config level, while the
+       <code>
+        &lt;ftp:write&gt;
+       </code>
+       operation has a
+       <code>
+        mode
+       </code>
+       parameter.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Example: Outbound Endpoint
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;ftp:connector name="file" outputAppend="true" /&gt;
+
+&lt;flow name="greetings"&gt;
+  &lt;http:listener path="greet" method="POST"/&gt;
+  &lt;set-payload value="Hello #[payload.name]" /&gt;
+  &lt;ftp:outbound-endpoint path="greet.txt" connector-ref="file" /&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Example: Write Operation
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="greetings"&gt;
+  &lt;http:listener path="greet" method="POST"/&gt;
+  &lt;ftp:write path="greet.txt" mode="APPEND"&gt;
+    &lt;ftp:content&gt;#['Hello $(payload.name)']&lt;/file:content&gt;
+  &lt;/file:write&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     To use FTP in the SFTP connector, simply add it to your application using the Studio palette, or add the following dependency in your
+     <code>
+      pom.xml
+     </code>
+     file:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.mule.connectors&lt;/groupId&gt;
+    &lt;artifactId&gt;mule-ftp-connector&lt;/artifactId&gt;
+    &lt;version&gt;1.1.0&lt;/version&gt; &lt;!-- or newer --&gt;
+    &lt;classifier&gt;mule-plugin&lt;/classifier&gt;
+&lt;/dependency&gt;
+
+&lt;dependency&gt;
+    &lt;groupId&gt;org.mule.connectors&lt;/groupId&gt;
+    &lt;artifactId&gt;mule-sftp-connector&lt;/artifactId&gt;
+    &lt;version&gt;1.1.0&lt;/version&gt; &lt;!-- or newer --&gt;
+    &lt;classifier&gt;mule-plugin&lt;/classifier&gt;
+&lt;/dependency&gt;</code></pre>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="sftp-addSeqNo">
+     <a class="anchor" href="#sftp-addSeqNo">
+     </a>
+     SFTP Outbound 'addSeqNo' Duplicate Handling
+    </h3>
+    <div class="paragraph">
+     <p>
+      In Mule 3, using
+      <code>
+       duplicateHandling="addSeqNo"
+      </code>
+      iterates though the file names until an unused index is found.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      In Mule 4, you need to replace this with a unique index, for example, through an Object Store or UUID.
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 3 Example: Outbound SFTP Endpoint
+      <code>
+       addSeqNo
+      </code>
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="sftpSeqNumberOutbound"&gt;
+    &lt;sftp:outbound-endpoint
+        address="sftp://.../data"
+        outputPattern="fileName.dat" duplicateHandling="addSeqNo"/&gt;
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+    <div class="listingblock">
+     <div class="title">
+      Mule 4 Example:
+      <code>
+       sftp:write
+      </code>
+      with
+      <code>
+       uuid()
+      </code>
+      in the
+      <code>
+       path
+      </code>
+     </div>
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="sftpSeqNumberOutbound"&gt;
+    &lt;sftp:write config-ref="sftpConfig" path="#['data/fileName_' ++ uuid() ++ '.dat']"/&gt;
+&lt;/flow&gt;</code></pre>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="sftp-temp-dir">
+   <a class="anchor" href="#sftp-temp-dir">
+   </a>
+   Migrating the SFTP tempDir
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In Mule 3, the SFTP transport allows for configuration of temporary directories to use when reading or writing files. The properties that allow this are:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       In the
+       <code>
+        sftp:connector
+       </code>
+       :
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          <code>
+           tempDirInbound
+          </code>
+         </p>
+        </li>
+        <li>
+         <p>
+          <code>
+           tempDirOutbound
+          </code>
+         </p>
+        </li>
+        <li>
+         <p>
+          <code>
+           useTempFileTimestampSuffix
+          </code>
+         </p>
+        </li>
+       </ul>
+      </div>
+     </li>
+     <li>
+      <p>
+       In the
+       <code>
+        sftp:inbound-endpoint
+       </code>
+       :
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          <code>
+           tempDir
+          </code>
+         </p>
+        </li>
+        <li>
+         <p>
+          <code>
+           useTempFileTimestampSuffix
+          </code>
+         </p>
+        </li>
+       </ul>
+      </div>
+     </li>
+     <li>
+      <p>
+       In the
+       <code>
+        sftp:outbound-endpoint
+       </code>
+       :
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          <code>
+           tempDir
+          </code>
+         </p>
+        </li>
+        <li>
+         <p>
+          <code>
+           useTempFileTimestampSuffix
+          </code>
+         </p>
+        </li>
+       </ul>
+      </div>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     These configurations are not allowed in the Mule 4 SFTP connector. However, the connector provides the
+     <code>
+      sftp:move
+     </code>
+     operation that you can use to replace this kind of configuration.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 3 Example: Inbound SFTP Endpoint
+     <code>
+      tempDir
+     </code>
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="sftpListener"&gt;
+    &lt;sftp:inbound-endpoint address="sftp://.../testdir"
+        tempDir="tmp_sending" useTempFileTimestampSuffix="true"/&gt;
+
+    ...
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Example:
+     <code>
+      sftp:move
+     </code>
+     to a Temporary Directory
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow name="sftpListener"&gt;
+    &lt;sftp:listener config-ref="sftpConfig" directory="testdir"/&gt;
+
+    &lt;!-- This DataWeave generates the same filename as the Mule 3 transport when using the tempDir attribute --&gt;
+    &lt;sftp:move config-ref="sftpConfig" sourcePath="#['testdir/' ++ attributes.name]" targetPath="#['tmp_sending/' ++ joinBy(flatMap(splitBy(attributes.name, '.'), (item, index) -&gt; (if (index == 0) item ++ '_' ++ now() as String{format: 'yyyyMMddHHmmssSSS'} else item)), '.')]"/&gt;
+    ...
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="archiving-files-to-a-local-drive">
+   <a class="anchor" href="#archiving-files-to-a-local-drive">
+   </a>
+   Archiving Files to a Local Drive
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In Mule 4, the
+     <code>
+      moveToDirectory
+     </code>
+     attribute on the listener in the SFTP connector
+only archives to another directory on the SFTP server, not to a local directory.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     You can archive files to a local drive by using the Write operation (
+     <code>
+      file:write
+     </code>
+     ) in the
+File connector.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     Mule 4 Example:
+     <code>
+      file:write
+     </code>
+     to a Local Directory
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;flow&gt;
+   &lt;sftp:listener path="/a/b" /&gt;
+   &lt;file:write path="#['archive/$(attributes.fileName})']" /&gt;
+   &lt;flow-ref name="theRestOfYourIntegration" /&gt;
+&lt;/flow&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="see-also">
+   <a class="anchor" href="#see-also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../../ftp-connector/latest/">
+        FTP Connector
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../../sftp-connector/latest/">
+        SFTP Connector
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>
