@@ -1,0 +1,2714 @@
+<article class="doc">
+ <h1 class="page">
+  Splunk
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     <strong>
+      Since Camel 2.13
+     </strong>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     <strong>
+      Both producer and consumer are supported
+     </strong>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The Splunk component provides access to
+     <a href="http://docs.splunk.com/Documentation/Splunk/latest">
+      Splunk
+     </a>
+     using the Splunk provided
+     <a href="https://github.com/splunk/splunk-sdk-java">
+      client
+     </a>
+     api, and it enables you to publish and search for events in Splunk.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Maven users will need to add the following dependency to their pom.xml for this component:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.apache.camel&lt;/groupId&gt;
+    &lt;artifactId&gt;camel-splunk&lt;/artifactId&gt;
+    &lt;version&gt;${camel-version}&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_uri_format">
+   <a class="anchor" href="#_uri_format">
+   </a>
+   URI format
+  </h2>
+  <div class="sectionbody">
+   <div class="listingblock">
+    <div class="content">
+     <pre>splunk://[endpoint]?[options]</pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_configuring_options">
+   <a class="anchor" href="#_configuring_options">
+   </a>
+   Configuring Options
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Camel components are configured on two separate levels:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       component level
+      </p>
+     </li>
+     <li>
+      <p>
+       endpoint level
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="sect2">
+    <h3 id="_configuring_component_options">
+     <a class="anchor" href="#_configuring_component_options">
+     </a>
+     Configuring Component Options
+    </h3>
+    <div class="paragraph">
+     <p>
+      At the component level, you set general and shared configurations that are, then, inherited by the endpoints. It is the highest configuration level.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      For example, a component may have security settings, credentials for authentication, urls for network connection and so forth.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      Some components only have a few options, and others may have many. Because components typically have pre-configured defaults that are commonly used, then you may often only need to configure a few options on a component; or none at all.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      You can configure components using:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        the
+        <a class="xref page" href="../../manual/component-dsl.html">
+         Component DSL
+        </a>
+        .
+       </p>
+      </li>
+      <li>
+       <p>
+        in a configuration file (
+        <code>
+         application.properties
+        </code>
+        ,
+        <code>
+         *.yaml
+        </code>
+        files, etc).
+       </p>
+      </li>
+      <li>
+       <p>
+        directly in the Java code.
+       </p>
+      </li>
+     </ul>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="_configuring_endpoint_options">
+     <a class="anchor" href="#_configuring_endpoint_options">
+     </a>
+     Configuring Endpoint Options
+    </h3>
+    <div class="paragraph">
+     <p>
+      You usually spend more time setting up endpoints because they have many options. These options help you customize what you want the endpoint to do. The options are also categorized into whether the endpoint is used as a consumer (
+      <em>
+       from
+      </em>
+      ), as a producer (
+      <em>
+       to
+      </em>
+      ), or both.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      Configuring endpoints is most often done directly in the endpoint URI as
+      <em>
+       path
+      </em>
+      and
+      <em>
+       query
+      </em>
+      parameters. You can also use the
+      <a class="xref page" href="../../manual/Endpoint-dsl.html">
+       Endpoint DSL
+      </a>
+      and
+      <a class="xref page" href="../../manual/dataformat-dsl.html">
+       DataFormat DSL
+      </a>
+      as a
+      <em>
+       type safe
+      </em>
+      way of configuring endpoints and data formats in Java.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      A good practice when configuring options is to use
+      <a class="xref page" href="../../manual/using-propertyplaceholder.html">
+       Property Placeholders
+      </a>
+      .
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      Property placeholders provide a few benefits:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        They help prevent using hardcoded urls, port numbers, sensitive information, and other settings.
+       </p>
+      </li>
+      <li>
+       <p>
+        They allow externalizing the configuration from the code.
+       </p>
+      </li>
+      <li>
+       <p>
+        They help the code to become more flexible and reusable.
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="paragraph">
+     <p>
+      The following two sections list all the options, firstly for the component followed by the endpoint.
+     </p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_component_options">
+   <a class="anchor" href="#_component_options">
+   </a>
+   Component Options
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The Splunk component supports 6 options, which are listed below.
+    </p>
+   </div>
+   <div class="table-wrapper">
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col/>
+      <col/>
+      <col/>
+      <col/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-top">
+        Name
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Description
+       </th>
+       <th class="tableblock halign-center valign-top">
+        Default
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Type
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <a id="_component_option_bridgeErrorHandler">
+         </a>
+         <a class="anchor" href="#_component_option_bridgeErrorHandler">
+         </a>
+         <strong>
+          bridgeErrorHandler
+         </strong>
+         (consumer)
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Allows for bridging the consumer to the Camel routing Error Handler, which mean any exceptions (if possible) occurred while the Camel consumer is trying to pickup incoming messages, or the likes, will now be processed as a message and handled by the routing Error Handler. Important: This is only possible if the 3rd party component allows Camel to be alerted if an exception was thrown. Some components handle this internally only, and therefore bridgeErrorHandler is not possible. In other situations we may improve the Camel component to hook into the 3rd party component and make this possible for future releases. By default the consumer will use the org.apache.camel.spi.ExceptionHandler to deal with exceptions, that will be logged at WARN or ERROR level and ignored.
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-center valign-top">
+        <p class="tableblock">
+         false
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         boolean
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <a id="_component_option_lazyStartProducer">
+         </a>
+         <a class="anchor" href="#_component_option_lazyStartProducer">
+         </a>
+         <strong>
+          lazyStartProducer
+         </strong>
+         (producer)
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Whether the producer should be started lazy (on the first message). By starting lazy you can use this to allow CamelContext and routes to startup in situations where a producer may otherwise fail during starting and cause the route to fail being started. By deferring this startup to be lazy then the startup failure can be handled during routing messages via Camel’s routing error handlers. Beware that when the first message is processed then creating and starting the producer may take a little time and prolong the total processing time of the processing.
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-center valign-top">
+        <p class="tableblock">
+         false
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         boolean
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <a id="_component_option_autowiredEnabled">
+         </a>
+         <a class="anchor" href="#_component_option_autowiredEnabled">
+         </a>
+         <strong>
+          autowiredEnabled
+         </strong>
+         (advanced)
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Whether autowiring is enabled. This is used for automatic autowiring options (the option must be marked as autowired) by looking up in the registry to find if there is a single instance of matching type, which then gets configured on the component. This can be used for automatic configuring JDBC data sources, JMS connection factories, AWS Clients, etc.
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-center valign-top">
+        <p class="tableblock">
+         true
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         boolean
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <a id="_component_option_splunkConfigurationFactory">
+         </a>
+         <a class="anchor" href="#_component_option_splunkConfigurationFactory">
+         </a>
+         <strong>
+          splunkConfigurationFactory
+         </strong>
+         (advanced)
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           To use the SplunkConfigurationFactory.
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-center valign-top">
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         SplunkConfigurationFactory
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <a id="_component_option_healthCheckConsumerEnabled">
+         </a>
+         <a class="anchor" href="#_component_option_healthCheckConsumerEnabled">
+         </a>
+         <strong>
+          healthCheckConsumerEnabled
+         </strong>
+         (health)
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Used for enabling or disabling all consumer based health checks from this component.
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-center valign-top">
+        <p class="tableblock">
+         true
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         boolean
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <a id="_component_option_healthCheckProducerEnabled">
+         </a>
+         <a class="anchor" href="#_component_option_healthCheckProducerEnabled">
+         </a>
+         <strong>
+          healthCheckProducerEnabled
+         </strong>
+         (health)
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <div class="content">
+         <div class="paragraph">
+          <p>
+           Used for enabling or disabling all producer based health checks from this component. Notice: Camel has by default disabled all producer based health-checks. You can turn on producer checks globally by setting camel.health.producersEnabled=true.
+          </p>
+         </div>
+        </div>
+       </td>
+       <td class="tableblock halign-center valign-top">
+        <p class="tableblock">
+         true
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         boolean
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_endpoint_options">
+   <a class="anchor" href="#_endpoint_options">
+   </a>
+   Endpoint Options
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The Splunk endpoint is configured using URI syntax:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre>splunk:name</pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     With the following
+     <em>
+      path
+     </em>
+     and
+     <em>
+      query
+     </em>
+     parameters:
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="_path_parameters_1_parameters">
+     <a class="anchor" href="#_path_parameters_1_parameters">
+     </a>
+     Path Parameters (1 parameters)
+    </h3>
+    <div class="table-wrapper">
+     <table class="tableblock frame-all grid-all stretch">
+      <colgroup>
+       <col/>
+       <col/>
+       <col/>
+       <col/>
+      </colgroup>
+      <thead>
+       <tr>
+        <th class="tableblock halign-left valign-top">
+         Name
+        </th>
+        <th class="tableblock halign-left valign-top">
+         Description
+        </th>
+        <th class="tableblock halign-center valign-top">
+         Default
+        </th>
+        <th class="tableblock halign-left valign-top">
+         Type
+        </th>
+       </tr>
+      </thead>
+      <tbody>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_path_option_name">
+          </a>
+          <a class="anchor" href="#_endpoint_path_option_name">
+          </a>
+          <strong>
+           name
+          </strong>
+          (common)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            <strong>
+             Required
+            </strong>
+            Name has no purpose.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          String
+         </p>
+        </td>
+       </tr>
+      </tbody>
+     </table>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="_query_parameters">
+     <a class="anchor" href="#_query_parameters">
+     </a>
+     Query Parameters (46 parameters)
+    </h3>
+    <div class="table-wrapper">
+     <table class="tableblock frame-all grid-all stretch">
+      <colgroup>
+       <col/>
+       <col/>
+       <col/>
+       <col/>
+      </colgroup>
+      <thead>
+       <tr>
+        <th class="tableblock halign-left valign-top">
+         Name
+        </th>
+        <th class="tableblock halign-left valign-top">
+         Description
+        </th>
+        <th class="tableblock halign-center valign-top">
+         Default
+        </th>
+        <th class="tableblock halign-left valign-top">
+         Type
+        </th>
+       </tr>
+      </thead>
+      <tbody>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_app">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_app">
+          </a>
+          <strong>
+           app
+          </strong>
+          (common)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            Splunk app.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          String
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_connectionTimeout">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_connectionTimeout">
+          </a>
+          <strong>
+           connectionTimeout
+          </strong>
+          (common)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            Timeout in MS when connecting to Splunk server.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+         <p class="tableblock">
+          5000
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          int
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_host">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_host">
+          </a>
+          <strong>
+           host
+          </strong>
+          (common)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            Splunk host.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+         <p class="tableblock">
+          localhost
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          String
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_owner">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_owner">
+          </a>
+          <strong>
+           owner
+          </strong>
+          (common)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            Splunk owner.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          String
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_port">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_port">
+          </a>
+          <strong>
+           port
+          </strong>
+          (common)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            Splunk port.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+         <p class="tableblock">
+          8089
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          int
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_scheme">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_scheme">
+          </a>
+          <strong>
+           scheme
+          </strong>
+          (common)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            Splunk scheme.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+         <p class="tableblock">
+          https
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          String
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_count">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_count">
+          </a>
+          <strong>
+           count
+          </strong>
+          (consumer)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            A number that indicates the maximum number of entities to return.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          int
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_earliestTime">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_earliestTime">
+          </a>
+          <strong>
+           earliestTime
+          </strong>
+          (consumer)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            Earliest time of the search time window.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          String
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_initEarliestTime">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_initEarliestTime">
+          </a>
+          <strong>
+           initEarliestTime
+          </strong>
+          (consumer)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            Initial start offset of the first search.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          String
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_latestTime">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_latestTime">
+          </a>
+          <strong>
+           latestTime
+          </strong>
+          (consumer)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            Latest time of the search time window.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          String
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_savedSearch">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_savedSearch">
+          </a>
+          <strong>
+           savedSearch
+          </strong>
+          (consumer)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            The name of the query saved in Splunk to run.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          String
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_search">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_search">
+          </a>
+          <strong>
+           search
+          </strong>
+          (consumer)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            The Splunk query to run.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          String
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_sendEmptyMessageWhenIdle">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_sendEmptyMessageWhenIdle">
+          </a>
+          <strong>
+           sendEmptyMessageWhenIdle
+          </strong>
+          (consumer)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            If the polling consumer did not poll any files, you can enable this option to send an empty message (no body) instead.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+         <p class="tableblock">
+          false
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          boolean
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_streaming">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_streaming">
+          </a>
+          <strong>
+           streaming
+          </strong>
+          (consumer)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            Sets streaming mode. Streaming mode sends exchanges as they are received, rather than in a batch.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+         <p class="tableblock">
+          false
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          boolean
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_bridgeErrorHandler">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_bridgeErrorHandler">
+          </a>
+          <strong>
+           bridgeErrorHandler
+          </strong>
+          (consumer (advanced))
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            Allows for bridging the consumer to the Camel routing Error Handler, which mean any exceptions (if possible) occurred while the Camel consumer is trying to pickup incoming messages, or the likes, will now be processed as a message and handled by the routing Error Handler. Important: This is only possible if the 3rd party component allows Camel to be alerted if an exception was thrown. Some components handle this internally only, and therefore bridgeErrorHandler is not possible. In other situations we may improve the Camel component to hook into the 3rd party component and make this possible for future releases. By default the consumer will use the org.apache.camel.spi.ExceptionHandler to deal with exceptions, that will be logged at WARN or ERROR level and ignored.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+         <p class="tableblock">
+          false
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          boolean
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_exceptionHandler">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_exceptionHandler">
+          </a>
+          <strong>
+           exceptionHandler
+          </strong>
+          (consumer (advanced))
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            To let the consumer use a custom ExceptionHandler. Notice if the option bridgeErrorHandler is enabled then this option is not in use. By default the consumer will deal with exceptions, that will be logged at WARN or ERROR level and ignored.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          ExceptionHandler
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_exchangePattern">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_exchangePattern">
+          </a>
+          <strong>
+           exchangePattern
+          </strong>
+          (consumer (advanced))
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            Sets the exchange pattern when the consumer creates an exchange.
+           </p>
+          </div>
+          <div class="paragraph">
+           <p>
+            Enum values:
+           </p>
+          </div>
+          <div class="ulist">
+           <ul>
+            <li>
+             <p>
+              InOnly
+             </p>
+            </li>
+            <li>
+             <p>
+              InOut
+             </p>
+            </li>
+           </ul>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          ExchangePattern
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_pollStrategy">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_pollStrategy">
+          </a>
+          <strong>
+           pollStrategy
+          </strong>
+          (consumer (advanced))
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            A pluggable org.apache.camel.PollingConsumerPollingStrategy allowing you to provide your custom implementation to control error handling usually occurred during the poll operation before an Exchange have been created and being routed in Camel.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          PollingConsumerPollStrategy
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_eventHost">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_eventHost">
+          </a>
+          <strong>
+           eventHost
+          </strong>
+          (producer)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            Override the default Splunk event host field.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          String
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_index">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_index">
+          </a>
+          <strong>
+           index
+          </strong>
+          (producer)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            Splunk index to write to.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          String
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_raw">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_raw">
+          </a>
+          <strong>
+           raw
+          </strong>
+          (producer)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            Should the payload be inserted raw.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+         <p class="tableblock">
+          false
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          boolean
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_source">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_source">
+          </a>
+          <strong>
+           source
+          </strong>
+          (producer)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            Splunk source argument.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          String
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_sourceType">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_sourceType">
+          </a>
+          <strong>
+           sourceType
+          </strong>
+          (producer)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            Splunk sourcetype argument.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          String
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_tcpReceiverLocalPort">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_tcpReceiverLocalPort">
+          </a>
+          <strong>
+           tcpReceiverLocalPort
+          </strong>
+          (producer)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            Splunk tcp receiver port defined locally on splunk server. (For example if splunk port 9997 is mapped to 12345, tcpReceiverLocalPort has to be 9997).
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          Integer
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_tcpReceiverPort">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_tcpReceiverPort">
+          </a>
+          <strong>
+           tcpReceiverPort
+          </strong>
+          (producer)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            Splunk tcp receiver port.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          int
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_lazyStartProducer">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_lazyStartProducer">
+          </a>
+          <strong>
+           lazyStartProducer
+          </strong>
+          (producer (advanced))
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            Whether the producer should be started lazy (on the first message). By starting lazy you can use this to allow CamelContext and routes to startup in situations where a producer may otherwise fail during starting and cause the route to fail being started. By deferring this startup to be lazy then the startup failure can be handled during routing messages via Camel’s routing error handlers. Beware that when the first message is processed then creating and starting the producer may take a little time and prolong the total processing time of the processing.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+         <p class="tableblock">
+          false
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          boolean
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_backoffErrorThreshold">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_backoffErrorThreshold">
+          </a>
+          <strong>
+           backoffErrorThreshold
+          </strong>
+          (scheduler)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            The number of subsequent error polls (failed due some error) that should happen before the backoffMultipler should kick-in.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          int
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_backoffIdleThreshold">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_backoffIdleThreshold">
+          </a>
+          <strong>
+           backoffIdleThreshold
+          </strong>
+          (scheduler)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            The number of subsequent idle polls that should happen before the backoffMultipler should kick-in.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          int
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_backoffMultiplier">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_backoffMultiplier">
+          </a>
+          <strong>
+           backoffMultiplier
+          </strong>
+          (scheduler)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            To let the scheduled polling consumer backoff if there has been a number of subsequent idles/errors in a row. The multiplier is then the number of polls that will be skipped before the next actual attempt is happening again. When this option is in use then backoffIdleThreshold and/or backoffErrorThreshold must also be configured.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          int
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_delay">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_delay">
+          </a>
+          <strong>
+           delay
+          </strong>
+          (scheduler)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            Milliseconds before the next poll.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+         <p class="tableblock">
+          500
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          long
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_greedy">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_greedy">
+          </a>
+          <strong>
+           greedy
+          </strong>
+          (scheduler)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            If greedy is enabled, then the ScheduledPollConsumer will run immediately again, if the previous run polled 1 or more messages.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+         <p class="tableblock">
+          false
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          boolean
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_initialDelay">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_initialDelay">
+          </a>
+          <strong>
+           initialDelay
+          </strong>
+          (scheduler)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            Milliseconds before the first poll starts.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+         <p class="tableblock">
+          1000
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          long
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_repeatCount">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_repeatCount">
+          </a>
+          <strong>
+           repeatCount
+          </strong>
+          (scheduler)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            Specifies a maximum limit of number of fires. So if you set it to 1, the scheduler will only fire once. If you set it to 5, it will only fire five times. A value of zero or negative means fire forever.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+         <p class="tableblock">
+          0
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          long
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_runLoggingLevel">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_runLoggingLevel">
+          </a>
+          <strong>
+           runLoggingLevel
+          </strong>
+          (scheduler)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            The consumer logs a start/complete log line when it polls. This option allows you to configure the logging level for that.
+           </p>
+          </div>
+          <div class="paragraph">
+           <p>
+            Enum values:
+           </p>
+          </div>
+          <div class="ulist">
+           <ul>
+            <li>
+             <p>
+              TRACE
+             </p>
+            </li>
+            <li>
+             <p>
+              DEBUG
+             </p>
+            </li>
+            <li>
+             <p>
+              INFO
+             </p>
+            </li>
+            <li>
+             <p>
+              WARN
+             </p>
+            </li>
+            <li>
+             <p>
+              ERROR
+             </p>
+            </li>
+            <li>
+             <p>
+              OFF
+             </p>
+            </li>
+           </ul>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+         <p class="tableblock">
+          TRACE
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          LoggingLevel
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_scheduledExecutorService">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_scheduledExecutorService">
+          </a>
+          <strong>
+           scheduledExecutorService
+          </strong>
+          (scheduler)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            Allows for configuring a custom/shared thread pool to use for the consumer. By default each consumer has its own single threaded thread pool.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          ScheduledExecutorService
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_scheduler">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_scheduler">
+          </a>
+          <strong>
+           scheduler
+          </strong>
+          (scheduler)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            To use a cron scheduler from either camel-spring or camel-quartz component. Use value spring or quartz for built in scheduler.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+         <p class="tableblock">
+          none
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          Object
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_schedulerProperties">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_schedulerProperties">
+          </a>
+          <strong>
+           schedulerProperties
+          </strong>
+          (scheduler)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            To configure additional properties when using a custom scheduler or any of the Quartz, Spring based scheduler.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          Map
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_startScheduler">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_startScheduler">
+          </a>
+          <strong>
+           startScheduler
+          </strong>
+          (scheduler)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            Whether the scheduler should be auto started.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+         <p class="tableblock">
+          true
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          boolean
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_timeUnit">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_timeUnit">
+          </a>
+          <strong>
+           timeUnit
+          </strong>
+          (scheduler)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            Time unit for initialDelay and delay options.
+           </p>
+          </div>
+          <div class="paragraph">
+           <p>
+            Enum values:
+           </p>
+          </div>
+          <div class="ulist">
+           <ul>
+            <li>
+             <p>
+              NANOSECONDS
+             </p>
+            </li>
+            <li>
+             <p>
+              MICROSECONDS
+             </p>
+            </li>
+            <li>
+             <p>
+              MILLISECONDS
+             </p>
+            </li>
+            <li>
+             <p>
+              SECONDS
+             </p>
+            </li>
+            <li>
+             <p>
+              MINUTES
+             </p>
+            </li>
+            <li>
+             <p>
+              HOURS
+             </p>
+            </li>
+            <li>
+             <p>
+              DAYS
+             </p>
+            </li>
+           </ul>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+         <p class="tableblock">
+          MILLISECONDS
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          TimeUnit
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_useFixedDelay">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_useFixedDelay">
+          </a>
+          <strong>
+           useFixedDelay
+          </strong>
+          (scheduler)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            Controls if fixed delay or fixed rate is used. See ScheduledExecutorService in JDK for details.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+         <p class="tableblock">
+          true
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          boolean
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_password">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_password">
+          </a>
+          <strong>
+           password
+          </strong>
+          (security)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            Password for Splunk.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          String
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_sslProtocol">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_sslProtocol">
+          </a>
+          <strong>
+           sslProtocol
+          </strong>
+          (security)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            Set the ssl protocol to use.
+           </p>
+          </div>
+          <div class="paragraph">
+           <p>
+            Enum values:
+           </p>
+          </div>
+          <div class="ulist">
+           <ul>
+            <li>
+             <p>
+              TLSv1.2
+             </p>
+            </li>
+            <li>
+             <p>
+              TLSv1.1
+             </p>
+            </li>
+            <li>
+             <p>
+              TLSv1
+             </p>
+            </li>
+            <li>
+             <p>
+              SSLv3
+             </p>
+            </li>
+           </ul>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+         <p class="tableblock">
+          TLSv1.2
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          SSLSecurityProtocol
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_token">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_token">
+          </a>
+          <strong>
+           token
+          </strong>
+          (security)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            User’s token for Splunk. This takes precedence over password when both are set.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          String
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_username">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_username">
+          </a>
+          <strong>
+           username
+          </strong>
+          (security)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            Username for Splunk.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          String
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_useSunHttpsHandler">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_useSunHttpsHandler">
+          </a>
+          <strong>
+           useSunHttpsHandler
+          </strong>
+          (security)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            Use sun.net.www.protocol.https.Handler Https handler to establish the Splunk Connection. Can be useful when running in application servers to avoid app. server https handling.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+         <p class="tableblock">
+          false
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          boolean
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <a id="_endpoint_query_option_validateCertificates">
+          </a>
+          <a class="anchor" href="#_endpoint_query_option_validateCertificates">
+          </a>
+          <strong>
+           validateCertificates
+          </strong>
+          (security)
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <div class="content">
+          <div class="paragraph">
+           <p>
+            Sets client’s certificate validation mode. Value false makes SSL vulnerable and is not recommended for the production environment.
+           </p>
+          </div>
+         </div>
+        </td>
+        <td class="tableblock halign-center valign-top">
+         <p class="tableblock">
+          true
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          boolean
+         </p>
+        </td>
+       </tr>
+      </tbody>
+     </table>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_usage">
+   <a class="anchor" href="#_usage">
+   </a>
+   Usage
+  </h2>
+  <div class="sectionbody">
+   <div class="sect2">
+    <h3 id="_producer_endpoints">
+     <a class="anchor" href="#_producer_endpoints">
+     </a>
+     Producer Endpoints
+    </h3>
+    <div class="table-wrapper">
+     <table class="tableblock frame-all grid-all stretch">
+      <colgroup>
+       <col/>
+       <col/>
+      </colgroup>
+      <thead>
+       <tr>
+        <th class="tableblock halign-left valign-top">
+         Endpoint
+        </th>
+        <th class="tableblock halign-left valign-top">
+         Description
+        </th>
+       </tr>
+      </thead>
+      <tbody>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <code>
+           stream
+          </code>
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          Streams data to a named index or the default if not specified. When using stream mode, be aware of that Splunk has some internal buffer (about 1MB or so) before events get to the index. If you need realtime, better use submit or tcp mode.
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <code>
+           submit
+          </code>
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          submit mode. Uses Splunk rest api to publish events to a named index or the default if not specified.
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <code>
+           tcp
+          </code>
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          tcp mode. Streams data to a tcp port, and requires an open receiver port in Splunk.
+         </p>
+        </td>
+       </tr>
+      </tbody>
+     </table>
+    </div>
+    <div class="paragraph">
+     <p>
+      When publishing events, the message body should contain a SplunkEvent. See comment under message body.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      <strong>
+       Example
+      </strong>
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">      from("direct:start").convertBodyTo(SplunkEvent.class)
+          .to("splunk://submit?username=user&amp;password=123&amp;index=myindex&amp;sourceType=someSourceType&amp;source=mySource")...</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      In this example, a converter is required to convert to a SplunkEvent class.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="_consumer_endpoints">
+     <a class="anchor" href="#_consumer_endpoints">
+     </a>
+     Consumer Endpoints
+    </h3>
+    <div class="table-wrapper">
+     <table class="tableblock frame-all grid-all stretch">
+      <colgroup>
+       <col/>
+       <col/>
+      </colgroup>
+      <thead>
+       <tr>
+        <th class="tableblock halign-left valign-top">
+         Endpoint
+        </th>
+        <th class="tableblock halign-left valign-top">
+         Description
+        </th>
+       </tr>
+      </thead>
+      <tbody>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <code>
+           normal
+          </code>
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          Performs normal search and requires a search query in the search option.
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <code>
+           realtime
+          </code>
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          Performs realtime search on live data and requires a search query in the search option.
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <code>
+           savedsearch
+          </code>
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          Performs search based on a search query saved in splunk and requires the name of the query in the savedSearch option.
+         </p>
+        </td>
+       </tr>
+      </tbody>
+     </table>
+    </div>
+    <div class="paragraph">
+     <p>
+      <strong>
+       Example
+      </strong>
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">      from("splunk://normal?delay=5000&amp;username=user&amp;password=123&amp;initEarliestTime=-10s&amp;search=search index=myindex sourcetype=someSourcetype")
+          .to("direct:search-result");</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      Camel Splunk component creates a route exchange per search result with a SplunkEvent in the body.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="_message_body">
+     <a class="anchor" href="#_message_body">
+     </a>
+     Message body
+    </h3>
+    <div class="paragraph">
+     <p>
+      Splunk operates on data in key/value pairs. The
+      <code>
+       SplunkEvent
+      </code>
+      class is a placeholder for such data, and should be in the message body for the producer. Likewise, it will be returned in the body per search result for the consumer.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      You can send raw data to Splunk by setting the raw option on the producer endpoint. This is useful for e.g., json/xml and other payloads where Splunk has built in support.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="_use_cases">
+     <a class="anchor" href="#_use_cases">
+     </a>
+     Use Cases
+    </h3>
+    <div class="paragraph">
+     <p>
+      Search Twitter for tweets with music and publish events to Splunk
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">      from("twitter://search?type=polling&amp;keywords=music&amp;delay=10&amp;consumerKey=abc&amp;consumerSecret=def&amp;accessToken=hij&amp;accessTokenSecret=xxx")
+          .convertBodyTo(SplunkEvent.class)
+          .to("splunk://submit?username=foo&amp;password=bar&amp;index=camel-tweets&amp;sourceType=twitter&amp;source=music-tweets");</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      To convert a Tweet to a
+      <code>
+       SplunkEvent
+      </code>
+      , you could use a converter like:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Converter
+public class Tweet2SplunkEvent {
+    @Converter
+    public static SplunkEvent convertTweet(Status status) {
+        SplunkEvent data = new SplunkEvent("twitter-message", null);
+        //data.addPair("source", status.getSource());
+        data.addPair("from_user", status.getUser().getScreenName());
+        data.addPair("in_reply_to", status.getInReplyToScreenName());
+        data.addPair(SplunkEvent.COMMON_START_TIME, status.getCreatedAt());
+        data.addPair(SplunkEvent.COMMON_EVENT_ID, status.getId());
+        data.addPair("text", status.getText());
+        data.addPair("retweet_count", status.getRetweetCount());
+        if (status.getPlace() != null) {
+            data.addPair("place_country", status.getPlace().getCountry());
+            data.addPair("place_name", status.getPlace().getName());
+            data.addPair("place_street", status.getPlace().getStreetAddress());
+        }
+        if (status.getGeoLocation() != null) {
+            data.addPair("geo_latitude", status.getGeoLocation().getLatitude());
+            data.addPair("geo_longitude", status.getGeoLocation().getLongitude());
+        }
+        return data;
+    }
+}</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      Search Splunk for tweets:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">      from("splunk://normal?username=foo&amp;password=bar&amp;initEarliestTime=-2m&amp;search=search index=camel-tweets sourcetype=twitter")
+          .log("${body}");</code></pre>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="_other_comments">
+     <a class="anchor" href="#_other_comments">
+     </a>
+     Other comments
+    </h3>
+    <div class="paragraph">
+     <p>
+      Splunk comes with a variety of options for leveraging machine generated data with prebuilt apps for analyzing and displaying this. For example, the jmx app could be used to publish jmx attributes, e.g., route and jvm metrics to Splunk, and display this on a dashboard.
+     </p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_spring_boot_auto_configuration">
+   <a class="anchor" href="#_spring_boot_auto_configuration">
+   </a>
+   Spring Boot Auto-Configuration
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     When using splunk with Spring Boot make sure to use the following Maven dependency to have support for auto configuration:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;dependency&gt;
+  &lt;groupId&gt;org.apache.camel.springboot&lt;/groupId&gt;
+  &lt;artifactId&gt;camel-splunk-starter&lt;/artifactId&gt;
+  &lt;version&gt;x.x.x&lt;/version&gt;
+  &lt;!-- use the same version as your Camel core version --&gt;
+&lt;/dependency&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The component supports 7 options, which are listed below.
+    </p>
+   </div>
+   <div class="table-wrapper">
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col/>
+      <col/>
+      <col/>
+      <col/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-top">
+        Name
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Description
+       </th>
+       <th class="tableblock halign-center valign-top">
+        Default
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Type
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <a id="_sb_option_camel_component_splunk_autowired-enabled">
+         </a>
+         <a class="anchor" href="#_sb_option_camel_component_splunk_autowired-enabled">
+         </a>
+         <strong>
+          camel.component.splunk.autowired-enabled
+         </strong>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Whether autowiring is enabled. This is used for automatic autowiring options (the option must be marked as autowired) by looking up in the registry to find if there is a single instance of matching type, which then gets configured on the component. This can be used for automatic configuring JDBC data sources, JMS connection factories, AWS Clients, etc.
+        </p>
+       </td>
+       <td class="tableblock halign-center valign-top">
+        <p class="tableblock">
+         true
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Boolean
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <a id="_sb_option_camel_component_splunk_bridge-error-handler">
+         </a>
+         <a class="anchor" href="#_sb_option_camel_component_splunk_bridge-error-handler">
+         </a>
+         <strong>
+          camel.component.splunk.bridge-error-handler
+         </strong>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Allows for bridging the consumer to the Camel routing Error Handler, which mean any exceptions (if possible) occurred while the Camel consumer is trying to pickup incoming messages, or the likes, will now be processed as a message and handled by the routing Error Handler. Important: This is only possible if the 3rd party component allows Camel to be alerted if an exception was thrown. Some components handle this internally only, and therefore bridgeErrorHandler is not possible. In other situations we may improve the Camel component to hook into the 3rd party component and make this possible for future releases. By default the consumer will use the org.apache.camel.spi.ExceptionHandler to deal with exceptions, that will be logged at WARN or ERROR level and ignored.
+        </p>
+       </td>
+       <td class="tableblock halign-center valign-top">
+        <p class="tableblock">
+         false
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Boolean
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <a id="_sb_option_camel_component_splunk_enabled">
+         </a>
+         <a class="anchor" href="#_sb_option_camel_component_splunk_enabled">
+         </a>
+         <strong>
+          camel.component.splunk.enabled
+         </strong>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Whether to enable auto configuration of the splunk component. This is enabled by default.
+        </p>
+       </td>
+       <td class="tableblock halign-center valign-top">
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Boolean
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <a id="_sb_option_camel_component_splunk_health-check-consumer-enabled">
+         </a>
+         <a class="anchor" href="#_sb_option_camel_component_splunk_health-check-consumer-enabled">
+         </a>
+         <strong>
+          camel.component.splunk.health-check-consumer-enabled
+         </strong>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Used for enabling or disabling all consumer based health checks from this component.
+        </p>
+       </td>
+       <td class="tableblock halign-center valign-top">
+        <p class="tableblock">
+         true
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Boolean
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <a id="_sb_option_camel_component_splunk_health-check-producer-enabled">
+         </a>
+         <a class="anchor" href="#_sb_option_camel_component_splunk_health-check-producer-enabled">
+         </a>
+         <strong>
+          camel.component.splunk.health-check-producer-enabled
+         </strong>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Used for enabling or disabling all producer based health checks from this component. Notice: Camel has by default disabled all producer based health-checks. You can turn on producer checks globally by setting camel.health.producersEnabled=true.
+        </p>
+       </td>
+       <td class="tableblock halign-center valign-top">
+        <p class="tableblock">
+         true
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Boolean
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <a id="_sb_option_camel_component_splunk_lazy-start-producer">
+         </a>
+         <a class="anchor" href="#_sb_option_camel_component_splunk_lazy-start-producer">
+         </a>
+         <strong>
+          camel.component.splunk.lazy-start-producer
+         </strong>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Whether the producer should be started lazy (on the first message). By starting lazy you can use this to allow CamelContext and routes to startup in situations where a producer may otherwise fail during starting and cause the route to fail being started. By deferring this startup to be lazy then the startup failure can be handled during routing messages via Camel’s routing error handlers. Beware that when the first message is processed then creating and starting the producer may take a little time and prolong the total processing time of the processing.
+        </p>
+       </td>
+       <td class="tableblock halign-center valign-top">
+        <p class="tableblock">
+         false
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Boolean
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <a id="_sb_option_camel_component_splunk_splunk-configuration-factory">
+         </a>
+         <a class="anchor" href="#_sb_option_camel_component_splunk_splunk-configuration-factory">
+         </a>
+         <strong>
+          camel.component.splunk.splunk-configuration-factory
+         </strong>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         To use the SplunkConfigurationFactory. The option is a org.apache.camel.component.splunk.SplunkConfigurationFactory type.
+        </p>
+       </td>
+       <td class="tableblock halign-center valign-top">
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         SplunkConfigurationFactory
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+  </div>
+ </div>
+</article>

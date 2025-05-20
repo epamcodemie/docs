@@ -1,0 +1,341 @@
+<article class="doc">
+ <h1 class="page">
+  Route Reload
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The route reload functionality in Camel is capable of watching a directory folder for file changes, and then automatic trigger reload of the running routes in the Camel application.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     This functionality is intended for development purposes and not for production use.
+    </p>
+   </div>
+   <div class="admonitionblock note">
+    <div class="table-wrapper">
+     <table>
+      <tr>
+       <td class="icon">
+        <i class="fa icon-note" title="Note">
+        </i>
+       </td>
+       <td class="content">
+        This feature is not supported when using Camel Quarkus, as you should be using the hot-reloading functionality that comes with Quarkus instead. This functionality can also reload Java source code changes and much more.
+       </td>
+      </tr>
+     </table>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_using_route_reloading">
+   <a class="anchor" href="#_using_route_reloading">
+   </a>
+   Using route reloading
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You cannot watch for file changes in the Java classpath. It is only possible to watch for file changes in the file system (i.e., using
+     <code>
+      file
+     </code>
+     and not
+     <code>
+      classpath
+     </code>
+     ).
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The route reloading can be configured in Java or with Spring Boot, Quarkus in the following way:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">CamelContext context = ...
+
+RouteWatcherReloadStrategy reload = new RouteWatcherReloadStrategy();
+reload.setFolder("myfolder/routes");
+reload.setPattern("*.xml");
+
+context.addService(reload);</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     And with Camel Quarkus / Camel Main you can configure this in
+     <code>
+      application.properties:
+     </code>
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-properties hljs" data-lang="properties"># turn on route reloading on file changes
+camel.main.routes-reload-enabled = true
+# the base directory to watch
+camel.main.routes-reload-directory = myfolder/routes
+# pattern(s) for files to watch
+camel.main.routes-reload-pattern = *.xml</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     And in Spring Boot:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-properties hljs" data-lang="properties"># turn on route reloading on file changes
+camel.springboot.routes-reload-enabled = true
+# the base directory to watch
+camel.springboot.routes-reload-directory = myfolder/routes
+# pattern(s) for files to watch
+camel.springboot.routes-reload-pattern = *.xml</code></pre>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="_route_reload_options">
+     <a class="anchor" href="#_route_reload_options">
+     </a>
+     Route Reload Options
+    </h3>
+    <div class="paragraph">
+     <p>
+      You can configure the
+      <code>
+       RouteWatcherReloadStrategy
+      </code>
+      using the following options:
+     </p>
+    </div>
+    <div class="table-wrapper">
+     <table class="tableblock frame-all grid-all stretch">
+      <colgroup>
+       <col/>
+       <col/>
+       <col/>
+       <col/>
+      </colgroup>
+      <thead>
+       <tr>
+        <th class="tableblock halign-left valign-top">
+         Name
+        </th>
+        <th class="tableblock halign-left valign-top">
+         Description
+        </th>
+        <th class="tableblock halign-center valign-top">
+         Default
+        </th>
+        <th class="tableblock halign-left valign-top">
+         Type
+        </th>
+       </tr>
+      </thead>
+      <tbody>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <code>
+           routesReloadDirectory
+          </code>
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          Directory to scan for route changes. Camel cannot scan the classpath, so this must be configured to a file directory. Development with Maven as build tool, you can configure the directory to be
+          <code>
+           src/main/resources
+          </code>
+          to scan for Camel routes in XML or YAML files.
+         </p>
+        </td>
+        <td class="tableblock halign-center valign-top">
+         <p class="tableblock">
+          <code>
+           src/main/resources/camel
+          </code>
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          String
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <code>
+           routesReloadDirectoryRecursive
+          </code>
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          Whether the directory to scan should include subdirectories. Depending on the number of sub-directories, then this can cause the JVM to start up slower as Camel uses the JDK file-watch service to scan for file changes.
+         </p>
+        </td>
+        <td class="tableblock halign-center valign-top">
+         <p class="tableblock">
+          <code>
+           false
+          </code>
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          boolean
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <code>
+           routesReloadEnabled
+          </code>
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          Used for enabling automatic routes reloading. If enabled, then Camel will watch for file changes in the given reload directory, and trigger reloading routes if files are changed.
+         </p>
+        </td>
+        <td class="tableblock halign-center valign-top">
+         <p class="tableblock">
+          <code>
+           false
+          </code>
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          boolean
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <code>
+           routesReloadPattern
+          </code>
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          Used for inclusive filtering of routes from directories. Typical used for specifying to accept routes in XML or YAML files. The default pattern is *.yaml,*.xml Multiple patterns can be specified separated by comma.
+         </p>
+        </td>
+        <td class="tableblock halign-center valign-top">
+         <p class="tableblock">
+          <code>
+           *.yaml,*.xml
+          </code>
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          String
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          <code>
+           routesReloadRemoveAllRoutes
+          </code>
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          When reloading routes should all existing routes be stopped and removed. By default, Camel will stop and remove all existing routes before reloading routes. This ensures that only the reloaded routes will be active. If disabled, then only routes with the same route id are updated, and any existing routes are continued to run.
+         </p>
+        </td>
+        <td class="tableblock halign-center valign-top">
+         <p class="tableblock">
+          <code>
+           true
+          </code>
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          boolean
+         </p>
+        </td>
+       </tr>
+      </tbody>
+     </table>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="_must_use_route_ids">
+     <a class="anchor" href="#_must_use_route_ids">
+     </a>
+     Must use route id’s
+    </h3>
+    <div class="paragraph">
+     <p>
+      When using route reload, then it is recommended to assign id’s to your routes, so Camel knows exactly which routes have been updated. This is necessary because Apache Camel must stop the existing routes from running before they can be updated.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      And adding new routes is therefore possible as they would have a new unique route id specified.
+     </p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_see_also">
+   <a class="anchor" href="#_see_also">
+   </a>
+   See Also
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     See related
+     <a class="xref page" href="context-reload.html">
+      Context Reload
+     </a>
+     .
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     See the following examples that come with live reloading enabled:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a href="https://github.com/apache/camel-examples/tree/main/main-xml">
+        camel-examples/examples/main-xml
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="https://github.com/apache/camel-examples/tree/main/main-yaml">
+        camel-examples/examples/main-yaml
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

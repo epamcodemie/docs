@@ -1,0 +1,104 @@
+<article class="doc">
+ <h1 class="page">
+  URIs
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Camel makes extensive use of URIs to allow you to refer to
+     <a class="xref page" href="endpoint.html">
+      Endpoints
+     </a>
+     .
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     For example, consider the following URI:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">kafka:cheese?brokers=mykafka:1234&amp;clientId=foo</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     This endpoint is created by the
+     <a class="xref page" href="../components/4.10.x/kafka-component.html">
+      Kafka
+     </a>
+     component. The URI contains endpoint configurations as context-path and query parameters. In this example, the context-path is
+     <code>
+      cheese
+     </code>
+     which is the kafka topic to use.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The query parameters have two parameters:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       <code>
+        brokers=mykafka:1234
+       </code>
+       : the remote Kafka broker to connect to.
+      </p>
+     </li>
+     <li>
+      <p>
+       <code>
+        clientId=foo
+       </code>
+       : the client id, which is a configuration of the Kafka component
+      </p>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_more_information">
+   <a class="anchor" href="#_more_information">
+   </a>
+   More Information
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You can read the guide
+     <a class="xref page" href="faq/how-do-i-configure-endpoints.html">
+      How do I configure endpoints
+     </a>
+     to learn more about configuring
+     <em>
+      endpoints
+     </em>
+     . Among other things, this guide explains how to refer to beans in the
+     <a class="xref page" href="registry.html">
+      registry
+     </a>
+     , how to use raw values for password options, how to use
+     <a class="xref page" href="using-propertyplaceholder.html">
+      property placeholders
+     </a>
+     , or how to use the type safe
+     <a class="xref page" href="Endpoint-dsl.html">
+      Endpoint DSL
+     </a>
+     and
+     <a class="xref page" href="dataformat-dsl.html">
+      DataFormat DSL
+     </a>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+</article>

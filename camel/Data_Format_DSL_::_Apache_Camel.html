@@ -1,0 +1,242 @@
+<article class="doc">
+ <h1 class="page">
+  Data Format DSL
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The Data Format DSL is a builder API that allows using type safe construction of Camel
+     <a class="xref page" href="data-format.html">
+      Data Formats
+     </a>
+     .
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The Data Format DSL is exclusively available as part of the Java DSL.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The DSL can be accessed directly from the
+     <code>
+      RouteBuilder
+     </code>
+     thanks to the method
+     <code>
+      dataFormat()
+     </code>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_using_data_format_dsl">
+   <a class="anchor" href="#_using_data_format_dsl">
+   </a>
+   Using Data Format DSL
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In the following example, a
+     <code>
+      CsvDataFormat
+     </code>
+     is created using the legacy approach where the data format is instantiated explicitly and configured using setters:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class MyRoutes extends RouteBuilder {
+    @Override
+    public void configure() {
+        CsvDataFormat dataFormat = new CsvDataFormat(); <i class="conum" data-value="1"></i><b>(1)</b>
+        dataFormat.setDelimiter("|"); <i class="conum" data-value="2"></i><b>(2)</b>
+        from("direct:format")
+            .setBody(constant(Map.of("foo", "abc", "bar", 123)))
+            .marshal(dataFormat); <i class="conum" data-value="3"></i><b>(3)</b>
+    }
+}</code></pre>
+    </div>
+   </div>
+   <div class="colist arabic">
+    <div class="table-wrapper">
+     <table>
+      <tr>
+       <td>
+        <i class="conum" data-value="1">
+        </i>
+        <b>
+         1
+        </b>
+       </td>
+       <td>
+        Instantiate the expected data format
+       </td>
+      </tr>
+      <tr>
+       <td>
+        <i class="conum" data-value="2">
+        </i>
+        <b>
+         2
+        </b>
+       </td>
+       <td>
+        Configure the data format according to the needs
+       </td>
+      </tr>
+      <tr>
+       <td>
+        <i class="conum" data-value="3">
+        </i>
+        <b>
+         3
+        </b>
+       </td>
+       <td>
+        Affect the data format with the expected configuration
+       </td>
+      </tr>
+     </table>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The previous code could be simplified using the utility methods available directly from the
+     <code>
+      DataFormatClause
+     </code>
+     corresponding to the type returned by the
+     <code>
+      marshal()
+     </code>
+     and
+     <code>
+      unmarshal()
+     </code>
+     methods:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class MyRoutes extends RouteBuilder {
+    @Override
+    public void configure() {
+        from("direct:format")
+            .setBody(constant(Map.of("foo", "abc", "bar", 123)))
+            .marshal()
+            .csv(); <i class="conum" data-value="1"></i><b>(1)</b>
+    }
+}</code></pre>
+    </div>
+   </div>
+   <div class="colist arabic">
+    <div class="table-wrapper">
+     <table>
+      <tr>
+       <td>
+        <i class="conum" data-value="1">
+        </i>
+        <b>
+         1
+        </b>
+       </td>
+       <td>
+        Select the
+        <code>
+         csv
+        </code>
+        data format with the default delimiter
+       </td>
+      </tr>
+     </table>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     This approach is suitable for very basic configuration, but as there are only limited utility methods for each supported data format, for more complex configuration, we can quickly face situations where the utility method for our expected configuration doesn’t exist. In this situation, you can either use the legacy approach or the data format DSL like in the next code snippet:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class MyRoutes extends RouteBuilder {
+    @Override
+    public void configure() {
+        from("direct:format")
+            .setBody(constant(Map.of("foo", "abc", "bar", 123)))
+            .marshal(
+                dataFormat() <i class="conum" data-value="1"></i><b>(1)</b>
+                    .csv() <i class="conum" data-value="2"></i><b>(2)</b>
+                        .delimiter(",") <i class="conum" data-value="3"></i><b>(3)</b>
+                    .end() <i class="conum" data-value="4"></i><b>(4)</b>
+            );
+    }
+}</code></pre>
+    </div>
+   </div>
+   <div class="colist arabic">
+    <div class="table-wrapper">
+     <table>
+      <tr>
+       <td>
+        <i class="conum" data-value="1">
+        </i>
+        <b>
+         1
+        </b>
+       </td>
+       <td>
+        Give access to all the supported data formats
+       </td>
+      </tr>
+      <tr>
+       <td>
+        <i class="conum" data-value="2">
+        </i>
+        <b>
+         2
+        </b>
+       </td>
+       <td>
+        Select the
+        <code>
+         csv
+        </code>
+        data format
+       </td>
+      </tr>
+      <tr>
+       <td>
+        <i class="conum" data-value="3">
+        </i>
+        <b>
+         3
+        </b>
+       </td>
+       <td>
+        Configure the data format according to the needs
+       </td>
+      </tr>
+      <tr>
+       <td>
+        <i class="conum" data-value="4">
+        </i>
+        <b>
+         4
+        </b>
+       </td>
+       <td>
+        Build the data format with the expected configuration
+       </td>
+      </tr>
+     </table>
+    </div>
+   </div>
+  </div>
+ </div>
+</article>

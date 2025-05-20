@@ -1,0 +1,476 @@
+<article class="doc">
+ <h1 class="page">
+  Clustering
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Camel offers the following cluster related SPI:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <strong>
+        Cluster Service
+       </strong>
+      </p>
+      <div class="paragraph">
+       <p>
+        A regular Camel service that manages cluster resources such as
+        <em>
+         views
+        </em>
+        (see below)
+       </p>
+      </div>
+     </li>
+     <li>
+      <p>
+       <strong>
+        Cluster View
+       </strong>
+      </p>
+      <div class="paragraph">
+       <p>
+        Represent a view of the cluster with its own set of isolated resources. As today views provide supports for:
+       </p>
+      </div>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          Leader Election
+         </p>
+        </li>
+        <li>
+         <p>
+          Topology events like members joining/leaving the cluster
+         </p>
+        </li>
+       </ul>
+      </div>
+     </li>
+     <li>
+      <p>
+       <strong>
+        Cluster Member
+       </strong>
+      </p>
+      <div class="paragraph">
+       <p>
+        Represent a member of the cluster.
+       </p>
+      </div>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_cluster_spi_setup">
+   <a class="anchor" href="#_cluster_spi_setup">
+   </a>
+   Cluster SPI Setup
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     A
+     <em>
+      Cluster Service
+     </em>
+     is just like any other camel service so set it up you only need to register your implementations to the
+     <code>
+      CamelContext
+     </code>
+     :
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">MyClusterServiceImpl service = new MyClusterServiceImpl();
+context.addService(service);</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The configuration of the
+     <em>
+      Cluster Service
+     </em>
+     depends on the implementation you have chose. Out of the box camel provides the following implementations:
+    </p>
+   </div>
+   <div class="table-wrapper">
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col/>
+      <col/>
+      <col/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-top">
+        Type
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Module
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Class
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         consul
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         camel-consul
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         org.apache.camel.component.consul.cluster.ConsulClusterService
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         file
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         camel-file
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         org.apache.camel.component.file.cluster.FileLockClusterService
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         infinispan
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         camel-infinispan
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         org.apache.camel.component.infinispan.cluster.InfinispanClusterService
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         jgroups
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         camel-jgroups
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         org.apache.camel.component.jgroups.cluster.JGroupsLockClusterService
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         jgroups-raft
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         camel-jgroups-raft
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         org.apache.camel.component.jgroups.raft.cluster.JGroupsRaftClusterService
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         kubernetes
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         camel-kubernetes
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         org.apache.camel.component.kubernetes.cluster.KubernetesClusterService
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         zookeeper
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         camel-zookeeper
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         org.apache.camel.component.zookeeper.cluster.ZooKeeperClusterService
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+   <div class="paragraph">
+    <p>
+     Configuration examples:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <strong>
+        Spring Boot
+       </strong>
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-properties hljs" data-lang="properties">camel.cluster.file.enabled = true
+camel.cluster.file.id = ${random.uuid}
+camel.cluster.file.root = ${java.io.tmpdir}</code></pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       <strong>
+        Spring XML
+       </strong>
+      </p>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+         http://www.springframework.org/schema/beans
+         http://www.springframework.org/schema/beans/spring-beans.xsd
+         http://camel.apache.org/schema/spring
+         http://camel.apache.org/schema/spring/camel-spring.xsd"&gt;
+
+  &lt;bean id="zx" class="org.apache.camel.component.zookeeper.cluster.ZooKeeperClusterService"&gt;
+    &lt;property name="id" value="node-1"/&gt;
+    &lt;property name="basePath" value="/camel/cluster"/&gt;
+    &lt;property name="nodes" value="localhost:2181"/&gt;
+  &lt;/bean&gt;
+
+  &lt;camelContext xmlns="http://camel.apache.org/schema/spring" autoStartup="false"&gt;
+    ...
+  &lt;/camelContext&gt;
+
+&lt;/beans&gt;</code></pre>
+       </div>
+      </div>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_cluster_spi_usage">
+   <a class="anchor" href="#_cluster_spi_usage">
+   </a>
+   Cluster SPI Usage
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The
+     <em>
+      Cluster SPI
+     </em>
+     is leveraged by the following new implementations:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <strong>
+        ClusteredRoutePolicy
+       </strong>
+      </p>
+      <div class="paragraph">
+       <p>
+        This is an implementation of a RoutePolicy that starts the routes it is associated to when the Cluster View it uses takes the leadership
+       </p>
+      </div>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">context.addRoutes(new RouteBuilder {
+    @Override
+    public void configure() throws Exception {
+        // Create the route policy
+        RoutePolicy policy = ClusteredRoutePolicy.forNamespace("my-ns");
+
+        // bind the policy to one or more routes
+        from("timer:clustered?delay=1000&amp;period=1000")
+            .routePolicy(policy)
+            .log("Route ${routeId} is running ...");
+    }
+});</code></pre>
+       </div>
+      </div>
+      <div class="paragraph">
+       <p>
+        To apply the same policy to all the routes a dedicated
+        <em>
+         RoutePolicyFactory
+        </em>
+        can be used:
+       </p>
+      </div>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">// add the clustered route policy factory to context
+context.addRoutePolicyFactory(ClusteredRoutePolicyFactory.forNamespace("my-ns"));
+
+context.addRoutes(new RouteBuilder {
+    @Override
+    public void configure() throws Exception {
+        // bind the policy to one or more routes
+        from("timer:clustered?delay=1000&amp;period=1000")
+            .log("Route ${routeId} is running ...");
+    }
+});</code></pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       <strong>
+        ClusteredRouteController
+       </strong>
+      </p>
+      <div class="paragraph">
+       <p>
+        This is an implementation of the
+        <em>
+         RouteController SPI
+        </em>
+        that lets the camel context start then starts/stops the routes when the leadership is taken/lost. This is well integrated with spring-boot apps so assuming you have your routes set-up like:
+       </p>
+      </div>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Bean
+public RouteBuilder routeBuilder() {
+    return new RouteBuilder() {
+        @Override
+        public void configure() throws Exception {
+            from("timer:heartbeat?period=10000")
+                .routeId("heartbeat")
+                .log("HeartBeat route (timer) ...");
+            from("timer:clustered?period=5000")
+                .routeId("clustered")
+                .log("Clustered route (timer) ...");
+        }
+    };
+}</code></pre>
+       </div>
+      </div>
+      <div class="paragraph">
+       <p>
+        You can then leverage Spring Boot configuration to make them clustered:
+       </p>
+      </div>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-properties hljs" data-lang="properties"># enable the route controller
+camel.clustered.controller.enabled = true
+
+# define the default namespace for routes
+camel.clustered.controller.namespace = my-ns
+
+# exclude the route with id 'heartbeat' from the clustered ones
+camel.clustered.controller.routes[heartbeat].clustered = false</code></pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       <strong>
+        Master Component
+       </strong>
+      </p>
+      <div class="paragraph">
+       <p>
+        The master component is similar to a
+        <em>
+         ClusteredRoutePolicy
+        </em>
+        but it works on consumer level so it ensures the only a single endpoint in a cluster is consuming resources at any point in time. Set it up is very easy and all you need is to prefix singleton endpoints according to the master component syntax:
+       </p>
+      </div>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">master:namespace:delegateUri</code></pre>
+       </div>
+      </div>
+      <div class="paragraph">
+       <p>
+        A concrete example:
+       </p>
+      </div>
+      <div class="listingblock">
+       <div class="content">
+        <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Bean
+public RouteBuilder routeBuilder() {
+    return new RouteBuilder() {
+        @Override
+        public void configure() throws Exception {
+            from("timer:heartbeat?period=10000")
+                .routeId("heartbeat")
+                .log("HeartBeat route (timer) ...");
+
+            from("master:my-ns:timer:clustered?period=5000")
+                .routeId("clustered")
+                .log("Clustered route (timer) ...");
+        }
+    };
+}</code></pre>
+       </div>
+      </div>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+</article>

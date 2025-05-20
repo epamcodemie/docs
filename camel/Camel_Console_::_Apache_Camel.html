@@ -1,0 +1,415 @@
+<article class="doc">
+ <h1 class="page">
+  Camel Console
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The
+     <code>
+      camel-console
+     </code>
+     is available from
+     <strong>
+      Camel 3.15
+     </strong>
+     and newer versions.
+    </p>
+   </div>
+   <div class="admonitionblock important">
+    <div class="table-wrapper">
+     <table>
+      <tr>
+       <td class="icon">
+        <i class="fa icon-important" title="Important">
+        </i>
+       </td>
+       <td class="content">
+        The Camel Developer Console is intended assisting developers and can display various information about a running Camel application. This is very handy during development and testing. However, the Camel Developer Console is not recommended for production use.
+       </td>
+      </tr>
+     </table>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Camel comes with a set of consoles out of the box from
+     <code>
+      camel-console
+     </code>
+     and
+     <code>
+      camel-catalog-console
+     </code>
+     JARs. These consoles can display general information about the running JVM and the OS Environment, and of course Camel related information such as runtime metrics of the Camel routes, and a lot more.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_using_camel_console">
+   <a class="anchor" href="#_using_camel_console">
+   </a>
+   Using Camel Console
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The
+     <code>
+      camel-console
+     </code>
+     must be added to the classpath, and enabled either via
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">CamelContext context = ...
+context.setDevConsole(true);</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     If using Camel Main / Spring Boot / Quarkus etc then the console can be enabled via configuration:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-properties hljs" data-lang="properties">camel.main.dev-console-enabled = true</code></pre>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="_dev_console_and_camel_spring_boot">
+     <a class="anchor" href="#_dev_console_and_camel_spring_boot">
+     </a>
+     Dev Console and Camel Spring Boot
+    </h3>
+    <div class="paragraph">
+     <p>
+      The Camel developer console is available in Spring Boot as an
+      <em>
+       actuator
+      </em>
+      . To enable the console you need to add dependency:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.apache.camel.springboot&lt;/groupId&gt;
+    &lt;artifactId&gt;camel-console-starter&lt;/artifactId&gt;
+&lt;/dependency&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      To include more details such as route metrics you need to include JMX management:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.apache.camel.springboot&lt;/groupId&gt;
+    &lt;artifactId&gt;camel-management-starter&lt;/artifactId&gt;
+&lt;/dependency&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      And finally you
+      <strong>
+       must
+      </strong>
+      enable
+      <code>
+       camel
+      </code>
+      in the exposed list of HTTP actuator endpoints in
+      <code>
+       application.properties
+      </code>
+      as shown:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-properties hljs" data-lang="properties">management.endpoints.web.exposure.include=info,health,camel</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      The console is then available on HTTP (using default port):
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">http://localhost:8080/actuator/camel</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      This will list the available consoles, and you can then call a console by its id, such as
+      <code>
+       routes
+      </code>
+      :
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">http://localhost:8080/actuator/camel/routes</code></pre>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="_dev_console_and_camel_jbang">
+     <a class="anchor" href="#_dev_console_and_camel_jbang">
+     </a>
+     Dev Console and Camel JBang
+    </h3>
+    <div class="paragraph">
+     <p>
+      The Developer Console is easily available when using
+      <a class="xref page" href="camel-jbang.html">
+       Camel JBang
+      </a>
+      , by the
+      <code>
+       --console
+      </code>
+      argument when running Camel JBang.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      For example to run a Camel route from
+      <code>
+       foo.yaml
+      </code>
+      and additional configurations from
+      <code>
+       myapp.properties
+      </code>
+      you can run as follows and have the console started and accessible from
+      <code>
+       <a class="bare" href="http://localhost:8080/q/dev">
+        http://localhost:8080/q/dev
+       </a>
+      </code>
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ camel run foo.yaml myapp.properties --console</code></pre>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_writing_custom_dev_consoles">
+   <a class="anchor" href="#_writing_custom_dev_consoles">
+   </a>
+   Writing Custom Dev Consoles
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To write a custom console, you need to add
+     <code>
+      camel-console
+     </code>
+     as dependency, as it comes with the base class
+     <code>
+      AbstractDevConsole
+     </code>
+     which we extend for our console.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@DevConsole("foo")
+public class FooConsole extends AbstractDevConsole {
+
+    public FooConsole() {
+        super("acme", "foo", "Foolish", "A foolish console that outputs something");
+    }
+
+    @Override
+    protected String doCallText(Map&lt;String, Object&gt; options) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Hello from my custom console");
+
+        // more stuff here
+
+        return sb.toString();
+    }
+
+    @Override
+    protected JsonObject doCallJson(Map&lt;String, Object&gt; options) {
+        JsonObject root = new JsonObject();
+        root.put("message", "Hello from my custom console");
+
+        // more stuff here
+
+        return root;
+    }
+
+}</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The class must be annotated with
+     <code>
+      DevConsole
+     </code>
+     and the unique id of the console (must be unique across all consoles). In the constructor the console specifies which group, id, display title, and description to use.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The
+     <code>
+      doCallText
+     </code>
+     and
+     <code>
+      doCallJson
+     </code>
+     methods is responsible for gathering the information the console should output.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     If the console does not support either text or json output, then the methods can return
+     <code>
+      null
+     </code>
+     , and override the
+     <code>
+      supportMediaType
+     </code>
+     method and return
+     <code>
+      true
+     </code>
+     for the media-type that are supported.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="_supported_media_types">
+     <a class="anchor" href="#_supported_media_types">
+     </a>
+     Supported Media Types
+    </h3>
+    <div class="paragraph">
+     <p>
+      A console can support any of, or all of the following types:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        TEXT
+       </p>
+      </li>
+      <li>
+       <p>
+        JSON
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="paragraph">
+     <p>
+      The intention for
+      <code>
+       TEXT
+      </code>
+      is to be plain/text based that can be outputted in CLI and other low-level tools.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      For
+      <code>
+       JSON
+      </code>
+      then the intention is the console outputs a json dataset with key/value pairs that holds the information, which can be displayed in a custom fashion such as in a web browser, or IDE tool such as VSCode.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="_maven_configuration">
+     <a class="anchor" href="#_maven_configuration">
+     </a>
+     Maven Configuration
+    </h3>
+    <div class="paragraph">
+     <p>
+      To make Camel able to discover custom dev consoles, then the
+      <a class="xref page" href="camel-component-maven-plugin.html">
+       came-component-maven-plugin
+      </a>
+      must be used, such as:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;build&gt;
+    &lt;plugins&gt;
+        &lt;plugin&gt;
+            &lt;groupId&gt;org.apache.camel&lt;/groupId&gt;
+            &lt;artifactId&gt;camel-component-maven-plugin&lt;/artifactId&gt;
+            &lt;version&gt;${camel-version}&lt;/version&gt;
+            &lt;executions&gt;
+                &lt;execution&gt;
+                    &lt;id&gt;generate&lt;/id&gt;
+                    &lt;goals&gt;
+                        &lt;goal&gt;generate&lt;/goal&gt;
+                    &lt;/goals&gt;
+                    &lt;phase&gt;process-classes&lt;/phase&gt;
+                &lt;/execution&gt;
+                &lt;execution&gt;
+                    &lt;id&gt;generate-postcompile&lt;/id&gt;
+                    &lt;goals&gt;
+                        &lt;goal&gt;generate-postcompile&lt;/goal&gt;
+                    &lt;/goals&gt;
+                    &lt;phase&gt;prepare-package&lt;/phase&gt;
+                &lt;/execution&gt;
+            &lt;/executions&gt;
+        &lt;/plugin&gt;
+        &lt;plugin&gt;
+            &lt;groupId&gt;org.codehaus.mojo&lt;/groupId&gt;
+            &lt;artifactId&gt;build-helper-maven-plugin&lt;/artifactId&gt;
+            &lt;executions&gt;
+                &lt;execution&gt;
+                    &lt;phase&gt;generate-sources&lt;/phase&gt;
+                    &lt;goals&gt;
+                        &lt;goal&gt;add-source&lt;/goal&gt;
+                        &lt;goal&gt;add-resource&lt;/goal&gt;
+                    &lt;/goals&gt;
+                    &lt;configuration&gt;
+                        &lt;sources&gt;
+                            &lt;source&gt;src/generated/java&lt;/source&gt;
+                        &lt;/sources&gt;
+                        &lt;resources&gt;
+                            &lt;resource&gt;
+                                &lt;directory&gt;src/generated/resources&lt;/directory&gt;
+                            &lt;/resource&gt;
+                        &lt;/resources&gt;
+                    &lt;/configuration&gt;
+                &lt;/execution&gt;
+            &lt;/executions&gt;
+        &lt;/plugin&gt;
+    &lt;/plugins&gt;
+&lt;/build&gt;</code></pre>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+</article>

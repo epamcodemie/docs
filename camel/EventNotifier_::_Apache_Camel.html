@@ -1,0 +1,442 @@
+<article class="doc">
+ <h1 class="page">
+  EventNotifier
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The event notifier
+     <code>
+      org.apache.camel.spi.EventNotifier
+     </code>
+     is used to get notified about events within the CamelContext. For example, when a route is started or stopped. The events are collected independently from the CamelContext (routes, services, exchanges, and so on). This means that the notifier doesn’t interfere with the rest of Camel, and the events can be processed independently for logging, data offloading or other type of actions.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_type_of_events">
+   <a class="anchor" href="#_type_of_events">
+   </a>
+   Type of Events
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The following CamelEvents are available:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       CamelEvent
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          CamelContextEvent
+         </p>
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             CamelContextInitializedEvent
+            </p>
+           </li>
+           <li>
+            <p>
+             CamelContextInitializingEvent
+            </p>
+           </li>
+           <li>
+            <p>
+             CamelContextReloadedEvent
+            </p>
+           </li>
+           <li>
+            <p>
+             CamelContextReloadFailureEvent
+            </p>
+           </li>
+           <li>
+            <p>
+             CamelContextReloadingEvent
+            </p>
+           </li>
+           <li>
+            <p>
+             CamelContextResumedEvent
+            </p>
+           </li>
+           <li>
+            <p>
+             CamelContextResumeFailureEvent
+            </p>
+           </li>
+           <li>
+            <p>
+             CamelContextResumingEvent
+            </p>
+           </li>
+           <li>
+            <p>
+             CamelContextRoutesStartedEvent
+            </p>
+           </li>
+           <li>
+            <p>
+             CamelContextRoutesStartingEvent
+            </p>
+           </li>
+           <li>
+            <p>
+             CamelContextRoutesStoppedEvent
+            </p>
+           </li>
+           <li>
+            <p>
+             CamelContextRoutesStoppingEvent
+            </p>
+           </li>
+           <li>
+            <p>
+             CamelContextStartedEvent
+            </p>
+           </li>
+           <li>
+            <p>
+             CamelContextStartingEvent
+            </p>
+           </li>
+           <li>
+            <p>
+             CamelContextStartupFailureEvent
+            </p>
+           </li>
+           <li>
+            <p>
+             CamelContextStopFailureEvent
+            </p>
+           </li>
+           <li>
+            <p>
+             CamelContextStoppedEvent
+            </p>
+           </li>
+           <li>
+            <p>
+             CamelContextStoppingEvent
+            </p>
+           </li>
+           <li>
+            <p>
+             CamelContextSuspendedEvent
+            </p>
+           </li>
+           <li>
+            <p>
+             CamelContextSuspendingEvent
+            </p>
+           </li>
+          </ul>
+         </div>
+        </li>
+        <li>
+         <p>
+          ExchangeEvent
+         </p>
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             ExchangeAsyncProcessingStartedEvent
+            </p>
+           </li>
+           <li>
+            <p>
+             ExchangeCompletedEvent
+            </p>
+           </li>
+           <li>
+            <p>
+             ExchangeCreatedEvent
+            </p>
+           </li>
+           <li>
+            <p>
+             ExchangeFailedEvent
+            </p>
+           </li>
+           <li>
+            <p>
+             ExchangeFailureEvent
+            </p>
+           </li>
+           <li>
+            <p>
+             ExchangeFailureHandledEvent
+            </p>
+           </li>
+           <li>
+            <p>
+             ExchangeFailureHandlingEvent
+            </p>
+           </li>
+           <li>
+            <p>
+             ExchangeRedeliveryEvent
+            </p>
+           </li>
+           <li>
+            <p>
+             ExchangeSendingEvent
+            </p>
+           </li>
+           <li>
+            <p>
+             ExchangeSentEvent
+            </p>
+           </li>
+          </ul>
+         </div>
+        </li>
+        <li>
+         <p>
+          FailureEvent
+         </p>
+        </li>
+        <li>
+         <p>
+          RouteEvent
+         </p>
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             RouteAddedEvent
+            </p>
+           </li>
+           <li>
+            <p>
+             RouteReloadedEvent
+            </p>
+           </li>
+           <li>
+            <p>
+             RouteRemovedEvent
+            </p>
+           </li>
+           <li>
+            <p>
+             RouteStartedEvent
+            </p>
+           </li>
+           <li>
+            <p>
+             RouteStartingEvent
+            </p>
+           </li>
+           <li>
+            <p>
+             RouteStoppedEvent
+            </p>
+           </li>
+           <li>
+            <p>
+             RouteStoppingEvent
+            </p>
+           </li>
+          </ul>
+         </div>
+        </li>
+        <li>
+         <p>
+          ServiceEvent
+         </p>
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             ServiceStartupFailureEvent
+            </p>
+           </li>
+           <li>
+            <p>
+             ServiceStopFailureEvent
+            </p>
+           </li>
+          </ul>
+         </div>
+        </li>
+        <li>
+         <p>
+          StepEvent
+         </p>
+         <div class="ulist">
+          <ul>
+           <li>
+            <p>
+             StepCompletedEvent
+            </p>
+           </li>
+           <li>
+            <p>
+             StepFailedEvent
+            </p>
+           </li>
+           <li>
+            <p>
+             StepStartedEvent
+            </p>
+           </li>
+          </ul>
+         </div>
+        </li>
+       </ul>
+      </div>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     See the Javadoc of the
+     <code>
+      org.apache.camel.spi.CamelEvent
+     </code>
+     for more details.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_collect_events">
+   <a class="anchor" href="#_collect_events">
+   </a>
+   Collect Events
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To collect events a class is needed that extends the EventNotifierSupport class.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class MyCollector extends EventNotifierSupport {
+
+    protected Logger log = LoggerFactory.getLogger(getClass());
+
+    @Override
+    public void notify(CamelEvent event) throws Exception {
+
+        log.info("Event: " event.getType().name());
+
+    }
+
+}</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Then you can enable the notifier:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">context.getManagementStrategy().addEventNotifier(new MyCollector());</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_collect_specific_events">
+   <a class="anchor" href="#_collect_specific_events">
+   </a>
+   Collect Specific Events
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     By default you get notified by all events. It’s however possible to exclude certain groups of events to get only the group of event you are interest in.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     In the following example we collect only StepEvents:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class StepCollector extends EventNotifierSupport {
+    protected Logger log = LoggerFactory.getLogger(getClass());
+
+    @Override
+    public void notify(CamelEvent event) throws Exception {
+
+        // Cast CamelEvent to StepEvent
+        CamelEvent.StepEvent stepEvent = (CamelEvent.StepEvent) event;
+
+        // Get detailed information from the StepEvent
+        String eventType = stepEvent.getType().name();
+        String stepId = stepEvent.getStepId();
+        String body = stepEvent.getExchange().getMessage().getBody(String.class);
+
+        log.info("Event Type:\t\t" + eventType);
+        log.info("Step ID:\t\t\t" + stepId);
+        log.info("Message Body:\t\t " + body);
+
+    }
+
+}</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     Then you can enable the notifier for steps by excluding other groups:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">//Create eventNotifier that only collects stepEvents
+StepCollector stepCollector = new StepCollector();
+stepCollector.setIgnoreCamelContextEvents(true);
+stepCollector.setIgnoreCamelContextInitEvents(true);
+stepCollector.setIgnoreExchangeEvents(true);
+stepCollector.setIgnoreRouteEvents(true);
+stepCollector.setIgnoreServiceEvents(true);
+stepCollector.setIgnoreStepEvents(false);
+
+//Add the Event Notifier to the Camel Context
+context.getManagementStrategy().addEventNotifier(stepCollector);</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_event_timestamps">
+   <a class="anchor" href="#_event_timestamps">
+   </a>
+   Event Timestamps
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     By default, event timestamps are not included and the getTimestamp() method returns 0.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Timestamps can be enabled from the CamelContext as follows:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">context.getManagementStrategy().getEventFactory().setTimestampEnabled(true);</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+</article>

@@ -1,0 +1,96 @@
+<article class="doc">
+ <h1 class="page">
+  Expressions
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Expressions and
+     <a class="xref page" href="predicate.html">
+      Predicates
+     </a>
+     can then be used to create the various
+     <a class="xref page" href="../components/4.10.x/eips/enterprise-integration-patterns.html">
+      Enterprise Integration Patterns
+     </a>
+     in the
+     <a class="xref page" href="dsl.html">
+      DSL
+     </a>
+     like with the
+     <a class="xref page" href="../components/4.10.x/eips/recipientList-eip.html">
+      Recipient List
+     </a>
+     EIP.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     To support dynamic rules Camel supports pluggable
+     <a href="https://www.javadoc.io/doc/org.apache.camel/camel-api/current/org/apache/camel/Expression.html">
+      Expression
+     </a>
+     strategies using a variety of different
+     <a class="xref page" href="../components/4.10.x/languages/index.html">
+      Languages
+     </a>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_expression_api">
+   <a class="anchor" href="#_expression_api">
+   </a>
+   Expression API
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     If you are outside the DSL and want to create your own expressions you can either implement the
+     <a href="https://www.javadoc.io/doc/org.apache.camel/camel-api/current/org/apache/camel/Expression.html">
+      Expression interface
+     </a>
+     , reuse one of the other builders or try the
+     <a href="https://www.javadoc.io/doc/org.apache.camel/camel-support/current/org/apache/camel/support/builder/ExpressionBuilder.html">
+      ExpressionBuilder class
+     </a>
+     .
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="_expression">
+     <a class="anchor" href="#_expression">
+     </a>
+     Expression
+    </h3>
+    <div class="paragraph">
+     <p>
+      The API for a Camel Expression is defined in the
+      <code>
+       org.apache.camel.Expression
+      </code>
+      interface as shown:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public interface Expression {
+
+    /**
+     * Returns the value of the expression on the given exchange
+     *
+     * @param exchange the message exchange on which to evaluate the expression
+     * @param type the expected type of the evaluation result
+     * @return the value of the expression
+     */
+    &lt;T&gt; T evaluate(Exchange exchange, Class&lt;T&gt; type);
+}</code></pre>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+</article>
