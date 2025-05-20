@@ -1,0 +1,165 @@
+<article class="doc">
+ <h1 class="page">
+  Component DSL
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Component-DSL is a builder API that allows using type-safe construction of Camel
+     <a class="xref page" href="component.html">
+      Components
+     </a>
+     and injecting them directly to the
+     <a class="xref page" href="camelcontext.html">
+      Camel Context
+     </a>
+     instead of initializing through a constructor.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The Component DSL is exclusively available as part of the Java DSL.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_using_component_dsl">
+   <a class="anchor" href="#_using_component_dsl">
+   </a>
+   Using Component DSL
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The following is an example of a Kafka component that is constructed using the typical constructor initialization:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">KafkaComponent kafka = new KafkaComponent();
+kafka.setBrokers("localhost:9090");
+
+camelContext.addComponent("kafka", kafka);</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The same Java statement can be rewritten in the following more readable way using the new
+     <code>
+      ComponentsBuilderFactory
+     </code>
+     that allows the access to all component DSLs in Camel:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">ComponentsBuilderFactory.kafka()
+                        .brokers("{{kafka.host}}:{{kafka.port}}")
+                        .register(camelContext, "kafka");</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     In order to explain it better, we can break down the above Java statement into 3 parts:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       <code>
+        ComponentsBuilderFactory.kafka()
+       </code>
+       : This will initialize the DSL for
+       <code>
+        camel-kafka
+       </code>
+       component.
+      </p>
+     </li>
+     <li>
+      <p>
+       <code>
+        .brokers("{{kafka.host}}:{{kafka.port}}")
+       </code>
+       : This is the equivalent setter of
+       <code>
+        kafka.setBrokers("localhost:9090")
+       </code>
+       using DSL fluent builder.
+      </p>
+     </li>
+     <li>
+      <p>
+       <code>
+        .register(camelContext, "kafka")
+       </code>
+       : Here we register directly the component under name
+       <code>
+        kafka
+       </code>
+       into Camel context, of course you can use any component name you like, just like
+       <code>
+        addComponent
+       </code>
+       API.
+      </p>
+     </li>
+    </ol>
+   </div>
+   <div class="sect2">
+    <h3 id="_type_safety">
+     <a class="anchor" href="#_type_safety">
+     </a>
+     Type Safety
+    </h3>
+    <div class="paragraph">
+     <p>
+      Similar to the
+      <a class="xref page" href="Endpoint-dsl.html">
+       Endpoint DSL
+      </a>
+      , uses the meta-model, which is extracted from the source and written in various JSON files, to generate a fluent DSL for each component. This fluent DSL provides type safety for parameters.
+     </p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_dependency">
+   <a class="anchor" href="#_dependency">
+   </a>
+   Dependency
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In order to use this feature, Maven users will need to add the following dependency to their
+     <code>
+      pom.xml
+     </code>
+     for this component:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     pom.xml
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.apache.camel&lt;/groupId&gt;
+    &lt;artifactId&gt;camel-componentdsl&lt;/artifactId&gt;
+    &lt;version&gt;x.x.x&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     And then use it just like how we demonstrated it earlier in this page.
+    </p>
+   </div>
+  </div>
+ </div>
+</article>

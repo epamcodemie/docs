@@ -1,0 +1,186 @@
+<article class="doc">
+ <h1 class="page">
+  DefaultErrorHandler
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     This is the default
+     <a class="xref page" href="error-handler.html">
+      Error Handler
+     </a>
+     in Camel.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The default
+     <a class="xref page" href="error-handler.html">
+      Error Handler
+     </a>
+     has the same power as the
+     <a class="xref page" href="../components/4.10.x/eips/dead-letter-channel.html">
+      Dead Letter Channel.
+     </a>
+     However, it does
+     <strong>
+      not
+     </strong>
+     support a
+     <em>
+      dead letter queue
+     </em>
+     , which is the only difference between the two of them.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The
+     <code>
+      DefaultErrorHandler
+     </code>
+     is configured differently from
+     <a class="xref page" href="../components/4.10.x/eips/dead-letter-channel.html">
+      Dead Letter Channel
+     </a>
+     as it is configured to:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       not redeliver
+      </p>
+     </li>
+     <li>
+      <p>
+       not handled
+      </p>
+     </li>
+     <li>
+      <p>
+       no dead letter queue (because it is not possible)
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     By default, any exception thrown during routing will be propagated back to the caller and the
+     <a class="xref page" href="exchange.html">
+      Exchange
+     </a>
+     ends immediately. However, you can use the
+     <a class="xref page" href="exception-clause.html">
+      Exception Clause
+     </a>
+     to catch a given exception and lower the exception by marking it as handled. If so, the exception will
+     <strong>
+      not
+     </strong>
+     be sent back to the caller, and the
+     <a class="xref page" href="exchange.html">
+      Exchange
+     </a>
+     will succeed, but
+     <strong>
+      not continue
+     </strong>
+     being routed. See the
+     <em>
+      difference
+     </em>
+     between
+     <code>
+      handled
+     </code>
+     and
+     <code>
+      continued
+     </code>
+     in the
+     <a class="xref page" href="exception-clause.html">
+      Exception Clause
+     </a>
+     documentation.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_example">
+   <a class="anchor" href="#_example">
+   </a>
+   Example
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In this route below, any exception thrown in, such as the
+     <code>
+      validateOrder
+     </code>
+     bean, will be propagated back to the caller via the jetty endpoint, which then returns an HTTP error message back to the client.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">from("jetty:http://localhost/myservice/order")
+  .to("bean:validateOrder")
+  .to("jms:queue:order");</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     We can add an
+     <code>
+      onException
+     </code>
+     in case we want to catch certain exceptions and route them differently, for instance to catch a
+     <code>
+      ValidationException
+     </code>
+     and return a fixed response to the caller.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">onException(ValidationException.class)
+  .handled(true)
+  .transform(body(constant("INVALID ORDER")));
+
+from("jetty:http://localhost/myservice/order")
+  .to("bean:validateOrder")
+  .to("jms:queue:order");</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     When the
+     <code>
+      ValidationException
+     </code>
+     is thrown from the
+     <code>
+      validateOrder
+     </code>
+     bean, it is intercepted by Camel error handler which lets the
+     <code>
+      onException(ValidationException.class)
+     </code>
+     handle the exception. The
+     <a class="xref page" href="exchange.html">
+      Exchange
+     </a>
+     is routed to this onException route, and since we use
+     <code>
+      handled(true)
+     </code>
+     , then the original exception is cleared, and we transform the message into a fixed response that is returned to jetty endpoint that returns it to the original caller.
+    </p>
+   </div>
+  </div>
+ </div>
+</article>

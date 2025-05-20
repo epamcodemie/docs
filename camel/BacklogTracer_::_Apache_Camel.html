@@ -1,0 +1,726 @@
+<article class="doc">
+ <h1 class="page">
+  BacklogTracer
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Camel supports a backlog tracer interceptor that is used for capturing a trace message of each message as they are routed in Camel. The trace message is stored in a backlog queue, which contains the last N messages for each node in the routes (by default 10).
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_what_is_the_difference_between_backlogtracer_and_tracer">
+   <a class="anchor" href="#_what_is_the_difference_between_backlogtracer_and_tracer">
+   </a>
+   What is the difference between BacklogTracer and Tracer
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Camel also provides a
+     <a class="xref page" href="tracer.html">
+      Tracer
+     </a>
+     which has similar capabilities as this backlog tracer. The difference is that the backlog tracer is storing a capture of the message in an internal backlog queue.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The
+     <a class="xref page" href="tracer.html">
+      Tracer
+     </a>
+     is event based and logs the messages as they happen (or route to another Camel destination).
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Use the
+     <a class="xref page" href="tracer.html">
+      Tracer
+     </a>
+     when all you need is to log the traced messages as they happen.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The backlog tracer allows you to pull the messages from the backlog queues on demand. The backlog tracer works better with JMX capable tooling as it is simpler, allowing to bulk dump all its traced messages in either a POJO or XML format.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_options">
+   <a class="anchor" href="#_options">
+   </a>
+   Options
+  </h2>
+  <div class="sectionbody">
+   <div class="table-wrapper">
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col/>
+      <col/>
+      <col/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-top">
+        Option
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Default
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Description
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         standby
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          false
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Whether the tracer is standby. If a tracer is in standby then the tracer is activated during startup and are ready to be enabled manually via JMX or calling the enabled method.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         enabled
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          false
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Flag to enable or disable this tracer
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         backlogSize
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          100
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Maximum number of total traced messages to keep in the backlog (FIFO queue). Should be between 1 - 1000.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         tracePattern
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          null
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Allows to filter tracing using a pattern that matches against the node id and route id. For example use
+         <code>
+          "to1,to2"
+         </code>
+         to match only nodes with either the name "to1", or "to2". You can use * for wildcards. So you can do "to*" to match any to. Or use "route-foo*" to match any foo routes.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         traceFilter
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          null
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Allow to configure a filter as a
+         <a class="xref page" href="predicate.html">
+          Predicate
+         </a>
+         using any of the Camel
+         <a class="xref page" href="languages.html">
+          languages
+         </a>
+         . But default the
+         <a class="xref page" href="../components/4.10.x/languages/simple-language.html">
+          Simple
+         </a>
+         language is used. For example to filter on messages with a given header, use
+         <code>
+          ${header.foo} != null
+         </code>
+         . To use
+         <a class="xref page" href="../components/4.10.x/languages/groovy-language.html">
+          Groovy
+         </a>
+         then prefix the value with "groovy:". And similar for the other languages.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         traceRests
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          false
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Whether tracing should trace inner details from Rest DSL. Turning this on increases the verbosity of tracing by including events from internal routes by Rest DSL.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         traceTemplates
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          false
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Whether tracing should trace inner details from route templates (or kamelets). Turning this on increases the verbosity of tracing by including events from internal routes in the templates or kamelets.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         removeOnDump
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          true
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Whether to remove the traced messages that was returned when invoking the dump methods.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         bodyMaxChars
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          32kb
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         To limit the message body to a maximum size in the traced message. Use 0 or negative value to use unlimited size.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         bodyIncludeStreams
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          false
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Whether to include the message body of stream based messages. If enabled then beware the stream may not be re-readable later. See more about
+         <a class="xref page" href="stream-caching.html">
+          Stream Caching
+         </a>
+         .
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         bodyIncludeFiles
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          true
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Whether to include the message body of file based messages. The overhead is that the file content has to be read from the file.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         includeExchangeProperties
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          true
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Trace messages to include exchange properties.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         includeExchangeVariables
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          true
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Trace messages to include exchange variables.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         includeException
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          true
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Trace messages to include exception if the message failed.
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="BacklogTracer-Operations">
+   <a class="anchor" href="#BacklogTracer-Operations">
+   </a>
+   Operations
+  </h2>
+  <div class="sectionbody">
+   <div class="table-wrapper">
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col/>
+      <col/>
+      <col/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-top">
+        Option
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Default
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Description
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         getTraceCounter
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          long
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Gets the total number of traced messages.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         getQueueSize
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          long
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Number of traced messages in the backlog.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         resetTraceCounter
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          void
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         To reset the trace counter.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         dumpTracedMessages(nodeOrRouteId)
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          List&lt;BacklogTracerEventMessage&gt;
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         To dump the traced messages from the give node or route id.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         dumpTracedMessagesAsXml(nodeOrRouteId)
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          String
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         To dump the traced messages from the give node or route id in XML format.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         dumpTracedMessagesAsJSon(nodeOrRouteId)
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          String
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         To dump the traced messages from the give node or route id in JSon format.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         dumpAllTracedMessages
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          List&lt;BacklogTracerEventMessage&gt;
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         To dump all the traced messages
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         dumpAllTracedMessagesAsXml
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          String
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         To dump all the traced messages in XML format.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         dumpAllTracedMessagesAsJSon
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          String
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         To dump all the traced messages in JSon format.
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_enabling">
+   <a class="anchor" href="#_enabling">
+   </a>
+   Enabling
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You can turn off backlog tracing on
+     <code>
+      CamelContext
+     </code>
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">camelContext.setBacklogTracing(true);</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     And in Spring XML
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;camelContext backlogTrace="true"&gt;
+  ...
+&lt;/camelContext&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     And in Camel Main you can enable this in the
+     <code>
+      application.properties
+     </code>
+     file:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-properties hljs" data-lang="properties">camel.main.backlog-tracing = true</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     And in Spring Boot you can enable this in the
+     <code>
+      application.properties
+     </code>
+     file:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-properties hljs" data-lang="properties">camel.springboot.backlog-tracing = true</code></pre>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="_tracing_payloads_of_inputstream_types">
+     <a class="anchor" href="#_tracing_payloads_of_inputstream_types">
+     </a>
+     Tracing payloads of InputStream types
+    </h3>
+    <div class="paragraph">
+     <p>
+      Beware that when enabling backlog tracing, and the message payloads is streaming types (such as
+      <code>
+       java.io.InputStream
+      </code>
+      ), then the backlog tracer will read the payload and make a copy as a
+      <em>
+       trace
+      </em>
+      that are stored in the backlog tracer. Then monitoring tooling is able to view these
+      <em>
+       traced
+      </em>
+      events.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      When working with
+      <code>
+       InputStream
+      </code>
+      types then Camel has
+      <a class="xref page" href="stream-caching.html">
+       Stream caching
+      </a>
+      that is able to automatic make such types
+      <em>
+       safe
+      </em>
+      to use as they are cached and able to be
+      <em>
+       re-read
+      </em>
+      . See more details at
+      <a class="xref page" href="stream-caching.html">
+       Stream caching
+      </a>
+      .
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      However, Camel’s stream caching is
+      <strong>
+       ONLY
+      </strong>
+      for message body. Having message headers of type
+      <code>
+       InputStream
+      </code>
+      is discouraged and not common use. If you add custom message headers, then it is recommended to
+      <strong>
+       NOT
+      </strong>
+      use streaming types, but convert these headers into
+      <code>
+       String
+      </code>
+      or
+      <code>
+       byte[]
+      </code>
+      or other standard Java types that are in-memory and
+      <em>
+       safe
+      </em>
+      to re-read.
+     </p>
+    </div>
+   </div>
+  </div>
+ </div>
+</article>

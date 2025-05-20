@@ -1,0 +1,424 @@
+<article class="doc">
+ <h1 class="page">
+  Endpoint DSL
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Endpoint-DSL is a builder API that allows using type-safe endpoint
+     <a class="xref page" href="uris.html">
+      URL
+     </a>
+     configurations.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The Endpoint DSL is exclusively available as part of the Java DSL.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The DSL can be accessed in several ways, but the main one is to switch to using an
+     <code>
+      EndpointRouteBuilder
+     </code>
+     instead of the usual
+     <code>
+      RouteBuilder
+     </code>
+     . This builder provides access to all of Camel endpoint builders which are defined through inheritance on the
+     <code>
+      org.apache.camel.builder.endpoint.EndpointRouteBuilder
+     </code>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_using_endpoint_dsl">
+   <a class="anchor" href="#_using_endpoint_dsl">
+   </a>
+   Using Endpoint DSL
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The following is an example of an FTP route using the standard
+     <code>
+      RouteBuilder
+     </code>
+     Java DSL:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class MyRoutes extends RouteBuilder {
+    @Override
+    public void configure() {
+        from("ftp://foo@myserver?password=secret&amp;recursive=true&amp;" +
+                "ftpClient.dataTimeout=30000&amp;" +
+                "ftpClientConfig.serverLanguageCode=fr")
+                .to("bean:doSomething");
+    }
+}</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     The same Java statement can be rewritten in the following more type-safe and readable way using the new
+     <code>
+      EndpointRouteBuilder
+     </code>
+     that allows using the Endpoint-DSL:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class MyRoutes extends EndpointRouteBuilder {
+    @Override
+    public void configure() throws Exception {
+        from(ftp("myserver").account("foo").password("secret").recursive(true)
+            .advanced()
+                .ftpClientParameters(Collections.singletonMap("dataTimeout", 30000))
+                .ftpClientConfig(Collections.singletonMap("serverLanguageCode", "fr")))
+            .to(bean("something"));
+    }
+}</code></pre>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="_type_safety">
+     <a class="anchor" href="#_type_safety">
+     </a>
+     Type Safety
+    </h3>
+    <div class="paragraph">
+     <p>
+      Similar to the
+      <a class="xref page" href="component-dsl.html">
+       Component DSL
+      </a>
+      , uses the meta-model, which is extracted from the source and written in various JSON files, to generate a fluent DSL for each component. This fluent DSL provides type safety for parameters.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="_using_custom_component_names">
+     <a class="anchor" href="#_using_custom_component_names">
+     </a>
+     Using custom component names
+    </h3>
+    <div class="paragraph">
+     <p>
+      The Endpoint-DSL uses the default name of the
+      <a class="xref page" href="component.html">
+       Component
+      </a>
+      , so in the example above the name is
+      <code>
+       ftp
+      </code>
+      . There can be use-cases where you may have multiple Camel
+      <a class="xref page" href="../components/4.10.x/index.html">
+       components
+      </a>
+      of the same type registered with different names. An example is if you have two JMS broker systems (for example ActiveMQ and WebSphereMQ).
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      Then you can set up two Camel JMS components with unique names such as:
+      <code>
+       myAMQ
+      </code>
+      and
+      <code>
+       myWMQ
+      </code>
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      The Endpoint-DSL can use these names with the
+      <code>
+       jms
+      </code>
+      fluent builder as shown:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">from(jms("myWMQ", "cheese").concurrentConsumers(5))
+    .to(jms("myAMQ", "smelly"));</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      Notice how we can refer to their names as the first parameter in the
+      <code>
+       jms
+      </code>
+      fluent builder. The example would then consume messages from WebSphereMQ queue named cheese and route to ActiveMQ on a queue named smelly.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="_headers_name">
+     <a class="anchor" href="#_headers_name">
+     </a>
+     Headers' name
+    </h3>
+    <div class="paragraph">
+     <p>
+      The endpoint-dsl can also be used to be assisted when selecting the name of a header to set or to get. The headers' name builder is accessible directly from the method of the class
+      <code>
+       EndpointRouteBuilder
+      </code>
+      without argument whose name is the scheme of the target component.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      In the example below the method
+      <code>
+       file()
+      </code>
+      available from
+      <code>
+       EndpointRouteBuilder
+      </code>
+      , gives access to the methods corresponding to the name of the headers of the file component. Here the method
+      <code>
+       fileName()
+      </code>
+      is called to get the name of the header for the name of the file.
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public class MyRoutes extends EndpointRouteBuilder {
+    @Override
+    public void configure() {
+        from(/*some endpoint*/)
+            // Some route start
+            .setHeader(file().fileName(), constant("foo.txt"))
+            // Some route end
+            ;
+    }
+}</code></pre>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="_using_endpoint_dsl_outside_route_builders">
+     <a class="anchor" href="#_using_endpoint_dsl_outside_route_builders">
+     </a>
+     Using Endpoint-DSL outside route builders
+    </h3>
+    <div class="paragraph">
+     <p>
+      You can use the type-safe endpoint-dsl outside route builders with:
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        With the
+        <code>
+         FluentProducerTemplate
+        </code>
+        to send messages
+       </p>
+      </li>
+      <li>
+       <p>
+        Creating an
+        <code>
+         Endpoint
+        </code>
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="paragraph">
+     <p>
+      For example to send a message to Kafka you can use the
+      <code>
+       FluentProducerTemplate
+      </code>
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">import static org.apache.camel.builder.endpoint.StaticEndpointBuilders.kafka;
+
+context.createFluentProducerTemplate()
+    .to(kafka("start").clientId("myClient").brokers("{{myBrokers}}").partitionKey("myKey"))
+    .withBody("Hello World")
+    .send();</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      To use the endpoint-dsl with kafka you need to static import
+      <code>
+       kafka
+      </code>
+      from the class:
+      <code>
+       org.apache.camel.builder.endpoint.StaticEndpointBuilders
+      </code>
+      which has all the Camel components.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      An endpoint can also be created in Java code via the endpoint-dsl as shown:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">import static org.apache.camel.builder.endpoint.StaticEndpointBuilders.paho;
+
+Endpoint mqtt = paho("sensor").clientId("myClient").userName("scott").password("tiger")
+    .resolve(context);</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      You can then set all the options via the type-safe DSL and then the endpoint can be resolved (created) by calling
+      <code>
+       resolve
+      </code>
+      with
+      <code>
+       CamelContext
+      </code>
+      as parameter.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      If you want to inject an endpoint into your POJO or
+      <code>
+       RouteBuilder
+      </code>
+      class using endpoint-dsl, then this can be done similar to the previous example, but with one important difference:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">import org.apache.camel.BindToRegistry;
+import org.apache.camel.EndpointInject;
+import org.apache.camel.Produce;
+import org.apache.camel.builder.EndpointProducerBuilder;
+import static org.apache.camel.builder.endpoint.StaticEndpointBuilders.paho;
+
+@BindToRegistry
+public class MyPojo {
+
+    @Produce
+    private FluentProducerTemplate producer;
+
+    private final EndpointProducerBuilder mqtt = paho("sensor").clientId("myClient").userName("scott").password("tiger");
+
+    public void sendToSensor(String data) {
+        producer.withBody(data).to(mqtt).send();
+    }
+
+}</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      The
+      <code>
+       MyPojo
+      </code>
+      is a class that with standalone Camel can be discovered and registered with the
+      <code>
+       @BindToRegistry
+      </code>
+      annotation. If you use Spring Boot, or Quarkus etc then you should use their kind of annotations for this.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      That’s not the point of this example, it is the Endpoint DSL to configure the MQTT endpoint (camel-paho). The endpoint is configured the same way as before by the type-safe endpoint-dsl by static importing the
+      <code>
+       paho
+      </code>
+      , and then use its fluent builder methods to configure. Notice how the returned type is
+      <code>
+       EndpointProducerBuilder
+      </code>
+      . That type is not an
+      <code>
+       Endpoint
+      </code>
+      instance as it’s not resolved (i.e. it’s only a builder for an endpoint). This means that the builder can be code and compiled before
+      <code>
+       CamelContext
+      </code>
+      is created and started.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      At runtime, we want to use this endpoint to send messages to MQTT server; this is done in the
+      <code>
+       sendToSensor
+      </code>
+      method where we are using
+      <code>
+       FluentProducerTemplate
+      </code>
+      that is capable of using the
+      <code>
+       EndpointProducerBuilder
+      </code>
+      as the endpoint in shown with:
+      <code>
+       .to(mqtt)
+      </code>
+      .
+     </p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_dependency">
+   <a class="anchor" href="#_dependency">
+   </a>
+   Dependency
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Maven users will need to add the following dependency to their
+     <code>
+      pom.xml
+     </code>
+     for this component:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="title">
+     pom.xml
+    </div>
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.apache.camel&lt;/groupId&gt;
+    &lt;artifactId&gt;camel-endpointdsl&lt;/artifactId&gt;
+    &lt;version&gt;x.x.x&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+</article>

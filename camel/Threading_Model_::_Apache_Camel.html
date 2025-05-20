@@ -1,0 +1,857 @@
+<article class="doc">
+ <h1 class="page">
+  Threading Model
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The threading model in Camel is based on a pluggable reactive routing engine, and thread pools from the JDK concurrency API.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     This page focuses on thread pools. Camel leverages thread pools in several places such as:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       Several
+       <a class="xref page" href="../components/4.10.x/eips/enterprise-integration-patterns.html">
+        EIP
+       </a>
+       patterns support using thread pools for concurrency
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../components/4.10.x/seda-component.html">
+        SEDA
+       </a>
+       component for asynchronous connectivity
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../components/4.10.x/eips/threads-eip.html">
+        Threads
+       </a>
+       EIP in Camel routes
+      </p>
+     </li>
+     <li>
+      <p>
+       Some components use thread pools out of the box, such as
+       <a class="xref page" href="../components/4.10.x/jms-component.html">
+        JMS
+       </a>
+       or
+       <a class="xref page" href="../components/4.10.x/jetty-component.html">
+        Jetty
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_thread_pool_profiles">
+   <a class="anchor" href="#_thread_pool_profiles">
+   </a>
+   Thread pool profiles
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     By default, when a thread pool is to be created by Camel, then the pool configuration is based upon a profile, the
+     <em>
+      default thread pool profile
+     </em>
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The default profile is pre-configured out of the box with the following settings:
+    </p>
+   </div>
+   <div class="table-wrapper">
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col/>
+      <col/>
+      <col/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-top">
+        Option
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Default
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Description
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <strong>
+          poolSize
+         </strong>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          10
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Sets the default core pool size (threads to keep minimum in pool)
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <strong>
+          keepAliveTime
+         </strong>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          60
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Sets the default keep alive time (in seconds) for inactive threads
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <strong>
+          maxPoolSize
+         </strong>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          20
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Sets the default maximum pool size
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <strong>
+          maxQueueSize
+         </strong>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          1000
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Sets the default maximum number of tasks in the work queue. Use -1 for an unbounded queue.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <strong>
+          allowCoreThreadTimeOut
+         </strong>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          true
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Sets default whether to allow core threads to timeout
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <strong>
+          rejectedPolicy
+         </strong>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          CallerRuns
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Sets the default handler for tasks which cannot be executed by the thread pool. Has four options:
+         <code>
+          Abort, CallerRuns, Discard, DiscardOldest
+         </code>
+         which corresponds to the same four options provided out of the box in the JDK.
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+   <div class="paragraph">
+    <p>
+     What that means is that for example when you use
+     <a class="xref page" href="../components/4.10.x/eips/multicast-eip.html">
+      Multicast
+     </a>
+     with
+     <code>
+      parallelProcessing=true
+     </code>
+     enabled, then it would create a thread pool based on the profile above.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     You can define as many thread pool profiles as you like. But there must be only
+     <strong>
+      one
+     </strong>
+     default profile. A custom thread pool profile will inherit from the default profile. Which means that any option you do not explicit define will fallback and use the option from the default profile.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="_configuring_default_thread_pool_profile">
+     <a class="anchor" href="#_configuring_default_thread_pool_profile">
+     </a>
+     Configuring default thread pool profile
+    </h3>
+    <div class="paragraph">
+     <p>
+      In Spring XML you can configure thread pool profile with
+      <code>
+       threadPoolProfile
+      </code>
+      as shown:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;threadPoolProfile id="defaultThreadPoolProfile"
+    defaultProfile="true"
+    poolSize="5"
+    maxPoolSize="10"/&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      And in Java DSL
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">ThreadPoolProfile profile = camelContext.getExecutorServiceManager().getDefaultThreadPoolProfile();
+profile.setPoolSize(5);
+profile.setMaxPoolSize(10);</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      And with camel-main, Spring Boot or Quarkus you can configure this in the
+      <code>
+       application.properties|yaml
+      </code>
+      file:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-properties hljs" data-lang="properties">## configure default thread pool profile
+camel.threadpool.pool-size = 5
+camel.threadpool.max-pool-size = 5</code></pre>
+     </div>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="_using_thread_pool_profiles">
+     <a class="anchor" href="#_using_thread_pool_profiles">
+     </a>
+     Using thread pool profiles
+    </h3>
+    <div class="paragraph">
+     <p>
+      Suppose you want to use a custom thread pool profile for a Multicast EIP pattern in a Camel route you can do it using the
+      <code>
+       executorServiceRef
+      </code>
+      attribute as shown in Spring XML:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;camelContext&gt;
+
+    &lt;threadPoolProfile id="fooProfile"
+                       poolSize="20" maxPoolSize="50" maxQueueSize="-1"/&gt;
+
+    &lt;route&gt;
+       &lt;multicast aggregationStrategy="myStrategy" executorServiceRef="fooProfile"&gt;
+          ...
+       &lt;/multicast&gt;
+    &lt;/route&gt;
+&lt;/camelContext&gt;</code></pre>
+     </div>
+    </div>
+    <div class="paragraph">
+     <p>
+      What Camel will do at runtime is to lookup in the
+      <a class="xref page" href="registry.html">
+       Registry
+      </a>
+      for a
+      <code>
+       ExecutorService
+      </code>
+      with the id
+      <code>
+       fooProfile
+      </code>
+      . If none found it will fallback and see if there is a
+      <code>
+       ThreadPoolProfile
+      </code>
+      defined with that id. In this example there is a profile, so the profile is used as base settings for creating a new
+      <code>
+       ExecutorService
+      </code>
+      which is handed back to the
+      <a class="xref page" href="../components/4.10.x/eips/multicast-eip.html">
+       Multicast
+      </a>
+      EIP to use in the Camel route.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      In Java DSL you can use
+      <code>
+       ThreadPoolProfileBuilder
+      </code>
+      to create a profile and then register the profile:
+     </p>
+    </div>
+    <div class="listingblock">
+     <div class="content">
+      <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">ThreadPoolProfileBuilder builder = new ThreadPoolProfileBuilder("fooProfile");
+builder.poolSize(20).maxPoolSize(50).maxQueueSize(-1);
+
+camelContext.getExecutorServiceManager().registerThreadPoolProfile(builder.build());</code></pre>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_creating_custom_thread_pools">
+   <a class="anchor" href="#_creating_custom_thread_pools">
+   </a>
+   Creating custom thread pools
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You can also use the
+     <code>
+      &lt;threadPool&gt;
+     </code>
+     tag in Spring XML to create a specific thread pool (
+     <code>
+      ExecutorService
+     </code>
+     ). Notice that any options you do not explicit define, will have Camel to use the default thread pool profile as fallback. For example if you omit setting the
+     <code>
+      maxQueueSize
+     </code>
+     then Camel will fallback and use the value from the default thread pool profiles, which by default is
+     <code>
+      1000
+     </code>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_customizing_thread_names">
+   <a class="anchor" href="#_customizing_thread_names">
+   </a>
+   Customizing thread names
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     On the
+     <code>
+      ExecutorServiceManager
+     </code>
+     you can configure the thread name pattern using the
+     <code>
+      setThreadNamePattern
+     </code>
+     method, which defines the thread names used when a thread pool creates a thread.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The default pattern is:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-text hljs" data-lang="text">Camel (#camelId#) thread ##counter# - #name#</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     In the pattern you can use the following placeholders
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <code>
+        #camelId#
+       </code>
+       - The
+       <a class="xref page" href="camelcontext.html">
+        CamelContext
+       </a>
+       name
+      </p>
+     </li>
+     <li>
+      <p>
+       <code>
+        #counter#
+       </code>
+       An unique incrementing counter
+      </p>
+     </li>
+     <li>
+      <p>
+       <code>
+        #name#
+       </code>
+       - The thread name
+      </p>
+     </li>
+     <li>
+      <p>
+       <code>
+        #longName#
+       </code>
+       - The long thread name which can include endpoint parameters etc.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     In Spring XML the pattern can be set with
+     <code>
+      threadNamePattern
+     </code>
+     attribute as shown:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;camelContext threadNamePattern="Riding the thread #counter#"&gt;
+  &lt;route&gt;
+    &lt;from uri="seda:start"/&gt;
+    &lt;to uri="log:result"/&gt;
+    &lt;to uri="mock:result"/&gt;
+  &lt;/route&gt;
+&lt;/camelContext&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     In Java DSL you can set the pattern as follows:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">CamelContext camel = ...
+camel.getExecutorServiceManager().setThreadNamePattern("Riding the thread #counter#")</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     And with camel-main, Spring Boot or Quarkus you can configure this in the
+     <code>
+      application.properties|yaml
+     </code>
+     file:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-properties hljs" data-lang="properties">## camel-main or quarkus
+camel.main.thread-name-pattern = Riding the thread #counter#
+
+## spring boot
+camel.springboot.thread-name-pattern = Riding the thread #counter#</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_shutting_down_thread_pools">
+   <a class="anchor" href="#_shutting_down_thread_pools">
+   </a>
+   Shutting down thread pools
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     All thread pools created by Camel will be properly shutdown when
+     <code>
+      CamelContext
+     </code>
+     shutdowns which ensures no leaks in the pools in case you run in a server environment with hot deployments and the likes.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The
+     <code>
+      ExecutorServiceManager
+     </code>
+     has APIs for shutting down thread pools gracefully and aggressively. It is encouraged to use this API for creating and shutting down thread pools.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The method
+     <code>
+      shutdownGraceful(executorService)
+     </code>
+     from
+     <code>
+      ExecutorServiceManager
+     </code>
+     will shutdown graceful at first, until a timeout value is hit. After that it shuts down aggressively, again using the timeout value to wait for the operation to complete. This means you can wait at most 2 x timeout for shutting down the thread pool.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The timeout value is by default
+     <code>
+      10000
+     </code>
+     millis. You can configure a custom value on the
+     <code>
+      ExecutorServiceManager
+     </code>
+     if needed. During shutdown Camel will log every 2 seconds at INFO level progress of shutting down the thread pool. For example in case a shutdown takes a while, then there is activity in the logs.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The APIs on
+     <code>
+      ExecutorServiceManager
+     </code>
+     that is related to shutting down a thread pool is as follows:
+    </p>
+   </div>
+   <div class="table-wrapper">
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col/>
+      <col/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-top">
+        Method
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Description
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         shutdown
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Marks the thread pool as shutdown (like calling the
+         <code>
+          ExecutorService.shutdown()
+         </code>
+         method).
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         shutdownNow
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Forces the thread pool to shut down now (like calling the
+         <code>
+          ExecutorService.shutdownNow()
+         </code>
+         method).
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         shutdownGraceful
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         Marks the thread pool as shutdown, and graceful shutdown the pool, by waiting for tasks to complete. A default timeout value of 10 sec is used, before shutdown becomes aggressive using
+         <code>
+          shutdownNow
+         </code>
+         , forcing threads to shut down quicker.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         shutdownGraceful(timeout)
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         As shutdownGraceful but with custom timeout value
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         awaitTermination
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         To wait graceful for the termination of a thread pool (eg to wait for its tasks to complete). Will wait until all tasks are completed or timed out.
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_jmx_management">
+   <a class="anchor" href="#_jmx_management">
+   </a>
+   JMX Management
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     All the thread pools that Camel creates are managed and thus you can see them in JMX under the
+     <code>
+      threadpools
+     </code>
+     tree.
+    </p>
+   </div>
+   <div class="admonitionblock note">
+    <div class="table-wrapper">
+     <table>
+      <tr>
+       <td class="icon">
+        <i class="fa icon-note" title="Note">
+        </i>
+       </td>
+       <td class="content">
+        This requires to enabled JMX by including
+        <code>
+         camel-management
+        </code>
+        JAR in the classpath.
+       </td>
+      </tr>
+     </table>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_component_developers">
+   <a class="anchor" href="#_component_developers">
+   </a>
+   Component developers
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     If you develop your own Camel component and are in need of a thread pool, then it is advised to use the
+     <code>
+      ExecutorServiceStrategy
+     </code>
+     /
+     <code>
+      ExecutorServiceManager
+     </code>
+     to create the thread pool you need.
+    </p>
+   </div>
+   <div class="sect2">
+    <h3 id="_executorservicestrategy">
+     <a class="anchor" href="#_executorservicestrategy">
+     </a>
+     ExecutorServiceStrategy
+    </h3>
+    <div class="paragraph">
+     <p>
+      Camel provides a pluggable strategy to hook in your own thread pool provider, for example from a WorkManager in a J2EE server etc.
+      <br/>
+      See the
+      <code>
+       org.apache.camel.spi.ExecutorServiceStrategy
+      </code>
+      interface which you should implement and hook into the WorkManager.
+     </p>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="_executorservicemanager">
+     <a class="anchor" href="#_executorservicemanager">
+     </a>
+     ExecutorServiceManager
+    </h3>
+    <div class="paragraph">
+     <p>
+      To hook in custom thread pool providers (e.g. for J2EE servers) a
+      <code>
+       ThreadPoolFactory
+      </code>
+      interface can be implemented. The implementation can be set in the
+      <code>
+       ExecutorServiceManager
+      </code>
+      .
+     </p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_virtual_threads">
+   <a class="anchor" href="#_virtual_threads">
+   </a>
+   Virtual Threads
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Starting from Java 21, the default
+     <code>
+      ThreadPoolFactory
+     </code>
+     can build
+     <code>
+      ExecutorService
+     </code>
+     and
+     <code>
+      ScheduledExecutorService
+     </code>
+     that use
+     <a href="https://openjdk.org/jeps/425">
+      virtual threads
+     </a>
+     instead of platform threads. But as it is an experimental feature, it is not enabled by default, you need to set the System property
+     <code>
+      camel.threads.virtual.enabled
+     </code>
+     to
+     <code>
+      true
+     </code>
+     and run Camel using Java 21 or above to enable it.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Be aware that even if it is enabled, there are some use cases where platform threads are still used, for example, if the thread factory is configured to create non-daemon threads since virtual threads can only be daemons, or when the
+     <code>
+      ExecutorService
+     </code>
+     or
+     <code>
+      ScheduledExecutorService
+     </code>
+     to build cannot have more than one thread or finally when
+     <code>
+      corePoolSize
+     </code>
+     is set to zero and
+     <code>
+      maxQueueSize
+     </code>
+     is set to a value less or equal to
+     <code>
+      0
+     </code>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+</article>

@@ -1,0 +1,294 @@
+<article class="doc">
+ <h1 class="page">
+  Batch Consumer
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Batch Consumer is basically a
+     <a class="xref page" href="../components/4.10.x/eips/polling-consumer.html">
+      Polling Consumer
+     </a>
+     that is capable of polling multiple Exchanges in a single pool.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     To support batching the consumer must implement the
+     <code>
+      org.apache.camel.BatchConsumer
+     </code>
+     interface.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     A range of Camel components support batching such as:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <a class="xref page" href="../components/4.10.x/aws2-ddb-component.html">
+        AWS2 DDB
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../components/4.10.x/aws2-kinesis-component.html">
+        AWS2 Kinesis
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../components/4.10.x/aws2-s3-component.html">
+        AWS2 S3
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../components/4.10.x/aws2-sqs-component.html">
+        AWS2 SQS
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../components/4.10.x/file-component.html">
+        File
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../components/4.10.x/ftp-component.html">
+        FTP
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../components/4.10.x/ironmq-component.html">
+        IronMQ
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../components/4.10.x/jooq-component.html">
+        Jooq
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../components/4.10.x/jpa-component.html">
+        JPA
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../components/4.10.x/mail-component.html">
+        Mail
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../components/4.10.x/minio-component.html">
+        Minio
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../components/4.10.x/mybatis-component.html">
+        MyBatis
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../components/4.10.x/slack-component.html">
+        Slack
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../components/4.10.x/splunk-component.html">
+        Splunk
+       </a>
+      </p>
+     </li>
+     <li>
+      <p>
+       <a class="xref page" href="../components/4.10.x/sql-component.html">
+        SQL
+       </a>
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_options">
+   <a class="anchor" href="#_options">
+   </a>
+   Options
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The
+     <code>
+      BatchConsumer
+     </code>
+     supports the following options:
+    </p>
+   </div>
+   <div class="table-wrapper">
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col/>
+      <col/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-top">
+        Option
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Description
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          maxMessagesPerPoll
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         An integer to define a maximum messages to gather per poll. By default, no maximum is set. It can be used to set a limit of e.g., 1000 to avoid when starting up the server that there are thousands of files. Set a value of 0 or negative to disable it as unlimited.
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+   <div class="paragraph">
+    <p>
+     Very often a
+     <code>
+      BatchConsumer
+     </code>
+     is scheduled and is based of the
+     <code>
+      ScheduledBatchPollingConsumer
+     </code>
+     that has many options for configuring the scheduling. These options are listed with
+     <em>
+      (scheduler)
+     </em>
+     as label in the endpoint options' in the
+     <a class="xref page" href="../components/4.10.x/index.html">
+      Components
+     </a>
+     documentation.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_exchange_properties">
+   <a class="anchor" href="#_exchange_properties">
+   </a>
+   Exchange Properties
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The following properties are set on the Exchange for each Exchange polled in the same batch.
+    </p>
+   </div>
+   <div class="table-wrapper">
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col/>
+      <col/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-top">
+        Property
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Description
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          CamelBatchSize
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         The total number of Exchanges that was polled in this batch.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          CamelBatchIndex
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         The current index of the batch. Starts from 0.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          CamelBatchComplete
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         A boolean indicating the last Exchange in the batch. Is only
+         <code>
+          true
+         </code>
+         for the last entry.
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+  </div>
+ </div>
+</article>

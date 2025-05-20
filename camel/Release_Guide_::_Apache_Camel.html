@@ -1,0 +1,971 @@
+<article class="doc">
+ <h1 class="page">
+  Release Guide
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     This guide covers how to create and announce a Camel release. Instructions on updating the website to include the new documentation version are
+     <a class="xref page" href="release-guide-website.html">
+      here
+     </a>
+     .
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="ReleaseGuide-Prequisites">
+   <a class="anchor" href="#ReleaseGuide-Prequisites">
+   </a>
+   Prequisites
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     To prepare or perform a release, you
+     <strong>
+      must be
+     </strong>
+     at least an Apache Camel committer.
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       The artifacts for each and every release must be
+       <strong>
+        signed
+       </strong>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       Your public key must be added to the KEYS file.
+      </p>
+     </li>
+     <li>
+      <p>
+       Your public key should also be cross-signed by other Apache committers (this can be done at key signing parties at ApacheCon, for instance).
+      </p>
+     </li>
+     <li>
+      <p>
+       Make sure you have the correct maven configuration in
+       <code>
+        ~/.m2/settings.xml
+       </code>
+       .
+      </p>
+     </li>
+     <li>
+      <p>
+       <a href="https://github.com/takari/maven-wrapper">
+        Maven Wrapper
+       </a>
+       is used and bundled with Camel 2.21 onwards and should be used for building the release.
+      </p>
+     </li>
+     <li>
+      <p>
+       You may want to get familiar with the release settings in the parent Apache POM.
+      </p>
+     </li>
+     <li>
+      <p>
+       Make sure you are using Java 11 for Apache Camel 3 and Java 21 for Apache Camel 4.
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="ReleaseGuide-MavenSetup">
+   <a class="anchor" href="#ReleaseGuide-MavenSetup">
+   </a>
+   Maven Setup
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Before you deploy anything to the
+     <a href="https://repository.apache.org">
+      Apache Nexus repository
+     </a>
+     using Maven, you should configure your
+     <code>
+      ~/.m2/settings.xml
+     </code>
+     file so that the file permissions of the deployed artifacts are group-writable. If you do not do this, other developers will not be able to overwrite your SNAPSHOT releases with newer versions.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The settings follow the guidelines used by the Maven project. Please pay particular attention to the
+     <a href="http://maven.apache.org/guides/mini/guide-encryption.html">
+      password encryption recommendations
+     </a>
+     .
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;settings&gt;
+  ...
+  &lt;servers&gt;
+    &lt;!-- Per http://maven.apache.org/developers/committer-settings.html --&gt;
+
+    &lt;!-- To publish a snapshot of some part of Maven --&gt;
+    &lt;server&gt;
+      &lt;id&gt;apache.snapshots.https&lt;/id&gt;
+      &lt;username&gt; &lt;!-- YOUR APACHE LDAP USERNAME --&gt; &lt;/username&gt;
+      &lt;password&gt; &lt;!-- YOUR APACHE LDAP PASSWORD --&gt; &lt;/password&gt;
+    &lt;/server&gt;
+    &lt;!-- To publish a website of some part of Maven --&gt;
+    &lt;server&gt;
+      &lt;id&gt;apache.website&lt;/id&gt;
+      &lt;username&gt; &lt;!-- YOUR APACHE LDAP USERNAME --&gt; &lt;/username&gt;
+      &lt;filePermissions&gt;664&lt;/filePermissions&gt;
+      &lt;directoryPermissions&gt;775&lt;/directoryPermissions&gt;
+    &lt;/server&gt;
+    &lt;!-- To stage a release of some part of Maven --&gt;
+    &lt;server&gt;
+      &lt;id&gt;apache.releases.https&lt;/id&gt;
+      &lt;username&gt; &lt;!-- YOUR APACHE LDAP USERNAME --&gt; &lt;/username&gt;
+      &lt;password&gt; &lt;!-- YOUR APACHE LDAP PASSWORD --&gt; &lt;/password&gt;
+    &lt;/server&gt;
+    &lt;!-- To stage a website of some part of Maven --&gt;
+    &lt;server&gt;
+      &lt;id&gt;stagingSite&lt;/id&gt; &lt;!-- must match hard-coded repository identifier in site:stage-deploy --&gt;
+      &lt;username&gt; &lt;!-- YOUR APACHE LDAP USERNAME --&gt; &lt;/username&gt;
+      &lt;filePermissions&gt;664&lt;/filePermissions&gt;
+      &lt;directoryPermissions&gt;775&lt;/directoryPermissions&gt;
+    &lt;/server&gt;
+
+  &lt;/servers&gt;
+  ...
+  &lt;profiles&gt;
+    &lt;profile&gt;
+      &lt;id&gt;release&lt;/id&gt;
+      &lt;properties&gt;
+        &lt;gpg.useagent&gt;false&lt;/gpg.useagent&gt;
+        &lt;gpg.passphrase&gt;&lt;!-- YOUR GPG PASSPHRASE --&gt;&lt;/gpg.passphrase&gt;
+        &lt;test&gt;false&lt;/test&gt;
+      &lt;/properties&gt;
+    &lt;/profile&gt;
+
+  &lt;/profiles&gt;
+...
+&lt;/settings&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="ReleaseGuide-CreatingTheRelease-Camel">
+   <a class="anchor" href="#ReleaseGuide-CreatingTheRelease-Camel">
+   </a>
+   Creating the Release
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Complete the following steps to create a new Camel release:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Grab the latest source from Git, checkout the target branch (
+       <code>
+        BRANCH_NAME
+       </code>
+       ) to build from, and create a release branch off of that branch:
+      </p>
+      <div class="literalblock">
+       <div class="content">
+        <pre>$ git clone https://git-wip-us.apache.org/repos/asf/camel.git
+$ cd camel
+$ git checkout BRANCH_NAME
+$ git checkout -b release/NEW-VERSION</pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Perform a license check with
+       <a href="http://creadur.apache.org/rat/apache-rat-plugin">
+        Apache Rat
+       </a>
+       :
+      </p>
+      <div class="literalblock">
+       <div class="content">
+        <pre>./mvnw -e org.apache.rat:apache-rat-plugin:check
+grep -e ' !?????' target/rat.txt</pre>
+       </div>
+      </div>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          The latter command will provide a list of all files without valid license headers. Ideally this list is empty, otherwise fix the issues by adding valid license headers and rerun the above commands before proceeding with the next step.
+         </p>
+        </li>
+       </ul>
+      </div>
+     </li>
+     <li>
+      <p>
+       Do a release dry run to check for problems:
+      </p>
+      <div class="literalblock">
+       <div class="content">
+        <pre>./mvnw release:prepare -DdryRun -Prelease</pre>
+       </div>
+      </div>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          The release plugin will prompt for a release version, an SCM tag and the next release version.
+         </p>
+        </li>
+        <li>
+         <p>
+          Use a three digit release version of the form:
+          <code>
+           MAJOR.MINOR.PATCH
+          </code>
+          , e.g.
+          <code>
+           3.0.0
+          </code>
+          .
+         </p>
+        </li>
+        <li>
+         <p>
+          For the tag use a string of the form:
+          <code>
+           camel-MAJOR.MINOR.PATCH
+          </code>
+          , e.g.
+          <code>
+           camel-3.0.0
+          </code>
+          .
+         </p>
+        </li>
+        <li>
+         <p>
+          For the next version increase the patch version and append
+          <code>
+           -SNAPSHOT
+          </code>
+          , e.g.
+          <code>
+           3.0.1-SNAPSHOT
+          </code>
+          .
+         </p>
+        </li>
+        <li>
+         <p>
+          Make sure to check the generated signature files:
+         </p>
+         <div class="literalblock">
+          <div class="content">
+           <pre>$ gpg camel-core/target/camel-core-3.0.0-SNAPSHOT.jar.asc
+gpg: assuming signed data in `camel-core/target/camel-core-3.0.0.jar'
+gpg: Signature made Sat 06 Apr 2019 03:58:01 AM PDT using RSA key ID 5942C049
+gpg: Good signature from "Gregor Zurowski &lt;gzurowski@apache.org&gt;"</pre>
+          </div>
+         </div>
+        </li>
+       </ul>
+      </div>
+     </li>
+     <li>
+      <p>
+       Prepare the release:
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          First clean up the dry run results:
+         </p>
+         <div class="literalblock">
+          <div class="content">
+           <pre>$ ./mvnw release:clean -Prelease</pre>
+          </div>
+         </div>
+        </li>
+        <li>
+         <p>
+          Next prepare the release:
+         </p>
+         <div class="literalblock">
+          <div class="content">
+           <pre>$ ./mvnw release:prepare -Prelease</pre>
+          </div>
+         </div>
+        </li>
+        <li>
+         <p>
+          This command will create the tag and update all pom files with the given version number.
+         </p>
+        </li>
+       </ul>
+      </div>
+     </li>
+     <li>
+      <p>
+       Perform the release and publish to the Apache staging repository:
+      </p>
+      <div class="literalblock">
+       <div class="content">
+        <pre>$ ./mvnw release:perform -Prelease</pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Close the Apache staging repository:
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          Login to
+          <a class="bare" href="https://repository.apache.org">
+           https://repository.apache.org
+          </a>
+          using your Apache LDAP credentials. Click on "Staging Repositories". Then select "org.apache.camel-xxx" in the list of repositories, where xxx represents your username and ip. Click "Close" on the toolbar above. This will close the repository from future deployments and make it available for others to view. If you are staging multiple releases together, skip this step until you have staged everything. Enter the name and version of the artifact being released in the "Description" field and then click "Close". This will make it easier to identify it later.
+         </p>
+        </li>
+       </ul>
+      </div>
+     </li>
+     <li>
+      <p>
+       Verify staged artifacts:
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          If you click on your repository, a tree view will appear below. You can then browse the contents to ensure the artifacts are as you expect them. Pay particular attention to the existence of *.asc (signature) files. If you don’t like the content of the repository, right-click your repository and choose "Drop". You can then roll back your release and repeat the process. Note the repository URL, you will need this in your vote email.
+         </p>
+        </li>
+       </ul>
+      </div>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="ReleaseGuide-CreatingTheRelease-Camel-spring-boot">
+   <a class="anchor" href="#ReleaseGuide-CreatingTheRelease-Camel-spring-boot">
+   </a>
+   Creating the Release for camel-spring-boot
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Complete the following steps to create a new Camel-spring-boot release:
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Grab the latest source from Git and checkout the target branch (
+       <code>
+        BRANCH_NAME
+       </code>
+       ) to build from:
+      </p>
+      <div class="literalblock">
+       <div class="content">
+        <pre>$ git clone https://git-wip-us.apache.org/repos/asf/camel-spring-boot.git
+$ cd camel
+$ git checkout BRANCH_NAME</pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       From Camel 3.3.0 ahead, the camel-spring-boot project uses camel-dependencies as parent. You’ll need to set the version here
+       <a class="bare" href="https://github.com/apache/camel-spring-boot/blob/master/pom.xml#L26">
+        https://github.com/apache/camel-spring-boot/blob/master/pom.xml#L26
+       </a>
+       To the version released from the main Camel repository as the first step.
+      </p>
+     </li>
+     <li>
+      <p>
+       Perform a license check with
+       <a href="http://creadur.apache.org/rat/apache-rat-plugin">
+        Apache Rat
+       </a>
+       :
+      </p>
+      <div class="literalblock">
+       <div class="content">
+        <pre>./mvnw -e org.apache.rat:apache-rat-plugin:check
+grep -e ' !?????' target/rat.txt</pre>
+       </div>
+      </div>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          The latter command will provide a list of all files without valid license headers. Ideally this list is empty, otherwise fix the issues by adding valid license headers and rerun the above commands before proceeding with the next step.
+         </p>
+        </li>
+       </ul>
+      </div>
+     </li>
+     <li>
+      <p>
+       You already have built the main camel repo for releasing, so you already have a final version in your local repository. Change the camel-version property in
+       <a class="bare" href="https://github.com/apache/camel-spring-boot/blob/master/pom.xml">
+        https://github.com/apache/camel-spring-boot/blob/master/pom.xml
+       </a>
+       accordingly and commit.
+      </p>
+     </li>
+     <li>
+      <p>
+       Do a release dry run to check for problems:
+      </p>
+      <div class="literalblock">
+       <div class="content">
+        <pre>./mvnw release:prepare -DdryRun -Prelease</pre>
+       </div>
+      </div>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          The release plugin will prompt for a release version, an SCM tag and the next release version.
+         </p>
+        </li>
+        <li>
+         <p>
+          Use a three digit release version of the form:
+          <code>
+           MAJOR.MINOR.PATCH
+          </code>
+          , e.g.
+          <code>
+           3.0.0
+          </code>
+          .
+         </p>
+        </li>
+        <li>
+         <p>
+          For the tag use a string of the form:
+          <code>
+           camel-MAJOR.MINOR.PATCH
+          </code>
+          , e.g.
+          <code>
+           camel-3.0.0
+          </code>
+          .
+         </p>
+        </li>
+        <li>
+         <p>
+          For the next version increase the patch version and append
+          <code>
+           -SNAPSHOT
+          </code>
+          , e.g.
+          <code>
+           3.0.1-SNAPSHOT
+          </code>
+          .
+         </p>
+        </li>
+        <li>
+         <p>
+          Make sure to check the generated signature files:
+         </p>
+         <div class="literalblock">
+          <div class="content">
+           <pre>$ gpg core/camel-spring-boot/target/camel-spring-boot-3.0.0-SNAPSHOT.jar.asc
+gpg: assuming signed data in `core/camel-spring-boot/target/camel-spring-boot-3.0.0-SNAPSHOT.jar'
+gpg: Signature made Sat 06 Apr 2019 03:58:01 AM PDT using RSA key ID 5942C049
+gpg: Good signature from "Gregor Zurowski &lt;gzurowski@apache.org&gt;"</pre>
+          </div>
+         </div>
+        </li>
+       </ul>
+      </div>
+     </li>
+     <li>
+      <p>
+       Prepare the release:
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          First clean up the dry run results:
+         </p>
+         <div class="literalblock">
+          <div class="content">
+           <pre>$ ./mvnw release:clean -Prelease</pre>
+          </div>
+         </div>
+        </li>
+        <li>
+         <p>
+          Next prepare the release:
+         </p>
+         <div class="literalblock">
+          <div class="content">
+           <pre>$ ./mvnw release:prepare -Prelease</pre>
+          </div>
+         </div>
+        </li>
+        <li>
+         <p>
+          This command will create the tag and update all pom files with the given version number.
+         </p>
+        </li>
+       </ul>
+      </div>
+     </li>
+     <li>
+      <p>
+       Perform the release and publish to the Apache staging repository:
+      </p>
+      <div class="literalblock">
+       <div class="content">
+        <pre>$ ./mvnw release:perform -Prelease</pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Close the Apache staging repository:
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          Login to
+          <a class="bare" href="https://repository.apache.org">
+           https://repository.apache.org
+          </a>
+          using your Apache LDAP credentials. Click on "Staging Repositories". Then select "org.apache.camel-xxx" in the list of repositories, where xxx represents your username and ip. Click "Close" on the tool bar above. This will close the repository from future deployments and make it available for others to view. If you are staging multiple releases together, skip this step until you have staged everything. Enter the name and version of the artifact being released in the "Description" field and then click "Close". This will make it easier to identify it later.
+         </p>
+        </li>
+       </ul>
+      </div>
+     </li>
+     <li>
+      <p>
+       Verify staged artifacts:
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          If you click on your repository, a tree view will appear below. You can then browse the contents to ensure the artifacts are as you expect them. Pay particular attention to the existence of *.asc (signature) files. If you don’t like the content of the repository, right-click your repository and choose "Drop". You can then roll back your release and repeat the process. Note the repository URL, you will need this in your vote email.
+         </p>
+        </li>
+       </ul>
+      </div>
+     </li>
+     <li>
+      <p>
+       Once the release has been voted
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          Login to
+          <a class="bare" href="https://repository.apache.org">
+           https://repository.apache.org
+          </a>
+          using your Apache LDAP credentials. Click on "Staging Repositories". Then select "org.apache.camel-xxx" in the list of repositories, where xxx represents your username and ip. Click "Release" on the tool bar above. This will release the artifacts.
+         </p>
+        </li>
+       </ul>
+      </div>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="ReleaseGuide-PublishingTheRelease-Camel">
+   <a class="anchor" href="#ReleaseGuide-PublishingTheRelease-Camel">
+   </a>
+   Publishing the Release
+  </h2>
+  <div class="sectionbody">
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Once the release has been voted:
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          Login to
+          <a class="bare" href="https://repository.apache.org">
+           https://repository.apache.org
+          </a>
+          using your Apache LDAP credentials. Click on "Staging Repositories". Then select "org.apache.camel-xxx" in the list of repositories, where xxx represents your username and IP. Click "Release" on the tool bar above. This will release the artifacts.
+         </p>
+        </li>
+       </ul>
+      </div>
+     </li>
+     <li>
+      <p>
+       Perform a release in JIRA:
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          Release the version in JIRA:
+          <a class="bare" href="https://issues.apache.org/jira/plugins/servlet/project-config/CAMEL/versions">
+           https://issues.apache.org/jira/plugins/servlet/project-config/CAMEL/versions
+          </a>
+         </p>
+        </li>
+       </ul>
+      </div>
+     </li>
+     <li>
+      <p>
+       Copy distribution to Apache website:
+      </p>
+      <div class="literalblock">
+       <div class="content">
+        <pre>cd ${CAMEL_ROOT_DIR}/etc/scripts
+./release-distro.sh &lt;Camel version&gt;</pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Copy SBOMs to Apache website:
+      </p>
+      <div class="literalblock">
+       <div class="content">
+        <pre>cd ${CAMEL_ROOT_DIR}/etc/scripts
+./release-sbom.sh &lt;Camel version&gt;</pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Remove the old distribution version from the Apache website:
+      </p>
+      <div class="literalblock">
+       <div class="content">
+        <pre>svn rm https://dist.apache.org/repos/dist/release/camel/apache-camel/OLD_CAMEL_VERSION -m "Removed the old release"</pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Upload the new schema files (and the manual):
+      </p>
+      <div class="literalblock">
+       <div class="content">
+        <pre>cd ${CAMEL_ROOT_DIR}/etc/scripts
+./release-website.sh &lt;Camel version&gt;</pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Merge the release branch back into the corresponding base branch (e.g., merge
+       <code>
+        release/3.2.0
+       </code>
+       into
+       <code>
+        camel-3.2.x
+       </code>
+       )
+      </p>
+      <div class="literalblock">
+       <div class="content">
+        <pre>git checkout BASE_BRANCH
+git pull
+git merge --no-ff release/VERSION
+git push</pre>
+       </div>
+      </div>
+     </li>
+     <li>
+      <p>
+       Delete the local and remote release branch:
+      </p>
+      <div class="literalblock">
+       <div class="content">
+        <pre>git branch -D release/VERSION
+git push origin --delete release/VERSION</pre>
+       </div>
+      </div>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="Publish-xsd-schemas">
+   <a class="anchor" href="#Publish-xsd-schemas">
+   </a>
+   Publish xsd schemas
+  </h2>
+  <div class="sectionbody">
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       On
+       <a class="bare" href="https://github.com/apache/camel-website/tree/main/static/schema">
+        https://github.com/apache/camel-website/tree/main/static/schema
+       </a>
+       the xsd related to cxf,spring-security and spring must be pushed to make them available to end users.
+      </p>
+     </li>
+    </ul>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="Tagging-examples">
+   <a class="anchor" href="#Tagging-examples">
+   </a>
+   Tagging examples
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     These steps are optional, and they could be done later too.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Once the release train (camel and camel-spring-boot) has been voted and published, there are some additional steps needed for the camel examples.
+    </p>
+   </div>
+   <div class="olist arabic">
+    <ol class="arabic">
+     <li>
+      <p>
+       Camel-examples
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          On
+          <a class="bare" href="https://github.com/apache/camel-examples">
+           https://github.com/apache/camel-examples
+          </a>
+          in the examples/pom.xml file, the following steps are necessary:
+         </p>
+        </li>
+        <li>
+         <p>
+          Update the camel-dependencies version to the version coming from the release-train
+         </p>
+        </li>
+        <li>
+         <p>
+          Update the
+          <code>
+           camel.version
+          </code>
+          properties to the version coming from the release-train
+         </p>
+        </li>
+        <li>
+         <p>
+          To be sure everything is fine, run:
+         </p>
+         <div class="literalblock">
+          <div class="content">
+           <pre>$ ./mvnw clean install</pre>
+          </div>
+         </div>
+        </li>
+        <li>
+         <p>
+          Commit
+         </p>
+         <div class="literalblock">
+          <div class="content">
+           <pre>$ git commit -a
+$ git push origin master (or the branch related to the release, eg. camel-3.4.x)
+$ git tag -a camel-examples-$version -m "$version"
+$ git push origin camel-examples-$version</pre>
+          </div>
+         </div>
+        </li>
+        <li>
+         <p>
+          Now we pushed the tag, and we need to advance the version of the examples
+         </p>
+        </li>
+        <li>
+         <p>
+          Update the camel-dependencies version to the next version
+         </p>
+        </li>
+        <li>
+         <p>
+          Update the
+          <code>
+           camel.version
+          </code>
+          properties to the next version
+         </p>
+        </li>
+        <li>
+         <p>
+          Run the following command to advance the version in the examples
+         </p>
+         <div class="literalblock">
+          <div class="content">
+           <pre>$ find . -type f -exec sed -i 's/$oldVersion/$newVersion/g' {} +</pre>
+          </div>
+         </div>
+        </li>
+        <li>
+         <p>
+          To be sure everything is fine, run:
+         </p>
+         <div class="literalblock">
+          <div class="content">
+           <pre>$ ./mvnw clean install</pre>
+          </div>
+         </div>
+        </li>
+       </ul>
+      </div>
+     </li>
+     <li>
+      <p>
+       Camel-spring-boot-examples
+      </p>
+      <div class="ulist">
+       <ul>
+        <li>
+         <p>
+          On
+          <a class="bare" href="https://github.com/apache/camel-spring-boot-examples">
+           https://github.com/apache/camel-spring-boot-examples
+          </a>
+          in the examples/pom.xml file the following steps are necessary:
+         </p>
+        </li>
+        <li>
+         <p>
+          Update the camel-dependencies version to the version coming from the release-train
+         </p>
+        </li>
+        <li>
+         <p>
+          Update the
+          <code>
+           camel.version
+          </code>
+          properties to the version coming from the release-train
+         </p>
+        </li>
+        <li>
+         <p>
+          To be sure everything is fine, run:
+         </p>
+         <div class="literalblock">
+          <div class="content">
+           <pre>$ ./mvnw clean install</pre>
+          </div>
+         </div>
+        </li>
+        <li>
+         <p>
+          Commit
+         </p>
+         <div class="literalblock">
+          <div class="content">
+           <pre>$ git commit -a
+$ git push origin master (or the branch related to the release, eg. camel-3.4.x)
+$ git tag -a camel-spring-boot-examples-$version -m "$version"
+$ git push origin camel-spring-boot-examples-$version</pre>
+          </div>
+         </div>
+        </li>
+        <li>
+         <p>
+          Now we pushed the tag, and we need to advance the version of the examples
+         </p>
+        </li>
+        <li>
+         <p>
+          Update the camel-dependencies version to the next version
+         </p>
+        </li>
+        <li>
+         <p>
+          Update the
+          <code>
+           camel.version
+          </code>
+          properties to the next version
+         </p>
+        </li>
+        <li>
+         <p>
+          Run the following command to advance the version in the examples
+         </p>
+         <div class="literalblock">
+          <div class="content">
+           <pre>$ find . -type f -exec sed -i 's/$oldVersion/$newVersion/g' {} +</pre>
+          </div>
+         </div>
+        </li>
+        <li>
+         <p>
+          To be sure everything is fine, run:
+         </p>
+         <div class="literalblock">
+          <div class="content">
+           <pre>$ ./mvnw clean install</pre>
+          </div>
+         </div>
+        </li>
+       </ul>
+      </div>
+     </li>
+    </ol>
+   </div>
+  </div>
+ </div>
+</article>

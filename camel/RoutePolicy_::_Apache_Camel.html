@@ -1,0 +1,569 @@
+<article class="doc">
+ <h1 class="page">
+  RoutePolicy
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     A route policy
+     <code>
+      org.apache.camel.spi.RoutePolicy
+     </code>
+     is used to control route(s) at runtime. For example, you can use it to determine whether a route should be running or not. However, the policies can support any kind of use cases.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_how_it_works">
+   <a class="anchor" href="#_how_it_works">
+   </a>
+   How it works
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You associate a route with a given
+     <code>
+      RoutePolicy
+     </code>
+     and then during runtime Camel will invoke callbacks on this policy where you can implement your custom logic. Camel provides a support class that is a good base class to extend
+     <code>
+      org.apache.camel.support.RoutePolicySupport
+     </code>
+     .
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     There are these callbacks invoked:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <code>
+        onInit
+       </code>
+      </p>
+     </li>
+     <li>
+      <p>
+       <code>
+        onRemove
+       </code>
+      </p>
+     </li>
+     <li>
+      <p>
+       <code>
+        onStart
+       </code>
+      </p>
+     </li>
+     <li>
+      <p>
+       <code>
+        onStop
+       </code>
+      </p>
+     </li>
+     <li>
+      <p>
+       <code>
+        onSuspend
+       </code>
+      </p>
+     </li>
+     <li>
+      <p>
+       <code>
+        onResume
+       </code>
+      </p>
+     </li>
+     <li>
+      <p>
+       <code>
+        onExchangeBegin
+       </code>
+      </p>
+     </li>
+     <li>
+      <p>
+       <code>
+        onExchangeDone
+       </code>
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     See the Javadoc of the
+     <code>
+      org.apache.camel.spi.RoutePolicy
+     </code>
+     for more details; and also the implementation of the
+     <code>
+      org.apache.camel.throttling.ThrottlingInflightRoutePolicy
+     </code>
+     for a concrete example.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     Camel provides the following policies out of the box:
+    </p>
+   </div>
+   <div class="ulist">
+    <ul>
+     <li>
+      <p>
+       <code>
+        org.apache.camel.throttling.ThrottlingInflightRoutePolicy
+       </code>
+       - a throttling based policy that automatically suspends/resumes route(s) based on metrics from the current in flight exchanges. You can use this to dynamically throttle, e.g. a
+       <a class="xref page" href="../components/4.10.x/jms-component.html">
+        JMS
+       </a>
+       consumer, to avoid it consuming too fast.
+      </p>
+     </li>
+     <li>
+      <p>
+       <code>
+        org.apache.camel.throttling.ThrottlingExceptionRoutePolicy
+       </code>
+       - a throttling based policy modeled after the circuit breaker. This policy will stop consuming from an endpoint based on the type of exceptions that are thrown and the threshold setting.
+      </p>
+     </li>
+    </ul>
+   </div>
+   <div class="paragraph">
+    <p>
+     Camel also provides an ability to schedule routes to be activated, deactivated, suspended and/or resumed at certain times during the day using a
+     <a class="xref page" href="scheduledroutepolicy.html">
+      ScheduledRoutePolicy
+     </a>
+     (offered via the
+     <a class="xref page" href="../components/4.10.x/quartz-component.html">
+      Quartz
+     </a>
+     component).
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_suspendableservice">
+   <a class="anchor" href="#_suspendableservice">
+   </a>
+   SuspendableService
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     If you want to dynamic suspend/resume routes, then it is advised to use
+     <code>
+      SuspendableService
+     </code>
+     as it allows for fine-grained suspend and resume operations.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_throttlinginflightroutepolicy">
+   <a class="anchor" href="#_throttlinginflightroutepolicy">
+   </a>
+   <code>
+    ThrottlingInflightRoutePolicy
+   </code>
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The
+     <strong>
+      <code>
+       ThrottlingInflightRoutePolicy
+      </code>
+     </strong>
+     is triggered when an
+     <a class="xref page" href="exchange.html">
+      Exchange
+     </a>
+     is complete, which means that it requires at least one
+     <a class="xref page" href="exchange.html">
+      Exchange
+     </a>
+     to be complete before it
+     <em>
+      works
+     </em>
+     .
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     The throttling in flight route policy has the following options:
+    </p>
+   </div>
+   <div class="table-wrapper">
+    <table class="tableblock frame-all grid-all stretch">
+     <colgroup>
+      <col/>
+      <col/>
+      <col/>
+     </colgroup>
+     <thead>
+      <tr>
+       <th class="tableblock halign-left valign-top">
+        Option
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Default
+       </th>
+       <th class="tableblock halign-left valign-top">
+        Description
+       </th>
+      </tr>
+     </thead>
+     <tbody>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          scope
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          Route
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         A scope for either
+         <code>
+          Route
+         </code>
+         or
+         <code>
+          Context
+         </code>
+         which defines if the current number of in flight exchanges is context based or for that particular route.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          maxInflightExchanges
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          1000
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         The maximum threshold when the throttling will start to suspend the route if the current number of in flight exchanges is higher than this value.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          resumePercentOfMax
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          70
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         A percentage
+         <code>
+          0..100
+         </code>
+         which defines when the throttling should resume again in case it has been suspended.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          loggingLevel
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          INFO
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         The logging level used for logging the throttling activity.
+        </p>
+       </td>
+      </tr>
+      <tr>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          logger
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         <code>
+          ThrottlingInflightRoutePolicy
+         </code>
+        </p>
+       </td>
+       <td class="tableblock halign-left valign-top">
+        <p class="tableblock">
+         The logger category.
+        </p>
+       </td>
+      </tr>
+     </tbody>
+    </table>
+   </div>
+   <div class="sect2">
+    <h3 id="_throttlinginflightroutepolicy_compared_to_the_throttler_eip">
+     <a class="anchor" href="#_throttlinginflightroutepolicy_compared_to_the_throttler_eip">
+     </a>
+     ThrottlingInflightRoutePolicy compared to the Throttler EIP
+    </h3>
+    <div class="paragraph">
+     <p>
+      The
+      <code>
+       ThrottlingInflightRoutePolicy
+      </code>
+      compared to
+      <a class="xref page" href="../components/4.10.x/eips/throttle-eip.html">
+       Throttler
+      </a>
+      EIP is that it does
+      <strong>
+       not
+      </strong>
+      block during throttling. Its throttling is approximate-based, meaning that its coarser grained and not explicitly precise as the
+      <a class="xref page" href="../components/4.10.x/eips/throttle-eip.html">
+       Throttler
+      </a>
+      EIP.
+     </p>
+    </div>
+    <div class="paragraph">
+     <p>
+      The
+      <a class="xref page" href="../components/4.10.x/eips/throttle-eip.html">
+       Throttler
+      </a>
+      EIP can be much more accurate and only allow a specific number of messages being passed per a given time unit. Also, the
+      <code>
+       ThrottlingInflightRoutePolicy
+      </code>
+      is based its metrics on number of in flight exchanges whereas
+      <a class="xref page" href="../components/4.10.x/eips/throttle-eip.html">
+       Throttler
+      </a>
+      EIP is based on number o messages per time unit.
+     </p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_scheduledroutepolicy">
+   <a class="anchor" href="#_scheduledroutepolicy">
+   </a>
+   ScheduledRoutePolicy
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     See
+     <a class="xref page" href="scheduledroutepolicy.html">
+      Scheduled Route Policy
+     </a>
+     for scheduling based route policy.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_using_route_policies_in_camel_routes">
+   <a class="anchor" href="#_using_route_policies_in_camel_routes">
+   </a>
+   Using route policies in Camel routes
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     You configure the route policy as follows from Java DSL, using the
+     <code>
+      routePolicy
+     </code>
+     method:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">RoutePolicy myPolicy = new MyRoutePolicy();
+
+from("seda:foo").routePolicy(myPolicy).to("mock:result");</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     In Spring XML you configure using the
+     <code>
+      routePolictRef
+     </code>
+     attribute on
+     <code>
+      &lt;route&gt;
+     </code>
+     as shown:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;bean id="myPolicy" class="com.mycompany.MyRoutePolicy"/&gt;
+
+&lt;route routePolicyRef="myPolicy"&gt;
+    &lt;from uri="seda:foo"/&gt;
+    &lt;to uri="mock:result"/&gt;
+&lt;/route&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     You can configure one or more route policies (separated by comma), such as:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">from("seda:foo").routePolicy(myPolicy, myOtherPolicy).to("mock:result");</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     And in XML:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;route routePolicyRef="myPolicy,myOtherPolicy"&gt;
+    &lt;from uri="seda:foo"/&gt;
+    &lt;to uri="mock:result"/&gt;
+&lt;/route&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_using_routepolicyfactory">
+   <a class="anchor" href="#_using_routepolicyfactory">
+   </a>
+   Using RoutePolicyFactory
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     If you want to use a route policy for every route, you can use a
+     <code>
+      org.apache.camel.spi.RoutePolicyFactory
+     </code>
+     as a factory for creating a
+     <code>
+      RoutePolicy
+     </code>
+     instance for each route. This can be used when you want to use the same kind of route policy for all or some routes.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     With the factory, you only need to configure this once, and every route created will have the policy assigned.
+    </p>
+   </div>
+   <div class="paragraph">
+    <p>
+     There is API on
+     <code>
+      CamelContext
+     </code>
+     to add a factory, as shown below
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">context.addRoutePolicyFactory(new MyRoutePolicyFactory());</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     And from XML DSL you just define a
+     <code>
+      &lt;bean&gt;
+     </code>
+     with the factory, and Camel will automatically detect this factory:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;bean id="myRoutePolicyFactory" class="com.foo.MyRoutePolicyFactory"/&gt;</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     You can have as many route policy factories as you want, so if you have two factories, you can add them both as shown:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">context.addRoutePolicyFactory(new MyRoutePolicyFactory());
+context.addRoutePolicyFactory(new MyOtherRoutePolicyFactory());</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     And in XML:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;bean id="myRoutePolicyFactory" class="com.foo.MyRoutePolicyFactory"/&gt;
+&lt;bean id="myOtherRoutePolicyFactory" class="com.foo.MyOtherRoutePolicyFactory"/&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+</article>

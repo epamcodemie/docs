@@ -1,0 +1,590 @@
+<article class="doc">
+ <h1 class="page">
+  SimpleScheduledRoutePolicy
+ </h1>
+ <div id="preamble">
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     <code>
+      SimpleScheduledRoutePolicy
+     </code>
+     is a
+     <a class="xref page" href="scheduledroutepolicy.html">
+      ScheduledRoutePolicy
+     </a>
+     that facilitates route activation, de-activation, suspension and resumption of routes based on the
+     <a class="xref page" href="../components/4.10.x/quartz-component.html">
+      Quartz
+     </a>
+     simple trigger.
+    </p>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_how_it_works">
+   <a class="anchor" href="#_how_it_works">
+   </a>
+   How it works
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     In order to use a
+     <code>
+      SimpleScheduledRoutePolicy
+     </code>
+     it is necessary to instantiate an object of the type
+     <code>
+      org.apache.camel.routepolicy.quartz.SimpleScheduledRoutePolicy
+     </code>
+     .
+    </p>
+   </div>
+   <div class="admonitionblock note">
+    <div class="table-wrapper">
+     <table>
+      <tr>
+       <td class="icon">
+        <i class="fa icon-note" title="Note">
+        </i>
+       </td>
+       <td class="content">
+        All Scheduled route policies share the scheduler created by the Quartz component. In this way, scheduler, jobs and triggers can be managed in a common and consistent way.
+       </td>
+      </tr>
+     </table>
+    </div>
+   </div>
+   <div class="sect2">
+    <h3 id="_configuration_options">
+     <a class="anchor" href="#_configuration_options">
+     </a>
+     Configuration options
+    </h3>
+    <div class="paragraph">
+     <p>
+      In order to perform a route operation at a given time the following information must be provided.
+     </p>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        Starting a route
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="table-wrapper">
+     <table class="tableblock frame-all grid-all stretch">
+      <colgroup>
+       <col/>
+       <col/>
+       <col/>
+       <col/>
+      </colgroup>
+      <thead>
+       <tr>
+        <th class="tableblock halign-left valign-top">
+         Parameter Name
+        </th>
+        <th class="tableblock halign-left valign-top">
+         Type
+        </th>
+        <th class="tableblock halign-left valign-top">
+         Default
+        </th>
+        <th class="tableblock halign-left valign-top">
+         Description
+        </th>
+       </tr>
+      </thead>
+      <tbody>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          routeStartDate
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          java.util.Date
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          the initial scheduled Date and time for route start
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          routeStartRepeatCount
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          int
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          no of times to repeat the job
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          routeStartRepeatInterval
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          long
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          the time interval in milliseconds to trigger the next attempt to start the route
+         </p>
+        </td>
+       </tr>
+      </tbody>
+     </table>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        Stopping a route
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="table-wrapper">
+     <table class="tableblock frame-all grid-all stretch">
+      <colgroup>
+       <col/>
+       <col/>
+       <col/>
+       <col/>
+      </colgroup>
+      <thead>
+       <tr>
+        <th class="tableblock halign-left valign-top">
+         Parameter Name
+        </th>
+        <th class="tableblock halign-left valign-top">
+         Type
+        </th>
+        <th class="tableblock halign-left valign-top">
+         Default
+        </th>
+        <th class="tableblock halign-left valign-top">
+         Description
+        </th>
+       </tr>
+      </thead>
+      <tbody>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          routeStopDate
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          java.util.Date
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          the initial scheduled Date and time for route stop
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          routeStopRepeatCount
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          int
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          no of times to repeat the job
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          routeStopRepeatInterval
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          long
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          the time interval in milliseconds to trigger the next attempt to stop the route
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          routeStopGracePeriod
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          int
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          10 seconds
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          the time period to wait before initiating graceful route stop
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          routeStopTimeUnit
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          long
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          TimeUnit.MILLISECONDS
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          the time unit for the grace period expressed as java.util.concurrent.TimeUnit
+         </p>
+        </td>
+       </tr>
+      </tbody>
+     </table>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        Suspending a route
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="table-wrapper">
+     <table class="tableblock frame-all grid-all stretch">
+      <colgroup>
+       <col/>
+       <col/>
+       <col/>
+       <col/>
+      </colgroup>
+      <thead>
+       <tr>
+        <th class="tableblock halign-left valign-top">
+         Parameter Name
+        </th>
+        <th class="tableblock halign-left valign-top">
+         Type
+        </th>
+        <th class="tableblock halign-left valign-top">
+         Default
+        </th>
+        <th class="tableblock halign-left valign-top">
+         Description
+        </th>
+       </tr>
+      </thead>
+      <tbody>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          routeSuspendDate
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          java.util.Date
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          the initial scheduled Date and time for route suspension
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          routeSuspendRepeatCount
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          int
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          no of times to repeat the job
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          routeSuspendRepeatInterval
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          long
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          the time interval in milliseconds to trigger the next attempt to suspend the route
+         </p>
+        </td>
+       </tr>
+      </tbody>
+     </table>
+    </div>
+    <div class="ulist">
+     <ul>
+      <li>
+       <p>
+        Resuming a route
+       </p>
+      </li>
+     </ul>
+    </div>
+    <div class="table-wrapper">
+     <table class="tableblock frame-all grid-all stretch">
+      <colgroup>
+       <col/>
+       <col/>
+       <col/>
+       <col/>
+      </colgroup>
+      <thead>
+       <tr>
+        <th class="tableblock halign-left valign-top">
+         Parameter Name
+        </th>
+        <th class="tableblock halign-left valign-top">
+         Type
+        </th>
+        <th class="tableblock halign-left valign-top">
+         Default
+        </th>
+        <th class="tableblock halign-left valign-top">
+         Description
+        </th>
+       </tr>
+      </thead>
+      <tbody>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          routeResumeDate
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          java.util.Date
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          the initial scheduled Date and time for route start
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          routeResumeRepeatCount
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          int
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          no of times to repeat the job
+         </p>
+        </td>
+       </tr>
+       <tr>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          routeResumeRepeatInterval
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          long
+         </p>
+        </td>
+        <td class="tableblock halign-left valign-top">
+        </td>
+        <td class="tableblock halign-left valign-top">
+         <p class="tableblock">
+          the time interval in milliseconds to trigger the next attempt to resume the route
+         </p>
+        </td>
+       </tr>
+      </tbody>
+     </table>
+    </div>
+    <div class="paragraph">
+     <p>
+      Once the
+      <code>
+       org.apache.camel.routepolicy.quartz.SimpleScheduledRoutePolicy
+      </code>
+      is created it can be wired into the camel route as follows.
+     </p>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_using_the_simplescheduledroutepolicy">
+   <a class="anchor" href="#_using_the_simplescheduledroutepolicy">
+   </a>
+   Using the SimpleScheduledRoutePolicy
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     The
+     <code>
+      SimpleScheduledRoutePolicy
+     </code>
+     can be used in Java DSL as show:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">SimpleScheduledRoutePolicy policy = new SimpleScheduledRoutePolicy();
+long startTime = System.currentTimeMillis() + 3000L;
+policy.setRouteStartDate(new Date(startTime));
+policy.setRouteStartRepeatCount(1);
+policy.setRouteStartRepeatInterval(3000);
+
+from("direct:start")
+   .routeId("test")
+   .routePolicy(policy)
+   .to("mock:success");</code></pre>
+    </div>
+   </div>
+   <div class="paragraph">
+    <p>
+     And in Spring XML:
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;bean id="date" class="org.apache.camel.routepolicy.quartz.SimpleDate"/&gt;
+
+&lt;bean id="startPolicy" class="org.apache.camel.routepolicy.quartz.SimpleScheduledRoutePolicy"&gt;
+    &lt;property name="routeStartDate" ref="date"/&gt;
+    &lt;property name="routeStartRepeatCount" value="1"/&gt;
+    &lt;property name="routeStartRepeatInterval" value="3000"/&gt;
+&lt;/bean&gt;
+
+&lt;camelContext xmlns="http://camel.apache.org/schema/spring"&gt;
+    &lt;route id="myroute" routePolicyRef="startPolicy"&gt;
+        &lt;from uri="direct:start"/&gt;
+        &lt;to uri="mock:success"/&gt;
+    &lt;/route&gt;
+&lt;/camelContext&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+ <div class="sect1">
+  <h2 id="_dependency">
+   <a class="anchor" href="#_dependency">
+   </a>
+   Dependency
+  </h2>
+  <div class="sectionbody">
+   <div class="paragraph">
+    <p>
+     Maven users will need to add a
+     <code>
+      camel-quartz
+     </code>
+     dependency to their
+     <code>
+      pom.xml
+     </code>
+     to avail this capability.
+    </p>
+   </div>
+   <div class="listingblock">
+    <div class="content">
+     <pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.apache.camel&lt;/groupId&gt;
+    &lt;artifactId&gt;camel-quartz&lt;/artifactId&gt;
+    &lt;version&gt;x.x.x&lt;/version&gt;
+    &lt;!-- use the same version as your Camel core version --&gt;
+&lt;/dependency&gt;</code></pre>
+    </div>
+   </div>
+  </div>
+ </div>
+</article>
